@@ -1,3 +1,6 @@
+import GardenHeader
+
+from "@/components/GardenHeader";
 const growingSpaces = [
   {
     id: 1,
@@ -41,26 +44,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f5f1e8] text-slate-900">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-        <header className="flex flex-col gap-6 border-b border-stone-300 pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#245c42]">
-              Your garden&apos;s operating system
-            </p>
-
-            <h1 className="mt-2 text-4xl font-black text-[#173d2b] sm:text-5xl">
-              🌱 Garden OS
-            </h1>
-
-            <p className="mt-3 text-lg font-semibold text-stone-600">
-              Grow Smarter. Harvest Better.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white px-5 py-4 shadow-sm">
-            <p className="text-sm text-stone-500">Current season</p>
-            <p className="text-2xl font-bold text-[#245c42]">2026</p>
-          </div>
-        </header>
+        <GardenHeader season={2026} />
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
           <div className="rounded-3xl bg-[#245c42] p-7 text-white shadow-sm">
