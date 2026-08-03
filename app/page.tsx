@@ -1,6 +1,6 @@
 import GardenHeader
 
-from "@/components/GardenHeader";
+from "@/components/gardenHeader";
 const growingSpaces = [
   {
     id: 1,
