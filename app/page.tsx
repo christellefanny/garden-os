@@ -1,6 +1,7 @@
+import Card from "@/components/ui/Card";
 import GardenHeader
 
-from "@/components/gardenHeader";
+from "@/components/GardenHeader";
 const growingSpaces = [
   {
     id: 1,
@@ -70,7 +71,7 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="rounded-3xl border border-[#cbd8c5] bg-[#e3ecde] p-7">
+          <Card className="border-[#cbd8c5] bg-[#e3ecde] p-7">
             <div className="flex items-center gap-3">
               <span className="text-3xl">🌿</span>
 
@@ -93,7 +94,7 @@ export default function Home() {
             <button className="mt-5 font-bold text-[#245c42] hover:underline">
               Why? →
             </button>
-          </aside>
+          </Card>
         </section>
 
         <section className="mt-10">
