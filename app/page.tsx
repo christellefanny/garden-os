@@ -1,7 +1,6 @@
 import Card from "@/components/ui/Card";
-import GardenHeader
+import GardenHeader from "@/components/GardenHeader";
 
-from "@/components/GardenHeader";
 const growingSpaces = [
   {
     id: 1,
