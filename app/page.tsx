@@ -1,5 +1,8 @@
+import { supabase } from "@/lib/supabase";
 import Card from "@/components/ui/Card";
 import GardenHeader from "@/components/GardenHeader";
+import NewGardenModal from "@/components/NewGardenModal";
+
 
 const growingSpaces = [
   {
@@ -40,11 +43,33 @@ const growingSpaces = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { data: gardens, error } = await supabase
+  .from("gardens")
+  .select("*")
+  .order("created_at", { ascending: false });
+  const garden = gardens?.[0];
+
+if (error) {
+  console.error(
+   "Error loading gardens:",
+   error.message,
+   error.code,
+   error.details,
+   error.hint
+  );
+}
   return (
     <main className="min-h-screen bg-[#f5f1e8] text-slate-900">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-        <GardenHeader season={2026} />
+        <GardenHeader season={garden?.year ?? 2026} />
+        <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm">
+          <h2 className="font-bold text-[#173d2b]">Database Test</h2>
+
+          <p className="mt-2 text-sm text-stone-600">
+            Gardens found: {gardens?.length ?? 0}
+          </p>
+        </div>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
           <div className="rounded-3xl bg-[#245c42] p-7 text-white shadow-sm">
@@ -95,6 +120,7 @@ export default function Home() {
             </button>
           </Card>
         </section>
+        <NewGardenModal />
 
         <section className="mt-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
