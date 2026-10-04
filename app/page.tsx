@@ -2,6 +2,11 @@ import { supabase } from "@/lib/supabase";
 import Card from "@/components/ui/Card";
 import GardenHeader from "@/components/GardenHeader";
 import NewGardenModal from "@/components/NewGardenModal";
+import SeasonProvider from "@/components/seasonal/SeasonProvider";
+import { SeasonalHero, SeasonalGuidanceHeading, SeasonalShortcuts } from "@/components/seasonal/SeasonalDashboard";
+import { getSeason } from "@/lib/seasons";
+
+export const dynamic = "force-dynamic";
 
 const growingSpaces = [
   { id: 1, name: "Tomato Bed", type: "Raised Bed", size: "6 × 3 × 1 ft", plants: 7, capacity: 78, icon: "🍅" },
@@ -23,90 +28,60 @@ export default async function Home() {
   }
 
   return (
-    <main className="seasonal-page min-h-screen text-[var(--foreground)]">
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-        <GardenHeader season={garden?.year ?? 2026} />
+    <SeasonProvider initialSeason={getSeason(new Date())}>
+      <main className="seasonal-page min-h-screen text-[var(--foreground)]">
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+          <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} />
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-          <div className="seasonal-hero relative overflow-hidden rounded-3xl p-7 text-white shadow-sm">
-            <div aria-hidden="true" className="absolute -right-2 -top-2 text-6xl opacity-90">🌻</div>
-            <div aria-hidden="true" className="absolute bottom-3 right-16 text-4xl opacity-90">🌸</div>
-            <div aria-hidden="true" className="absolute bottom-7 right-4 text-3xl opacity-80">🦋</div>
+          <section className="mt-8 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+            <SeasonalHero gardenName={garden?.name ?? "Backyard Garden"} gardenYear={garden?.year ?? new Date().getFullYear()} spaces={growingSpaces.length} />
 
-            <div className="relative z-10">
-              <p className="text-sm font-semibold uppercase tracking-widest text-white/80">
-                {garden?.name ?? "Backyard Garden"}
-              </p>
-              <h2 className="mt-3 text-3xl font-black">Your garden is in full swing. 🌻</h2>
-              <p className="mt-3 max-w-2xl leading-7 text-white/90">
-                Keep up with watering, harvests, and anything that needs your attention. You currently have {growingSpaces.length} growing spaces.
-              </p>
-
-              <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <GardenStat label="Spaces" value="4" />
-                <GardenStat label="Plants" value="13" />
-                <GardenStat label="Warnings" value="1" />
-                <GardenStat label="Season" value={String(garden?.year ?? 2026)} />
+            <Card className="seasonal-sage border p-7">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🌿</span>
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-wider text-[var(--primary)]">Sage</p>
+                  <SeasonalGuidanceHeading />
+                </div>
               </div>
-            </div>
-          </div>
+              <p className="mt-5 leading-7 text-[var(--foreground)]/80">
+                Your strawberry planter is nearing its recommended capacity. Avoid adding more plants unless you increase the container size.
+              </p>
+              <button className="seasonal-link mt-5 font-bold hover:underline">Why? →</button>
+            </Card>
+          </section>
 
-          <Card className="seasonal-sage border p-7">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">🌿</span>
+          <SeasonalShortcuts />
+
+          <NewGardenModal />
+
+          <section className="mt-10">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-wider text-[var(--primary)]">Sage</p>
-                <h2 className="seasonal-heading text-xl font-bold">Summer garden guidance</h2>
+                <p className="text-sm font-bold uppercase tracking-widest text-[var(--muted)]">My garden</p>
+                <h2 className="seasonal-heading mt-1 text-3xl font-black">Growing Spaces</h2>
               </div>
+              <button className="seasonal-button rounded-xl px-5 py-3 font-bold text-white shadow-sm transition">+ Add Growing Space</button>
             </div>
-            <p className="mt-5 leading-7 text-[var(--foreground)]/80">
-              Your strawberry planter is nearing its recommended capacity. Avoid adding more plants unless you increase the container size.
-            </p>
-            <button className="seasonal-link mt-5 font-bold hover:underline">Why? →</button>
-          </Card>
-        </section>
 
-        <div className="mt-6 flex flex-wrap gap-2" aria-label="Summer shortcuts">
-          {[
-            ["💧", "Watering"],
-            ["🥒", "Harvest"],
-            ["🐛", "Pests"],
-            ["📸", "Garden Log"],
-          ].map(([icon, label]) => (
-            <button key={label} className="seasonal-card rounded-full border px-4 py-2 text-sm font-bold shadow-sm transition hover:-translate-y-0.5">
-              <span className="mr-2" aria-hidden="true">{icon}</span>{label}
-            </button>
-          ))}
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
+              {growingSpaces.map((space) => <GrowingSpaceCard key={space.id} space={space} />)}
+            </div>
+          </section>
+
+          <section className="seasonal-card mt-10 rounded-3xl border p-7">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-wider text-[var(--muted)]">Planning tool</p>
+                <h2 className="seasonal-heading mt-1 text-2xl font-black">Not sure how many plants will fit?</h2>
+                <p className="seasonal-muted mt-2">Open the Plant Planner to test bed sizes and plant quantities before adding them to your garden.</p>
+              </div>
+              <button className="seasonal-outline shrink-0 rounded-xl border-2 px-5 py-3 font-bold transition">Open Plant Planner</button>
+            </div>
+          </section>
         </div>
-
-        <NewGardenModal />
-
-        <section className="mt-10">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-[var(--muted)]">My garden</p>
-              <h2 className="seasonal-heading mt-1 text-3xl font-black">Growing Spaces</h2>
-            </div>
-            <button className="seasonal-button rounded-xl px-5 py-3 font-bold text-white shadow-sm transition">+ Add Growing Space</button>
-          </div>
-
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            {growingSpaces.map((space) => <GrowingSpaceCard key={space.id} space={space} />)}
-          </div>
-        </section>
-
-        <section className="seasonal-card mt-10 rounded-3xl border p-7">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-[var(--muted)]">Planning tool</p>
-              <h2 className="seasonal-heading mt-1 text-2xl font-black">Not sure how many plants will fit?</h2>
-              <p className="seasonal-muted mt-2">Open the Plant Planner to test bed sizes and plant quantities before adding them to your garden.</p>
-            </div>
-            <button className="seasonal-outline shrink-0 rounded-xl border-2 px-5 py-3 font-bold transition">Open Plant Planner</button>
-          </div>
-        </section>
-      </div>
-    </main>
+      </main>
+    </SeasonProvider>
   );
 }
 
@@ -125,9 +100,9 @@ function GrowingSpaceCard({ space }: { space: GrowingSpace }) {
 
   return (
     <article className="seasonal-card rounded-3xl border p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <span className="seasonal-icon flex h-14 w-14 items-center justify-center rounded-2xl text-3xl">{space.icon}</span>
+          <span className="seasonal-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl">{space.icon}</span>
           <div>
             <p className="seasonal-muted text-sm font-semibold">{space.type}</p>
             <h3 className="seasonal-heading text-xl font-black">{space.name}</h3>
@@ -144,7 +119,7 @@ function GrowingSpaceCard({ space }: { space: GrowingSpace }) {
       <div className="mt-6">
         <div className="flex items-center justify-between">
           <p className="seasonal-muted text-sm font-semibold">Capacity</p>
-          <p className={`text-sm font-bold ${isWarning ? "text-[var(--accent-2)]" : "text-[var(--primary)]"}`}>{space.capacity}%</p>
+          <p className={`text-sm font-bold ${isWarning ? "text-[var(--warning-text)]" : "text-[var(--primary)]"}`}>{space.capacity}%</p>
         </div>
         <div className="mt-2 h-3 overflow-hidden rounded-full bg-black/10">
           <div className={`h-full rounded-full ${isWarning ? "bg-[var(--highlight)]" : "seasonal-progress"}`} style={{ width: `${Math.min(space.capacity, 100)}%` }} />
@@ -153,14 +128,5 @@ function GrowingSpaceCard({ space }: { space: GrowingSpace }) {
 
       <button className="seasonal-link mt-6 font-bold hover:underline">Open Space →</button>
     </article>
-  );
-}
-
-function GardenStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-white/15 p-4 backdrop-blur-sm">
-      <p className="text-sm text-white/75">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
   );
 }

@@ -37,54 +37,62 @@ export default function NewGardenModal() {
   }
 
   return (
-    <div className="mt-8 rounded-3xl border border-stone-200 bg-white p-6 shadow-md">
-      <h2 className="text-2xl font-black text-[#173d2b]">
+    <div className="mt-8 rounded-3xl seasonal-card border p-6 shadow-md">
+      <h2 className="text-2xl font-black seasonal-heading">
         🌱 Create a New Garden
       </h2>
 
-      <p className="mt-2 text-stone-600">
+      <p className="mt-2 seasonal-muted">
         Every growing season starts with a garden.
       </p>
 
       <div className="mt-6 space-y-4">
+        <label htmlFor="garden-name" className="block text-sm font-semibold">Garden Name</label>
         <input
+          id="garden-name"
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="Garden Name"
-          className="w-full rounded-xl border p-3"
+          className="seasonal-input w-full rounded-xl border p-3"
         />
 
+        <label htmlFor="garden-year" className="block text-sm font-semibold">Year</label>
         <input
+          id="garden-year"
           value={year}
           onChange={(event) => setYear(event.target.value)}
           placeholder="Year"
-          className="w-full rounded-xl border p-3"
+          className="seasonal-input w-full rounded-xl border p-3"
         />
 
+        <label htmlFor="garden-location" className="block text-sm font-semibold">Location</label>
         <input
+          id="garden-location"
           value={location}
           onChange={(event) => setLocation(event.target.value)}
           placeholder="Location"
-          className="w-full rounded-xl border p-3"
+          className="seasonal-input w-full rounded-xl border p-3"
         />
 
+        <label htmlFor="garden-hardinessZone" className="block text-sm font-semibold">Hardiness Zone</label>
         <input
+          id="garden-hardinessZone"
           value={hardinessZone}
           onChange={(event) => setHardinessZone(event.target.value)}
           placeholder="Hardiness Zone"
-          className="w-full rounded-xl border p-3"
+          className="seasonal-input w-full rounded-xl border p-3"
         />
 
         <button
           onClick={saveGarden}
           disabled={!name || !year}
-          className="w-full rounded-xl bg-[#245c42] py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-xl seasonal-button py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           Save Garden
         </button>
 
         {message && (
-          <p className="text-sm font-semibold text-stone-600">
+          <p role="status" className="text-sm font-semibold seasonal-muted">
             {message}
           </p>
         )}
