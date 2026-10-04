@@ -1,8 +1,68 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+:root,
+html[data-season="summer"] {
+  --background: #fff8dc;
+  --foreground: #20372b;
+  --primary: #2f7d4a;
+  --primary-dark: #205f38;
+  --primary-soft: #dff1d7;
+  --surface: #fffdf5;
+  --surface-alt: #eef7e8;
+  --border: #eadca9;
+  --muted: #667267;
+  --accent: #f05a7e;
+  --accent-2: #f7943d;
+  --highlight: #f8c537;
+  --sky: #6ec5e9;
+}
+
+html[data-season="spring"] {
+  --background: #fff9f0;
+  --foreground: #253b2c;
+  --primary: #4f8a5b;
+  --primary-dark: #386b45;
+  --primary-soft: #e4f1df;
+  --surface: #fffefd;
+  --surface-alt: #f7eaf1;
+  --border: #eadbd7;
+  --muted: #6d7069;
+  --accent: #f3a7b7;
+  --accent-2: #b8a1d9;
+  --highlight: #f6d365;
+  --sky: #b7dbe8;
+}
+
+html[data-season="fall"] {
+  --background: #faf0e3;
+  --foreground: #3d3329;
+  --primary: #596b3d;
+  --primary-dark: #414f2c;
+  --primary-soft: #e7e4cf;
+  --surface: #fffaf4;
+  --surface-alt: #f3dfca;
+  --border: #ddc4a8;
+  --muted: #74675d;
+  --accent: #d97832;
+  --accent-2: #a94c32;
+  --highlight: #d7a52a;
+  --sky: #a9b6a1;
+}
+
+html[data-season="winter"] {
+  --background: #f4f7f7;
+  --foreground: #243a34;
+  --primary: #244c3d;
+  --primary-dark: #18362b;
+  --primary-soft: #dce9e6;
+  --surface: #ffffff;
+  --surface-alt: #e7f0f2;
+  --border: #cad9dc;
+  --muted: #65757c;
+  --accent: #9f3d52;
+  --accent-2: #718d98;
+  --highlight: #d5e7eb;
+  --sky: #bbd6dd;
 }
 
 @theme inline {
@@ -12,15 +72,23 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 300ms ease, color 300ms ease;
 }
+
+.seasonal-page { background: var(--background); }
+.seasonal-hero { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); }
+.seasonal-sage { background: linear-gradient(135deg, var(--surface-alt), var(--surface)); border-color: var(--border); }
+.seasonal-card { background: var(--surface); border-color: var(--border); }
+.seasonal-icon { background: var(--primary-soft); }
+.seasonal-button { background: var(--primary); }
+.seasonal-button:hover { background: var(--primary-dark); }
+.seasonal-heading, .seasonal-link { color: var(--primary-dark); }
+.seasonal-muted { color: var(--muted); }
+.seasonal-outline { color: var(--primary); border-color: var(--primary); }
+.seasonal-outline:hover { background: var(--primary-soft); }
+.seasonal-progress { background: var(--primary); }
+.seasonal-accent { color: var(--accent); }
