@@ -48,3 +48,11 @@ Validation performed:
 | Summer | [Preview](previews/summer-desktop.png) | [Preview](previews/summer-mobile.png) |
 | Fall | [Preview](previews/fall-desktop.png) | [Preview](previews/fall-mobile.png) |
 | Winter | [Preview](previews/winter-desktop.png) | [Preview](previews/winter-mobile.png) |
+
+## Journal design update
+
+The current preview refines the seasonal artwork into botanical line studies, uses editorial serif headings and consistent line icons, and removes emoji-heavy controls. Dashboard totals now come from saved space/plant records. Sage explains capacity calculations; shortcut checklists remember progress on the current browser. Screenshots above now reflect the journal design and an isolated test garden, rather than live personal data.
+
+![Welcome screen](previews/welcome-desktop.png)
+
+The private Supabase setup is documented in [Private Garden Setup](PRIVATE_GARDEN_SETUP.md). All new core flows pass fixture-backed browser checks; live writes require that setup.

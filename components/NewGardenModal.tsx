@@ -1,102 +1,124 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
+import { type Garden } from "@/lib/garden";
+import { Field } from "@/components/SpaceEditor";
 
-export default function NewGardenModal() {
-  const [name, setName] = useState("");
-  const [year, setYear] = useState("2026");
-  const [location, setLocation] = useState("");
-  const [hardinessZone, setHardinessZone] = useState("");
+export default function NewGardenModal({
+  garden,
+  onSaved,
+  onCancel,
+}: {
+  garden?: Garden;
+  onSaved?: (garden: Garden) => void;
+  onCancel?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-
-  async function saveGarden() {
-    setMessage("Saving...");
-
-    const { error } = await supabase.from("gardens").insert({
-      name,
-      year: Number(year),
-      location: location || null,
-      hardiness_zone: hardinessZone || null,
-    });
-
-    if (error) {
-      console.error("Error saving garden:", error);
-      setMessage(`Error: ${error.message}`);
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
+    const f = new FormData(event.currentTarget),
+      name = String(f.get("name") || "").trim(),
+      year = Number(f.get("year"));
+    if (!name || !Number.isInteger(year) || year < 1900 || year > 2200) {
+      setMessage("Enter a garden name and a year from 1900 to 2200.");
       return;
     }
-
-    setMessage("Garden saved!");
-
-    setName("");
-    setYear("2026");
-    setLocation("");
-    setHardinessZone("");
-
-    window.location.reload();
+    setBusy(true);
+    setMessage("Saving…");
+    try {
+      const input = {
+        name,
+        year,
+        location: String(f.get("location") || "").trim() || null,
+        hardiness_zone: String(f.get("zone") || "").trim() || null,
+      };
+      const query = garden
+        ? supabase.from("gardens").update(input).eq("id", garden.id)
+        : supabase.from("gardens").insert(input);
+      const { data, error } = await query.select("*").single();
+      if (error) throw new Error(error.message);
+      setMessage("Garden saved.");
+      if (onSaved) onSaved(data as Garden);
+      else window.location.reload();
+    } catch (error) {
+      setMessage(
+        `Not saved: ${error instanceof Error ? error.message : "Connection failed. Try again."}`,
+      );
+    } finally {
+      setBusy(false);
+    }
   }
-
   return (
-    <div className="mt-8 rounded-3xl seasonal-card border p-6 shadow-md">
-      <h2 className="text-2xl font-black seasonal-heading">
-        🌱 Create a New Garden
+    <section className="seasonal-card mt-8 rounded-3xl border p-6 shadow-sm">
+      <h2 className="seasonal-heading text-2xl font-black">
+        {garden ? "Edit Garden" : "Create a New Garden"}
       </h2>
-
-      <p className="mt-2 seasonal-muted">
+      <p className="seasonal-muted mt-2">
         Every growing season starts with a garden.
       </p>
-
-      <div className="mt-6 space-y-4">
-        <label htmlFor="garden-name" className="block text-sm font-semibold">Garden Name</label>
-        <input
-          id="garden-name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Garden Name"
-          className="seasonal-input w-full rounded-xl border p-3"
-        />
-
-        <label htmlFor="garden-year" className="block text-sm font-semibold">Year</label>
-        <input
-          id="garden-year"
-          value={year}
-          onChange={(event) => setYear(event.target.value)}
-          placeholder="Year"
-          className="seasonal-input w-full rounded-xl border p-3"
-        />
-
-        <label htmlFor="garden-location" className="block text-sm font-semibold">Location</label>
-        <input
-          id="garden-location"
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-          placeholder="Location"
-          className="seasonal-input w-full rounded-xl border p-3"
-        />
-
-        <label htmlFor="garden-hardinessZone" className="block text-sm font-semibold">Hardiness Zone</label>
-        <input
-          id="garden-hardinessZone"
-          value={hardinessZone}
-          onChange={(event) => setHardinessZone(event.target.value)}
-          placeholder="Hardiness Zone"
-          className="seasonal-input w-full rounded-xl border p-3"
-        />
-
-        <button
-          onClick={saveGarden}
-          disabled={!name || !year}
-          className="w-full rounded-xl seasonal-button py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+      <form onSubmit={save} className="mt-5 space-y-4">
+        <fieldset
+          disabled={busy}
+          className="grid gap-4 sm:grid-cols-2 disabled:opacity-60"
         >
-          Save Garden
-        </button>
-
+          <Field
+            label="Garden Name"
+            name="name"
+            value={garden?.name}
+            required
+            maxLength={100}
+          />
+          <label className="block text-sm font-bold">
+            Year
+            <input
+              name="year"
+              type="number"
+              required
+              min="1900"
+              max="2200"
+              step="1"
+              defaultValue={garden?.year ?? new Date().getFullYear()}
+              className="seasonal-input mt-1 w-full rounded-xl border p-3"
+            />
+          </label>
+          <Field
+            label="Location"
+            name="location"
+            value={garden?.location ?? ""}
+            maxLength={200}
+          />
+          <Field
+            label="Hardiness Zone"
+            name="zone"
+            value={garden?.hardiness_zone ?? ""}
+            maxLength={20}
+          />
+          <button
+            type="submit"
+            className="seasonal-button rounded-xl px-5 py-3 font-bold text-white sm:col-span-2"
+          >
+            {busy ? "Saving…" : "Save Garden"}
+          </button>
+        </fieldset>
+        {onCancel && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onCancel}
+            className="min-h-11 underline"
+          >
+            Cancel
+          </button>
+        )}
         {message && (
-          <p role="status" className="text-sm font-semibold seasonal-muted">
+          <p role="status" className="text-sm font-semibold">
             {message}
           </p>
         )}
-      </div>
-    </div>
+      </form>
+    </section>
   );
 }
