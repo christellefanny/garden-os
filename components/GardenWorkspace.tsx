@@ -371,19 +371,40 @@ export default function GardenWorkspace({
           enabled={!!gardenId}
         />
         {gardenForm && loaded && (
-          <NewGardenModal
-            key={`${gardenForm}-${gardenId}`}
-            garden={gardenForm === "edit" ? garden : undefined}
-            onCancel={() => setGardenForm(null)}
-            onSaved={(g) => {
-              setGardens((current) => [
-                g,
-                ...current.filter((item) => item.id !== g.id),
-              ]);
-              selectGarden(g.id);
-              setNotice("Garden saved.");
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]"
+            role="dialog"
+            aria-modal="true"
+            aria-label={gardenForm === "edit" ? "Edit garden" : "New garden"}
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget && !busy) setGardenForm(null);
             }}
-          />
+          >
+            <div className="relative w-full max-w-2xl">
+              <button
+                type="button"
+                aria-label="Close"
+                disabled={busy}
+                onClick={() => setGardenForm(null)}
+                className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-xl font-bold hover:bg-black/10"
+              >
+                ×
+              </button>
+              <NewGardenModal
+                key={`${gardenForm}-${gardenId}`}
+                garden={gardenForm === "edit" ? garden : undefined}
+                onCancel={() => setGardenForm(null)}
+                onSaved={(g) => {
+                  setGardens((current) => [
+                    g,
+                    ...current.filter((item) => item.id !== g.id),
+                  ]);
+                  selectGarden(g.id);
+                  setNotice("Garden saved.");
+                }}
+              />
+            </div>
+          </div>
         )}
         <section className="mt-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
