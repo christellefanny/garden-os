@@ -2,14 +2,14 @@
 
 :root,
 html[data-season="summer"] {
-  --background: #fff8dc;
+  --background: #f8f7f0;
   --foreground: #20372b;
   --primary: #2f7d4a;
   --primary-dark: #205f38;
   --primary-soft: #dff1d7;
   --surface: #fffdf5;
   --surface-alt: #eef7e8;
-  --border: #eadca9;
+  --border: #e0e4d8;
   --muted: #566256;
   --accent: #f05a7e;
   --accent-2: #f7943d;
@@ -19,7 +19,7 @@ html[data-season="summer"] {
 }
 
 html[data-season="spring"] {
-  --background: #fff9f0;
+  --background: #faf8f5;
   --foreground: #253b2c;
   --primary: #3f754b;
   --primary-dark: #386b45;
@@ -35,14 +35,14 @@ html[data-season="spring"] {
 }
 
 html[data-season="fall"] {
-  --background: #faf0e3;
+  --background: #f7f3ec;
   --foreground: #3d3329;
   --primary: #596b3d;
   --primary-dark: #414f2c;
   --primary-soft: #e7e4cf;
   --surface: #fffaf4;
   --surface-alt: #f3dfca;
-  --border: #ddc4a8;
+  --border: #e2d8c9;
   --muted: #62564b;
   --accent: #7b4562;
   --accent-2: #a94c32;
@@ -79,6 +79,15 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   transition: background-color 300ms ease, color 300ms ease;
 }
+
+.editorial-title { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -0.035em; }
+.eyebrow { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; }
+.seasonal-card { box-shadow: 0 2px 6px #20372b03; }
+.hero-art { transform: rotate(-8deg); }
+button:disabled { cursor: not-allowed; opacity: 0.55; }
+textarea:focus-visible { outline: 3px solid var(--primary-dark); outline-offset: 4px; }
+input, select, textarea { min-width: 0; }
+@media (max-width: 639px) { .hero-art { opacity: 0.3; right: -30px; } }
 
 .seasonal-page { background: var(--background); }
 .seasonal-hero { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); }
