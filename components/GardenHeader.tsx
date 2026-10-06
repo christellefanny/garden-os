@@ -22,30 +22,20 @@ export default function GardenHeader({ gardenYear }: { gardenYear: number }) {
         <p className="seasonal-muted mt-3 text-sm">Grow smarter. Harvest better.</p>
       </div>
 
-      <div className="seasonal-card relative flex items-center gap-3 overflow-hidden rounded-full border px-3 py-2 shadow-sm">
-        <span aria-hidden="true" className="seasonal-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl">
-          {seasonEmoji[season]}
-        </span>
-        <div className="leading-tight">
-          <p className="eyebrow seasonal-muted">{selection === "automatic" ? "In season" : "Theme"}</p>
-          <p aria-live="polite" className="seasonal-heading text-sm font-bold">
+      <label className="seasonal-card relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-full border px-3 py-2 pr-9 shadow-sm transition hover:bg-[var(--primary-soft)]" title="Change seasonal theme">
+        <span aria-hidden="true" className="text-2xl">{seasonEmoji[season]}</span>
+        <span className="leading-tight">
+          <span className="eyebrow seasonal-muted block">{selection === "automatic" ? "In season" : "Theme"}</span>
+          <span aria-live="polite" className="seasonal-heading block text-sm font-bold">
             {seasonContent[season].name} <span className="seasonal-muted font-normal">· {gardenYear}</span>
-          </p>
-        </div>
-        <label htmlFor="season-theme" className="sr-only">Seasonal theme</label>
-        <select
-          id="season-theme"
-          value={selection}
-          onChange={(e) => setSelection(parseThemeSelection(e.target.value))}
-          aria-label="Change seasonal theme"
-          title="Change seasonal theme"
-          className="seasonal-input h-9 w-9 cursor-pointer appearance-none rounded-full border p-0 text-center text-sm font-bold"
-        >
+          </span>
+        </span>
+        <select value={selection} onChange={(e) => setSelection(parseThemeSelection(e.target.value))} aria-label="Change seasonal theme" className="absolute inset-0 h-full w-full cursor-pointer opacity-0">
           <option value="automatic">Automatic</option>
           {seasons.map((s) => <option key={s} value={s}>{seasonContent[s].name}</option>)}
         </select>
-        <span className="pointer-events-none absolute right-[1.15rem] text-xs seasonal-muted">⌄</span>
-      </div>
+        <span aria-hidden="true" className="pointer-events-none absolute right-4 text-sm seasonal-muted">⌄</span>
+      </label>
     </header>
   );
 }
