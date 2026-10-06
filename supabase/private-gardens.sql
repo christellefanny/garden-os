@@ -7,7 +7,7 @@ alter table public.gardens alter column user_id set default auth.uid();
 
 do $$
 declare
-  owner_email text := 'YOUR_SIGN_IN_EMAIL';
+  owner_email text := 'christellefanny@gmail.com';
   owner_uuid uuid;
 begin
   select id into owner_uuid from auth.users where lower(email) = lower(owner_email);
