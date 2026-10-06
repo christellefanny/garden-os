@@ -2,15 +2,15 @@
 
 :root,
 html[data-season="summer"] {
-  --background: #f8f7f0;
-  --foreground: #20372b;
-  --primary: #2f7d4a;
-  --primary-dark: #205f38;
-  --primary-soft: #dff1d7;
-  --surface: #fffdf5;
-  --surface-alt: #eef7e8;
-  --border: #e0e4d8;
-  --muted: #566256;
+  --background: #fff8dc;
+  --foreground: #442a28;
+  --primary: #e94f7c;
+  --primary-dark: #b92f5c;
+  --primary-soft: #ffe1ea;
+  --surface: #fffdf4;
+  --surface-alt: #fff0b8;
+  --border: #f3d58b;
+  --muted: #6d5550;
   --accent: #f05a7e;
   --accent-2: #f7943d;
   --highlight: #f8c537;
