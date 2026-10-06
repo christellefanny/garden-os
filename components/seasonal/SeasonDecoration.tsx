@@ -1,133 +1,35 @@
 import type { Season } from "@/lib/seasons";
 
-/** Botanical line studies: restrained, seasonal, and separate from readable text. */
 export default function SeasonDecoration({ season }: { season: Season }) {
+  if (season === "summer") {
+    return (
+      <svg viewBox="0 0 300 220" aria-hidden="true" focusable="false" className="h-44 w-48 sm:h-52 sm:w-64" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <g transform="translate(82 72)">
+          <path d="M0 13C-25-16-51-14-48 4c3 15 24 20 45 15C-19 37-13 57 2 50c13-6 12-26 5-37Z" fill="#f8c537" stroke="#fff4bf" strokeWidth="2"/>
+          <path d="M8 13C31-15 56-12 52 6c-3 14-23 18-42 13 15 18 9 37-5 31-12-6-10-25-3-37Z" fill="#f05a7e" stroke="#ffd4df" strokeWidth="2"/>
+          <path d="M3 5v35M0 4l-7-9M6 4l8-8" stroke="#5b3c2d" strokeWidth="3"/>
+        </g>
+        <g transform="translate(192 74)">
+          <ellipse cx="-17" cy="-8" rx="18" ry="11" fill="#fff7d6" stroke="#fff" strokeWidth="2" transform="rotate(-28 -17 -8)"/>
+          <ellipse cx="17" cy="-8" rx="18" ry="11" fill="#fff7d6" stroke="#fff" strokeWidth="2" transform="rotate(28 17 -8)"/>
+          <ellipse cy="6" rx="10" ry="24" fill="#f8c537" stroke="#6b4a28" strokeWidth="2"/>
+          <path d="M-9-4H9M-10 6H10M-8 16H8" stroke="#5b3c2d" strokeWidth="5"/>
+          <path d="M-4-17l-7-12M4-17l8-12" stroke="#5b3c2d" strokeWidth="2"/>
+        </g>
+        <g transform="translate(143 158)">
+          <circle r="17" fill="#8b5a2b"/>
+          {[0,45,90,135,180,225,270,315].map((a) => <ellipse key={a} cx="0" cy="-38" rx="13" ry="25" fill="#f8c537" transform={`rotate(${a})`} />)}
+          <circle r="11" fill="#6e4625"/>
+        </g>
+        <path d="M143 175v43M143 193c-18-12-28-11-34-3 7 12 20 14 34 3M144 201c17-11 28-10 34-1-8 11-21 12-34 1" stroke="#74a94f" strokeWidth="4"/>
+      </svg>
+    );
+  }
   return (
-    <svg
-      viewBox="0 0 300 220"
-      aria-hidden="true"
-      focusable="false"
-      className="h-44 w-48 sm:h-52 sm:w-64"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.05"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ color: "#e8e2c9" }}
-    >
-      {season === "spring" && (
-        <>
-          <path d="M111 216c5-36 9-72-3-127M106 178c-24-13-34-44-27-67 15 17 25 39 27 67ZM109 159c20-16 32-40 29-63-16 18-24 39-29 63" />
-          <path
-            d="M107 93C83 84 77 67 82 45c9 3 16 10 21 17 1-13 4-23 11-29 6 9 8 18 8 31 8-8 15-11 23-10-3 28-15 39-38 39Z"
-            fill="#f3a7b7"
-            fillOpacity=".22"
-          />
-          <path d="M105 92c-8-9-11-23-9-35M114 90c7-10 12-22 12-33M173 216c-2-45 2-87 14-119M173 183c-2-35-7-48-17-57-2 26 3 42 17 57M185 110c-7-10-9-23-5-35 10 0 17 6 23 15M187 97c-17 0-25-9-23-21 12-7 22-5 31 2M185 83c-1-13 5-24 17-26 8 7 9 19 2 30M204 78c14-5 25-1 29 10-4 11-15 15-27 10M202 95c10 10 11 21 3 30-12 2-21-7-20-20M180 96c-13 5-19 15-15 24 12 4 23-1 27-12" />
-          <path
-            d="M185 87c8-4 16-3 22 3l-3 16c-8 4-15 2-19-4V87Z"
-            fill="#f6d365"
-            fillOpacity=".35"
-          />
-          <path d="M237 214v-29M237 194c-15-2-22-10-22-20 14-1 22 7 22 20M237 188c0-14 9-23 24-23 1 13-8 22-24 23M265 104l-3 39M260 114c-11-2-15-6-13-11 9-1 14 3 13 11M263 127c11-2 16-7 14-12-8-1-13 4-14 12" />
-          <path
-            d="M262 111l7-10M263 123l7-10M260 136l-8-9"
-            stroke="#b8a1d9"
-            strokeWidth="3"
-          />
-        </>
-      )}
-      {season === "summer" && (
-        <>
-          <path d="M184 218c-1-43 4-84 0-123M183 176c-19-6-32-20-37-40 18 1 32 16 37 40M185 167c20-11 31-26 31-47-20 10-29 27-31 47" />
-          <g transform="translate(183 66)">
-            <path
-              d="M-6-15c-5-17-1-30 6-34 7 4 11 17 6 34M7-15c10-13 21-18 28-14 1 9-5 20-19 26M15-5c17 0 28 6 29 15-6 7-19 8-32-3M11 10c8 15 7 27 0 32-9-2-16-13-13-28M-2 15c-7 15-17 22-26 19-4-9 0-21 13-29M-15 4c-17 1-29-5-30-13 6-7 20-8 32 2M-13-8c-12-12-16-24-11-30 9 0 19 8 21 23"
-              fill="#f6d365"
-              fillOpacity=".16"
-            />
-            <circle r="16" strokeWidth="1.4" />
-            <path
-              d="M-9-6l18 12M-9 0l13 9M-3-10l13 9M-9 6l12-16M-3 11l12-16"
-              opacity=".45"
-            />
-          </g>
-          <path d="M105 218c7-37 6-70-5-111M105 171c-17-9-24-23-23-35 17 5 24 17 23 35M109 153c10-12 17-23 27-28-1 15-11 24-27 28" />
-          <g transform="translate(100 86)">
-            <path
-              d="M-3-7c-11-15-16-17-23-12 0 8 7 14 19 18M-7 0c-17-5-26-1-26 7 6 5 17 4 26-2M-5 6c-12 9-15 18-8 23 8-1 13-9 15-21M3 8c0 15 6 23 13 21 4-7 0-17-10-24M7 2c15 4 24 0 25-8-6-5-16-3-25 3M4-5c9-13 10-23 3-26-7 4-9 13-7 23"
-              fill="#f3a7b7"
-              fillOpacity=".2"
-            />
-            <circle r="6" />
-          </g>
-          <path
-            d="M239 217c-5-24-4-44 2-62M227 157c-2-12 4-18 14-18 10 0 17 7 15 17-8 12-20 12-29 1ZM232 142c-4-10-1-17 6-21 9 1 13 8 11 18M233 160c-8 5-10 13-5 20M249 163c8 7 9 13 5 19"
-            stroke="#e9b4c1"
-          />
-          <path
-            d="M256 73c-13-19-26-20-29-9 0 10 12 15 28 15M257 77c15-19 28-20 29-8-1 10-13 13-29 12M256 74l-2 20M254 74l-4-8M256 74l5-7"
-            stroke="#b7dbe8"
-          />
-        </>
-      )}
-      {season === "fall" && (
-        <>
-          <path
-            d="M156 10c4 40 16 75 28 107M164 54c-27-2-44-14-46-34 19 1 39 10 46 34M169 70c15-24 32-36 52-31-9 24-25 36-52 31M177 91c-27-3-44-18-46-40 19 4 36 21 46 40M181 103c17-20 35-26 53-20-13 20-32 26-53 20"
-            fill="#d18a57"
-            fillOpacity=".14"
-          />
-          <path d="M123 26l40 28M212 44l-42 26M139 59l37 32M225 89l-43 14M101 141c-1-36-6-71-15-104M114 141c2-39 6-63 16-87M96 93l-16-16M93 78L79 62M90 63L79 50M117 91l14-10M121 76l12-10" />
-          <path
-            d="M87 54c-13-4-19-12-16-20 8 1 14 10 16 20M92 74c-14-5-18-12-14-20 8 3 13 10 14 20M123 78c12-2 19-9 17-17-10-1-15 8-17 17"
-            stroke="#d7b75c"
-          />
-          <path
-            d="M103 156c8-32 53-32 63 0M83 157h105l-12 49H95l-12-49ZM86 166h99M89 180h92M92 194h86M107 158l3 47M128 157l1 48M151 157l-1 48M172 158l-4 47"
-            stroke="#d7b75c"
-          />
-          <path
-            d="M194 181c12-12 32-16 48-12 11 4 20 15 14 25-8 14-30 17-48 16-16 0-24-16-14-29ZM242 170c8-7 15-10 26-10M195 196c-13 8-17 15-14 21M208 184l14-5M219 198l17-7M246 188l-10 10"
-            fill="#b97165"
-            fillOpacity=".25"
-          />
-          <path
-            d="M112 151c-2-17 12-22 25-18 9 3 13 11 7 19M137 151c7-21 26-22 34-11 3 5 1 12-4 15"
-            stroke="#d8abbf"
-          />
-        </>
-      )}
-      {season === "winter" && (
-        <>
-          <path
-            d="M99 214c29-68 55-130 112-191M132 140l-30-28M147 109l-20-34M161 82l-9-31M143 116l43-5M157 89l48-12M178 57l42-14"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M114 123l-27-3M119 128l-27 5M126 134l-21 12M105 115l-12-19M112 121l-5-22M138 93l-24-8M142 100l-25 0M147 108l-21 7M131 80l-2-23M139 93l3-24M156 63l-15-17M161 77l-16-9M157 65l7-22M164 77l12-22M165 110l18-20M174 112l20-16M176 111l16 13M185 110l18 9M182 82l13-23M191 80l16-23M189 81l22 9M201 77l21 10M199 50l8-20M210 47l9-18M208 49l21 7M218 43l19 6"
-            stroke="#c9d9d0"
-          />
-          <g stroke="#e6b4bd" fill="#c9788c" fillOpacity=".25">
-            <circle cx="121" cy="158" r="5" />
-            <circle cx="111" cy="167" r="5" />
-            <circle cx="123" cy="171" r="5" />
-            <circle cx="195" cy="119" r="4" />
-            <circle cx="204" cy="126" r="4" />
-            <circle cx="207" cy="116" r="4" />
-          </g>
-          <path
-            d="M245 79v18M237 84l16 9M237 93l16-9M244 159v14M238 162l12 8M238 170l12-8M86 75v10M82 78l8 5M82 83l8-5"
-            stroke="#d5e7eb"
-            opacity=".7"
-          />
-          <path
-            d="M131 108l11 0M154 81l10 0M181 52l8-3M102 213h107"
-            stroke="#fff"
-            opacity=".5"
-          />
-        </>
-      )}
+    <svg viewBox="0 0 300 220" aria-hidden="true" focusable="false" className="h-44 w-48 sm:h-52 sm:w-64" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "#e8e2c9" }}>
+      {season === "spring" && <><path d="M100 216c8-55 9-101 1-143M101 157c-24-12-34-34-29-55 20 9 31 28 29 55M105 139c22-14 32-31 29-51-19 10-29 27-29 51"/><path d="M101 78c-21-18-19-40 0-54 20 14 21 37 0 54Z" fill="#f3a7b7" fillOpacity=".3"/><path d="M190 216c-2-55 4-102 15-140M191 160c-20-12-29-31-24-51 18 9 27 27 24 51"/><circle cx="207" cy="68" r="25" fill="#f6d365" fillOpacity=".3"/></>}
+      {season === "fall" && <><path d="M90 20c22 36 45 68 70 97M112 52c-27-2-42-13-45-31 20 1 36 10 45 31M137 79c17-23 35-31 52-24-11 22-28 30-52 24"/><path d="M83 157h105l-12 49H95l-12-49ZM103 156c9-31 52-31 63 0" stroke="#d7b75c"/><path d="M194 181c12-12 32-16 48-12 18 7 18 25 0 34-17 8-42 9-49-5-3-6-2-12 1-17Z" fill="#b97165" fillOpacity=".35"/></>}
+      {season === "winter" && <><path d="M99 214c29-68 55-130 112-191M132 140l-30-28M147 109l-20-34M161 82l-9-31M143 116l43-5M157 89l48-12M178 57l42-14" strokeWidth="2"/><g fill="#c9788c" fillOpacity=".5"><circle cx="121" cy="158" r="6"/><circle cx="111" cy="167" r="6"/><circle cx="195" cy="119" r="5"/></g></>}
     </svg>
   );
 }
