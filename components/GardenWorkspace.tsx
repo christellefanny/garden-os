@@ -241,7 +241,7 @@ export default function GardenWorkspace({
             type="button"
             onClick={onSignOut}
             disabled={busy}
-            className="seasonal-muted min-h-11 text-xs font-semibold underline"
+            className="seasonal-muted ml-auto min-h-11 px-3 text-xs font-semibold underline"
           >
             Sign out
           </button>
