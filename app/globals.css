@@ -35,19 +35,19 @@ html[data-season="spring"] {
 }
 
 html[data-season="fall"] {
-  --background: #f7f3ec;
+  --background: #f8f2e9;
   --foreground: #3d3329;
-  --primary: #596b3d;
-  --primary-dark: #414f2c;
-  --primary-soft: #e7e4cf;
+  --primary: #a6532b;
+  --primary-dark: #783b22;
+  --primary-soft: #f3dfce;
   --surface: #fffaf4;
-  --surface-alt: #f3dfca;
-  --border: #e2d8c9;
+  --surface-alt: #f3e1ce;
+  --border: #e5d3c1;
   --muted: #62564b;
   --accent: #7b4562;
   --accent-2: #a94c32;
   --highlight: #d7a52a;
-  --sky: #a9b6a1;
+  --sky: #c4ad96;
 }
 
 html[data-season="winter"] {
