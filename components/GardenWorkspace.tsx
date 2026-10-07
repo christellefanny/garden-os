@@ -9,6 +9,7 @@ import SpaceEditor, { type SpaceInput } from "@/components/SpaceEditor";
 import SpacePanel from "@/components/SpacePanel";
 import PlantPlanner from "@/components/PlantPlanner";
 import PlantVault from "@/components/PlantVault";
+import GardenLayout from "@/components/GardenLayout";
 import {
   SeasonalHero,
   SeasonalGuidanceHeading,
@@ -61,6 +62,7 @@ export default function GardenWorkspace({
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
   const [vaultOpen, setVaultOpen] = useState(false);
+  const [layoutOpen, setLayoutOpen] = useState(false);
   const [gardenForm, setGardenForm] = useState<"new" | "edit" | null>(
     initialGardens.length ? null : "new",
   );
@@ -236,12 +238,12 @@ export default function GardenWorkspace({
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} />
         <nav className="mt-6 grid gap-3 sm:grid-cols-2" aria-label="Garden OS main features">
-          <button type="button" onClick={() => setVaultOpen(false)} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
+          <button type="button" onClick={() => {setVaultOpen(false);setLayoutOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen && !layoutOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
             <span className="text-3xl" aria-hidden="true">🏡</span>
             <span className="mt-3 block text-xl font-bold">My Garden</span>
-            <span className={`mt-1 block text-sm ${!vaultOpen ? "text-white/80" : "seasonal-muted"}`}>Growing spaces, plans & what’s happening now</span>
+            <span className={`mt-1 block text-sm ${!vaultOpen && !layoutOpen ? "text-white/80" : "seasonal-muted"}`}>Growing spaces, plans & what’s happening now</span>
           </button>
-          <button type="button" onClick={() => setVaultOpen(true)} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${vaultOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
+          <button type="button" onClick={() => {setVaultOpen(true);setLayoutOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${vaultOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
             <span className="text-3xl" aria-hidden="true">🌿</span>
             <span className="mt-3 block text-xl font-bold">Plant Vault</span>
             <span className={`mt-1 block text-sm ${vaultOpen ? "text-white/80" : "seasonal-muted"}`}>Your plants, seeds, varieties, history & wishlist</span>
@@ -250,8 +252,11 @@ export default function GardenWorkspace({
         <div className="mt-2 flex justify-end">
           <button type="button" onClick={onSignOut} disabled={busy} className="seasonal-muted min-h-11 px-3 text-xs font-semibold underline">Sign out</button>
         </div>
+        {!vaultOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} onClose={() => setLayoutOpen(false)} />}
         {vaultOpen && <PlantVault userId={userId} onClose={() => setVaultOpen(false)} />}
-        <div className={vaultOpen ? "hidden" : "mt-6 flex flex-wrap items-end justify-between gap-4"}>
+        {!vaultOpen && !layoutOpen && <button type="button" onClick={() => setLayoutOpen(true)} className="seasonal-card mt-6 flex w-full items-center justify-between gap-4 rounded-2xl border p-5 text-left transition hover:bg-[var(--primary-soft)]"><span><span className="eyebrow seasonal-muted">2027 Garden Plan</span><span className="seasonal-heading mt-1 block text-xl font-bold">🌿 Open Realistic Garden Layout</span><span className="seasonal-muted mt-1 block text-sm">Explore your flower border, herbs, garlic, peppers, okra and tomato beds</span></span><span aria-hidden="true" className="text-2xl">↗</span></button>}
+        {!vaultOpen && !layoutOpen && <>
+        <div className={vaultOpen || layoutOpen ? "hidden" : "mt-6 flex flex-wrap items-end justify-between gap-4"}>
           <label className="block min-w-0 flex-1 text-xs font-bold uppercase tracking-widest sm:max-w-sm">
             Your garden
             <select
@@ -641,6 +646,7 @@ export default function GardenWorkspace({
             checklist preferences stay on this browser.
           </span>
         </footer>
+        </>}
         {importCandidate && (
           <SpaceEditor
             space={importCandidate}
