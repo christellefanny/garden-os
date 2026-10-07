@@ -8,6 +8,7 @@ import NewGardenModal from "@/components/NewGardenModal";
 import SpaceEditor, { type SpaceInput } from "@/components/SpaceEditor";
 import SpacePanel from "@/components/SpacePanel";
 import PlantPlanner from "@/components/PlantPlanner";
+import PlantVault from "@/components/PlantVault";
 import {
   SeasonalHero,
   SeasonalGuidanceHeading,
@@ -59,6 +60,7 @@ export default function GardenWorkspace({
   const [openId, setOpenId] = useState<string | null>(null);
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
+  const [vaultOpen, setVaultOpen] = useState(false);
   const [gardenForm, setGardenForm] = useState<"new" | "edit" | null>(
     initialGardens.length ? null : "new",
   );
@@ -233,7 +235,8 @@ export default function GardenWorkspace({
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} />
-        <div className="mt-2 flex justify-end">
+        <div className="mt-2 flex justify-end gap-4">
+          <button type="button" onClick={() => setVaultOpen(!vaultOpen)} className="seasonal-link min-h-11 text-xs font-bold">{vaultOpen ? "My Garden" : "🌿 Plant Vault"}</button>
           <button
             type="button"
             onClick={onSignOut}
@@ -243,7 +246,8 @@ export default function GardenWorkspace({
             Sign out
           </button>
         </div>
-        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+        {vaultOpen && <PlantVault userId={userId} onClose={() => setVaultOpen(false)} />}
+        <div className={vaultOpen ? "hidden" : "mt-6 flex flex-wrap items-end justify-between gap-4"}>
           <label className="block min-w-0 flex-1 text-xs font-bold uppercase tracking-widest sm:max-w-sm">
             Your garden
             <select
