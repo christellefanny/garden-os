@@ -25,7 +25,7 @@ export default function GardenHeader({ gardenYear }: { gardenYear: number }) {
       <label className="seasonal-card relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-full border px-3 py-2 pr-9 shadow-sm transition hover:bg-[var(--primary-soft)]" title="Change seasonal theme">
         <span aria-hidden="true" className="text-2xl">{seasonEmoji[season]}</span>
         <span className="leading-tight">
-          <span className="eyebrow seasonal-muted block">{selection === "automatic" ? "In season" : "Theme"}</span>
+          <span className="eyebrow seasonal-muted block">Theme</span>
           <span aria-live="polite" className="seasonal-heading block text-sm font-bold">
             {seasonContent[season].name} <span className="seasonal-muted font-normal">· {gardenYear}</span>
           </span>
