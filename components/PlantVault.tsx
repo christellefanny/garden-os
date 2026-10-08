@@ -7,6 +7,31 @@ export type VaultPlant = {
   statuses: string[]; source: string; year: string; notes: string; photoUrl?: string;
 };
 
+// Botanical illustrations from the approved Plant Vault artwork. Each crop is a
+// distinct area of the source artwork, not a crop of the overhead garden layout.
+const artwork="/b8c08888-9741-4608-98bf-693ec1257599.png";
+const illustrationCenters:Record<string,[number,number]>={
+ basil:[400,320],broccoli:[646,320],calendula:[892,320],garlic:[1143,320],lettuce:[1390,320],
+ marigold:[400,585],okra:[646,585],onion:[892,585],pepper:[1143,585],raspberry:[1390,585],
+ tomato:[400,847],thyme:[646,847],zinnia:[892,847]
+};
+function plantIllustration(plant:VaultPlant):[number,number]{
+ const name=plant.name.toLowerCase();
+ if(name.includes("marigold"))return illustrationCenters.marigold;
+ if(name.includes("zinnia"))return illustrationCenters.zinnia;
+ if(name.includes("calendula"))return illustrationCenters.calendula;
+ if(name.includes("tomato"))return illustrationCenters.tomato;
+ if(name.includes("pepper")||name.includes("chili"))return illustrationCenters.pepper;
+ if(name.includes("garlic"))return illustrationCenters.garlic;
+ if(name.includes("onion")||name.includes("leek"))return illustrationCenters.onion;
+ if(name.includes("lettuce"))return illustrationCenters.lettuce;
+ if(name.includes("okra"))return illustrationCenters.okra;
+ if(name.includes("broccoli"))return illustrationCenters.broccoli;
+ if(name.includes("raspberr")||name.includes("blackberr")||name.includes("strawberr"))return illustrationCenters.raspberry;
+ if(name.includes("basil"))return illustrationCenters.basil;
+ if(name.includes("thyme"))return illustrationCenters.thyme;
+ return plant.category==="Flower"?illustrationCenters.zinnia:plant.category==="Herb"?illustrationCenters.basil:plant.category==="Fruit & Berry"?illustrationCenters.raspberry:illustrationCenters.broccoli;
+}
 const statuses = ["Growing Now","Have Seeds","Have Plant","Wishlist","Previously Grown","Not Growing Again"];
 const categories = ["Vegetable","Herb","Flower","Fruit & Berry","Houseplant / Indoor","Other"];
 const keyFor = (userId:string) => `garden-os-plant-vault-${userId}`;
@@ -150,7 +175,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {!shown.length && <div className="seasonal-card rounded-3xl border p-8 sm:col-span-2 lg:col-span-3"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
       {shown.map(p=><article key={p.id} className="seasonal-card rounded-3xl border p-5">
-        <div className="flex items-start gap-3"><div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-[#ddcfb9] bg-[#eee8dc]">{p.photoUrl?<img src={p.photoUrl} alt={`${p.variety?`${p.variety} `:""}${p.name} growing` } loading="lazy" className="h-full w-full object-cover" onError={e=>{e.currentTarget.style.display="none";}}/>:<div className="flex h-full w-full flex-col items-center justify-center gap-1 px-2 text-center text-[#80745f]"><span className="text-2xl" aria-hidden="true">🌱</span><span className="text-[10px]">Add a photo</span></div>}</div><div className="min-w-0 flex-1"><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button onClick={()=>setEditing(p)} className="seasonal-link shrink-0 text-sm font-bold">Edit</button></div>
+        <div className="flex items-start gap-3"><div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-[#ddcfb9] bg-[#eee8dc]">{p.photoUrl?<img src={p.photoUrl} alt={`${p.variety?`${p.variety} `:""}${p.name} growing` } loading="lazy" className="h-full w-full object-cover" onError={e=>{e.currentTarget.style.display="none";}}/>:<div role="img" aria-label={`Botanical illustration of ${p.name}`} className="h-full w-full" style={{backgroundImage:`url("${artwork}")`,backgroundRepeat:"no-repeat",backgroundSize:"768px 512px",backgroundPosition:`${48-plantIllustration(p)[0]/2}px ${48-plantIllustration(p)[1]/2}px`}}/>}</div><div className="min-w-0 flex-1"><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button onClick={()=>setEditing(p)} className="seasonal-link shrink-0 text-sm font-bold">Edit</button></div>
         <div className="mt-4 flex flex-wrap gap-2">{p.statuses.map(s=><span key={s} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{s}</span>)}</div>
         {(p.source||p.year)&&<p className="seasonal-muted mt-4 text-xs">{p.source}{p.source&&p.year?" · ":""}{p.year}</p>}
         {p.notes&&<p className="mt-3 text-sm leading-6">{p.notes}</p>}
