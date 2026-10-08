@@ -4,7 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 
 export type VaultPlant = {
   id: string; name: string; variety: string; category: string;
-  statuses: string[]; source: string; year: string; notes: string;
+  statuses: string[]; source: string; year: string; notes: string; photoUrl?: string;
 };
 
 const statuses = ["Growing Now","Have Seeds","Have Plant","Wishlist","Previously Grown","Not Growing Again"];
@@ -130,7 +130,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
   function submit(e:FormEvent<HTMLFormElement>) {
     e.preventDefault(); const f=new FormData(e.currentTarget);
     const name=String(f.get("name")||"").trim(); if(!name)return;
-    const plant:VaultPlant={id:editing?.id||crypto.randomUUID(),name,variety:String(f.get("variety")||"").trim(),category:String(f.get("category")||"Other"),statuses:f.getAll("status").map(String),source:String(f.get("source")||"").trim(),year:String(f.get("year")||"").trim(),notes:String(f.get("notes")||"").trim()};
+    const plant:VaultPlant={id:editing?.id||crypto.randomUUID(),name,variety:String(f.get("variety")||"").trim(),category:String(f.get("category")||"Other"),statuses:f.getAll("status").map(String),source:String(f.get("source")||"").trim(),year:String(f.get("year")||"").trim(),notes:String(f.get("notes")||"").trim(),photoUrl:String(f.get("photoUrl")||"").trim()};
     save(editing?plants.map(p=>p.id===plant.id?plant:p):[plant,...plants]); setAdding(false); setEditing(null);
   }
   const shown=useMemo(()=>plants.filter(p=>{
@@ -150,7 +150,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {!shown.length && <div className="seasonal-card rounded-3xl border p-8 sm:col-span-2 lg:col-span-3"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
       {shown.map(p=><article key={p.id} className="seasonal-card rounded-3xl border p-5">
-        <div className="flex justify-between gap-3"><div><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button onClick={()=>setEditing(p)} className="seasonal-link text-sm font-bold">Edit</button></div>
+        <div className="flex items-start gap-3"><div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-[#ddcfb9] bg-[#eee8dc]">{p.photoUrl?<img src={p.photoUrl} alt={`${p.variety?`${p.variety} `:""}${p.name} growing` } loading="lazy" className="h-full w-full object-cover" onError={e=>{e.currentTarget.style.display="none";}}/>:<div className="flex h-full w-full flex-col items-center justify-center gap-1 px-2 text-center text-[#80745f]"><span className="text-2xl" aria-hidden="true">🌱</span><span className="text-[10px]">Add a photo</span></div>}</div><div className="min-w-0 flex-1"><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button onClick={()=>setEditing(p)} className="seasonal-link shrink-0 text-sm font-bold">Edit</button></div>
         <div className="mt-4 flex flex-wrap gap-2">{p.statuses.map(s=><span key={s} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{s}</span>)}</div>
         {(p.source||p.year)&&<p className="seasonal-muted mt-4 text-xs">{p.source}{p.source&&p.year?" · ":""}{p.year}</p>}
         {p.notes&&<p className="mt-3 text-sm leading-6">{p.notes}</p>}
@@ -164,6 +164,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
           <label className="text-sm font-bold">Variety<input name="variety" defaultValue={editing?.variety} placeholder="Music" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
           <label className="text-sm font-bold">Category<select name="category" defaultValue={editing?.category||"Vegetable"} className="seasonal-input mt-1 w-full rounded-xl border p-3">{categories.map(x=><option key={x}>{x}</option>)}</select></label>
           <label className="text-sm font-bold">Source / seller<input name="source" defaultValue={editing?.source} placeholder="Saved, nursery, seed company…" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
+          <label className="text-sm font-bold sm:col-span-2">Plant photograph URL (optional)<input name="photoUrl" type="url" defaultValue={editing?.photoUrl||""} placeholder="https://example.com/my-plant-photo.jpg" className="seasonal-input mt-1 w-full rounded-xl border p-3"/><span className="seasonal-muted mt-1 block text-xs font-normal">Paste a direct link to a photo of this plant growing. Each variety can have its own picture.</span></label>
           <label className="text-sm font-bold">Year acquired<input name="year" type="number" min="1900" max="2200" defaultValue={editing?.year} className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
         </div>
         <fieldset className="mt-5"><legend className="text-sm font-bold">What describes this plant?</legend><div className="mt-2 grid gap-2 sm:grid-cols-2">{statuses.map(s=><label key={s} className="seasonal-icon flex cursor-pointer items-center gap-2 rounded-xl p-3 text-sm"><input type="checkbox" name="status" value={s} defaultChecked={editing?.statuses.includes(s)}/>{s}</label>)}</div></fieldset>
