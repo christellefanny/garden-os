@@ -35,19 +35,19 @@ html[data-season="spring"] {
 }
 
 html[data-season="fall"] {
-  --background: #f8f2e9;
+  --background: #fbf6eb;
   --foreground: #3d3329;
-  --primary: #a6532b;
-  --primary-dark: #783b22;
-  --primary-soft: #f3dfce;
-  --surface: #fffaf4;
-  --surface-alt: #f3e1ce;
-  --border: #e5d3c1;
+  --primary: #92621b;
+  --primary-dark: #65451b;
+  --primary-soft: #f7e8c5;
+  --surface: #fffcf5;
+  --surface-alt: #f8edcf;
+  --border: #e8dcc0;
   --muted: #62564b;
   --accent: #7b4562;
-  --accent-2: #a94c32;
-  --highlight: #d7a52a;
-  --sky: #c4ad96;
+  --accent-2: #c98535;
+  --highlight: #e3b34b;
+  --sky: #c4b291;
 }
 
 html[data-season="winter"] {
@@ -91,6 +91,12 @@ input, select, textarea { min-width: 0; }
 
 .seasonal-page { background: var(--background); }
 .seasonal-hero { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); }
+html[data-season="fall"] .seasonal-hero {
+  background: linear-gradient(135deg, #f0c574, #f7dfa3);
+  color: #543a18;
+}
+html[data-season="fall"] .seasonal-hero [class*="text-white"] { color: #543a18; }
+html[data-season="fall"] .seasonal-hero [class*="border-white"] { border-color: #543a1833; }
 .seasonal-sage { background: linear-gradient(135deg, var(--surface-alt), var(--surface)); border-color: var(--border); }
 .seasonal-card { background: var(--surface); border-color: var(--border); }
 .seasonal-icon { background: var(--primary-soft); }
