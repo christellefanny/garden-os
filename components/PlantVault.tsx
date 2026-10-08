@@ -1,37 +1,13 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import PlantPortrait from "@/components/PlantPortrait";
 
 export type VaultPlant = {
   id: string; name: string; variety: string; category: string;
   statuses: string[]; source: string; year: string; notes: string; photoUrl?: string;
 };
 
-// Botanical illustrations from the approved Plant Vault artwork. Each crop is a
-// distinct area of the source artwork, not a crop of the overhead garden layout.
-const artwork="/b8c08888-9741-4608-98bf-693ec1257599.png";
-const illustrationCenters:Record<string,[number,number]>={
- basil:[400,320],broccoli:[646,320],calendula:[892,320],garlic:[1143,320],lettuce:[1390,320],
- marigold:[400,585],okra:[646,585],onion:[892,585],pepper:[1143,585],raspberry:[1390,585],
- tomato:[400,847],thyme:[646,847],zinnia:[892,847]
-};
-function plantIllustration(plant:VaultPlant):[number,number]|null{
- const name=plant.name.toLowerCase().trim();
- if(name==="french marigold"||name==="dwarf marigold"||name==="marigold")return illustrationCenters.marigold;
- if(name==="zinnia")return illustrationCenters.zinnia;
- if(name==="calendula")return illustrationCenters.calendula;
- if(name==="tomato")return illustrationCenters.tomato;
- if(name==="pepper")return illustrationCenters.pepper;
- if(name==="garlic")return illustrationCenters.garlic;
- if(name==="onion")return illustrationCenters.onion;
- if(name==="lettuce")return illustrationCenters.lettuce;
- if(name==="okra")return illustrationCenters.okra;
- if(name==="broccoli")return illustrationCenters.broccoli;
- if(name==="raspberry")return illustrationCenters.raspberry;
- if(name==="basil")return illustrationCenters.basil;
- if(name==="thyme")return illustrationCenters.thyme;
- return null;
-}
 const statuses = ["Growing Now","Have Seeds","Have Plant","Wishlist","Previously Grown","Not Growing Again"];
 const categories = ["Vegetable","Herb","Flower","Fruit & Berry","Houseplant / Indoor","Other"];
 const keyFor = (userId:string) => `garden-os-plant-vault-${userId}`;
@@ -169,13 +145,14 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
       <div className="flex gap-2"><button onClick={()=>setAdding(true)} className="seasonal-button rounded-xl px-5 py-3 font-bold text-white">+ Add plant</button><button onClick={onClose} className="seasonal-outline rounded-xl border px-4 py-3 font-bold">Back to garden</button></div>
     </div>
     <div className="seasonal-card mt-6 rounded-3xl border p-4">
-      <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search plants, varieties, flowers, seeds…" className="seasonal-input w-full rounded-xl border p-3"/>
+      <input aria-label="Search Plant Vault" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search plants, varieties, flowers, seeds…" className="seasonal-input w-full rounded-xl border p-3"/>
       <div className="mt-3 flex flex-wrap gap-2">{["All","Growing","Seeds","Wishlist","Past",...categories].map(x=><button key={x} onClick={()=>setFilter(x)} className={`rounded-full border px-3 py-2 text-xs font-bold ${filter===x?"seasonal-button text-white":"seasonal-outline"}`}>{x}</button>)}</div>
     </div>
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {!shown.length && <div className="seasonal-card rounded-3xl border p-8 sm:col-span-2 lg:col-span-3"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
       {shown.map(p=><article key={p.id} className="seasonal-card rounded-3xl border p-5">
-        <div className="flex items-start gap-3"><div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-[#ddcfb9] bg-[#eee8dc]">{p.photoUrl?<img src={p.photoUrl} alt={`${p.variety?`${p.variety} `:""}${p.name} growing` } loading="lazy" className="h-full w-full object-cover" onError={e=>{e.currentTarget.style.display="none";}}/>:{plantIllustration(p)?<div role="img" aria-label={`Botanical illustration of ${p.name}`} className="h-full w-full" style={{backgroundImage:`url("${artwork}")`,backgroundRepeat:"no-repeat",backgroundSize:"768px 512px",backgroundPosition:`${48-plantIllustration(p)![0]/2}px ${48-plantIllustration(p)![1]/2}px`}}/>:<div className="flex h-full w-full flex-col items-center justify-center px-2 text-center text-[#80745f]"><span className="text-xs font-semibold">{p.name}</span><span className="mt-1 text-[10px]">Artwork coming soon</span></div>}}</div><div className="min-w-0 flex-1"><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button onClick={()=>setEditing(p)} className="seasonal-link shrink-0 text-sm font-bold">Edit</button></div>
+        <PlantPortrait key={`${p.name}-${p.variety}-${p.photoUrl}`} name={p.name} variety={p.variety} photoUrl={p.photoUrl} />
+        <div className="mt-4 flex justify-between gap-3"><div><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button aria-label={`Edit ${p.name}${p.variety ? ` ${p.variety}` : ""}`} onClick={()=>setEditing(p)} className="seasonal-link text-sm font-bold">Edit</button></div>
         <div className="mt-4 flex flex-wrap gap-2">{p.statuses.map(s=><span key={s} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{s}</span>)}</div>
         {(p.source||p.year)&&<p className="seasonal-muted mt-4 text-xs">{p.source}{p.source&&p.year?" · ":""}{p.year}</p>}
         {p.notes&&<p className="mt-3 text-sm leading-6">{p.notes}</p>}
