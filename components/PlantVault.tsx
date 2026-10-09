@@ -160,7 +160,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
     const matches=!query || `${p.name} ${p.variety} ${p.category} ${p.statuses.join(" ")}`.toLowerCase().includes(query.toLowerCase());
     const status=filter==="All" || (filter==="Seeds"?p.statuses.includes("Have Seeds"):filter==="Wishlist"?p.statuses.includes("Wishlist"):filter==="Growing"?p.statuses.includes("Growing Now"):filter==="Past"?p.statuses.includes("Previously Grown"):p.category===filter);
     return matches&&status;
-  }),[plants,query,filter]);
+  }).sort((a,b)=>a.name.trim().localeCompare(b.name.trim(),"en",{sensitivity:"base",numeric:true}) || a.variety.trim().localeCompare(b.variety.trim(),"en",{sensitivity:"base",numeric:true})),[plants,query,filter]);
   return <section className="mt-8">
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div><p className="eyebrow seasonal-muted">Your growing collection</p><h2 className="editorial-title seasonal-heading mt-2 text-4xl">Plant Vault 🌿</h2><p className="seasonal-muted mt-2 max-w-2xl">One organized home for every plant you grow, own, remember, or want someday.</p></div>
