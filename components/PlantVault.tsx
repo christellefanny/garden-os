@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import PlantPortrait from "@/components/PlantPortrait";
+import { readVaultBackup, mergeVaultPlants } from "@/lib/vault-transfer";
 
 export type VaultPlant = {
   id: string; name: string; variety: string; category: string;
@@ -127,12 +128,33 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
   const [filter,setFilter]=useState("All");
   const [adding,setAdding]=useState(false);
   const [editing,setEditing]=useState<VaultPlant|null>(null);
-  function save(next:VaultPlant[]) { setPlants(next); try { localStorage.setItem(keyFor(userId),JSON.stringify(next)); } catch {} }
+  const [transferMessage,setTransferMessage]=useState("");
+  const [pendingImport,setPendingImport]=useState<VaultPlant[]|null>(null);
+  function save(next:VaultPlant[]) {
+    try { localStorage.setItem(keyFor(userId),JSON.stringify(next)); setPlants(next); return true; }
+    catch { setTransferMessage("Your browser could not save this collection. Export a backup before trying again."); return false; }
+  }
+  function exportVault() {
+    const url=URL.createObjectURL(new Blob([JSON.stringify({garden_os_plant_vault:1,exported_at:new Date().toISOString(),plants},null,2)],{type:"application/json"}));
+    const a=document.createElement("a"); a.href=url; a.download="garden-os-plant-vault.json"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  async function chooseBackup(file?:File) {
+    setPendingImport(null); setTransferMessage(""); if(!file)return;
+    try { if(file.size>5*1024*1024)throw new Error("Choose a backup smaller than 5 MB."); setPendingImport(readVaultBackup(await file.text())); }
+    catch(error) { setTransferMessage(error instanceof Error?error.message:"Could not read this backup."); }
+  }
+  function importVault() {
+    if(!pendingImport)return;
+    const result=mergeVaultPlants(plants,pendingImport);
+    try { localStorage.setItem(`${keyFor(userId)}-before-import`,JSON.stringify(plants)); }
+    catch { setTransferMessage("Could not create a safety backup. Nothing was imported."); return; }
+    if(save(result.plants)) { setPendingImport(null); setQuery(""); setFilter("All"); setTransferMessage(`Imported ${result.added} new plants. Matching entries were combined without duplicating them.`); }
+  }
   function submit(e:FormEvent<HTMLFormElement>) {
     e.preventDefault(); const f=new FormData(e.currentTarget);
     const name=String(f.get("name")||"").trim(); if(!name)return;
     const plant:VaultPlant={id:editing?.id||crypto.randomUUID(),name,variety:String(f.get("variety")||"").trim(),category:String(f.get("category")||"Other"),statuses:f.getAll("status").map(String),source:String(f.get("source")||"").trim(),year:String(f.get("year")||"").trim(),notes:String(f.get("notes")||"").trim(),photoUrl:String(f.get("photoUrl")||"").trim()};
-    save(editing?plants.map(p=>p.id===plant.id?plant:p):[plant,...plants]); setAdding(false); setEditing(null);
+    if(save(editing?plants.map(p=>p.id===plant.id?plant:p):[plant,...plants])) { setAdding(false); setEditing(null); }
   }
   const shown=useMemo(()=>plants.filter(p=>{
     const matches=!query || `${p.name} ${p.variety} ${p.category} ${p.statuses.join(" ")}`.toLowerCase().includes(query.toLowerCase());
@@ -143,6 +165,15 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div><p className="eyebrow seasonal-muted">Your growing collection</p><h2 className="editorial-title seasonal-heading mt-2 text-4xl">Plant Vault 🌿</h2><p className="seasonal-muted mt-2 max-w-2xl">One organized home for every plant you grow, own, remember, or want someday.</p></div>
       <div className="flex gap-2"><button onClick={()=>setAdding(true)} className="seasonal-button rounded-xl px-5 py-3 font-bold text-white">+ Add plant</button><button onClick={onClose} className="seasonal-outline rounded-xl border px-4 py-3 font-bold">Back to garden</button></div>
+    </div>
+    <div className="seasonal-card mt-5 rounded-2xl border p-4">
+      <p className="seasonal-muted text-sm">Moving between Garden OS links? Export your collection from the old page, then import it here. Your original collection stays on the old page.</p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button onClick={exportVault} className="seasonal-outline rounded-xl border px-4 py-2 text-sm font-bold">Export Plant Vault</button>
+        <label className="text-sm font-bold">Import Plant Vault<input aria-label="Import Plant Vault backup" type="file" accept=".json,application/json" className="mt-1 block max-w-full text-sm" onChange={e=>{void chooseBackup(e.target.files?.[0]); e.target.value="";}} /></label>
+      </div>
+      {pendingImport && <div className="mt-3"><p className="text-sm">Ready to combine {pendingImport.length} plants with your current collection. Existing details take priority; notes and statuses are combined.</p><div className="mt-2 flex gap-3"><button onClick={importVault} className="seasonal-button rounded-xl px-4 py-2 text-sm font-bold text-white">Import collection</button><button onClick={()=>setPendingImport(null)} className="seasonal-link text-sm font-bold">Cancel import</button></div></div>}
+      {transferMessage && <p role="status" className="mt-3 text-sm">{transferMessage}</p>}
     </div>
     <div className="seasonal-card mt-6 rounded-3xl border p-4">
       <input aria-label="Search Plant Vault" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search plants, varieties, flowers, seeds…" className="seasonal-input w-full rounded-xl border p-3"/>
