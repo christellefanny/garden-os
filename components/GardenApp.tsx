@@ -100,6 +100,7 @@ export default function GardenApp() {
       setAuthError(error.message);
       return;
     }
+    if("serviceWorker" in navigator){try{const registration=await navigator.serviceWorker.getRegistration("/");const subscription=await registration?.pushManager.getSubscription();await subscription?.unsubscribe();localStorage.removeItem(`garden-os-reminders-${userId}`);}catch{/* Signing out still succeeds if the browser cannot reach its push service. */}}
     setData(null);
     setSession(null);
   }

@@ -8,6 +8,7 @@ import NewGardenModal from "@/components/NewGardenModal";
 import SpaceEditor, { type SpaceInput } from "@/components/SpaceEditor";
 import SpacePanel from "@/components/SpacePanel";
 import PlantPlanner from "@/components/PlantPlanner";
+import GrowingCalendar from "@/components/GrowingCalendar";
 import PlantVault from "@/components/PlantVault";
 import GardenLayout from "@/components/GardenLayout";
 import {
@@ -61,6 +62,7 @@ export default function GardenWorkspace({
   const [openId, setOpenId] = useState<string | null>(null);
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
+  const [calendarOpen,setCalendarOpen]=useState(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("view")==="calendar");
   const [vaultOpen, setVaultOpen] = useState(false);
   const [layoutOpen, setLayoutOpen] = useState(false);
   const [gardenForm, setGardenForm] = useState<"new" | "edit" | null>(
@@ -237,26 +239,28 @@ export default function GardenWorkspace({
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} />
-        <nav className="mt-6 grid gap-3 sm:grid-cols-2" aria-label="Garden OS main features">
-          <button type="button" onClick={() => {setVaultOpen(false);setLayoutOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen && !layoutOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
+        <nav className="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Garden OS main features">
+          <button type="button" onClick={() => {setVaultOpen(false);setLayoutOpen(false);setCalendarOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen && !layoutOpen && !calendarOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
             <span className="text-3xl" aria-hidden="true">🏡</span>
             <span className="mt-3 block text-xl font-bold">My Garden</span>
-            <span className={`mt-1 block text-sm ${!vaultOpen && !layoutOpen ? "text-white/80" : "seasonal-muted"}`}>Growing spaces, plans & what’s happening now</span>
+            <span className={`mt-1 block text-sm ${!vaultOpen && !layoutOpen && !calendarOpen ? "text-white/80" : "seasonal-muted"}`}>Growing spaces, plans & what’s happening now</span>
           </button>
-          <button type="button" onClick={() => {setVaultOpen(true);setLayoutOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${vaultOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
+          <button type="button" onClick={() => {setVaultOpen(true);setLayoutOpen(false);setCalendarOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${vaultOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
             <span className="text-3xl" aria-hidden="true">🌿</span>
             <span className="mt-3 block text-xl font-bold">Plant Vault</span>
             <span className={`mt-1 block text-sm ${vaultOpen ? "text-white/80" : "seasonal-muted"}`}>Your plants, seeds, varieties, history & wishlist</span>
           </button>
+          <button type="button" onClick={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false);}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${calendarOpen?"seasonal-hero border-transparent text-white shadow-md":"seasonal-card hover:bg-[var(--primary-soft)]"}`}><span aria-hidden="true" className="text-3xl">▦</span><span className="mt-3 block text-xl font-bold">Growing Calendar</span><span className={`mt-1 block text-sm ${calendarOpen?"text-white/80":"seasonal-muted"}`}>Year-round tasks and phone reminders</span></button>
         </nav>
         <div className="mt-2 flex justify-end">
           <button type="button" onClick={onSignOut} disabled={busy} className="seasonal-muted min-h-11 px-3 text-xs font-semibold underline">Sign out</button>
         </div>
-        {!vaultOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} onClose={() => setLayoutOpen(false)} />}
+        {!vaultOpen && !calendarOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} onClose={() => setLayoutOpen(false)} />}
+        {calendarOpen && <GrowingCalendar userId={userId} onClose={()=>setCalendarOpen(false)}/> }
         {vaultOpen && <PlantVault userId={userId} onClose={() => setVaultOpen(false)} />}
-        {!vaultOpen && !layoutOpen && <button type="button" onClick={() => setLayoutOpen(true)} className="seasonal-card mt-6 flex w-full items-center justify-between gap-4 rounded-2xl border p-5 text-left transition hover:bg-[var(--primary-soft)]"><span className="flex items-center gap-4"><span className="flex shrink-0 items-center justify-center rounded-2xl bg-[var(--primary-soft)] p-2"><svg viewBox="0 0 72 58" width="66" height="54" fill="none" aria-hidden="true"><path d="M9 34 36 43 63 34 36 25Z" fill="#966037"/><path d="M9 34v12l27 9V43Z" fill="#734524"/><path d="M36 43v12l27-9V34Z" fill="#A46B3D"/><path d="m14 34 22 7 22-7-22-7Z" fill="#543E2B"/><path d="M23 29c-9-3-10-11-5-15 8 1 11 6 9 15M29 29c-3-12 1-20 8-21 3 10 0 17-8 21M45 29c-1-9 5-15 13-14 1 9-5 14-13 14" fill="#599A53" stroke="#2E6C40" strokeWidth="2"/><path d="M25 32V19M42 31V17" stroke="#376F35" strokeWidth="2.5" strokeLinecap="round"/><path d="M42 20c-9-2-10-10-6-14 7 1 10 7 6 14" fill="#7EBC66"/></svg></span><span><span className="eyebrow seasonal-muted">2027 Garden Plan</span><span className="seasonal-heading mt-1 block text-xl font-bold">Garden Layout</span><span className="seasonal-muted mt-1 block text-sm">Explore and customize your flower border, herbs, garlic, peppers, okra and tomato beds</span></span></span><span aria-hidden="true" className="text-2xl">↗</span></button>}
-        {!vaultOpen && !layoutOpen && <>
-        <div className={vaultOpen || layoutOpen ? "hidden" : "mt-6 flex flex-wrap items-end justify-between gap-4"}>
+        {!vaultOpen && !layoutOpen && !calendarOpen && <button type="button" onClick={() => setLayoutOpen(true)} className="seasonal-card mt-6 flex w-full items-center justify-between gap-4 rounded-2xl border p-5 text-left transition hover:bg-[var(--primary-soft)]"><span className="flex items-center gap-4"><span className="flex shrink-0 items-center justify-center rounded-2xl bg-[var(--primary-soft)] p-2"><svg viewBox="0 0 72 58" width="66" height="54" fill="none" aria-hidden="true"><path d="M9 34 36 43 63 34 36 25Z" fill="#966037"/><path d="M9 34v12l27 9V43Z" fill="#734524"/><path d="M36 43v12l27-9V34Z" fill="#A46B3D"/><path d="m14 34 22 7 22-7-22-7Z" fill="#543E2B"/><path d="M23 29c-9-3-10-11-5-15 8 1 11 6 9 15M29 29c-3-12 1-20 8-21 3 10 0 17-8 21M45 29c-1-9 5-15 13-14 1 9-5 14-13 14" fill="#599A53" stroke="#2E6C40" strokeWidth="2"/><path d="M25 32V19M42 31V17" stroke="#376F35" strokeWidth="2.5" strokeLinecap="round"/><path d="M42 20c-9-2-10-10-6-14 7 1 10 7 6 14" fill="#7EBC66"/></svg></span><span><span className="eyebrow seasonal-muted">2027 Garden Plan</span><span className="seasonal-heading mt-1 block text-xl font-bold">Garden Layout</span><span className="seasonal-muted mt-1 block text-sm">Explore and customize your flower border, herbs, garlic, peppers, okra and tomato beds</span></span></span><span aria-hidden="true" className="text-2xl">↗</span></button>}
+        {!vaultOpen && !layoutOpen && !calendarOpen && <>
+        <div className={vaultOpen || layoutOpen || calendarOpen ? "hidden" : "mt-6 flex flex-wrap items-end justify-between gap-4"}>
           <label className="block min-w-0 flex-1 text-xs font-bold uppercase tracking-widest sm:max-w-sm">
             Your garden
             <select
