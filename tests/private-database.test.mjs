@@ -30,7 +30,7 @@ test('private setup preserves legacy data and enforces two-account ownership des
   const db = new PGlite();
   try {
     await db.exec(schema);
-    const migration = (await readFile(new URL('../supabase/private-gardens.sql',import.meta.url),'utf8')).replaceAll("'YOUR_SIGN_IN_EMAIL'", "'owner@example.test'");
+    const migration = (await readFile(new URL('../supabase/private-gardens.sql',import.meta.url),'utf8')).replace(/owner_email text := '[^']*'/, "owner_email text := 'owner@example.test'");
     await db.exec(migration);
     await db.exec(migration); // Idempotent rerun.
     assert.equal((await db.query('select notes from growing_spaces')).rows[0].notes, 'Keep original notes');
