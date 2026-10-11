@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
 import PhoneReminders from "@/components/PhoneReminders";
 import {loadCalendarOptions, reminderSnapshot, type CalendarOptions} from "@/lib/growing-calendar";
@@ -136,6 +137,8 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
   const [query,setQuery]=useState("");
   const [filter,setFilter]=useState("All");
   const [adding,setAdding]=useState(false);
+  const [viewing,setViewing]=useState<string|null>(null);
+  const viewedPlant=plants.find(p=>p.id===viewing);
   const [editing,setEditing]=useState<VaultPlant|null>(null);
   const [transferMessage,setTransferMessage]=useState("");
   const [pendingImport,setPendingImport]=useState<VaultPlant[]|null>(null);
@@ -188,17 +191,29 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
       <input aria-label="Search Plant Vault" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search plants, varieties, flowers, seeds…" className="seasonal-input w-full rounded-xl border p-3"/>
       <div className="mt-3 flex flex-wrap gap-2">{["All","Growing","Seeds","Wishlist","Past",...categories].map(x=><button key={x} onClick={()=>setFilter(x)} className={`rounded-full border px-3 py-2 text-xs font-bold ${filter===x?"seasonal-button text-white":"seasonal-outline"}`}>{x}</button>)}</div>
     </div>
-    <PhoneReminders userId={userId} tasks={reminderTasks} />
+    <PhoneReminders userId={userId} tasks={reminderTasks} showControls={false} />
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {!shown.length && <div className="seasonal-card rounded-3xl border p-8 col-span-full"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
-      {shown.map(p=><article key={p.id} className="seasonal-card rounded-3xl border p-5">
+      {shown.map(p=><article key={p.id} className="seasonal-card relative rounded-3xl border p-5 transition hover:shadow-md">
         <PlantPortrait key={`${p.name}-${p.variety}-${p.photoUrl}`} name={p.name} variety={p.variety} photoUrl={p.photoUrl} />
-        <div className="mt-4 flex justify-between gap-3"><div><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div><button aria-label={`Edit ${p.name}${p.variety ? ` ${p.variety}` : ""}`} onClick={()=>setEditing(p)} className="seasonal-link text-sm font-bold">Edit</button></div>
+        <div className="mt-4 flex justify-between gap-3"><div><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div></div>
         <div className="mt-4 flex flex-wrap gap-2">{p.statuses.map(s=><span key={s} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{s}</span>)}</div>
         {(p.source||p.year)&&<p className="seasonal-muted mt-4 text-xs">{p.source}{p.source&&p.year?" · ":""}{p.year}</p>}
         {p.notes&&<p className="mt-3 text-sm leading-6">{p.notes}</p>}
+        <button type="button" aria-label={`Open ${p.name}${p.variety ? ` ${p.variety}` : ""}`} onClick={()=>setViewing(p.id)} className="absolute inset-0 cursor-pointer rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)]" />
       </article>)}
     </div>
+    {viewedPlant && <Dialog title={[viewedPlant.name,viewedPlant.variety].filter(Boolean).join(" · ")} onClose={()=>setViewing(null)}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="eyebrow seasonal-muted">{viewedPlant.category}</p>
+        <button type="button" aria-label={`Edit ${viewedPlant.name}${viewedPlant.variety ? ` ${viewedPlant.variety}` : ""}`} onClick={()=>{setViewing(null);setEditing(viewedPlant);}} className="seasonal-button rounded-xl px-4 py-3 font-bold text-white">Edit</button>
+      </div>
+      <div className="mt-4"><PlantPortrait name={viewedPlant.name} variety={viewedPlant.variety} photoUrl={viewedPlant.photoUrl}/></div>
+      <div className="mt-4 flex flex-wrap gap-2">{viewedPlant.statuses.map(status=><span key={status} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{status}</span>)}</div>
+      {(viewedPlant.source || viewedPlant.year) && <p className="seasonal-muted mt-4 text-sm">{[viewedPlant.source,viewedPlant.year].filter(Boolean).join(" · ")}</p>}
+      {viewedPlant.notes && <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6">{viewedPlant.notes}</p>}
+      <PlantReminders key={viewedPlant.id} plant={viewedPlant} options={calendar} onSave={saveCalendar}/>
+    </Dialog>}
     {(adding||editing)&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]" onMouseDown={e=>{if(e.target===e.currentTarget){setAdding(false);setEditing(null)}}}>
       <form onSubmit={submit} className="seasonal-card max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border p-6 sm:p-8">
         <div className="flex justify-between"><div><p className="eyebrow seasonal-muted">Plant Vault</p><h3 className="seasonal-heading mt-1 text-2xl font-bold">{editing?"Edit plant":"Add to your collection"}</h3></div><button type="button" onClick={()=>{setAdding(false);setEditing(null)}} className="text-2xl">×</button></div>

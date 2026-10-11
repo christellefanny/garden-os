@@ -13,7 +13,7 @@ export default function PlantReminders({plant,options,onSave}: {plant:VaultPlant
   }
   return <section className="seasonal-outline mt-5 rounded-2xl border p-4">
     <h4 className="seasonal-heading font-bold">Plant reminders</h4>
-    <p className="seasonal-muted mt-2 text-xs">Choose a date for the morning phone digest. Enable phone reminders in the Plant Vault to receive it. Saved in this browser.</p>
+    <p className="seasonal-muted mt-2 text-xs">Choose a date for the morning phone digest. Enable phone reminders in Growing Calendar once per device to receive it. Saved in this browser.</p>
     <label className="mt-3 block text-sm font-bold">Remind me to<input value={title} onChange={e=>setTitle(e.target.value)} maxLength={200} placeholder="Check germination, repot, plant bulbs…" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
     <label className="mt-3 block text-sm font-bold">Reminder date<input type="date" value={date} onChange={e=>setDate(e.target.value)} className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
     <button type="button" onClick={add} className="seasonal-button mt-3 rounded-xl px-4 py-3 font-bold text-white">Add reminder</button>

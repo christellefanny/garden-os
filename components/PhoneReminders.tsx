@@ -5,9 +5,11 @@ type ReminderTask = { id: string; date: string; title: string; plant: string };
 export default function PhoneReminders({
   userId,
   tasks,
+  showControls = true,
 }: {
   userId: string;
   tasks: ReminderTask[];
+  showControls?: boolean;
 }) {
   const [config, setConfig] = useState<{
     ready: boolean;
@@ -189,6 +191,7 @@ export default function PhoneReminders({
       setBusy(false);
     }
   }
+  if (!showControls) return null;
   return (
     <div className="seasonal-card mt-5 rounded-2xl border p-5">
       <h3 className="seasonal-heading font-bold">Phone reminders</h3>
