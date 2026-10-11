@@ -34,6 +34,7 @@ export type SpaceDetails = {
   entries: Entry[];
   archived?: boolean;
   sourceLegacyId?: string;
+  sourceLayoutId?: string;
 };
 export type Space = {
   id: string;

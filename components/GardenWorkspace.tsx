@@ -10,6 +10,7 @@ import SpacePanel from "@/components/SpacePanel";
 import PlantPlanner from "@/components/PlantPlanner";
 import GrowingCalendar from "@/components/GrowingCalendar";
 import PlantVault from "@/components/PlantVault";
+import {layoutSpaceDrafts, type Bed} from "@/lib/garden-layout";
 import GardenLayout from "@/components/GardenLayout";
 import {
   SeasonalHero,
@@ -197,6 +198,22 @@ export default function GardenWorkspace({
       setBusy(false);
     }
   }
+  async function createLayoutSpaces(beds: Bed[]): Promise<number|null> {
+    if(busy || !garden || !loaded) return null;
+    setBusy(true);setError("");
+    try {
+      const current = await supabase.from("growing_spaces").select("*").eq("garden_id",gardenId);
+      if(current.error) throw new Error(current.error.message);
+      const drafts=layoutSpaceDrafts(beds,current.data as Space[]);
+      if(!drafts.length) return 0;
+      const {data,error}=await supabase.from("growing_spaces").insert(drafts.map(draft=>({...draft,garden_id:gardenId}))).select("*");
+      if(error) throw new Error(error.message);
+      setSpaces(previous=>[...previous.filter(space=>space.garden_id!==gardenId),...current.data as Space[],...data as Space[]]);
+      setNotice(`${data.length} growing spaces created from your layout.`);
+      return data.length;
+    } catch(error) {setError(error instanceof Error ? error.message : "Spaces could not be saved.");return null;}
+    finally {setBusy(false);}
+  }
   async function saveDetails(space: Space, details: SpaceDetails) {
     const {
       id: _id,
@@ -265,7 +282,7 @@ export default function GardenWorkspace({
         <div className="mt-2 flex justify-end">
           <button type="button" onClick={onSignOut} disabled={busy} className="seasonal-muted min-h-11 px-3 text-xs font-semibold underline">Sign out</button>
         </div>
-        {!vaultOpen && !calendarOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} onClose={() => setLayoutOpen(false)} />}
+        {!vaultOpen && !calendarOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} gardenName={garden?.name ?? "your garden"} onCreateSpaces={createLayoutSpaces} onClose={() => setLayoutOpen(false)} />}
         {calendarOpen && <GrowingCalendar userId={userId} onClose={()=>setCalendarOpen(false)}/> }
         {vaultOpen && <PlantVault userId={userId} onClose={() => setVaultOpen(false)} />}
         {!vaultOpen && !layoutOpen && !calendarOpen && <>
