@@ -1,15 +1,18 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase";
 type ReminderTask = { id: string; date: string; title: string; plant: string };
 export default function PhoneReminders({
   userId,
   tasks,
   showControls = true,
+  controlsTarget,
 }: {
   userId: string;
   tasks: ReminderTask[];
   showControls?: boolean;
+  controlsTarget?: HTMLElement | null;
 }) {
   const [config, setConfig] = useState<{
     ready: boolean;
@@ -192,7 +195,7 @@ export default function PhoneReminders({
     }
   }
   if (!showControls) return null;
-  return (
+  const controls = (
     <div className="seasonal-card mt-5 rounded-2xl border p-5">
       <h3 className="seasonal-heading font-bold">Phone reminders</h3>
       <p className="seasonal-muted mt-2 text-sm leading-6">
@@ -221,7 +224,7 @@ export default function PhoneReminders({
               onClick={disable}
               className="seasonal-outline rounded-xl border px-4 py-2 text-sm font-bold"
             >
-              Turn off reminders
+              Turn off notifications
             </button>
           </>
         ) : (
@@ -241,4 +244,5 @@ export default function PhoneReminders({
       )}
     </div>
   );
+  return controlsTarget ? createPortal(controls, controlsTarget) : controls;
 }

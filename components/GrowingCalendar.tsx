@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { VaultPlant } from "@/components/PlantVault";
 import {
   buildGrowingTasks,
@@ -12,6 +12,8 @@ import {
   type CalendarOptions,
 } from "@/lib/growing-calendar";
 import {groupReminders} from "@/lib/reminder-groups";
+import Dialog from "@/components/ui/Dialog";
+import PlantReminders from "@/components/PlantReminders";
 import PhoneReminders from "@/components/PhoneReminders";
 export default function GrowingCalendar({
   userId,
@@ -29,6 +31,14 @@ export default function GrowingCalendar({
       return [];
     }
   });
+  const [addingReminder, setAddingReminder] = useState(false);
+  const [selectedPlantId, setSelectedPlantId] = useState(plants[0]?.id ?? "");
+  const [controlsTarget, setControlsTarget] = useState<HTMLDivElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({preventScroll: true});
+    headingRef.current?.scrollIntoView({block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  }, []);
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   const [today] = useState(() => localDay());
   const currentYear = Number(today.slice(0, 4));
@@ -61,10 +71,12 @@ export default function GrowingCalendar({
       );
       setOptions(next);
       setMessage("");
+      return true;
     } catch {
       setMessage(
         "Could not save calendar changes in this browser. Try exporting your vault to keep a backup.",
       );
+      return false;
     }
   }
   function taskChange(id: string, value: CalendarOptions["tasks"][string]) {
@@ -80,26 +92,40 @@ export default function GrowingCalendar({
           <p className="eyebrow seasonal-muted">
             Plainfield, Illinois · Central Time
           </p>
-          <h2 className="editorial-title seasonal-heading mt-2 text-4xl">
+          <h2 id="growing-calendar-heading" ref={headingRef} tabIndex={-1} className="scroll-mt-6 outline-none editorial-title seasonal-heading mt-2 text-4xl">
             Growing Calendar
           </h2>
           <p className="seasonal-muted mt-2">
             A year of useful next steps, shaped by your Plant Vault.
           </p>
         </div>
+        <div className="flex flex-wrap gap-3">
+        <button type="button" onClick={() => setAddingReminder(true)} className="seasonal-button rounded-xl px-4 py-3 font-bold text-white">Add reminder</button>
         <button
           onClick={onClose}
           className="seasonal-outline rounded-xl border px-4 py-3 font-bold"
         >
           Back to garden
         </button>
+        </div>
       </div>
       <p className="seasonal-muted mt-4 text-sm">
         {active} plants included. Similar varieties share a task. Dates are
         planning reminders—check your seed packet, soil and local forecast
         before planting.
       </p>
-      <PhoneReminders userId={userId} tasks={reminderTasks} />
+      <PhoneReminders userId={userId} tasks={reminderTasks} showControls={addingReminder && !!controlsTarget} controlsTarget={controlsTarget} />
+      {addingReminder && <Dialog title="Add reminder" onClose={() => setAddingReminder(false)}>
+        {plants.length ? <>
+          <label className="block text-sm font-bold">Plant
+            <select className="seasonal-input mt-2 w-full rounded-xl border p-3" value={selectedPlantId} onChange={event => setSelectedPlantId(event.target.value)}>
+              {[...plants].sort((a,b) => a.name.localeCompare(b.name)).map(plant => <option key={plant.id} value={plant.id}>{plant.name}{plant.variety ? ` · ${plant.variety}` : ""}</option>)}
+            </select>
+          </label>
+          {plants.find(plant => plant.id === selectedPlantId) && <PlantReminders key={selectedPlantId} plant={plants.find(plant => plant.id === selectedPlantId)!} options={options} onSave={save} />}
+        </> : <p className="seasonal-muted">Add a plant to your Plant Vault first to create a plant reminder.</p>}
+        <div ref={setControlsTarget} />
+      </Dialog>}
       <details className="seasonal-card mt-5 rounded-2xl border p-5">
         <summary className="seasonal-heading cursor-pointer font-bold">
           Choose plants and adjust planning dates
