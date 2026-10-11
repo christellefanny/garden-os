@@ -268,7 +268,7 @@ export default function BlankGardenLayout({
           <button type="button" onClick={()=>setEditing(!editing)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">{editing?"Done editing":"Edit Layout"}</button>
           <button type="button" disabled={importing} onClick={async()=>{setImporting(true);try{const beds:Bed[]=layout.items.filter(item=>item.kind==="Bed"||item.kind==="Container").map(item=>({...item,emoji:"",color:safeColor(item.color,colors[item.kind]),notes:"",spaceType:item.kind==="Container"?"Container":"Raised Bed"}));const count=await onCreateSpaces(beds);setMessage(count===null?"Could not save growing spaces. Try again.":count===0?"No new growing spaces to add. Existing matches were kept.":`${count} growing spaces created.`);}finally{setImporting(false);}}} className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50">{importing?"Saving…":"Create growing spaces"}</button>
           </>}
-          <button type="button" onClick={onBack} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Back to original layout</button>
+          <button type="button" onClick={onBack} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Back</button>
         </div>
       </div>
       {creating && (

@@ -183,9 +183,11 @@ const server = spawn(
     await page.getByRole("status").filter({hasText:"1 growing spaces created."}).waitFor();
     const imported=(await (await fetch("http://127.0.0.1:54321/control/state")).json()).spaces;
     assert.equal(imported.length,2);assert.equal(imported.find(space=>space.name==="Container 1").type,"Container");
-    await page
-      .getByRole("button", { name: "Back to original layout", exact: true })
-      .click();
+    await page.getByRole("button",{name:"Back",exact:true}).click();
+    assert.equal(await page.getByRole("button",{name:"+ Add Growing Space",exact:true}).count(),1);
+    await page.locator('nav[aria-label="Garden OS main features"]').getByRole("button",{name:/Garden Layout/}).click();
+    assert.equal(await canvas.getByRole("button",{name:/Select/}).count(),4);
+    await page.locator('nav[aria-label="Saved garden layouts"]').getByRole("button",{name:"Original nine-bed layout",exact:true}).click();
     assert.equal(
       await page
         .locator('nav[aria-label="Garden layout sections"] button')
