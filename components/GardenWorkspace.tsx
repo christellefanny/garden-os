@@ -238,7 +238,13 @@ export default function GardenWorkspace({
   return (
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-        <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} calendarOpen={calendarOpen} onOpenCalendar={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false);document.getElementById("growing-calendar-heading")?.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});}} />
+        <GardenHeader onHome={() => {
+          setVaultOpen(false);
+          setLayoutOpen(false);
+          setCalendarOpen(false);
+          window.history.replaceState(window.history.state, "", "/");
+          window.scrollTo({top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+        }} gardenYear={garden?.year ?? new Date().getFullYear()} calendarOpen={calendarOpen} onOpenCalendar={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false);document.getElementById("growing-calendar-heading")?.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});}} />
         {!calendarOpen && <nav className="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Garden OS main features">
           <button type="button" onClick={() => {setVaultOpen(false);setLayoutOpen(false);setCalendarOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen && !layoutOpen && !calendarOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
             <span className="text-3xl" aria-hidden="true">🏡</span>

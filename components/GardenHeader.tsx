@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { parseThemeSelection, seasonContent, seasons } from "@/lib/seasons";
 import GardenIcon from "@/components/ui/GardenIcon";
 
 const seasonEmoji = { spring: "🌷", summer: "🦋", fall: "🍂", winter: "❄️" } as const;
 
-export default function GardenHeader({ gardenYear, onOpenCalendar, calendarOpen = false }: { gardenYear: number; onOpenCalendar?: () => void; calendarOpen?: boolean }) {
+export default function GardenHeader({ gardenYear, onOpenCalendar, onHome, calendarOpen = false }: { gardenYear: number; onOpenCalendar?: () => void; onHome?: () => void; calendarOpen?: boolean }) {
   const { season, selection, setSelection } = useSeason();
   return (
     <header className="flex flex-col justify-between gap-5 border-b border-[var(--border)] pb-7 sm:flex-row sm:items-center">
@@ -16,7 +17,12 @@ export default function GardenHeader({ gardenYear, onOpenCalendar, calendarOpen 
             <GardenIcon className="h-8 w-8" />
           </span>
           <h1 className="editorial-title text-4xl tracking-tight text-[var(--primary-dark)] sm:text-5xl">
-            Garden OS<span className="text-[var(--accent)]">.</span>
+            <Link href="/" aria-label="Garden OS home" className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)]" onClick={event => {
+              if (onHome && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+                event.preventDefault();
+                onHome();
+              }
+            }}>Garden OS<span className="text-[var(--accent)]">.</span></Link>
           </h1>
         </div>
         <p className="seasonal-muted mt-3 text-sm">Grow smarter. Harvest better.</p>
