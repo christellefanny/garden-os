@@ -13,6 +13,11 @@ export default function Dialog({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const headingId = useId();
+  const startedOutside = useRef(false);
+  function outsideBounds(event: {clientX: number; clientY: number}, dialog: HTMLDialogElement) {
+    const bounds = dialog.getBoundingClientRect();
+    return event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
+  }
   useEffect(() => {
     const dialog = ref.current;
     const previous = document.activeElement as HTMLElement | null;
@@ -26,6 +31,14 @@ export default function Dialog({
     <dialog
       ref={ref}
       aria-labelledby={headingId}
+      onPointerDown={event => {
+        startedOutside.current = event.target === event.currentTarget && outsideBounds(event, event.currentTarget);
+      }}
+      onPointerCancel={() => {startedOutside.current = false;}}
+      onClick={event => {
+        if (startedOutside.current && event.target === event.currentTarget && outsideBounds(event, event.currentTarget)) onClose();
+        startedOutside.current = false;
+      }}
       onCancel={(event) => {
         event.preventDefault();
         onClose();

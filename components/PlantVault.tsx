@@ -214,7 +214,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
       {viewedPlant.notes && <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6">{viewedPlant.notes}</p>}
       <PlantReminders key={viewedPlant.id} plant={viewedPlant} options={calendar} onSave={saveCalendar}/>
     </Dialog>}
-    {(adding||editing)&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]" onMouseDown={e=>{if(e.target===e.currentTarget){setAdding(false);setEditing(null)}}}>
+    {(adding||editing)&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]" onPointerDown={e=>{if(e.target===e.currentTarget){setAdding(false);setEditing(null)}}}>
       <form onSubmit={submit} className="seasonal-card max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border p-6 sm:p-8">
         <div className="flex justify-between"><div><p className="eyebrow seasonal-muted">Plant Vault</p><h3 className="seasonal-heading mt-1 text-2xl font-bold">{editing?"Edit plant":"Add to your collection"}</h3></div><button type="button" onClick={()=>{setAdding(false);setEditing(null)}} className="text-2xl">×</button></div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">

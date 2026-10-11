@@ -402,7 +402,7 @@ export default function GardenWorkspace({
             role="dialog"
             aria-modal="true"
             aria-label={gardenForm === "edit" ? "Edit garden" : "New garden"}
-            onMouseDown={(e) => {
+            onPointerDown={(e) => {
               if (e.target === e.currentTarget && !busy) setGardenForm(null);
             }}
           >
