@@ -13,8 +13,9 @@ type Item = {
   w: number;
   h: number;
   spaceId: string;
+  color?: string;
 };
-type Layout = { id: string; name: string; items: Item[] };
+type Layout = { id: string; name: string; items: Item[]; color?: string };
 const kinds: Item["kind"][] = ["Bed", "Container", "Path", "Border"];
 const colors = {
   Bed: "#816344",
@@ -22,6 +23,14 @@ const colors = {
   Path: "#c2b69f",
   Border: "#667c60",
 };
+function safeColor(value: string | undefined, fallback: string): string {
+  return value && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
+}
+function colorText(background: string): string {
+  const channels=[1,3,5].map(index=>{const value=parseInt(background.slice(index,index+2),16)/255;return value<=0.04045?value/12.92:((value+0.055)/1.055)**2.4;});
+  const luminance=channels[0]*0.2126+channels[1]*0.7152+channels[2]*0.0722;
+  return luminance>0.179?"#000000":"#ffffff";
+}
 const clamp = (n: number, min: number, max: number) =>
   Math.max(min, Math.min(max, n));
 function load(key: string): Layout[] {
@@ -300,6 +309,10 @@ export default function BlankGardenLayout({
                 ))}
               </select>
             </label>
+            <label className="flex items-center gap-2 text-sm font-bold">
+              Garden color
+              <input type="color" value={safeColor(layout.color,"#f4f1e7")} onChange={event=>persist(layouts.map(l=>l.id===layoutId?{...l,color:event.target.value}:l))} className="h-11 w-14 cursor-pointer rounded-lg border border-[var(--border)] p-1" />
+            </label>
             {kinds.map((kind) => (
               <button
                 type="button"
@@ -322,6 +335,7 @@ export default function BlankGardenLayout({
               aria-label="Garden layout canvas"
               className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
               style={{
+                backgroundColor: safeColor(layout.color,"#f4f1e7"),
                 backgroundImage:
                   "linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)",
                 backgroundSize: "5% 5%",
@@ -329,7 +343,7 @@ export default function BlankGardenLayout({
             >
               {!layout.items.length && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8 text-center">
-                  <p className="seasonal-muted max-w-xs">
+                  <p className="max-w-xs" style={{color:colorText(safeColor(layout.color,"#f4f1e7"))}}>
                     Your blank canvas is ready. Add a bed or container to start
                     planning.
                   </p>
@@ -375,8 +389,8 @@ export default function BlankGardenLayout({
                     }}
                     className={`h-full w-full touch-none overflow-hidden border-2 p-1 text-center text-xs font-bold shadow-sm focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] ${selected === target.id ? "border-[#d3a743] ring-2 ring-[#d3a743]" : "border-white/70"}`}
                     style={{
-                      backgroundColor: colors[target.kind],
-                      color: target.kind === "Path" ? "#40392c" : "#fff",
+                      backgroundColor: safeColor(target.color,colors[target.kind]),
+                      color: colorText(safeColor(target.color,colors[target.kind])),
                       borderRadius:
                         target.kind === "Container" ? "50%" : "10px",
                     }}
@@ -415,6 +429,10 @@ export default function BlankGardenLayout({
                       }
                       className="seasonal-input mt-1 w-full rounded-xl border p-2"
                     />
+                  </label>
+                  <label className="flex items-center justify-between gap-3 text-sm font-bold">
+                    {item.kind} color
+                    <input type="color" value={safeColor(item.color,colors[item.kind])} onChange={event=>replaceItem({...item,color:event.target.value})} className="h-11 w-14 cursor-pointer rounded-lg border border-[var(--border)] p-1" />
                   </label>
                   <p className="seasonal-muted text-sm">{item.kind}</p>
                   <div className="grid grid-cols-2 gap-3">

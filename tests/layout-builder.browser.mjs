@@ -112,10 +112,13 @@ const server = spawn(
     assert.equal(await canvas.getByRole("button").count(), 0);
     await page.getByRole("button", { name: "Add bed", exact: true }).click();
     await page.getByLabel("Item name", { exact: true }).fill("Garlic bed");
+    await page.getByLabel("Garden color",{exact:true}).fill("#cde5ce");
+    await page.getByLabel("Bed color",{exact:true}).fill("#e7bd67");
     const bed = page.getByRole("button", {
       name: "Select Garlic bed",
       exact: true,
     });
+    await bed.scrollIntoViewIfNeeded();
     const bounds = await bed.boundingBox();
     await page.mouse.move(
       bounds.x + bounds.width / 2,
@@ -136,6 +139,7 @@ const server = spawn(
       name: "Resize Garlic bed",
       exact: true,
     });
+    await handle.scrollIntoViewIfNeeded();
     const hb = await handle.boundingBox();
     await page.mouse.move(hb.x + 10, hb.y + 10);
     await page.mouse.down();
@@ -198,6 +202,10 @@ const server = spawn(
       await canvas.getByRole("button", { name: /Select/ }).count(),
       4,
     );
+    assert.equal(await page.getByLabel("Garden color",{exact:true}).inputValue(),"#cde5ce");
+    await page.getByRole("button",{name:"Select Garlic bed",exact:true}).click();
+    assert.equal(await page.getByLabel("Bed color",{exact:true}).inputValue(),"#e7bd67");
+    assert.equal(await page.getByRole("button",{name:"Select Garlic bed",exact:true}).evaluate(el=>getComputedStyle(el).color),"rgb(0, 0, 0)");
     await page
       .getByRole("button", { name: "Create layout", exact: true })
       .click();
