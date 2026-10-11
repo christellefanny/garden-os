@@ -282,7 +282,7 @@ export default function GardenWorkspace({
         <div className="mt-2 flex justify-end">
           <button type="button" onClick={onSignOut} disabled={busy} className="seasonal-muted min-h-11 px-3 text-xs font-semibold underline">Sign out</button>
         </div>
-        {!vaultOpen && !calendarOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} gardenName={garden?.name ?? "your garden"} onCreateSpaces={createLayoutSpaces} onClose={() => setLayoutOpen(false)} />}
+        {!vaultOpen && !calendarOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} gardenName={garden?.name ?? "your garden"} spaces={activeSpaces} onOpenSpace={spaceId=>{setPlantSpacing(undefined);setOpenId(spaceId);}} onCreateSpaces={createLayoutSpaces} onClose={() => setLayoutOpen(false)} />}
         {calendarOpen && <GrowingCalendar userId={userId} onClose={()=>setCalendarOpen(false)}/> }
         {vaultOpen && <PlantVault userId={userId} onClose={() => setVaultOpen(false)} />}
         {!vaultOpen && !layoutOpen && !calendarOpen && <>
