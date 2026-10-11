@@ -1,6 +1,6 @@
 import type {Space} from "./garden";
 export type BedPlant = { id:string; name:string; variety:string; quantity:string; notes:string }; 
-export type Bed = { plants?:BedPlant[]; spaceId?:string; id:string; name:string; emoji:string; x:number;y:number;w:number;h:number; color:string; notes:string };
+export type Bed = { plants?:BedPlant[]; spaceId?:string; spaceType?:string; id:string; name:string; emoji:string; x:number;y:number;w:number;h:number; color:string; notes:string };
 export const initialLayout:Bed[]=[
 {id:"flowers",name:"Flowers",emoji:"🌸",x:18,y:2,w:79,h:11,color:"#b74b79",notes:"Flower border along the back."},
 {id:"herbs",name:"Herbs",emoji:"🌿",x:2,y:16,w:13,h:78,color:"#397c44",notes:"Long herb border on the left."},
@@ -13,20 +13,21 @@ export const initialLayout:Bed[]=[
 {id:"hot-peppers-bottom",name:"Hot Peppers",emoji:"🌶️",x:70,y:79,w:28,h:16,color:"#447e3b",notes:"Second hot pepper bed."},
 ];
 
-export function layoutSpaceDrafts(beds: Bed[], existing: Space[]) {
+export function layoutSpaceDrafts(beds: Bed[], existing: Space[], excludePeppers = true) {
  const used = new Set<string>();
- const nonPepper = beds.filter(b => !/pepper/i.test(`${b.id} ${b.name}`));
+ const nonPepper = beds.filter(b => !excludePeppers || !/pepper/i.test(`${b.id} ${b.name}`));
  return nonPepper.flatMap(bed => {
   const sameName = beds.filter(b => b.name.trim().toLowerCase() === bed.name.trim().toLowerCase());
   const suffix = sameName.length > 1 ? ` (${sameName.indexOf(bed)+1})` : "";
   const name = `${bed.name.trim()}${suffix}`;
   const match = existing.find(space => {
    if(used.has(space.id)) return false;
+   if(bed.spaceId === space.id) return true;
    try {if(JSON.parse(space.notes ?? "null")?.sourceLayoutId === bed.id) return true;} catch { /* Keep unsupported records intact. */ }
    return [name,bed.name.trim()].some(candidate => candidate.toLowerCase() === space.name.trim().toLowerCase());
   });
   if(match){used.add(match.id);return [];}
-  return [{name,type:bed.id === "flowers" || bed.id === "herbs" ? "In-ground Bed" : "Raised Bed",length_feet:null,width_feet:null,depth_feet:null,diameter_inches:null,sun_exposure:null,irrigation:null,soil_type:null,notes:JSON.stringify({garden_os:1,notes:[bed.notes,...(bed.plants??[]).map(p=>`${p.name}${p.variety ? ` · ${p.variety}`:""}${p.quantity ? ` · ${p.quantity}`:""}${p.notes ? ` — ${p.notes}`:""}`)].filter(Boolean).join("\n"),plants:[],entries:[],sourceLayoutId:bed.id})}];
+  return [{name,type:bed.spaceType ?? (bed.id === "flowers" || bed.id === "herbs" ? "In-ground Bed" : "Raised Bed"),length_feet:null,width_feet:null,depth_feet:null,diameter_inches:null,sun_exposure:null,irrigation:null,soil_type:null,notes:JSON.stringify({garden_os:1,notes:[bed.notes,...(bed.plants??[]).map(p=>`${p.name}${p.variety ? ` · ${p.variety}`:""}${p.quantity ? ` · ${p.quantity}`:""}${p.notes ? ` — ${p.notes}`:""}`)].filter(Boolean).join("\n"),plants:[],entries:[],sourceLayoutId:bed.id})}];
  });
 }
 

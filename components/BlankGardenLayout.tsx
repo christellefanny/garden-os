@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent } from "react";
+import type {Bed} from "@/lib/garden-layout";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
 
@@ -71,6 +72,8 @@ export default function BlankGardenLayout({
   selectedLayoutId,
   onSelectLayout,
   onLayoutsChange,
+  onRename,
+  onCreateSpaces,
 }: {
   userId: string;
   gardenId: string;
@@ -80,10 +83,15 @@ export default function BlankGardenLayout({
   selectedLayoutId: string;
   onSelectLayout: (id:string) => void;
   onLayoutsChange: (layouts:Layout[]) => void;
+  onRename:()=>void;
+  onCreateSpaces:(beds:Bed[])=>Promise<number|null>;
 }) {
   const storageKey = `garden-os-custom-layouts-v1-${userId}-${gardenId}`;
   const [layouts, setLayouts] = useState<Layout[]>(() => loadCustomLayouts(storageKey));
   const layoutId = selectedLayoutId;
+  const [view,setView]=useState<"garden"|"plan">("garden");
+  const [editing,setEditing]=useState(()=>selectedLayoutId === "new" || loadCustomLayouts(storageKey).find(layout=>layout.id===selectedLayoutId)?.items.length===0);
+  const [importing,setImporting]=useState(false);
   const [selected, setSelected] = useState("");
   const [creating, setCreating] = useState(() => selectedLayoutId === "new" || loadCustomLayouts(storageKey).length === 0);
   const [newName, setNewName] = useState("My garden layout");
@@ -101,7 +109,7 @@ export default function BlankGardenLayout({
   } | null>(null);
   const layout = layouts.find((l) => l.id === layoutId);
   const item = layout?.items.find((i) => i.id === selected);
-  const space = spaces.find((s) => s.id === item?.spaceId);
+  const space = item ? spaces.find(s=>{if(item.spaceId)return s.id===item.spaceId;try{return JSON.parse(s.notes??"null")?.sourceLayoutId===item.id;}catch{return false;}}) : undefined;
   let plants: ReturnType<typeof readDetails>["plants"] = [],
     plantError = "";
   if (space) {
@@ -164,13 +172,14 @@ export default function BlankGardenLayout({
     onSelectLayout(next.id);
     setSelected("");
     setCreating(false);
+    setEditing(true);
   }
   function start(
     event: PointerEvent<HTMLButtonElement>,
     target: Item,
     kind: "move" | "resize",
   ) {
-    if (event.button !== 0 || !canvas.current) return;
+    if (!editing || event.button !== 0 || !canvas.current) return;
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.focus();
@@ -235,7 +244,7 @@ export default function BlankGardenLayout({
         <div>
           <p className="eyebrow seasonal-muted">Your garden, your design</p>
           <h2 className="editorial-title seasonal-heading mt-2 text-4xl">
-            Layout builder
+            {layout?.name ?? "New garden layout"}
           </h2>
           <p className="seasonal-muted mt-2">
             Start empty. Place your beds, containers, paths, and borders.
@@ -252,13 +261,14 @@ export default function BlankGardenLayout({
           >
             Create layout
           </button>
-          <button
-            type="button"
-            onClick={onBack}
-            className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold"
-          >
-            Back to original layout
-          </button>
+          {layout&&<>
+          <button type="button" onClick={onRename} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Rename layout</button>
+          <button type="button" aria-pressed={view==="garden"} onClick={()=>setView("garden")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Garden View</button>
+          <button type="button" aria-pressed={view==="plan"} onClick={()=>setView("plan")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Plan View</button>
+          <button type="button" onClick={()=>setEditing(!editing)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">{editing?"Done editing":"Edit Layout"}</button>
+          <button type="button" disabled={importing} onClick={async()=>{setImporting(true);try{const beds:Bed[]=layout.items.filter(item=>item.kind==="Bed"||item.kind==="Container").map(item=>({...item,emoji:"",color:safeColor(item.color,colors[item.kind]),notes:"",spaceType:item.kind==="Container"?"Container":"Raised Bed"}));const count=await onCreateSpaces(beds);setMessage(count===null?"Could not save growing spaces. Try again.":count===0?"No new growing spaces to add. Existing matches were kept.":`${count} growing spaces created.`);}finally{setImporting(false);}}} className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50">{importing?"Saving…":"Create growing spaces"}</button>
+          </>}
+          <button type="button" onClick={onBack} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Back to original layout</button>
         </div>
       </div>
       {creating && (
@@ -306,6 +316,7 @@ export default function BlankGardenLayout({
               <button
                 type="button"
                 key={kind}
+                disabled={!editing}
                 onClick={() => add(kind)}
                 className="seasonal-outline min-h-11 rounded-xl border px-3 py-2 text-sm font-bold"
               >
@@ -325,8 +336,7 @@ export default function BlankGardenLayout({
               className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
               style={{
                 backgroundColor: safeColor(layout.color,"#f4f1e7"),
-                backgroundImage:
-                  "linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)",
+                backgroundImage: view==="plan" ? "linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)" : "none",
                 backgroundSize: "5% 5%",
               }}
             >
@@ -358,6 +368,7 @@ export default function BlankGardenLayout({
                     onPointerUp={() => finish()}
                     onPointerCancel={() => finish(true)}
                     onKeyDown={(event) => {
+                      if(!editing)return;
                       const delta = event.shiftKey ? 5 : 1;
                       const changes: Record<string, [number, number]> = {
                         ArrowLeft: [-delta, 0],
@@ -386,7 +397,7 @@ export default function BlankGardenLayout({
                   >
                     {target.name}
                   </button>
-                  {selected === target.id && (
+                  {editing && selected === target.id && (
                     <button
                       type="button"
                       aria-label={`Resize ${target.name}`}
@@ -436,6 +447,7 @@ export default function BlankGardenLayout({
                       <label key={field} className="block text-sm font-bold">
                         {label}
                         <input
+                          disabled={!editing}
                           type="number"
                           min={field === "w" || field === "h" ? 4 : 0}
                           max={100}
@@ -455,7 +467,7 @@ export default function BlankGardenLayout({
                         Linked growing space
                         <select
                           aria-label="Linked growing space"
-                          value={item.spaceId}
+                          value={item.spaceId || space?.id || ""}
                           onChange={(event) =>
                             replaceItem({
                               ...item,

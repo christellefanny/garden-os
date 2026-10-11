@@ -198,13 +198,13 @@ export default function GardenWorkspace({
       setBusy(false);
     }
   }
-  async function createLayoutSpaces(beds: Bed[]): Promise<number|null> {
+  async function createLayoutSpaces(beds: Bed[], excludePeppers = true): Promise<number|null> {
     if(busy || !garden || !loaded) return null;
     setBusy(true);setError("");
     try {
       const current = await supabase.from("growing_spaces").select("*").eq("garden_id",gardenId);
       if(current.error) throw new Error(current.error.message);
-      const drafts=layoutSpaceDrafts(beds,current.data as Space[]);
+      const drafts=layoutSpaceDrafts(beds,current.data as Space[],excludePeppers);
       if(!drafts.length) return 0;
       const {data,error}=await supabase.from("growing_spaces").insert(drafts.map(draft=>({...draft,garden_id:gardenId}))).select("*");
       if(error) throw new Error(error.message);
