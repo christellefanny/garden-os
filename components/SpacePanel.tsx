@@ -82,12 +82,12 @@ export default function SpacePanel({
     event.preventDefault();
     const form = event.currentTarget,
       f = new FormData(form);
-    const text = String(f.get("text") || "").trim();
-    if (!text) return;
+    const kind = String(f.get("kind")) as Entry["kind"];
+    const text = String(f.get("text") || "").trim() || `${kind} recorded.`;
     const entry: Entry = {
       id: crypto.randomUUID(),
       date: String(f.get("date")),
-      kind: String(f.get("kind")) as Entry["kind"],
+      kind,
       text,
     };
     const saved = await onSave({
@@ -342,12 +342,14 @@ export default function SpacePanel({
               <textarea
                 name="text"
                 rows={2}
-                required
                 maxLength={5000}
                 placeholder="Picked 2 lb of tomatoes, watered the bed…"
                 className="seasonal-input mt-1 w-full rounded-xl border p-3"
               />
             </label>
+            <p className="seasonal-muted text-xs">
+              Description is optional. Save Plant above saves your plant without a garden log entry.
+            </p>
             <button
               type="submit"
               className="seasonal-button rounded-xl px-4 py-3 font-bold text-white"
