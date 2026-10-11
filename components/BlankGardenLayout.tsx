@@ -15,7 +15,7 @@ type Item = {
   spaceId: string;
   color?: string;
 };
-type Layout = { id: string; name: string; items: Item[]; color?: string };
+export type Layout = { id: string; name: string; items: Item[]; color?: string };
 const kinds: Item["kind"][] = ["Bed", "Container", "Path", "Border"];
 const colors = {
   Bed: "#816344",
@@ -33,7 +33,7 @@ function colorText(background: string): string {
 }
 const clamp = (n: number, min: number, max: number) =>
   Math.max(min, Math.min(max, n));
-function load(key: string): Layout[] {
+export function loadCustomLayouts(key: string): Layout[] {
   try {
     const value = JSON.parse(localStorage.getItem(key) || "[]");
     return Array.isArray(value)
@@ -68,18 +68,24 @@ export default function BlankGardenLayout({
   spaces,
   onOpenSpace,
   onBack,
+  selectedLayoutId,
+  onSelectLayout,
+  onLayoutsChange,
 }: {
   userId: string;
   gardenId: string;
   spaces: Space[];
   onOpenSpace: (id: string) => void;
   onBack: () => void;
+  selectedLayoutId: string;
+  onSelectLayout: (id:string) => void;
+  onLayoutsChange: (layouts:Layout[]) => void;
 }) {
   const storageKey = `garden-os-custom-layouts-v1-${userId}-${gardenId}`;
-  const [layouts, setLayouts] = useState<Layout[]>(() => load(storageKey));
-  const [layoutId, setLayoutId] = useState(() => load(storageKey)[0]?.id ?? "");
+  const [layouts, setLayouts] = useState<Layout[]>(() => loadCustomLayouts(storageKey));
+  const layoutId = selectedLayoutId;
   const [selected, setSelected] = useState("");
-  const [creating, setCreating] = useState(() => load(storageKey).length === 0);
+  const [creating, setCreating] = useState(() => selectedLayoutId === "new" || loadCustomLayouts(storageKey).length === 0);
   const [newName, setNewName] = useState("My garden layout");
   const [message, setMessage] = useState("");
   const canvas = useRef<HTMLDivElement>(null);
@@ -108,6 +114,7 @@ export default function BlankGardenLayout({
   }
   function persist(next: Layout[]) {
     setLayouts(next);
+    onLayoutsChange(next);
     try {
       localStorage.setItem(storageKey, JSON.stringify(next));
       setMessage("Layout saved in this browser.");
@@ -154,7 +161,7 @@ export default function BlankGardenLayout({
     }
     const next = { id: crypto.randomUUID(), name, items: [] };
     persist([...layouts, next]);
-    setLayoutId(next.id);
+    onSelectLayout(next.id);
     setSelected("");
     setCreating(false);
   }
@@ -291,24 +298,6 @@ export default function BlankGardenLayout({
       {layout ? (
         <>
           <div className="seasonal-card mt-6 flex flex-wrap items-center gap-3 rounded-2xl border p-4">
-            <label className="text-sm font-bold">
-              Saved layout
-              <select
-                aria-label="Saved layout"
-                value={layoutId}
-                onChange={(event) => {
-                  setLayoutId(event.target.value);
-                  setSelected("");
-                }}
-                className="seasonal-input ml-2 rounded-xl border p-2"
-              >
-                {layouts.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </label>
             <label className="flex items-center gap-2 text-sm font-bold">
               Garden color
               <input type="color" value={safeColor(layout.color,"#f4f1e7")} onChange={event=>persist(layouts.map(l=>l.id===layoutId?{...l,color:event.target.value}:l))} className="h-11 w-14 cursor-pointer rounded-lg border border-[var(--border)] p-1" />
