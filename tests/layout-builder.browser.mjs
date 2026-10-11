@@ -228,6 +228,21 @@ const server = spawn(
     assert.equal(await canvas.getByRole("button").count(),0);
     await page.getByLabel("Garden layout",{exact:true}).selectOption("original");
     assert.equal(await page.locator('nav[aria-label="Garden layout sections"] button').count(),9);
+    await page.getByLabel("Garden layout",{exact:true}).selectOption({label:"2027 blank plan"});
+    await page.getByRole("button",{name:"Rename layout",exact:true}).click();
+    await page.getByRole("dialog").getByLabel("Layout name").fill("Vegetable garden 2027");
+    await page.getByRole("button",{name:"Save name",exact:true}).click();
+    assert.equal(await page.getByLabel("Garden layout",{exact:true}).evaluate(el=>el.selectedOptions[0].textContent),"Vegetable garden 2027");
+    assert.equal(await canvas.getByRole("button",{name:/Select/}).count(),4);
+    await page.reload();
+    await page.locator('nav[aria-label="Garden OS main features"]').getByRole("button",{name:/Garden Layout/}).click();
+    assert.equal(await page.getByLabel("Garden layout",{exact:true}).evaluate(el=>el.selectedOptions[0].textContent),"Vegetable garden 2027");
+    await page.getByLabel("Garden layout",{exact:true}).selectOption("original");
+    await page.getByRole("button",{name:"Rename layout",exact:true}).click();
+    await page.getByRole("dialog").getByLabel("Layout name").fill("Original garden");
+    await page.getByRole("button",{name:"Save name",exact:true}).click();
+    assert.equal(await page.getByLabel("Garden layout",{exact:true}).evaluate(el=>el.selectedOptions[0].textContent),"Original garden");
+    assert.equal(await page.locator('nav[aria-label="Garden layout sections"] button').count(),9);
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       assert.equal(
