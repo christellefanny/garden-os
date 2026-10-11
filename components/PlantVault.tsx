@@ -182,7 +182,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
       <p className="seasonal-muted text-sm">Moving between Garden OS links? Export your collection from the old page, then import it here. Your original collection stays on the old page.</p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <button onClick={exportVault} className="seasonal-outline rounded-xl border px-4 py-2 text-sm font-bold">Export Plant Vault</button>
-        <label className="text-sm font-bold">Import Plant Vault<input aria-label="Import Plant Vault backup" type="file" accept=".json,application/json" className="mt-1 block max-w-full text-sm" onChange={e=>{void chooseBackup(e.target.files?.[0]); e.target.value="";}} /></label>
+        <label className="min-w-0 max-w-full text-sm font-bold">Import Plant Vault<input aria-label="Import Plant Vault backup" type="file" accept=".json,application/json" className="mt-1 block max-w-full text-sm" onChange={e=>{void chooseBackup(e.target.files?.[0]); e.target.value="";}} /></label>
       </div>
       {pendingImport && <div className="mt-3"><p className="text-sm">Ready to combine {pendingImport.length} plants with your current collection. Existing details take priority; notes and statuses are combined.</p><div className="mt-2 flex gap-3"><button onClick={importVault} className="seasonal-button rounded-xl px-4 py-2 text-sm font-bold text-white">Import collection</button><button onClick={()=>setPendingImport(null)} className="seasonal-link text-sm font-bold">Cancel import</button></div></div>}
       {transferMessage && <p role="status" className="mt-3 text-sm">{transferMessage}</p>}

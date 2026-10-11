@@ -238,8 +238,8 @@ export default function GardenWorkspace({
   return (
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
-        <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} />
-        <nav className="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Garden OS main features">
+        <GardenHeader gardenYear={garden?.year ?? new Date().getFullYear()} calendarOpen={calendarOpen} onOpenCalendar={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false);}} />
+        <nav className="mt-6 grid gap-3 sm:grid-cols-2" aria-label="Garden OS main features">
           <button type="button" onClick={() => {setVaultOpen(false);setLayoutOpen(false);setCalendarOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen && !layoutOpen && !calendarOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
             <span className="text-3xl" aria-hidden="true">🏡</span>
             <span className="mt-3 block text-xl font-bold">My Garden</span>
@@ -250,7 +250,6 @@ export default function GardenWorkspace({
             <span className="mt-3 block text-xl font-bold">Plant Vault</span>
             <span className={`mt-1 block text-sm ${vaultOpen ? "text-white/80" : "seasonal-muted"}`}>Your plants, seeds, varieties, history & wishlist</span>
           </button>
-          <button type="button" onClick={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false);}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${calendarOpen?"seasonal-hero border-transparent text-white shadow-md":"seasonal-card hover:bg-[var(--primary-soft)]"}`}><span aria-hidden="true" className="text-3xl">▦</span><span className="mt-3 block text-xl font-bold">Growing Calendar</span><span className={`mt-1 block text-sm ${calendarOpen?"text-white/80":"seasonal-muted"}`}>Year-round tasks and phone reminders</span></button>
         </nav>
         <div className="mt-2 flex justify-end">
           <button type="button" onClick={onSignOut} disabled={busy} className="seasonal-muted min-h-11 px-3 text-xs font-semibold underline">Sign out</button>
