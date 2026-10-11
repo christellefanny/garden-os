@@ -5,6 +5,7 @@ import {
   sendReminder,
   setupError,
 } from "@/lib/reminders-server";
+import {groupReminders} from "@/lib/reminder-groups";
 import { localDay } from "@/lib/growing-calendar";
 export const maxDuration = 60;
 export async function GET(request: Request) {
@@ -44,13 +45,14 @@ export async function GET(request: Request) {
       .select("id");
     if (claimError || !claimed?.length) continue;
     try {
-      const summary = due
-        .slice(0, 2)
-        .map((t) => `${t.plant}: ${t.title}`)
-        .join(" · ");
+      const groups = groupReminders(due as {title:string;plant:string}[]);
+      const summary = groups.slice(0,2).map(g => {
+        const plants = [...new Set(g.tasks.map(t=>t.plant))];
+        return `${g.title}: ${plants.slice(0,3).join(", ")}${plants.length>3?` +${plants.length-3} more`:""}`;
+      }).join(" · ");
       await sendReminder(
         device.subscription,
-        `${due.length} garden task${due.length === 1 ? "" : "s"} today`,
+        groups.length === 1 ? groups[0].title : `${groups.length} garden reminders today`,
         summary,
       );
       sent++;

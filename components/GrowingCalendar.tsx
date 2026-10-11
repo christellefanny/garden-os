@@ -11,6 +11,7 @@ import {
   shiftDay,
   type CalendarOptions,
 } from "@/lib/growing-calendar";
+import {groupReminders} from "@/lib/reminder-groups";
 import PhoneReminders from "@/components/PhoneReminders";
 export default function GrowingCalendar({
   userId,
@@ -244,8 +245,15 @@ export default function GrowingCalendar({
         </p>
       )}
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {shown.map((t) => (
-          <article key={t.id} className="seasonal-card rounded-2xl border p-5">
+        {groupReminders(shown).map(group => (
+          <details key={group.title} className="seasonal-card self-start rounded-2xl border p-5">
+            <summary className="seasonal-heading cursor-pointer text-lg font-bold">
+              {group.title}
+              <span className="seasonal-muted mt-1 block text-xs font-normal">{new Set(group.tasks.map(t=>t.plant)).size} plants · {group.tasks.filter(t=>!t.status).length} remaining · open for details</span>
+            </summary>
+            <div className="mt-4 space-y-3">
+            {group.tasks.map((t) => (
+          <article key={t.id} className="seasonal-outline rounded-xl border p-4">
             <div className="flex items-start justify-between gap-3">
               <p className="eyebrow seasonal-muted">{t.plant}</p>
               <time
@@ -259,9 +267,7 @@ export default function GrowingCalendar({
                 })}
               </time>
             </div>
-            <h3 className="seasonal-heading mt-2 text-lg font-bold">
-              {t.title}
-            </h3>
+
             <p className="seasonal-muted mt-2 text-sm leading-6">{t.detail}</p>
             {t.status ? (
               <div className="mt-4 flex items-center gap-4">
@@ -314,6 +320,9 @@ export default function GrowingCalendar({
               </div>
             )}
           </article>
+            ))}
+            </div>
+          </details>
         ))}
       </div>
       <p className="seasonal-muted mt-6 text-xs leading-6">
