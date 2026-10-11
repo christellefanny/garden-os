@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import type { VaultPlant } from "@/components/PlantVault";
 import {
   buildGrowingTasks,
-  calendarDefaults,
+  loadCalendarOptions,
+  reminderSnapshot,
   defaultMode,
   includedByDefault,
   localDay,
@@ -11,22 +12,6 @@ import {
   type CalendarOptions,
 } from "@/lib/growing-calendar";
 import PhoneReminders from "@/components/PhoneReminders";
-function loadOptions(userId: string): CalendarOptions {
-  try {
-    const v = JSON.parse(
-      localStorage.getItem(`garden-os-calendar-${userId}`) || "null",
-    );
-    if (
-      v &&
-      /^\d{2}-\d{2}$/.test(v.lastFrost) &&
-      /^\d{2}-\d{2}$/.test(v.firstFrost) &&
-      v.plants &&
-      v.tasks
-    )
-      return v;
-  } catch {}
-  return calendarDefaults;
-}
 export default function GrowingCalendar({
   userId,
   onClose,
@@ -43,7 +28,7 @@ export default function GrowingCalendar({
       return [];
     }
   });
-  const [options, setOptions] = useState(() => loadOptions(userId));
+  const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   const [today] = useState(() => localDay());
   const currentYear = Number(today.slice(0, 4));
   const [year, setYear] = useState(currentYear),
@@ -54,23 +39,7 @@ export default function GrowingCalendar({
     () => buildGrowingTasks(plants, year, options),
     [plants, year, options],
   );
-  const reminderTasks = useMemo(
-    () =>
-      [
-        ...buildGrowingTasks(plants, currentYear, options),
-        ...buildGrowingTasks(plants, currentYear + 1, options),
-      ]
-        .filter(
-          (t) => !t.status && t.date >= today && t.date <= shiftDay(today, 365),
-        )
-        .map((t) => ({
-          id: t.id,
-          date: t.date,
-          title: t.title,
-          plant: t.plant,
-        })),
-    [plants, currentYear, options, today],
-  );
+  const reminderTasks = useMemo(() => reminderSnapshot(plants, options, today), [plants, options, today]);
   const weeklyTasks = useMemo(
     () => [
       ...buildGrowingTasks(plants, currentYear, options),

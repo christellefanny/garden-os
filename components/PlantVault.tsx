@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import PlantReminders from "@/components/PlantReminders";
+import PhoneReminders from "@/components/PhoneReminders";
+import {loadCalendarOptions, reminderSnapshot, type CalendarOptions} from "@/lib/growing-calendar";
 import PlantPortrait from "@/components/PlantPortrait";
 import { readVaultBackup, mergeVaultPlants } from "@/lib/vault-transfer";
 
@@ -124,6 +127,12 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
     if (typeof window === "undefined") return [];
     try { const raw=localStorage.getItem(keyFor(userId)); if(raw) return JSON.parse(raw); const seeded=starterPlants.map((p,i)=>({...p,id:`starter-${i}`})); localStorage.setItem(keyFor(userId),JSON.stringify(seeded)); return seeded; } catch { return starterPlants.map((p,i)=>({...p,id:`starter-${i}`})); }
   });
+  const [calendar,setCalendar] = useState(() => loadCalendarOptions(userId));
+  const reminderTasks = useMemo(() => reminderSnapshot(plants,calendar),[plants,calendar]);
+  function saveCalendar(next: CalendarOptions) {
+    try {localStorage.setItem(`garden-os-calendar-${userId}`,JSON.stringify(next));setCalendar(next);return true;}
+    catch {setTransferMessage("Could not save your reminder in this browser.");return false;}
+  }
   const [query,setQuery]=useState("");
   const [filter,setFilter]=useState("All");
   const [adding,setAdding]=useState(false);
@@ -179,6 +188,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
       <input aria-label="Search Plant Vault" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search plants, varieties, flowers, seeds…" className="seasonal-input w-full rounded-xl border p-3"/>
       <div className="mt-3 flex flex-wrap gap-2">{["All","Growing","Seeds","Wishlist","Past",...categories].map(x=><button key={x} onClick={()=>setFilter(x)} className={`rounded-full border px-3 py-2 text-xs font-bold ${filter===x?"seasonal-button text-white":"seasonal-outline"}`}>{x}</button>)}</div>
     </div>
+    <PhoneReminders userId={userId} tasks={reminderTasks} />
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {!shown.length && <div className="seasonal-card rounded-3xl border p-8 col-span-full"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
       {shown.map(p=><article key={p.id} className="seasonal-card rounded-3xl border p-5">
@@ -202,6 +212,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
         </div>
         <fieldset className="mt-5"><legend className="text-sm font-bold">What describes this plant?</legend><div className="mt-2 grid gap-2 sm:grid-cols-2">{statuses.map(s=><label key={s} className="seasonal-icon flex cursor-pointer items-center gap-2 rounded-xl p-3 text-sm"><input type="checkbox" name="status" value={s} defaultChecked={editing?.statuses.includes(s)}/>{s}</label>)}</div></fieldset>
         <label className="mt-5 block text-sm font-bold">Notes<textarea name="notes" defaultValue={editing?.notes} rows={3} placeholder="Why you like it, where it grew well, what to remember…" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
+        {editing && <PlantReminders key={editing.id} plant={editing} options={calendar} onSave={saveCalendar} />}
         <button className="seasonal-button mt-5 w-full rounded-xl py-3 font-bold text-white">Save to Plant Vault</button>
       </form>
     </div>}

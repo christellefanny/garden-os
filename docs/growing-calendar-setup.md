@@ -23,3 +23,7 @@ A small server snapshot contains task ID/date/title/plant plus push subscription
 ## Verification
 
 Run npm run build with the existing public Supabase configuration and npm run lint. Calendar engine tests and a two-account/anonymous PostgreSQL RLS integration test are in tests/growing-calendar.test.mjs and tests/reminders-rls.test.mjs. Real encrypted push delivery needs the production SQL/key setup, notification permission and a test on the user's phone; a passing build does not establish that it works.
+
+## Reminders directly from the Plant Vault
+
+Open a plant's Edit details and find Plant reminders. Enter Remind me to and a date, then tap Add reminder. This saves the reminder independently of Save to Plant Vault and keeps other plant edits in the form. You can remove a saved reminder in those same details. Enable phone reminders from the Plant Vault once per device; both the vault and calendar synchronize the same task snapshot. Custom reminders are included even for plants excluded from automatic planning and retain the variety name. They join the morning digest, not an alert at a specific time. Calendar reminders and completions remain saved in this browser; a Plant Vault export currently backs up the plants, not the calendar preferences/reminders.

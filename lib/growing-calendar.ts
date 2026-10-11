@@ -1,5 +1,7 @@
 import type { VaultPlant } from "../components/PlantVault";
+export type PlantReminder = { id: string; plantId: string; title: string; date: string };
 export type CalendarOptions = {
+  reminders?: PlantReminder[];
   lastFrost: string;
   firstFrost: string;
   plants: Record<string, { included?: boolean; mode?: "indoor" | "outdoor" }>;
@@ -289,7 +291,31 @@ export function buildGrowingTasks(
       "Record successes, problems and varieties to keep or change next year.",
     );
   }
+  for (const reminder of options.reminders || []) {
+    const change = options.tasks[reminder.id];
+    if (!(change?.date || reminder.date).startsWith(`${year}-`)) continue;
+    const plant = plants.find(p => p.id === reminder.plantId);
+    if (!plant) continue;
+    result.push({id: reminder.id, date: change?.date || reminder.date, title: reminder.title,
+      plant: [plant.name, plant.variety].filter(Boolean).join(" · "), detail: "Your plant reminder.", status: change?.status});
+  }
   return result.sort(
     (a, b) => a.date.localeCompare(b.date) || a.plant.localeCompare(b.plant),
   );
+}
+
+export function loadCalendarOptions(userId: string): CalendarOptions {
+  try {
+    const saved = JSON.parse(localStorage.getItem(`garden-os-calendar-${userId}`) || "null");
+    if (saved && /^\d{2}-\d{2}$/.test(saved.lastFrost) && /^\d{2}-\d{2}$/.test(saved.firstFrost) && saved.plants && saved.tasks)
+      return {...saved, reminders: Array.isArray(saved.reminders) ? saved.reminders : []};
+  } catch {}
+  return calendarDefaults;
+}
+export function reminderSnapshot(plants: VaultPlant[], options: CalendarOptions, today = localDay()) {
+  const year = Number(today.slice(0,4));
+  const years = new Set([year, year+1, ...(options.reminders || []).map(r => Number((options.tasks[r.id]?.date || r.date).slice(0,4)))]);
+  return [...years].flatMap(y => buildGrowingTasks(plants, y, options))
+    .filter(t => !t.status && t.date >= today)
+    .map(({id,date,title,plant}) => ({id,date,title,plant}));
 }

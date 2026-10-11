@@ -5,6 +5,7 @@ import {
   calendarDefaults,
   localDay,
   shiftDay,
+  reminderSnapshot,
 } from "../lib/growing-calendar.ts";
 const p = (name, extra = {}) => ({
   id: name,
@@ -102,4 +103,17 @@ test("frost planning changes move outdoor tasks without mutating the vault", () 
   }).find((t) => t.title === "Review transplanting window");
   assert.equal(next.date, shiftDay(old.date, 7));
   assert.equal(plant.name, "Tomato");
+});
+
+test("custom plant reminders retain variety, inclusion independence and calendar overrides", () => {
+  const plant=p("Tulips",{id:"bulb",variety:"Queen of Night",statuses:["Not Growing Again"]});
+  const options={...calendarDefaults,reminders:[{id:"custom|one",plantId:"bulb",title:"Check bulbs",date:"2026-10-15"}]};
+  const tasks=buildGrowingTasks([plant],2026,options);
+  assert.equal(tasks.length,1);assert.equal(tasks[0].plant,"Tulips · Queen of Night");
+  const moved={...options,tasks:{"custom|one":{date:"2028-03-01"}}};
+  assert.equal(buildGrowingTasks([plant],2026,moved).length,0);
+  assert.equal(buildGrowingTasks([plant],2028,moved)[0].date,"2028-03-01");
+  assert.equal(reminderSnapshot([plant],moved,"2026-10-10")[0].date,"2028-03-01");
+  assert.equal(reminderSnapshot([plant],{...options,tasks:{"custom|one":{status:"done"}}},"2026-10-10").length,0);
+  assert.equal(buildGrowingTasks([],2026,options).length,0);
 });
