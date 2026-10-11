@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import {readDetails, type Space, type Plant} from "@/lib/garden";
+import BlankGardenLayout from "@/components/BlankGardenLayout";
 import Dialog from "@/components/ui/Dialog";
 import {initialLayout, nineBedLayout, linkedLayoutSpaces, type Bed} from "@/lib/garden-layout";
 function GardenBedArt({bed}:{bed:Bed}){
@@ -16,6 +17,7 @@ function GardenBedArt({bed}:{bed:Bed}){
  </g>})}</svg>;
 }
 export default function GardenLayout({userId,gardenId,gardenName,spaces,onOpenSpace,onClose,onCreateSpaces}:{userId:string;gardenId:string;gardenName:string;spaces:Space[];onOpenSpace:(spaceId:string)=>void;onClose:()=>void;onCreateSpaces:(beds:Bed[])=>Promise<number|null>}){
+ const [customOpen,setCustomOpen]=useState(false);
  const storageKey=`garden-os-layout-2027-${userId}-${gardenId}`;
  const [beds,setBeds]=useState<Bed[]>(()=>{if(typeof window==="undefined")return initialLayout;try{const saved=JSON.parse(localStorage.getItem(storageKey)||"null");return nineBedLayout(saved);}catch{return initialLayout;}});
  useEffect(()=>{try{const raw=localStorage.getItem(storageKey);const saved=JSON.parse(raw||"null");if(Array.isArray(saved)&&saved.some(b=>!initialLayout.some(original=>original.id===b.id))){localStorage.setItem(`${storageKey}-before-nine-bed-cleanup`,raw!);localStorage.setItem(storageKey,JSON.stringify(nineBedLayout(saved)));}}catch{/* Layout stays usable without storage. */}},[storageKey]);
@@ -31,6 +33,7 @@ export default function GardenLayout({userId,gardenId,gardenName,spaces,onOpenSp
 
  function update(next:Bed[]){setBeds(next);try{localStorage.setItem(storageKey,JSON.stringify(next));setNotice("Layout saved on this browser.");}catch{setNotice("Storage unavailable; layout is only saved for this visit.");}}
  function change(field:keyof Bed,value:string){if(!active)return;update(beds.map(b=>b.id===active.id?{...b,[field]:["x","y","w","h"].includes(field)?Number(value):value}:b));}
+ if(customOpen)return <BlankGardenLayout userId={userId} gardenId={gardenId} spaces={spaces} onOpenSpace={onOpenSpace} onBack={()=>setCustomOpen(false)}/>;
  return <section className="mt-8">
  {importOpen && <Dialog title="Create growing spaces from layout" onClose={()=>{if(!importing)setImportOpen(false);}}>
  <p className="seasonal-muted">Save these beds to {gardenName}. Pepper beds are excluded. Existing matching spaces will be kept.</p>
@@ -40,7 +43,7 @@ export default function GardenLayout({userId,gardenId,gardenName,spaces,onOpenSp
  {importMessage&&<p role="status" className="mt-4 text-sm">{importMessage}</p>}
  </Dialog>}
 
- <div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-4"><div className="rounded-2xl bg-[#e9d7bd] p-4 text-4xl shadow-sm" aria-hidden="true">🪴</div><div><h2 className="editorial-title seasonal-heading text-4xl">Garden Layout</h2><p className="seasonal-muted mt-1">Plan, visualize, and manage your 2027 garden beds.</p></div></div><div className="flex flex-wrap gap-2"><button onClick={()=>setView("garden")} aria-pressed={view==="garden"} className={`rounded-xl px-4 py-3 font-semibold ${view==="garden"?"bg-[#9a4a1b] text-white":"seasonal-outline border"}`}>Garden View</button><button onClick={()=>setView("plan")} aria-pressed={view==="plan"} className={`rounded-xl px-4 py-3 font-semibold ${view==="plan"?"bg-[#9a4a1b] text-white":"seasonal-outline border"}`}>Plan View</button><button onClick={()=>{setImportOpen(true);setImportMessage("");}} disabled={gardenId === "planning"} className="seasonal-button rounded-xl px-4 py-3 font-semibold text-white disabled:opacity-50">Create growing spaces</button><button onClick={()=>setEditing(!editing)} className="seasonal-outline rounded-xl border px-4 py-3 font-semibold">{editing?"Done editing":"✎ Edit Layout"}</button><button onClick={onClose} className="seasonal-outline rounded-xl border px-4 py-3 font-semibold">← Back</button></div></div>
+ <div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-4"><div className="rounded-2xl bg-[#e9d7bd] p-4 text-4xl shadow-sm" aria-hidden="true">🪴</div><div><h2 className="editorial-title seasonal-heading text-4xl">Garden Layout</h2><p className="seasonal-muted mt-1">Plan, visualize, and manage your 2027 garden beds.</p></div></div><div className="flex flex-wrap gap-2"><button type="button" onClick={()=>setCustomOpen(true)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-semibold">Create a layout</button><button onClick={()=>setView("garden")} aria-pressed={view==="garden"} className={`rounded-xl px-4 py-3 font-semibold ${view==="garden"?"bg-[#9a4a1b] text-white":"seasonal-outline border"}`}>Garden View</button><button onClick={()=>setView("plan")} aria-pressed={view==="plan"} className={`rounded-xl px-4 py-3 font-semibold ${view==="plan"?"bg-[#9a4a1b] text-white":"seasonal-outline border"}`}>Plan View</button><button onClick={()=>{setImportOpen(true);setImportMessage("");}} disabled={gardenId === "planning"} className="seasonal-button rounded-xl px-4 py-3 font-semibold text-white disabled:opacity-50">Create growing spaces</button><button onClick={()=>setEditing(!editing)} className="seasonal-outline rounded-xl border px-4 py-3 font-semibold">{editing?"Done editing":"✎ Edit Layout"}</button><button onClick={onClose} className="seasonal-outline rounded-xl border px-4 py-3 font-semibold">← Back</button></div></div>
  <div className="mt-6 grid gap-4 xl:grid-cols-[190px_minmax(0,1fr)_290px]">
  <nav aria-label="Garden layout sections" className="seasonal-card h-fit rounded-2xl border p-3"><p className="rounded-lg bg-[#f1e3d0] px-3 py-3 font-bold text-[#844219]">▣ Garden Layout</p><p className="seasonal-muted mt-5 px-2 text-xs font-bold uppercase tracking-wider">Beds in my garden</p><div className="mt-2 space-y-1">{beds.map(b=><button key={b.id} onClick={()=>setSelected(b.id)} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${selected===b.id?"bg-[#ead6b9] font-bold text-[#553b25]":"hover:bg-[#eee6d9]"}`}>{b.emoji} {b.name}</button>)}</div></nav>
  <div className="overflow-hidden rounded-2xl border border-[#b49b76] bg-[#9b8465] shadow-xl">
