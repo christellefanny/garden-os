@@ -1,8 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+:root,
+html[data-season="summer"] {
+  --background: #fff8dc;
+  --foreground: #442a28;
+  --primary: #e94f7c;
+  --primary-dark: #b92f5c;
+  --primary-soft: #ffe1ea;
+  --surface: #fffdf4;
+  --surface-alt: #fff0b8;
+  --border: #f3d58b;
+  --muted: #6d5550;
+  --accent: #f05a7e;
+  --accent-2: #f7943d;
+  --highlight: #f8c537;
+  --sky: #6ec5e9;
+  --warning-text: #8a3e10;
+}
+
+html[data-season="spring"] {
+  --background: #faf8f5;
+  --foreground: #253b2c;
+  --primary: #3f754b;
+  --primary-dark: #386b45;
+  --primary-soft: #e4f1df;
+  --surface: #fffefd;
+  --surface-alt: #f7eaf1;
+  --border: #eadbd7;
+  --muted: #585b55;
+  --accent: #f3a7b7;
+  --accent-2: #b8a1d9;
+  --highlight: #f6d365;
+  --sky: #b7dbe8;
+}
+
+html[data-season="fall"] {
+  --background: #fbf6eb;
+  --foreground: #3d3329;
+  --primary: #92621b;
+  --primary-dark: #65451b;
+  --primary-soft: #f7e8c5;
+  --surface: #fffcf5;
+  --surface-alt: #f8edcf;
+  --border: #e8dcc0;
+  --muted: #62564b;
+  --accent: #7b4562;
+  --accent-2: #c98535;
+  --highlight: #e3b34b;
+  --sky: #c4b291;
+}
+
+html[data-season="winter"] {
+  --background: #f4f7f7;
+  --foreground: #243a34;
+  --primary: #244c3d;
+  --primary-dark: #18362b;
+  --primary-soft: #dce9e6;
+  --surface: #ffffff;
+  --surface-alt: #e7f0f2;
+  --border: #cad9dc;
+  --muted: #526268;
+  --accent: #9f3d52;
+  --accent-2: #718d98;
+  --highlight: #d5e7eb;
+  --sky: #bbd6dd;
 }
 
 @theme inline {
@@ -12,15 +73,45 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+.editorial-title { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -0.035em; }
+.eyebrow { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; }
+.seasonal-card { box-shadow: 0 2px 6px #20372b03; }
+.hero-art { transform: rotate(-8deg); }
+button:disabled { cursor: not-allowed; opacity: 0.55; }
+textarea:focus-visible { outline: 3px solid var(--primary-dark); outline-offset: 4px; }
+input, select, textarea { min-width: 0; }
+@media (max-width: 639px) { .hero-art { opacity: 0.3; right: -30px; } }
+
+.seasonal-page { background: var(--background); }
+.seasonal-hero { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); }
+html[data-season="fall"] .seasonal-hero {
+  background: linear-gradient(135deg, #f0c574, #f7dfa3);
+  color: #543a18;
+}
+html[data-season="fall"] .seasonal-hero [class*="text-white"] { color: #543a18; }
+html[data-season="fall"] .seasonal-hero [class*="border-white"] { border-color: #543a1833; }
+.seasonal-sage { background: linear-gradient(135deg, var(--surface-alt), var(--surface)); border-color: var(--border); }
+.seasonal-card { background: var(--surface); border-color: var(--border); }
+.seasonal-icon { background: var(--primary-soft); }
+.seasonal-button { background: var(--primary); }
+.seasonal-button:hover { background: var(--primary-dark); }
+.seasonal-heading, .seasonal-link { color: var(--primary-dark); }
+.seasonal-muted { color: var(--muted); }
+.seasonal-outline { color: var(--primary); border-color: var(--primary); }
+.seasonal-outline:hover { background: var(--primary-soft); }
+.seasonal-progress { background: var(--primary); }
+.seasonal-accent { color: var(--accent); }
+
+.seasonal-input { background: var(--surface); border-color: var(--muted); color: var(--foreground); }
+:where(button, select, input, summary, a):focus-visible { outline: 3px solid var(--primary-dark); outline-offset: 4px; }
+button, select, summary { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
 }

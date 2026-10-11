@@ -112,7 +112,7 @@ Examples:
 
 Current milestone:
 
-**v0.1 — Foundation**
+**v0.2 — Private Garden Foundation**
 
 ---
 
@@ -123,15 +123,42 @@ Current milestone:
 - TypeScript
 - Tailwind CSS
 
-Future:
+Current data and identity:
 
-- PostgreSQL
-- Prisma
-- Supabase
-- OpenAI
-- Google Weather API
-- Plant Identification AI
+- Supabase PostgreSQL
+- Supabase Auth
+
+Future integrations:
+
+- Weather
+- Plant identification and AI assistance
 
 ---
 
 ## Grow Smarter. Harvest Better.
+## Working preview
+
+The private foundation now includes Supabase-backed gardens, spaces, plants, activity logs, capacity guidance, archive/restore, and backup export, plus a plant-spacing planner and four seasonal themes. Sign-in protects the application flow; the database ownership setup must also be applied before private saving is operational.
+
+See [Private Garden Setup](docs/PRIVATE_GARDEN_SETUP.md), [Database](docs/DATABASE.md), and [Changes](docs/CHANGELOG.md). Shared-garden invitations, weather, AI diagnosis, photos, and seed inventory are future milestones.
+
+### Development and checks
+
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `.env.local` (the publishable key, never a service-role key).
+
+```sh
+npm ci
+npm run dev
+npm run lint
+npm run test
+npm run build
+```
+
+`npm run test` includes an in-memory PostgreSQL test of the ownership policies. For the complete isolated browser flow:
+
+```sh
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser command builds against an isolated Supabase-compatible fixture, starts it locally, runs the app checks, and writes updated screenshots. It never uses the real database. If needed, set `GARDEN_TEST_BROWSER` to an installed Chromium executable. Rebuild with your normal environment before deploying a locally prebuilt artifact.
