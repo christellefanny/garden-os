@@ -5,6 +5,7 @@ import Dialog from "@/components/ui/Dialog";
 import { Field } from "@/components/SpaceEditor";
 import {
   localDate,
+  suggestedSpacing,
   spaceSize,
   spaceSummary,
   type Space,
@@ -33,6 +34,9 @@ export default function SpacePanel({
   const [plantEditor, setPlantEditor] = useState<string | null>(
     initialSpacing ? "new" : null,
   );
+  const [plantName, setPlantName] = useState("");
+  const [plantSpacing, setPlantSpacing] = useState(String(initialSpacing ?? 12));
+  const suggested = suggestedSpacing(plantName);
   const [message, setMessage] = useState("");
   const [removing, setRemoving] = useState<string | null>(null);
   const editedPlant = details.plants.find((p) => p.id === plantEditor);
@@ -113,6 +117,10 @@ export default function SpacePanel({
           ? "Set dimensions to estimate capacity"
           : `${summary.capacity}% estimated capacity`}
       </p>
+      {summary.capacity !== null && <p className="seasonal-muted mt-2 text-sm">
+        {summary.occupied.toFixed(2)} sq ft needed ÷ {summary.area.toFixed(2)} sq ft of bed surface. Each plant uses its saved spacing × spacing; depth does not increase planting room.
+        {summary.capacity > 100 && <span className="block font-bold">This plan exceeds the available surface area. Review spacing or move some plants to another space.</span>}
+      </p>}
       {details.notes && (
         <p className="mt-3 whitespace-pre-wrap break-words">{details.notes}</p>
       )}
@@ -138,6 +146,8 @@ export default function SpacePanel({
             disabled={busy}
             onClick={() => {
               setPlantEditor("new");
+              setPlantName("");
+              setPlantSpacing(String(initialSpacing ?? 12));
               setMessage("");
             }}
             className="seasonal-outline min-h-11 rounded-xl border px-3 py-2 font-bold"
@@ -165,7 +175,7 @@ export default function SpacePanel({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => setPlantEditor(p.id)}
+                  onClick={() => {setPlantEditor(p.id);setPlantName(p.name);setPlantSpacing(String(p.spacing));}}
                   className="seasonal-link min-h-11 font-bold underline"
                   aria-label={`Edit ${p.name}`}
                 >
@@ -223,6 +233,10 @@ export default function SpacePanel({
         {plantEditor && (
           <form
             key={plantEditor}
+            onChange={event => {
+              const target = event.target;
+              if (target instanceof HTMLInputElement && target.name === "name") setPlantName(target.value);
+            }}
             onSubmit={savePlant}
             className="seasonal-icon mt-4 rounded-2xl p-4"
           >
@@ -258,17 +272,13 @@ export default function SpacePanel({
                     className="seasonal-input mt-1 w-full rounded-xl border p-3"
                   />
                 </label>
-                <Field
-                  name="spacing"
-                  label="Spacing (inches)"
-                  value={editedPlant?.spacing ?? initialSpacing ?? 12}
-                  type="number"
-                  required
-                />
+                <label className="block text-sm font-bold">Spacing (inches)
+                  <input name="spacing" type="number" min="0.01" max="10000" step="any" required value={plantSpacing} onChange={event => setPlantSpacing(event.target.value)} className="seasonal-input mt-1 w-full rounded-xl border p-3" />
+                </label>
               </div>
               <p className="seasonal-muted text-xs">
-                Use your seed packet’s recommended spacing. Capacity is an area
-                estimate.
+                Spacing is the distance between plant centers, in inches—not the number of plants. Follow your seed packet or variety’s instructions.
+                {suggested !== undefined && <span className="mt-2 block">Suggested starting spacing: {suggested} inches. <button type="button" onClick={() => setPlantSpacing(String(suggested))} className="seasonal-link min-h-11 font-bold underline">Use {suggested}-inch spacing</button></span>}
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field

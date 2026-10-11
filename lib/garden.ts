@@ -129,6 +129,7 @@ export function spaceSummary(space: Space) {
     plants: active.reduce((sum, p) => sum + p.quantity, 0),
     capacity: area > 0 ? Math.round((occupied / area) * 100) : null,
     area,
+    occupied,
     details,
   };
 }
@@ -182,4 +183,10 @@ export function roundCapacity(
   if (![diameter, spacing].every((n) => Number.isFinite(n) && n > 0))
     return null;
   return Math.floor((Math.PI * (diameter / 2) ** 2) / spacing ** 2);
+}
+
+export function suggestedSpacing(name: string): number | undefined {
+  const normalized = name.trim().toLowerCase();
+  if (/\bpeppers?\b/.test(normalized)) return 18;
+  return cropOptions.find(crop => crop.name.toLowerCase() === normalized)?.spacing;
 }

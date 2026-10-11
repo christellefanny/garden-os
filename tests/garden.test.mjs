@@ -6,6 +6,7 @@ import {
   gridCapacity,
   spaceArea,
   roundCapacity,
+  suggestedSpacing,
 } from "../lib/garden.ts";
 
 test("legacy notes remain intact and corrupt structured records block edits", () => {
@@ -74,4 +75,18 @@ test("planner handles invalid inputs and full grid boundaries", () => {
   assert.equal(gridCapacity(2.5, 2, 12), 4);
   for (const value of [0, -1, NaN, Infinity])
     assert.equal(gridCapacity(6, 3, value), null);
+});
+
+test("pepper capacity uses surface area and editable inch spacing, not depth", () => {
+  const plant = {id:"pepper", name:"Pepper", variety:"", quantity:6, spacing:5, planted:"", status:"Growing"};
+  const space = {type:"Raised Bed", length_feet:4, width_feet:2, depth_feet:1, notes:JSON.stringify({garden_os:1,notes:"",plants:[plant],entries:[]})};
+  assert.equal(spaceSummary(space).capacity,13);
+  plant.spacing=12;
+  space.notes=JSON.stringify({garden_os:1,notes:"",plants:[plant],entries:[]});
+  assert.equal(spaceSummary(space).capacity,75);
+  plant.spacing=suggestedSpacing("Jalapeño peppers");
+  space.notes=JSON.stringify({garden_os:1,notes:"",plants:[plant],entries:[]});
+  assert.equal(spaceSummary(space).capacity,169);
+  assert.equal(spaceSummary({...space,depth_feet:3}).capacity,169);
+  assert.equal(suggestedSpacing("Peppermint"),undefined);
 });
