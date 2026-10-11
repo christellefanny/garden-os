@@ -497,7 +497,14 @@ export default function GardenWorkspace({
                     <div className="min-w-0">
                       <p className="eyebrow seasonal-muted">{s.type}</p>
                       <h3 className="seasonal-heading mt-2 break-words text-2xl font-bold">
-                        {s.name}
+                        <button
+                          type="button"
+                          disabled={!!summary.error}
+                          onClick={() => {setPlantSpacing(undefined);setOpenId(s.id);}}
+                          className="min-h-11 max-w-full rounded-lg text-left break-words hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)] disabled:cursor-not-allowed"
+                        >
+                          {s.name}
+                        </button>
                       </h3>
                     </div>
                     {(summary.capacity ?? 0) >= 75 && (
@@ -560,16 +567,6 @@ export default function GardenWorkspace({
                           }}
                         />
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPlantSpacing(undefined);
-                          setOpenId(s.id);
-                        }}
-                        className="seasonal-link mt-5 min-h-11 font-bold"
-                      >
-                        Open Space <span aria-hidden="true">↗</span>
-                      </button>
                     </>
                   )}
                 </article>
