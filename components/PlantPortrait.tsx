@@ -14,7 +14,9 @@ export default function PlantPortrait({
   variety: string;
   photoUrl?: string;
 }) {
-  const art = getPlantArt(name, variety);
+  const isPurpleCabbage = /cabbage/i.test(name) && /purple|red/i.test(variety);
+  const isDistinctCultivar = /dianthus/i.test(name) && /paint the town/i.test(variety);
+  const art = isDistinctCultivar ? null : getPlantArt(name, variety);
   const [failed, setFailed] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const showPhoto =
@@ -37,7 +39,7 @@ export default function PlantPortrait({
           <div
             role="img"
             aria-label={`Representative ${art.illustration ? "botanical illustration" : "plant photograph"} of ${name.toLowerCase()}`}
-            className="absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden"
+            className={isPurpleCabbage ? "purple-cabbage-portrait absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden" : "absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden"}
           >
             <Image
               aria-hidden="true"
@@ -61,7 +63,7 @@ export default function PlantPortrait({
           <div className="seasonal-muted flex h-full flex-col items-center justify-center gap-3">
             <GardenIcon kind="leaf" className="h-12 w-12 opacity-50" />
             <span className="text-xs">
-              {failed ? "Illustration unavailable" : "No illustration yet"}
+              {failed ? "Illustration unavailable" : isDistinctCultivar ? "Cultivar photo needed" : "No verified illustration yet"}
             </span>
           </div>
         )}
