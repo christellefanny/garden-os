@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
 import PhoneReminders from "@/components/PhoneReminders";
@@ -43,11 +44,9 @@ const categories = [
 const keyFor = (userId: string) => `garden-os-plant-vault-${userId}`;
 export default function PlantVault({
   userId,
-  onClose,
   initialQuery="",
 }: {
   userId: string;
-  onClose: () => void;
   initialQuery?:string;
 }) {
   const [plants, setPlants] = useState<VaultPlant[]>(() => {
@@ -80,6 +79,7 @@ export default function PlantVault({
   }
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
   const viewedPlant = plants.find((p) => p.id === viewing);
@@ -194,18 +194,9 @@ export default function PlantVault({
             `${p.name} ${p.variety} ${p.category} ${p.statuses.join(" ")}`
               .toLowerCase()
               .includes(query.toLowerCase());
-          const status =
-            filter === "All" ||
-            (filter === "Seeds"
-              ? p.statuses.includes("Have Seeds")
-              : filter === "Wishlist"
-                ? p.statuses.includes("Wishlist")
-                : filter === "Growing"
-                  ? p.statuses.includes("Growing Now")
-                  : filter === "Past"
-                    ? p.statuses.includes("Previously Grown")
-                    : p.category === filter);
-          return matches && status;
+          const categoryMatches = filter === "All" || p.category === filter;
+          const status = statusFilter === "All" || (statusFilter === "Seeds" ? p.statuses.includes("Have Seeds") : statusFilter === "Wishlist" ? p.statuses.includes("Wishlist") : statusFilter === "Growing" ? p.statuses.includes("Growing Now") : p.statuses.includes("Previously Grown"));
+          return matches && categoryMatches && status;
         })
         .sort(
           (a, b) =>
@@ -222,41 +213,17 @@ export default function PlantVault({
                 numeric: true,
               }),
         ),
-    [plants, query, filter],
+    [plants, query, filter, statusFilter],
   );
   return (
-    <section className="mt-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow seasonal-muted">Your growing collection</p>
-          <h2 className="editorial-title seasonal-heading mt-2 text-4xl">
-            Plant Vault
-          </h2>
-          <p className="seasonal-muted mt-2 max-w-2xl">
-            A botanical record of your vegetables, herbs, flowers, and future
-            plantings.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setAdding(true)}
-            className="seasonal-button rounded-xl px-5 py-3 font-bold text-white"
-          >
-            + Add plant
-          </button>
-          <button
-            onClick={onClose}
-            className="seasonal-outline rounded-xl border px-4 py-3 font-bold"
-          >
-            Back to garden
-          </button>
-        </div>
-      </div>
-      <div className="seasonal-card mt-5 rounded-2xl border p-4">
+    <section className="interior-page vault-page">
+      <InteriorHeader title="Plant Vault" eyebrow="A living collection" description="The varieties you grow, the seeds you keep, and what comes next.">
+        <button onClick={() => setAdding(true)} className="seasonal-button">Add plant</button>
+      <div className="header-tools">
+        <button type="button" popoverTarget="vault-collection-tools" className="seasonal-outline">Collection tools</button>
+      <div id="vault-collection-tools" popover="auto" className="vault-tools-popup seasonal-card rounded-xl border p-5">
         <p className="seasonal-muted text-sm">
-          Moving between Garden OS links? Export your collection from the old
-          page, then import it here. Your original collection stays on the old
-          page.
+          Your collection syncs with your account when cloud storage is connected. Keep an optional backup or combine a collection saved at an older Garden OS address.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
@@ -308,7 +275,16 @@ export default function PlantVault({
           </p>
         )}
       </div>
-      <div className="seasonal-card mt-6 rounded-2xl border p-4">
+      </div>
+      </InteriorHeader>
+      <InteriorStats items={[
+        {label:"In your vault", value:plants.length},
+        {label:"Growing now", value:plants.filter(p=>p.statuses.includes("Growing Now")).length},
+        {label:"Seed collection", value:plants.filter(p=>p.statuses.includes("Have Seeds")).length},
+        {label:"Wishlist", value:plants.filter(p=>p.statuses.includes("Wishlist")).length},
+      ]}/>
+
+      <div className="interior-toolbar vault-toolbar">
         <input
           aria-label="Search Plant Vault"
           value={query}
@@ -316,13 +292,15 @@ export default function PlantVault({
           placeholder="Search plants, varieties, flowers, seeds…"
           className="seasonal-input w-full rounded-xl border p-3"
         />
-        <div className="mt-3 flex flex-wrap gap-2">
-          {["All", "Growing", "Seeds", "Wishlist", "Past", ...categories].map(
+        <label className="vault-status-filter">Collection<select aria-label="Collection status" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}><option value="All">Every status</option><option value="Growing">Growing now</option><option value="Seeds">Have seeds</option><option value="Wishlist">Wishlist</option><option value="Past">Previously grown</option></select></label>
+        <div className="collection-tabs">
+          {["All", ...categories].map(
             (x) => (
               <button
                 key={x}
                 onClick={() => setFilter(x)}
-                className={`rounded-full border px-3 py-2 text-xs font-bold ${filter === x ? "seasonal-button text-white" : "seasonal-outline"}`}
+                aria-pressed={filter === x}
+                className={`collection-tab ${filter === x ? "is-active" : ""}`}
               >
                 {x}
               </button>
@@ -335,7 +313,8 @@ export default function PlantVault({
         tasks={reminderTasks}
         showControls={false}
       />
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="collection-results"><p>{shown.length} {shown.length===1?"variety":"varieties"} · Alphabetical order</p></div>
+      <div className="vault-collection-grid">
         {!shown.length && (
           <div className="seasonal-card rounded-2xl border p-8 col-span-full">
             <p className="seasonal-heading text-xl font-bold">
@@ -352,7 +331,7 @@ export default function PlantVault({
         {shown.map((p) => (
           <article
             key={p.id}
-            className="seasonal-card relative rounded-2xl border p-5 transition hover:shadow-md"
+            className="vault-plant-card"
           >
             <PlantPortrait
               key={`${p.name}-${p.variety}-${p.photoUrl}`}
@@ -372,7 +351,7 @@ export default function PlantVault({
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {p.statuses.map((s) => (
+              {p.statuses.slice(0,2).map((s) => (
                 <span
                   key={s}
                   className="seasonal-icon rounded-md px-3 py-1 text-xs font-semibold"

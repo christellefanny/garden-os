@@ -38,6 +38,7 @@ export default function SpacePanel({
   const [plantSpacing, setPlantSpacing] = useState(String(initialSpacing ?? 12));
   const suggested = suggestedSpacing(plantName);
   const [message, setMessage] = useState("");
+  const [panel,setPanel]=useState("plants");
   const [removing, setRemoving] = useState<string | null>(null);
   const editedPlant = details.plants.find((p) => p.id === plantEditor);
   async function savePlant(event: FormEvent<HTMLFormElement>) {
@@ -117,10 +118,10 @@ export default function SpacePanel({
           ? "Set dimensions to estimate capacity"
           : `${summary.capacity}% estimated capacity`}
       </p>
-      {summary.capacity !== null && <p className="seasonal-muted mt-2 text-sm">
+      {summary.capacity !== null && <details className="capacity-explanation"><summary>How capacity is estimated</summary><p className="seasonal-muted mt-2 text-sm">
         {summary.occupied.toFixed(2)} sq ft needed ÷ {summary.area.toFixed(2)} sq ft of bed surface. Each plant uses its saved spacing × spacing; depth does not increase planting room.
         {summary.capacity > 100 && <span className="block font-bold">This plan exceeds the available surface area. Review spacing or move some plants to another space.</span>}
-      </p>}
+      </p></details>}
       {details.notes && (
         <p className="mt-3 whitespace-pre-wrap break-words">{details.notes}</p>
       )}
@@ -138,7 +139,8 @@ export default function SpacePanel({
         </p>
       )}
 
-      <section className="mt-6 border-t border-[var(--border)] pt-5">
+      <div className="detail-tabs" role="group" aria-label="Growing space views"><button aria-pressed={panel==="plants"} onClick={()=>setPanel("plants")}>Plants</button><button aria-pressed={panel==="log"} onClick={()=>setPanel("log")}>Garden Log</button></div>
+      <section hidden={panel!=="plants"} className="space-plants-panel mt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="seasonal-heading text-xl font-bold">Plants</h3>
           <button
@@ -321,7 +323,7 @@ export default function SpacePanel({
         )}
       </section>
 
-      <section className="mt-6 border-t border-[var(--border)] pt-5">
+      <section hidden={panel!=="log"} className="space-log-panel mt-6">
         <h3 className="seasonal-heading text-xl font-bold">Garden Log</h3>
         <form onSubmit={saveLog} className="mt-3 space-y-3">
           <fieldset disabled={busy} className="space-y-3 disabled:opacity-60">

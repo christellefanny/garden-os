@@ -1,4 +1,7 @@
 "use client";
+import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
+import Dialog from "@/components/ui/Dialog";
+import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { seasonContent, parseThemeSelection, seasons } from "@/lib/seasons";
@@ -553,6 +556,7 @@ export function TasksPage({
   spaces: Space[];
   onCalendar: () => void;
 }) {
+  const [range,setRange]=useState("week");
   const today = localDay(),
     { season } = useSeason();
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
@@ -577,48 +581,14 @@ export function TasksPage({
     } catch {}
   }
   return (
-    <section className="modern-page">
-      <p className="modern-eyebrow">Your growing year</p>
-      <h1>Tasks & recommendations</h1>
-      <p>
-        Saved reminders are confirmed tasks. Generated planting dates are
-        planning recommendations; check packets and conditions.
-      </p>
-      <button
-        className="seasonal-button rounded-xl px-4 py-3"
-        onClick={onCalendar}
-      >
-        Manage in Growing Calendar
-      </button>
-      <div className="modern-card mt-6">
-        {tasks.length ? (
-          tasks.slice(0, 40).map((t) => (
-            <div className="modern-task-row" key={t.id}>
-              <button
-                className="task-ring"
-                aria-label={`Complete ${t.title}`}
-                onClick={() => complete(t.id)}
-              />
-              <div>
-                <strong>{t.title}</strong>
-                <small>
-                  {t.plant} ·{" "}
-                  {t.id.startsWith("custom|")
-                    ? "Saved reminder"
-                    : "Recommendation"}
-                  <br />
-                  {t.detail}
-                </small>
-              </div>
-              <time>{t.date}</time>
-            </div>
-          ))
-        ) : (
-          <p className="empty-copy">
-            No upcoming tasks. Add a plant or reminder to begin.
-          </p>
-        )}
-      </div>
+    <section className="interior-page tasks-page">
+      <InteriorHeader title="Tasks" eyebrow="One useful step at a time" description="A focused list for today and the week ahead. Your saved reminders and planning recommendations stay clearly identified.">
+        <button className="seasonal-outline" onClick={onCalendar}>Open Growing Calendar</button>
+      </InteriorHeader>
+      <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
+      <div className="interior-toolbar"><div className="collection-tabs">{[{id:"today",label:"Today"},{id:"week",label:"This week"},{id:"all",label:"Upcoming"}].map(item=><button className={`collection-tab ${range===item.id?"is-active":""}`} aria-pressed={range===item.id} key={item.id} onClick={()=>setRange(item.id)}>{item.label}</button>)}</div></div>
+      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date}</time></div>)}</details>)}</div>
+      {!tasks.some(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))&&<div className="interior-empty"><h2>A little breathing room.</h2><p>No upcoming steps in this view. Your calendar keeps the rest of the year within reach.</p><button className="seasonal-outline" onClick={onCalendar}>View calendar</button></div>}
     </section>
   );
 }
@@ -633,14 +603,18 @@ export function JournalPage({
   busy: boolean;
   onSave: (space: Space, details: SpaceDetails) => Promise<boolean>;
 }) {
+  const [adding,setAdding]=useState(false);
+  const [activity,setActivity]=useState<Entry["kind"]>("Note");
   const [message, setMessage] = useState("");
   const rows = journalRows(historySpaces || spaces);
   return (
-    <section className="modern-page">
-      <p className="modern-eyebrow">Observations become experience</p>
-      <h1>Journal & harvest history</h1>
+    <section className="interior-page journal-page">
+      <InteriorHeader title="Garden Journal" eyebrow="Small observations, lasting knowledge" description="Keep the moments worth remembering. Review what grew well and carry that experience into your next season."><button className="seasonal-button" onClick={()=>setAdding(true)}>Add entry</button></InteriorHeader>
+      <InteriorStats items={[{label:"Observations",value:rows.length},{label:"Measured harvests",value:rows.filter(row=>row.kind==="Harvest"&&row.quantity).length},{label:"Seasons recorded",value:new Set(rows.map(row=>row.date.slice(0,4))).size}]}/>
+      {message && <p role="status" className="interior-notice">{message}</p>}
+      {adding && <Dialog title="Add journal entry" onClose={()=>{if(!busy)setAdding(false);}}>
       <form
-        className="modern-card journal-form"
+        className="journal-form"
         onSubmit={async (e) => {
           e.preventDefault();
           const form = e.currentTarget,
@@ -674,7 +648,7 @@ export function JournalPage({
               ? "Journal entry saved."
               : "Could not save. Please try again.",
           );
-          if (success) form.reset();
+          if (success) {form.reset();setActivity("Note");setAdding(false);}
         }}
       >
         <fieldset disabled={busy || !spaces.length}>
@@ -690,7 +664,7 @@ export function JournalPage({
           </label>
           <label>
             Activity
-            <select aria-label="Activity" name="kind">
+            <select aria-label="Activity" name="kind" value={activity} onChange={event=>setActivity(event.target.value as Entry["kind"])}>
               <option>Note</option>
               <option>Watering</option>
               <option>Harvest</option>
@@ -701,7 +675,7 @@ export function JournalPage({
             Date
             <input name="date" type="date" required defaultValue={localDay()} />
           </label>
-          <label>
+          {activity==="Harvest" && <><label>
             Harvest plant / variety
             <input name="plant" placeholder="e.g. Roma tomato" />
           </label>
@@ -719,7 +693,7 @@ export function JournalPage({
               <option>count</option>
             </select>
           </label>
-          <label className="journal-note">
+          </>}<label className="journal-note">
             Observation
             <textarea name="text" rows={3} maxLength={5000} />
           </label>
@@ -734,8 +708,8 @@ export function JournalPage({
           <p>Add a growing space before recording an observation.</p>
         )}
         {message && <p role="status">{message}</p>}
-      </form>
-      <div className="modern-card mt-6">
+      </form></Dialog>}
+      <div className="journal-content-grid"><div className="modern-card harvest-summary">
         <h2>Harvest comparison</h2>
         {harvestTotals(rows).length ? (
           <div className="harvest-table-wrap">
@@ -769,7 +743,7 @@ export function JournalPage({
             yields.
           </p>
         )}
-        <h2 className="mt-6">Season history</h2>
+      </div><div className="modern-card journal-history"><h2>Season history</h2>
         {[...new Set(rows.map((r) => r.date.slice(0, 4)))]
           .sort()
           .reverse()
@@ -805,7 +779,7 @@ export function JournalPage({
             records will stay available here.
           </p>
         )}
-      </div>
+      </div></div>
     </section>
   );
 }

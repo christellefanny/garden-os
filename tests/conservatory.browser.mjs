@@ -194,6 +194,32 @@ const server = spawn(
         false,
         destination,
       );
+      if(destination!=="Dashboard"){
+        await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(img=>img.decode().catch(()=>{})));});
+        await page.screenshot({path:repo+"/docs/previews/refined-"+destination.toLowerCase().replaceAll(" ","-")+"-desktop.png",fullPage:true});
+        const ax=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze();
+        assert.deepEqual(ax.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[],destination+" accessibility");
+        if(destination==="Growing Calendar"){
+          await page.getByRole("button",{name:"Monthly Calendar",exact:true}).click();
+          await page.screenshot({path:repo+"/docs/previews/refined-calendar-month-desktop.png",fullPage:true});
+          const monthAxe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze();
+          assert.deepEqual(monthAxe.violations.map(v=>v.id),[],"Month grid accessibility");
+          await page.getByRole("button",{name:"This Week",exact:true}).click();
+        }
+        if(destination==="Plant Vault"){
+          await page.getByText("Collection tools",{exact:true}).click();
+          assert.equal(await page.getByLabel("Import Plant Vault backup",{exact:true}).isVisible(),true);
+          await page.getByRole("heading",{name:"Plant Vault",exact:true}).click();
+          assert.equal(await page.getByLabel("Import Plant Vault backup",{exact:true}).isVisible(),false);
+          await page.getByRole("button",{name:"Vegetable",exact:true}).click();
+          await page.getByLabel("Collection status",{exact:true}).selectOption("Seeds");
+          assert.equal(await page.locator(".vault-plant-card").count(),5);
+          await page.getByRole("button",{name:"All",exact:true}).click();
+          await page.getByLabel("Collection status",{exact:true}).selectOption("All");
+        }
+
+      }
+
     }
     await page
       .locator('nav[aria-label="Garden OS navigation"]')
@@ -204,6 +230,10 @@ const server = spawn(
       .getByRole("button")
       .click();
     let dialog = page.getByRole("dialog");
+    await page.screenshot({path:repo+"/docs/previews/refined-space-detail-desktop.png",fullPage:true});
+    await dialog.getByRole("button",{name:"Garden Log",exact:true}).click();
+    assert.equal(await dialog.getByRole("heading",{name:"Garden Log",exact:true}).isVisible(),true);
+    await dialog.getByRole("button",{name:"Plants",exact:true}).click();
     await dialog
       .getByRole("button", { name: "+ Add Plant", exact: true })
       .click();
@@ -220,6 +250,7 @@ const server = spawn(
       .locator('nav[aria-label="Garden OS navigation"]')
       .getByRole("button", { name: "Journal", exact: true })
       .click();
+    await page.getByRole("button",{name:"Add entry",exact:true}).click();
     await page
       .getByLabel("Growing space", { exact: true })
       .selectOption("space-5");
@@ -268,12 +299,15 @@ const server = spawn(
       .getByRole("button", { name: "Growing Calendar", exact: true })
       .click();
     await page
-      .getByText("Choose plants and adjust planning dates", { exact: true })
+      .getByRole("button",{name:"Planning settings",exact:true})
       .click();
     const frost = page.getByLabel("Spring frost planning date", {
       exact: true,
     });
     await frost.fill((await frost.inputValue()).slice(0, 4) + "-05-20");
+    await page.keyboard.press("Escape");
+    await page.getByRole("button",{name:"Monthly Calendar",exact:true}).click();
+    await page.getByRole("button",{name:/gardening steps/}).first().click();
     const remoteKey =
       "garden-os-plant-vault-a0a0a0a0-0000-4000-8000-000000000001";
     for (let i = 0; i < 50; i++) {
@@ -341,7 +375,7 @@ const server = spawn(
       .getByRole("button", { name: "Growing Calendar", exact: true })
       .click();
     await phone
-      .getByText("Choose plants and adjust planning dates", { exact: true })
+      .getByRole("button",{name:"Planning settings",exact:true})
       .click();
     assert.equal(
       (
@@ -404,7 +438,7 @@ const server = spawn(
       mobileAudit.violations.map((v) => v.id),
       [],
     );
-    for(const width of [320,390,768]){await page.setViewportSize({width,height:900});for(const destination of ['My Gardens','Plant Vault','Garden Layout','Growing Calendar','Tasks','Journal','Settings','Help','Dashboard']){await page.locator('nav[aria-label="Garden OS navigation"]').getByRole('button',{name:destination,exact:true}).click();if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)){console.log(await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).map(el=>({tag:el.tagName,cls:el.className,text:el.textContent.slice(0,100),right:el.getBoundingClientRect().right})).slice(0,12)));}assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${destination} ${width}`);}}
+    for(const width of [320,390,768]){await page.setViewportSize({width,height:900});for(const destination of ['My Gardens','Plant Vault','Garden Layout','Growing Calendar','Tasks','Journal','Settings','Help','Dashboard']){await page.locator('nav[aria-label="Garden OS navigation"]').getByRole('button',{name:destination,exact:true}).click();if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)){console.log(await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).map(el=>({tag:el.tagName,cls:el.className,text:el.textContent.slice(0,100),right:el.getBoundingClientRect().right})).slice(0,12)));}assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${destination} ${width}`);if(width===390&&destination!=="Dashboard"){await page.screenshot({path:repo+"/docs/previews/refined-"+destination.toLowerCase().replaceAll(" ","-")+"-mobile.png",fullPage:true});const ax=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze();assert.deepEqual(ax.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[],destination+" mobile accessibility");if(destination==="Growing Calendar"){await page.getByRole("button",{name:"Monthly Calendar",exact:true}).click();await page.screenshot({path:repo+"/docs/previews/refined-calendar-month-mobile.png",fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,"Mobile month calendar");await page.getByRole("button",{name:"This Week",exact:true}).click();}if(destination==="Plant Vault"){await page.getByRole("button",{name:"Collection tools",exact:true}).click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,"Mobile collection menu");await page.keyboard.press("Escape");}}}}
     assert.deepEqual(errors, []);
     console.log(
       "PASS all navigation, actual fixture data and desktop/mobile overflow.",

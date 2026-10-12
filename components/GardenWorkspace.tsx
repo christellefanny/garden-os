@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
+import PlantPortrait from "@/components/PlantPortrait";
 import LegacySpaces from "@/components/LegacySpaces";
 import { connectGardenPlants } from "@/lib/connected-garden";
 import { useCloudData } from "@/components/CloudDataBoundary";
@@ -138,15 +140,6 @@ export default function GardenWorkspace({
   const archivedSpaces = gardenSpaces.filter(
     (s) => summaries.get(s.id)?.details?.archived,
   );
-  const recentEntries = activeSpaces
-    .flatMap((s) =>
-      (summaries.get(s.id)?.details?.entries ?? []).map((e) => ({
-        ...e,
-        space: s,
-      })),
-    )
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 5);
   const opened = activeSpaces.find((s) => s.id === openId);
   const editing = activeSpaces.find((s) => s.id === editor);
 
@@ -428,96 +421,22 @@ export default function GardenWorkspace({
             />
           )}
           {page === "Settings" && (
-            <section className="modern-page">
-              <p className="modern-eyebrow">Make it yours</p>
-              <h1>Settings</h1>
-              <div className="modern-card">
-                <h2>Account synchronization</h2>
-                <p role="status">{sync.status}</p>
-                <button
-                  className="seasonal-outline border rounded-xl p-3 mt-3"
-                  onClick={sync.retry}
-                >
-                  Retry cloud synchronization
-                </button>
-                {sync.conflicts.length > 0 && (
-                  <p className="mt-3">
-                    {sync.conflicts.length} local versions are preserved in
-                    migration/conflict backups. Download a browser backup before
-                    reconciling edits from another device.
-                  </p>
-                )}
-                <button
-                  className="seasonal-outline border rounded-xl p-3 mt-3 ml-3"
-                  onClick={sync.download}
-                >
-                  Download full browser backup
-                </button>
-                {sync.conflicts.map((key) => (
-                  <div className="mt-3 rounded-xl border p-3 text-sm" key={key}>
-                    <p>
-                      {key.startsWith("garden-os-plant-vault")
-                        ? "Plant Vault"
-                        : key.includes("calendar")
-                          ? "Calendar preferences"
-                          : "Saved layout"}{" "}
-                      has different local and cloud versions. Your current local
-                      version remains visible and backed up.
-                    </p>
-                    <button
-                      className="seasonal-link underline min-h-11"
-                      onClick={() => sync.useCloud(key)}
-                    >
-                      Use cloud version (keep local backup)
-                    </button>
-                  </div>
-                ))}
-                <h2 className="mt-6">Seasonal appearance</h2>
-                <p>
-                  Choose Automatic or a season in the top navigation. Your
-                  choice is remembered.
-                </p>
-                <h2 className="mt-6">Your garden account</h2>
-                <p>
-                  {gardens.length} gardens · {spaces.length} growing spaces.
-                  Manage your location and gardening year in My Gardens.
-                </p>
-                <button
-                  className="seasonal-outline rounded-xl border px-4 py-3 mt-4"
-                  onClick={() => navigate("My Gardens")}
-                >
-                  Manage gardens
-                </button>
-                <button
-                  className="seasonal-button rounded-xl px-4 py-3 ml-3"
-                  onClick={exportGarden}
-                >
-                  Download garden backup
-                </button>
-                <button
-                  className="seasonal-outline rounded-xl border px-4 py-3 mt-4"
-                  onClick={() => void onSignOut()}
-                >
-                  Sign out
-                </button>
-                <h2 className="mt-6">Phone reminders</h2>
-                <p>
-                  Enable, test, or turn off phone delivery in Growing Calendar →
-                  Add reminder.
-                </p>
-                <button
-                  className="seasonal-outline rounded-xl border px-4 py-3 mt-4"
-                  onClick={() => navigate("Growing Calendar")}
-                >
-                  Notification settings
-                </button>
-
+            <section className="interior-page settings-page">
+              <InteriorHeader title="Settings" eyebrow="A garden that feels like yours" description="Your account, saved collection, appearance, and reminders — together in one calm place."/>
+              <div className="settings-grid">
+                <section className="settings-card"><p className="modern-eyebrow">Safe and connected</p><h2>Cloud storage</h2><p role="status" className="sync-status">{sync.status}</p><p>Plants, layouts and calendar preferences stay with your account. Local backups protect your changes when you are offline.</p>
+                  {sync.conflicts.map(key=><div className="interior-notice" key={key}><p>{key.startsWith("garden-os-plant-vault")?"Plant Vault":key.includes("calendar")?"Calendar preferences":"Saved layout"} has local and cloud versions. Both are preserved.</p><button className="seasonal-outline" onClick={()=>sync.useCloud(key)}>Use cloud version (keep local backup)</button></div>)}
+                  <details className="settings-recovery"><summary>Recovery & backups</summary><div className="settings-action-list"><button onClick={sync.retry}>Retry cloud synchronization</button><button onClick={sync.download}>Download full browser backup</button><button onClick={exportGarden}>Download garden backup</button></div></details>
+                </section>
+                <section className="settings-card"><p className="modern-eyebrow">Your growing world</p><h2>Garden account</h2><p>{gardens.length} {gardens.length===1?"garden":"gardens"} · {spaces.length} {spaces.length===1?"growing space":"growing spaces"}</p><p>Manage locations, gardening years, bed dimensions and growing spaces in My Gardens.</p><div className="interior-actions"><button className="seasonal-button" onClick={()=>navigate("My Gardens")}>Manage gardens</button><button className="seasonal-outline" onClick={()=>void onSignOut()}>Sign out</button></div></section>
+                <section className="settings-card appearance-card"><p className="modern-eyebrow">The rhythm of the year</p><h2>Seasonal appearance</h2><p>Choose Automatic or your favorite season in the top navigation. The conservatory stays familiar as its accents change.</p><div className="season-swatches" aria-hidden="true"><span>Spring</span><span>Summer</span><span>Fall</span><span>Winter</span></div></section>
+                <section className="settings-card"><p className="modern-eyebrow">A gentle nudge</p><h2>Phone reminders</h2><p>Manage delivery, send a test, or turn notifications off from Growing Calendar → Add reminder.</p><button className="seasonal-outline" onClick={()=>navigate("Growing Calendar")}>Notification settings</button></section>
               </div>
             </section>
           )}
           {page === "Help" && (
-            <section className="modern-page">
-              <h1>A little guidance</h1>
+            <section className="interior-page help-page">
+              <InteriorHeader title="A little guidance" eyebrow="Grow with confidence" description="A few simple ways to make Garden OS part of your growing routine."/>
               <div className="modern-card">
                 <h2>Your connected garden</h2>
                 <p>
@@ -564,20 +483,25 @@ export default function GardenWorkspace({
           )}
           {calendarOpen && (
             <GrowingCalendar
+              location={garden?.location || undefined}
               userId={userId}
-              onClose={() => navigate("Dashboard")}
             />
           )}
           {vaultOpen && (
-            <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} onClose={() => navigate("Dashboard")} />
+            <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
           {page === "My Gardens" && (
-            <>
+            <section className="interior-page gardens-page">
+              <InteriorHeader title="My Gardens" eyebrow="Your own patch of possibility" description="A clear view of your spaces, what is planted, and where there is room to grow.">
+                <button className="seasonal-button" disabled={busy || !loaded} onClick={()=>setGardenForm("new")}>New garden</button>
+              </InteriorHeader>
+              <InteriorStats items={[{label:"Gardens",value:gardens.length},{label:"Growing spaces",value:activeSpaces.length},{label:"Plants in this garden",value:activeSpaces.reduce((total,space)=>total+(summaries.get(space.id)?.plants||0),0)}]}/>
+
               <div
                 className={
                   vaultOpen || layoutOpen || calendarOpen
                     ? "hidden"
-                    : "mt-6 flex flex-wrap items-end justify-between gap-4"
+                    : "interior-toolbar garden-selection-bar"
                 }
               >
                 <label className="block min-w-0 flex-1 text-xs font-bold uppercase tracking-widest sm:max-w-sm">
@@ -599,16 +523,7 @@ export default function GardenWorkspace({
                   </select>
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    disabled={busy || !loaded}
-                    onClick={() =>
-                      setGardenForm(gardenForm === "new" ? null : "new")
-                    }
-                    className="seasonal-link min-h-11 px-2 text-sm font-bold"
-                  >
-                    New garden
-                  </button>
+                  <button type="button" onClick={()=>setPlanner(true)} className="seasonal-outline min-h-11 rounded-xl border px-4">Plant planner</button>
                   {garden && (
                     <>
                       <button
@@ -620,13 +535,6 @@ export default function GardenWorkspace({
                         className="seasonal-link min-h-11 px-2 text-sm font-bold"
                       >
                         Edit garden
-                      </button>
-                      <button
-                        type="button"
-                        onClick={exportGarden}
-                        className="seasonal-link min-h-11 px-2 text-sm font-bold"
-                      >
-                        Export backup
                       </button>
                     </>
                   )}
@@ -653,7 +561,7 @@ export default function GardenWorkspace({
                   {notice}
                 </p>
               )}
-              <LegacySpaces
+              <details className="vault-backup-tools"><summary>Recover older growing spaces</summary>              <LegacySpaces
                 gardenId={gardenId}
                 busy={busy}
                 importedIds={Array.from(summaries.values())
@@ -661,6 +569,7 @@ export default function GardenWorkspace({
                   .filter((id): id is string => !!id)}
                 onImport={setImportCandidate}
               />
+</details>
               {gardenForm && loaded && (
                 <div
                   className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]"
@@ -700,10 +609,10 @@ export default function GardenWorkspace({
                   </div>
                 </div>
               )}
-              <section className="mt-10">
-                <div className="flex flex-wrap items-end justify-between gap-4">
+              <section className="spaces-section">
+                <div className="section-heading">
                   <div>
-                    <p className="eyebrow seasonal-muted">Make room to grow</p>
+
                     <h2 className="seasonal-heading mt-2 text-3xl font-bold">
                       Growing Spaces
                     </h2>
@@ -736,14 +645,15 @@ export default function GardenWorkspace({
                     </p>
                   </div>
                 )}
-                <div className="mt-6 grid gap-5 md:grid-cols-2">
+                <div className="growing-space-grid">
                   {activeSpaces.map((s) => {
                     const summary = summaries.get(s.id)!;
                     return (
                       <article
                         key={s.id}
-                        className="seasonal-card rounded-3xl border p-6"
+                        className="growing-space-card"
                       >
+                        <div className="space-visual" aria-hidden="true">{summary.details?.plants[0] ? <PlantPortrait name={summary.details.plants[0].name} variety={summary.details.plants[0].variety}/> : <div className="bed-blueprint"><span/><span/><span/></div>}</div>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="eyebrow seasonal-muted">{s.type}</p>
@@ -861,68 +771,7 @@ export default function GardenWorkspace({
                   </details>
                 )}
               </section>
-              <section className="seasonal-card mt-10 flex flex-col justify-between gap-5 rounded-3xl border p-7 sm:flex-row sm:items-center">
-                <div>
-                  <p className="eyebrow seasonal-muted">A thoughtful plan</p>
-                  <h2 className="seasonal-heading mt-2 text-2xl font-bold">
-                    Give every plant room to thrive.
-                  </h2>
-                  <p className="seasonal-muted mt-2">
-                    Try bed dimensions and plant spacing before you plant.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPlanner(true)}
-                  className="seasonal-outline shrink-0 rounded-xl border px-5 py-3 font-bold"
-                >
-                  Open Plant Planner
-                </button>
-              </section>
-              <section className="mt-10">
-                <p className="eyebrow seasonal-muted">
-                  Little observations, lasting knowledge
-                </p>
-                <h2 className="seasonal-heading mt-2 text-3xl font-bold">
-                  Recent Garden Activity
-                </h2>
-                <p className="seasonal-muted mt-2 text-sm">
-                  Record watering, harvests, pest observations, and notes inside
-                  any growing space.
-                </p>
-                <ul className="mt-5 space-y-3">
-                  {recentEntries.map((e) => (
-                    <li
-                      key={`${e.space.id}-${e.id}`}
-                      className="seasonal-card flex flex-col justify-between gap-3 rounded-2xl border p-5 sm:flex-row"
-                    >
-                      <div className="min-w-0">
-                        <p className="eyebrow seasonal-muted">
-                          {e.date} · {e.kind}
-                        </p>
-                        <p className="mt-2 whitespace-pre-wrap break-words">
-                          {e.text}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPlantSpacing(undefined);
-                          setOpenId(e.space.id);
-                        }}
-                        className="seasonal-link shrink-0 text-sm font-bold"
-                      >
-                        {e.space.name} ↗
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                {!recentEntries.length && (
-                  <p className="seasonal-muted mt-4 rounded-2xl border border-dashed border-[var(--border)] p-6">
-                    Your garden story starts with your first observation.
-                  </p>
-                )}
-              </section>
+              <div className="interior-related"><div><h3>Your garden journal</h3><p>Observations, watering and harvest history live together in one place.</p></div><button className="seasonal-outline" onClick={()=>navigate("Journal")}>Open Journal →</button></div>
               <footer className="seasonal-muted mt-12 border-t border-[var(--border)] pt-5 text-sm">
                 Garden OS · Grow smarter. Harvest better.{" "}
                 <span className="block mt-1">
@@ -931,7 +780,7 @@ export default function GardenWorkspace({
                   theme preference stays on this browser.
                 </span>
               </footer>
-            </>
+            </section>
           )}
           {importCandidate && (
             <SpaceEditor

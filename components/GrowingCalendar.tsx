@@ -12,15 +12,16 @@ import {
   type CalendarOptions,
 } from "@/lib/growing-calendar";
 import {groupReminders} from "@/lib/reminder-groups";
+import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
 import PhoneReminders from "@/components/PhoneReminders";
 export default function GrowingCalendar({
   userId,
-  onClose,
+  location,
 }: {
   userId: string;
-  onClose: () => void;
+  location?: string;
 }) {
   const [plants] = useState<VaultPlant[]>(() => {
     try {
@@ -34,7 +35,9 @@ export default function GrowingCalendar({
   const [addingReminder, setAddingReminder] = useState(false);
   const [selectedPlantId, setSelectedPlantId] = useState(plants[0]?.id ?? "");
   const [controlsTarget, setControlsTarget] = useState<HTMLDivElement | null>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const headingRef = useRef<HTMLElement>(null);
+  const [planningOpen, setPlanningOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
   useEffect(() => {
     headingRef.current?.focus({preventScroll: true});
     headingRef.current?.scrollIntoView({block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
@@ -63,6 +66,7 @@ export default function GrowingCalendar({
       ? t.date.startsWith(month)
       : t.date >= today && t.date <= shiftDay(today, 7),
   );
+  const visibleTasks = selectedDay && view==="month" ? shown.filter(t=>t.date===selectedDay) : shown;
   function save(next: CalendarOptions) {
     try {
       localStorage.setItem(
@@ -86,34 +90,12 @@ export default function GrowingCalendar({
     (p) => options.plants[p.id]?.included ?? includedByDefault(p),
   ).length;
   return (
-    <section className="mt-8 conservatory-calendar">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow seasonal-muted">
-            Plainfield, Illinois · Central Time
-          </p>
-          <h2 id="growing-calendar-heading" ref={headingRef} tabIndex={-1} className="scroll-mt-6 outline-none editorial-title seasonal-heading mt-2 text-4xl">
-            Growing Calendar
-          </h2>
-          <p className="seasonal-muted mt-2">
-            A year of useful next steps, shaped by your Plant Vault.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={() => setAddingReminder(true)} className="seasonal-button rounded-xl px-4 py-3 font-bold text-white">Add reminder</button>
-        <button
-          onClick={onClose}
-          className="seasonal-outline rounded-xl border px-4 py-3 font-bold"
-        >
-          Back to garden
-        </button>
-        </div>
-      </div>
-      <p className="seasonal-muted mt-4 text-sm">
-        {active} plants included. Similar varieties share a task. Dates are
-        planning reminders—check your seed packet, soil and local forecast
-        before planting.
-      </p>
+    <section className="interior-page conservatory-calendar outline-none" ref={headingRef} tabIndex={-1}>
+      <InteriorHeader title="Growing Calendar" eyebrow={`${location || "Your growing year"} · ${year}`} description="A thoughtful rhythm for planting, tending, and harvesting throughout the year.">
+        <button type="button" onClick={() => setAddingReminder(true)} className="seasonal-button">Add reminder</button>
+        <button type="button" onClick={()=>setPlanningOpen(true)} className="seasonal-outline">Planning settings</button>
+      </InteriorHeader>
+      <InteriorStats items={[{label:"Plants in your plan",value:active},{label:"Steps this week",value:weeklyTasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)&&!t.status).length},{label:"Spring frost anchor",value:new Date(`2000-${options.lastFrost}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"})},{label:"Fall frost anchor",value:new Date(`2000-${options.firstFrost}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"})}]}/>
       <PhoneReminders userId={userId} tasks={reminderTasks} showControls={addingReminder && !!controlsTarget} controlsTarget={controlsTarget} />
       {addingReminder && <Dialog title="Add reminder" onClose={() => setAddingReminder(false)}>
         {plants.length ? <>
@@ -126,10 +108,7 @@ export default function GrowingCalendar({
         </> : <p className="seasonal-muted">Add a plant to your Plant Vault first to create a plant reminder.</p>}
         <div ref={setControlsTarget} />
       </Dialog>}
-      <details className="seasonal-card mt-5 rounded-xl border p-5">
-        <summary className="seasonal-heading cursor-pointer font-bold">
-          Choose plants and adjust planning dates
-        </summary>
+      {planningOpen && <Dialog title="Choose plants and adjust planning dates" onClose={()=>setPlanningOpen(false)}>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-bold">
             Spring frost planning date
@@ -216,12 +195,13 @@ export default function GrowingCalendar({
               </div>
             ))}
         </div>
-      </details>
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      </Dialog>}
+      <div className="interior-toolbar calendar-toolbar">
         <button
           aria-pressed={view === "week"}
           onClick={() => {
             setView("week");
+            setSelectedDay(null);
             setYear(currentYear);
           }}
           className={`rounded-xl border px-4 py-3 font-bold ${view === "week" ? "seasonal-button text-white" : "seasonal-outline"}`}
@@ -230,7 +210,7 @@ export default function GrowingCalendar({
         </button>
         <button
           aria-pressed={view === "month"}
-          onClick={() => setView("month")}
+          onClick={() => {setView("month");setSelectedDay(null);setYear(Number(month.slice(0,4)));}}
           className={`rounded-xl border px-4 py-3 font-bold ${view === "month" ? "seasonal-button text-white" : "seasonal-outline"}`}
         >
           Monthly Calendar
@@ -244,6 +224,7 @@ export default function GrowingCalendar({
               value={month}
               onChange={(e) => {
                 if (e.target.value) {
+                  setSelectedDay(null);
                   setMonth(e.target.value);
                   setYear(Number(e.target.value.slice(0, 4)));
                 }
@@ -253,6 +234,8 @@ export default function GrowingCalendar({
           </label>
         )}
       </div>
+      {view === "month" && <div className="calendar-month-panel"><div className="section-heading"><h2>{new Date(`${month}-01T12:00:00`).toLocaleDateString("en-US",{month:"long",year:"numeric"})}</h2><button className="seasonal-link" onClick={()=>setSelectedDay(null)}>Show all dates</button></div><div className="month-grid">{["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(day=><span className="weekday" key={day}>{day}</span>)}{Array.from({length:new Date(`${month}-01T12:00:00Z`).getUTCDay()},(_,i)=><span key={`blank-${i}`} aria-hidden="true"/>)}{Array.from({length:new Date(Number(month.slice(0,4)),Number(month.slice(5)),0).getDate()},(_,i)=>{const date=`${month}-${String(i+1).padStart(2,"0")}`, count=tasks.filter(t=>t.date===date&&!t.status).length;return <button key={date} aria-label={`${date}: ${count} gardening steps`} aria-pressed={selectedDay===date} className={`${selectedDay===date?"is-selected":""} ${date===today?"is-today":""}`} onClick={()=>setSelectedDay(selectedDay===date?null:date)}><strong>{i+1}</strong>{count>0&&<span>{count} {count===1?"step":"steps"}</span>}</button>;})}</div></div>}
+      <div className="section-heading agenda-heading"><h2>{selectedDay ? `On ${selectedDay}` : view==="week" ? "This week’s agenda" : "The month ahead"}</h2><p>Grouped by what needs doing, with each plant underneath.</p></div>
       {message && (
         <p role="status" className="mt-3 text-sm">
           {message}
@@ -264,18 +247,18 @@ export default function GrowingCalendar({
           calendar.
         </p>
       )}
-      {!!plants.length && !shown.length && (
+      {!!plants.length && !visibleTasks.length && (
         <p className="seasonal-card mt-5 rounded-xl border p-6">
           No tasks in this view. Browse another month or adjust the plants
           included in your plan.
         </p>
       )}
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {groupReminders(shown).map(group => (
-          <details key={group.title} className="seasonal-card self-start rounded-xl border p-5">
-            <summary className="seasonal-heading cursor-pointer text-lg font-bold">
+      <div className="calendar-agenda">
+        {groupReminders(visibleTasks).map(group => (
+          <details key={group.title} className="agenda-category">
+            <summary className="agenda-category-title">
               {group.title}
-              <span className="seasonal-muted mt-1 block text-xs font-normal">{new Set(group.tasks.map(t=>t.plant)).size} plants · {group.tasks.filter(t=>!t.status).length} remaining · open for details</span>
+              <span className="seasonal-muted mt-1 block text-xs font-normal">{new Set(group.tasks.map(t=>t.plant)).size} {new Set(group.tasks.map(t=>t.plant)).size===1?"plant":"plants"} · {group.tasks.filter(t=>!t.status).length} remaining</span>
             </summary>
             <div className="mt-4 space-y-3">
             {group.tasks.map((t) => (
@@ -371,7 +354,7 @@ export default function GrowingCalendar({
           seed-starting guidance
         </a>
         . Flower and fruit care entries are review prompts; use species-specific
-        instructions. Calendar choices are saved in this browser.
+        instructions. Planning choices sync with your account when cloud storage is connected.
       </p>
     </section>
   );
