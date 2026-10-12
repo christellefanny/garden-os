@@ -60,12 +60,19 @@ export default function GardenWorkspace({
   onSignOut: () => Promise<void>;
 }) {
   const sync = useCloudData();
-  const [page, setPage] = useState<Destination>(() =>
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("view") === "calendar"
-      ? "Growing Calendar"
-      : "Dashboard",
-  );
+  const [page, setPage] = useState<Destination>(() => {
+    if (typeof window === "undefined") return "Dashboard";
+    if (new URLSearchParams(window.location.search).get("view") === "calendar")
+      return "Growing Calendar";
+    try {
+      const saved = localStorage.getItem(`garden-os-last-page-${userId}`);
+      if (saved && destinations.includes(saved as Destination))
+        return saved as Destination;
+    } catch {
+      // Private browsing may block storage; the dashboard remains usable.
+    }
+    return "Dashboard";
+  });
   const [vaultQuery,setVaultQuery]=useState("");
   const [search, setSearch] = useState("");
   const vault = useVault(userId, page);
@@ -110,6 +117,11 @@ export default function GardenWorkspace({
     initialGardens.length ? null : "new",
   );
   function navigate(next: Destination) {
+    try {
+      localStorage.setItem(`garden-os-last-page-${userId}`, next);
+    } catch {
+      // Navigation must still work without persistent browser storage.
+    }
     setPage(next);
     setVaultOpen(next === "Plant Vault");
     setLayoutOpen(next === "Garden Layout");
