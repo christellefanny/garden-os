@@ -2,7 +2,6 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useSeason } from "./SeasonProvider";
-import SeasonDecoration from "./SeasonDecoration";
 import GardenIcon from "@/components/ui/GardenIcon";
 import { seasonContent } from "@/lib/seasons";
 
@@ -22,40 +21,24 @@ export function SeasonalHero({
   const { season } = useSeason();
   const content = seasonContent[season];
   return (
-    <div className="seasonal-hero relative overflow-hidden rounded-3xl p-6 text-white sm:p-8">
-      <div className="hero-art pointer-events-none absolute -right-3 top-0 opacity-75">
-        <SeasonDecoration season={season} />
-      </div>
-      <div className="relative z-10">
-        <p className="eyebrow max-w-[65%] break-words text-white/80">
-          {gardenName}
-        </p>
-        <p className="mt-5 text-xs uppercase tracking-[0.2em] text-white/75">
-          The {content.name.toLowerCase()} chapter
-        </p>
-        <h2 className="editorial-title mt-3 max-w-lg text-4xl leading-[1.12] sm:text-5xl">
-          {content.title}
+    <section className="seasonal-hero relative isolate min-h-[320px] overflow-hidden rounded-2xl border border-[#d9e0d5] px-7 py-9 text-white sm:px-11 sm:py-12">
+      <div className="relative z-10 max-w-2xl">
+        <p className="eyebrow text-white/85">{content.name} · {gardenName}</p>
+        <h2 className="editorial-title mt-5 max-w-xl text-4xl leading-[1.08] sm:text-6xl">
+          Your garden,<br/><em>in every season.</em>
         </h2>
-        <p className="mt-5 max-w-md text-sm leading-7 text-white/90">
-          {content.description}
-        </p>
-        <div className="mt-8 grid grid-cols-2 gap-y-5 border-t border-white/20 pt-5 sm:grid-cols-4">
-          {[
-            ["Spaces", String(spaces)],
-            ["Plants", String(plants)],
-            ["To review", String(warnings)],
-            ["Garden year", String(gardenYear)],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <p className="text-xs text-white/80">{label}</p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">
-                {value}
-              </p>
-            </div>
-          ))}
+        <p className="mt-5 max-w-md text-sm leading-7 text-white/90">{content.description}</p>
+        <div className="mt-8 inline-flex rounded-lg border border-white/30 bg-[#ecede1]/15 px-5 py-3 text-sm text-white">
+          Plan today. Grow tomorrow.
         </div>
       </div>
-    </div>
+      <div className="relative z-10 mt-9 flex flex-wrap gap-7 border-t border-white/25 pt-5 text-sm">
+        <span><strong className="mr-2 text-xl">{spaces}</strong>Growing spaces</span>
+        <span><strong className="mr-2 text-xl">{plants}</strong>Plants recorded</span>
+        <span><strong className="mr-2 text-xl">{warnings}</strong>Spaces to review</span>
+        <span><strong className="mr-2 text-xl">{gardenYear}</strong>Garden year</span>
+      </div>
+    </section>
   );
 }
 
