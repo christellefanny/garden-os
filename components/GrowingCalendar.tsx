@@ -86,7 +86,7 @@ export default function GrowingCalendar({
     (p) => options.plants[p.id]?.included ?? includedByDefault(p),
   ).length;
   return (
-    <section className="mt-8">
+    <section className="mt-8 conservatory-calendar">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow seasonal-muted">
@@ -126,7 +126,7 @@ export default function GrowingCalendar({
         </> : <p className="seasonal-muted">Add a plant to your Plant Vault first to create a plant reminder.</p>}
         <div ref={setControlsTarget} />
       </Dialog>}
-      <details className="seasonal-card mt-5 rounded-2xl border p-5">
+      <details className="seasonal-card mt-5 rounded-xl border p-5">
         <summary className="seasonal-heading cursor-pointer font-bold">
           Choose plants and adjust planning dates
         </summary>
@@ -259,20 +259,20 @@ export default function GrowingCalendar({
         </p>
       )}
       {!plants.length && (
-        <p className="seasonal-card mt-5 rounded-2xl border p-6">
+        <p className="seasonal-card mt-5 rounded-xl border p-6">
           Add plants in Plant Vault first, then return here to build your
           calendar.
         </p>
       )}
       {!!plants.length && !shown.length && (
-        <p className="seasonal-card mt-5 rounded-2xl border p-6">
+        <p className="seasonal-card mt-5 rounded-xl border p-6">
           No tasks in this view. Browse another month or adjust the plants
           included in your plan.
         </p>
       )}
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {groupReminders(shown).map(group => (
-          <details key={group.title} className="seasonal-card self-start rounded-2xl border p-5">
+          <details key={group.title} className="seasonal-card self-start rounded-xl border p-5">
             <summary className="seasonal-heading cursor-pointer text-lg font-bold">
               {group.title}
               <span className="seasonal-muted mt-1 block text-xs font-normal">{new Set(group.tasks.map(t=>t.plant)).size} plants · {group.tasks.filter(t=>!t.status).length} remaining · open for details</span>
@@ -297,7 +297,7 @@ export default function GrowingCalendar({
             <p className="seasonal-muted mt-2 text-sm leading-6">{t.detail}</p>
             {t.status ? (
               <div className="mt-4 flex items-center gap-4">
-                <span className="seasonal-icon rounded-full px-3 py-1 text-xs font-bold">
+                <span className="seasonal-icon rounded-md px-3 py-1 text-xs font-bold">
                   {t.status === "done" ? "Completed" : "Skipped"}
                 </span>
                 <button
