@@ -26,6 +26,10 @@ Phone-push delivery retains its existing infrastructure. Vercel daily cron runs 
 
 Built-in image generation produced the vegetable conservatory hero, spring/fall/winter conservatory variations, the botanical plate, and the sidebar botanical ornament. Assets are persisted under `public/conservatory`. Prompts requested real tomato, pepper, lettuce, garlic and okra specimens; restrained complementary flowers; warm natural conservatory light; winter hardy greens and frost; fall sweet potatoes without pumpkins; no UI, text, cartoons or unrelated landscapes.
 
+### Recovered deployment verification
+
+The interrupted deployment succeeded at commit `fe535775`: Vercel READY, preview target only. Production remains on `69b34cd0`. The deployed frontend was opened and tested through authenticated Vercel preview access with isolated backend fixtures, never live garden writes. All nine destinations passed overflow checks at 320, 390, 768 and 1536px. Dashboard Axe WCAG A/AA checks returned zero violations; no browser application errors occurred. Desktop and mobile screenshots were visually reviewed against the supplied reference. Reminder statistics now use the saved rescheduled date and exclude reminders for removed vault records.
+
 ### Preview-origin data
 
 Browser storage is isolated by origin. The existing production browser data is not deleted or replaced by this preview. A newly opened preview cannot silently read vaults/layouts stored under the production domain. Vault backup import remains available; automatic migration of production-origin browser data runs when the approved release reaches that origin. Live cross-device completion therefore requires the additive schema and an approved migration/release or deliberate import of the original browser data.

@@ -258,7 +258,10 @@ export function ModernDashboard({
       .map((p) => ({ ...p, space: s })),
   );
   const confirmed = (options.reminders ?? []).filter(
-    (r) => r.date >= today && !options.tasks[r.id]?.status,
+    (r) =>
+      (options.tasks[r.id]?.date || r.date) >= today &&
+      !options.tasks[r.id]?.status &&
+      vault.some((plant) => plant.id === r.plantId),
   );
   const category = (name: string) =>
     vault.filter((p) => p.category === name).length;
