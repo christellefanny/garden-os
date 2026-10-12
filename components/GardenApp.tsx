@@ -3,10 +3,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import CloudDataBoundary from "@/components/CloudDataBoundary";
 import GardenWorkspace from "@/components/GardenWorkspace";
 import GardenHeader from "@/components/GardenHeader";
 import GardenIcon from "@/components/ui/GardenIcon";
-import SeasonDecoration from "@/components/seasonal/SeasonDecoration";
+import PlantPortrait from "@/components/PlantPortrait";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { type Garden, type Space } from "@/lib/garden";
 
@@ -119,7 +120,7 @@ export default function GardenApp() {
     );
   if (session && data && data.userId === userId)
     return (
-      <>
+      <CloudDataBoundary userId={userId!}>
         <GardenWorkspace
           key={userId}
           initialGardens={data.gardens}
@@ -133,7 +134,7 @@ export default function GardenApp() {
             {authError}
           </p>
         )}
-      </>
+      </CloudDataBoundary>
     );
   return <Welcome authError={authError} />;
 }
@@ -205,7 +206,7 @@ function Welcome({ authError }: { authError: string }) {
             </p>
             <div className="seasonal-hero relative mt-8 max-w-xl overflow-hidden rounded-3xl p-6 text-white">
               <div className="absolute -right-6 -top-8 opacity-50">
-                <SeasonDecoration season={season} />
+                <PlantPortrait name={season==="winter"?"Garlic":season==="spring"?"Lettuce":season==="fall"?"Sweet Potato":"Tomato"} variety=""/>
               </div>
               <p className="eyebrow text-white/80">Made for every season</p>
               <p className="editorial-title relative mt-3 max-w-xs text-3xl leading-tight">

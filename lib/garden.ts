@@ -18,12 +18,16 @@ export type Plant = {
   variety: string;
   quantity: number;
   spacing: number;
+  vaultPlantId?:string;
   planted: string;
   status: "Growing" | "Planned" | "Finished";
 };
 export type Entry = {
   id: string;
   kind: "Note" | "Watering" | "Harvest" | "Pests";
+  quantity?:number;
+  unit?:string;
+  plantId?:string;
   date: string;
   text: string;
 };

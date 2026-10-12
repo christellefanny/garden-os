@@ -74,6 +74,7 @@ export default function BlankGardenLayout({
   onLayoutsChange,
   onRename,
   onCreateSpaces,
+  initialItemId,
 }: {
   userId: string;
   gardenId: string;
@@ -84,6 +85,7 @@ export default function BlankGardenLayout({
   onSelectLayout: (id:string) => void;
   onLayoutsChange: (layouts:Layout[]) => void;
   onRename:()=>void;
+  initialItemId?:string;
   onCreateSpaces:(beds:Bed[])=>Promise<number|null>;
 }) {
   const storageKey = `garden-os-custom-layouts-v1-${userId}-${gardenId}`;
@@ -92,7 +94,7 @@ export default function BlankGardenLayout({
   const [view,setView]=useState<"garden"|"plan">("garden");
   const [editing,setEditing]=useState(()=>selectedLayoutId === "new" || loadCustomLayouts(storageKey).find(layout=>layout.id===selectedLayoutId)?.items.length===0);
   const [importing,setImporting]=useState(false);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState(initialItemId||"");
   const [creating, setCreating] = useState(() => selectedLayoutId === "new" || loadCustomLayouts(storageKey).length === 0);
   const [newName, setNewName] = useState("My garden layout");
   const [message, setMessage] = useState("");

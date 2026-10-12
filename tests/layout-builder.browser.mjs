@@ -61,10 +61,7 @@ const server = spawn(
     await page
       .getByRole("button", { name: "Open my garden", exact: true })
       .click();
-    await page
-      .locator("header")
-      .getByRole("button", { name: "Growing Calendar", exact: true })
-      .waitFor();
+    await page.locator(".modern-dashboard").waitFor();
     await fetch("http://127.0.0.1:54321/rest/v1/growing_spaces", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,7 +92,7 @@ const server = spawn(
     });
     await page.reload();
     await page
-      .locator('nav[aria-label="Garden OS main features"]')
+      .locator('nav[aria-label="Garden OS navigation"]')
       .getByRole("button", { name: /Garden Layout/ })
       .click();
     await page
@@ -184,8 +181,8 @@ const server = spawn(
     const imported=(await (await fetch("http://127.0.0.1:54321/control/state")).json()).spaces;
     assert.equal(imported.length,2);assert.equal(imported.find(space=>space.name==="Container 1").type,"Container");
     await page.getByRole("button",{name:"Back",exact:true}).click();
-    assert.equal(await page.getByRole("button",{name:"+ Add Growing Space",exact:true}).count(),1);
-    await page.locator('nav[aria-label="Garden OS main features"]').getByRole("button",{name:/Garden Layout/}).click();
+    await page.locator(".modern-dashboard").waitFor();
+    await page.locator('nav[aria-label="Garden OS navigation"]').getByRole("button",{name:/Garden Layout/}).click();
     assert.equal(await canvas.getByRole("button",{name:/Select/}).count(),4);
     await page.locator('nav[aria-label="Saved garden layouts"]').getByRole("button",{name:"Original nine-bed layout",exact:true}).click();
     assert.equal(
@@ -201,7 +198,7 @@ const server = spawn(
     );
     await page.reload();
     await page
-      .locator('nav[aria-label="Garden OS main features"]')
+      .locator('nav[aria-label="Garden OS navigation"]')
       .getByRole("button", { name: /Garden Layout/ })
       .click();
     await page.locator('nav[aria-label="Saved garden layouts"]').getByRole("button",{name:"2027 blank plan",exact:true}).click();
@@ -229,8 +226,8 @@ const server = spawn(
       await canvas.getByRole("button", { name: /Select/ }).count(),
       4,
     );
-    await page.getByRole("link",{name:"Garden OS home",exact:true}).click();
-    await page.locator('nav[aria-label="Garden OS main features"]').getByRole("button",{name:/Garden Layout/}).click();
+    await page.locator(".modern-brand").click();
+    await page.locator('nav[aria-label="Garden OS navigation"]').getByRole("button",{name:/Garden Layout/}).click();
     assert.equal(await page.locator('nav[aria-label="Saved garden layouts"] [aria-current="page"]').textContent(),"2027 blank plan");
     assert.equal(await canvas.getByRole("button",{name:/Select/}).count(),4);
     await page.locator('nav[aria-label="Saved garden layouts"]').getByRole("button",{name:"Winter ideas",exact:true}).click();
@@ -244,7 +241,7 @@ const server = spawn(
     assert.equal(await page.locator('nav[aria-label="Saved garden layouts"] [aria-current="page"]').textContent(),"Vegetable garden 2027");
     assert.equal(await canvas.getByRole("button",{name:/Select/}).count(),4);
     await page.reload();
-    await page.locator('nav[aria-label="Garden OS main features"]').getByRole("button",{name:/Garden Layout/}).click();
+    await page.locator('nav[aria-label="Garden OS navigation"]').getByRole("button",{name:/Garden Layout/}).click();
     assert.equal(await page.locator('nav[aria-label="Saved garden layouts"] [aria-current="page"]').textContent(),"Vegetable garden 2027");
     await page.locator('nav[aria-label="Saved garden layouts"]').getByRole("button",{name:"Original nine-bed layout",exact:true}).click();
     await page.getByRole("button",{name:"Rename layout",exact:true}).click();

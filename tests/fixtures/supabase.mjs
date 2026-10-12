@@ -30,6 +30,7 @@ let gardens = [
   },
 ];
 let spaces = [];
+let syncedState = [];
 let failNext = false;
 function send(res, status, data) {
   res.writeHead(status, {
@@ -59,7 +60,7 @@ const server = http.createServer(async (req, res) => {
     return send(res, 200, {});
   }
   if (u.pathname === "/control/state")
-    return send(res, 200, { gardens, spaces });
+    return send(res, 200, { gardens, spaces, syncedState });
   if (u.pathname.startsWith("/auth/v1/token"))
     return send(res, 200, {
       access_token: token,
@@ -73,9 +74,15 @@ const server = http.createServer(async (req, res) => {
   if (u.pathname === "/auth/v1/signup")
     return send(res, 200, { user, session: null });
   if (u.pathname === "/auth/v1/logout") return send(res, 204, null);
+  if(u.pathname==="/rest/v1/rpc/garden_os_save_state"){
+    const current=syncedState.find(row=>row.key===payload.p_key && row.user_id===user.id);
+    if((!current&&payload.p_version!==0)||(current&&current.version!==payload.p_version))return send(res,409,{code:"40001",message:"State changed on another device"});
+    const record={user_id:user.id,key:payload.p_key,value:payload.p_value,version:(current?.version??0)+1,updated_at:new Date().toISOString()};
+    syncedState=syncedState.filter(row=>row!==current);syncedState.push(record);return send(res,200,[record]);
+  }
   const table = u.pathname.split("/").pop();
-  if (!["gardens", "growing_spaces"].includes(table)) return send(res, 404, {});
-  let list = table === "gardens" ? gardens : spaces;
+  if (!["gardens", "growing_spaces", "garden_os_state"].includes(table)) return send(res, 404, {});
+  let list = table === "gardens" ? gardens : table === "garden_os_state" ? syncedState : spaces;
   const matches = (row) =>
     Array.from(u.searchParams.entries()).every(([key, value]) => {
       if (["select", "order", "limit"].includes(key)) return true;
