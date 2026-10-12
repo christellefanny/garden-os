@@ -1,71 +1,13 @@
 @import "tailwindcss";
 
-:root,
-html[data-season="summer"] {
-  --background: #fff8dc;
-  --foreground: #442a28;
-  --primary: #e94f7c;
-  --primary-dark: #b92f5c;
-  --primary-soft: #ffe1ea;
-  --surface: #fffdf4;
-  --surface-alt: #fff0b8;
-  --border: #f3d58b;
-  --muted: #6d5550;
-  --accent: #f05a7e;
-  --accent-2: #f7943d;
-  --highlight: #f8c537;
-  --sky: #6ec5e9;
-  --warning-text: #8a3e10;
+:root,html[data-season="summer"]{
+ --background:#f7f6f1;--foreground:#192a20;--primary:#3e563c;--primary-dark:#223c2c;--primary-soft:#e9eee5;--surface:#fffefa;--surface-alt:#f1f1e9;--border:#e4e5dc;--muted:#657065;--accent:#a67c44;--accent-2:#c4aa75;--highlight:#e8dfbb;--sky:#dbe5e0;--warning-text:#8a4b2b;
+ --hero-photo:url("https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1800&q=85");
 }
-
-html[data-season="spring"] {
-  --background: #faf8f5;
-  --foreground: #253b2c;
-  --primary: #3f754b;
-  --primary-dark: #386b45;
-  --primary-soft: #e4f1df;
-  --surface: #fffefd;
-  --surface-alt: #f7eaf1;
-  --border: #eadbd7;
-  --muted: #585b55;
-  --accent: #f3a7b7;
-  --accent-2: #b8a1d9;
-  --highlight: #f6d365;
-  --sky: #b7dbe8;
-}
-
-html[data-season="fall"] {
-  --background: #fbf6eb;
-  --foreground: #3d3329;
-  --primary: #92621b;
-  --primary-dark: #65451b;
-  --primary-soft: #f7e8c5;
-  --surface: #fffcf5;
-  --surface-alt: #f8edcf;
-  --border: #e8dcc0;
-  --muted: #62564b;
-  --accent: #7b4562;
-  --accent-2: #c98535;
-  --highlight: #e3b34b;
-  --sky: #c4b291;
-}
-
-html[data-season="winter"] {
-  --background: #f4f7f7;
-  --foreground: #243a34;
-  --primary: #244c3d;
-  --primary-dark: #18362b;
-  --primary-soft: #dce9e6;
-  --surface: #ffffff;
-  --surface-alt: #e7f0f2;
-  --border: #cad9dc;
-  --muted: #526268;
-  --accent: #9f3d52;
-  --accent-2: #718d98;
-  --highlight: #d5e7eb;
-  --sky: #bbd6dd;
-}
-
+html[data-season="spring"]{--background:#f8f8f3;--primary:#4c6950;--primary-dark:#233e2e;--primary-soft:#eaf0e8;--accent:#9c8d7e;--hero-photo:url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1800&q=85")}
+html[data-season="summer"]{--hero-photo:url("https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1800&q=85")}
+html[data-season="fall"]{--background:#f8f6f1;--primary:#4c6044;--primary-dark:#1b3628;--primary-soft:#e9ede5;--accent:#a86c3d;--hero-photo:url("https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1800&q=85")}
+html[data-season="winter"]{--background:#f5f7f5;--primary:#455f5b;--primary-dark:#203b37;--primary-soft:#e5edeb;--accent:#80959b;--hero-photo:url("https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=1800&q=85")}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -91,12 +33,7 @@ input, select, textarea { min-width: 0; }
 
 .seasonal-page { background: var(--background); }
 .seasonal-hero { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); }
-html[data-season="fall"] .seasonal-hero {
-  background: linear-gradient(135deg, #f0c574, #f7dfa3);
-  color: #543a18;
-}
-html[data-season="fall"] .seasonal-hero [class*="text-white"] { color: #543a18; }
-html[data-season="fall"] .seasonal-hero [class*="border-white"] { border-color: #543a1833; }
+
 .seasonal-sage { background: linear-gradient(135deg, var(--surface-alt), var(--surface)); border-color: var(--border); }
 .seasonal-card { background: var(--surface); border-color: var(--border); }
 .seasonal-icon { background: var(--primary-soft); }
@@ -115,3 +52,20 @@ button, select, summary { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Modern Conservatory: restrained editorial surfaces, all seasons. */
+.editorial-title,.seasonal-heading{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.035em}
+.seasonal-page{background:var(--background)}
+.seasonal-card{background:var(--surface);border:1px solid var(--border);box-shadow:0 2px 14px #19372708}
+.seasonal-hero{background:linear-gradient(90deg,#10271edb 0%,#173425ba 40%,#17342520 100%),var(--hero-photo) center/cover!important;color:#fff!important}
+.seasonal-hero [class*="text-white"]{color:#fff}
+.seasonal-button{background:var(--primary-dark);color:#fff}
+.seasonal-button:hover{background:var(--primary)}
+.seasonal-icon{background:var(--primary-soft)}
+.conservatory-sidebar{background:linear-gradient(160deg,#11271e,#20392a 78%,#13291f);color:#f5f2e8}
+.conservatory-nav-item{display:flex;align-items:center;gap:.85rem;width:100%;min-height:46px;border-radius:9px;padding:.65rem 1rem;text-align:left;color:#e4e7dc;transition:background .2s}
+.conservatory-nav-item:hover,.conservatory-nav-item[aria-current="page"]{background:#ffffff1b;color:white}
+.conservatory-stat{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:1rem 1.25rem}
+.conservatory-stat-number{font-family:Georgia,"Times New Roman",serif;font-size:1.75rem;line-height:1.2}
+.conservatory-content{min-width:0}
+@media(min-width:1024px){.conservatory-content{margin-left:240px}.conservatory-sidebar{position:fixed;inset:0 auto 0 0;width:240px;z-index:30;overflow-y:auto}}
