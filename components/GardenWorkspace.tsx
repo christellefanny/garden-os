@@ -254,7 +254,24 @@ export default function GardenWorkspace({
 
   return (
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+      <aside className="conservatory-sidebar hidden flex-col px-4 py-7 lg:flex" aria-label="Main navigation">
+        <div className="border-b border-white/20 px-3 pb-7">
+          <p className="editorial-title text-3xl text-[#f7f3e8]">❧ Garden OS</p>
+          <p className="mt-2 text-[10px] uppercase tracking-[.2em] text-[#c5d0be]">Plan · Grow · Harvest · Enjoy</p>
+        </div>
+        <nav className="mt-7 space-y-1">
+          <button className="conservatory-nav-item" aria-current={!vaultOpen&&!layoutOpen&&!calendarOpen?"page":undefined} onClick={()=>{setVaultOpen(false);setLayoutOpen(false);setCalendarOpen(false)}}>⌂ <span>Dashboard / My Garden</span></button>
+          <button className="conservatory-nav-item" aria-current={vaultOpen?"page":undefined} onClick={()=>{setVaultOpen(true);setLayoutOpen(false);setCalendarOpen(false)}}>❧ <span>Plant Vault</span></button>
+          <button className="conservatory-nav-item" aria-current={layoutOpen?"page":undefined} onClick={()=>{setLayoutOpen(true);setVaultOpen(false);setCalendarOpen(false)}}>▤ <span>Garden Layout</span></button>
+          <button className="conservatory-nav-item" aria-current={calendarOpen?"page":undefined} onClick={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false)}}>▦ <span>Growing Calendar</span></button>
+        </nav>
+        <div className="mt-auto border-t border-white/20 px-3 pt-8">
+          <p className="editorial-title text-2xl italic leading-relaxed text-[#d6dfcb]">Good things grow here.</p>
+          <button onClick={onSignOut} disabled={busy} className="mt-8 text-sm text-[#e2e8da] underline">Sign out</button>
+        </div>
+      </aside>
+      <div className="conservatory-content">
+      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-7 lg:px-9">
         <GardenHeader onHome={() => {
           setVaultOpen(false);
           setLayoutOpen(false);
@@ -262,24 +279,13 @@ export default function GardenWorkspace({
           window.history.replaceState(window.history.state, "", "/");
           window.scrollTo({top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
         }} gardenYear={garden?.year ?? new Date().getFullYear()} calendarOpen={calendarOpen} onOpenCalendar={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false);document.getElementById("growing-calendar-heading")?.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});}} />
-        {!calendarOpen && <nav className="mt-6 grid gap-3 sm:grid-cols-3" aria-label="Garden OS main features">
-          <button type="button" onClick={() => {setVaultOpen(false);setLayoutOpen(false);setCalendarOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${!vaultOpen && !layoutOpen && !calendarOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
-            <span className="text-3xl" aria-hidden="true">🏡</span>
-            <span className="mt-3 block text-xl font-bold">My Garden</span>
-            <span className={`mt-1 block text-sm ${!vaultOpen && !layoutOpen && !calendarOpen ? "text-white/80" : "seasonal-muted"}`}>Growing spaces, plans & what’s happening now</span>
-          </button>
-          <button type="button" onClick={() => {setVaultOpen(true);setLayoutOpen(false);setCalendarOpen(false)}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${vaultOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
-            <span className="text-3xl" aria-hidden="true">🌿</span>
-            <span className="mt-3 block text-xl font-bold">Plant Vault</span>
-            <span className={`mt-1 block text-sm ${vaultOpen ? "text-white/80" : "seasonal-muted"}`}>Your plants, seeds, varieties, history & wishlist</span>
-          </button>
-          <button type="button" onClick={()=>{setLayoutOpen(true);setVaultOpen(false);setCalendarOpen(false);}} className={`min-h-28 rounded-3xl border p-5 text-left transition sm:min-h-32 ${layoutOpen ? "seasonal-hero border-transparent text-white shadow-md" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}>
-            <span aria-hidden="true" className="block"><svg viewBox="0 0 72 58" width="40" height="32" fill="none" aria-hidden="true"><path d="M9 34 36 43 63 34 36 25Z" fill="#966037"/><path d="M9 34v12l27 9V43Z" fill="#734524"/><path d="M36 43v12l27-9V34Z" fill="#A46B3D"/><path d="m14 34 22 7 22-7-22-7Z" fill="#543E2B"/><path d="M23 29c-9-3-10-11-5-15 8 1 11 6 9 15M29 29c-3-12 1-20 8-21 3 10 0 17-8 21M45 29c-1-9 5-15 13-14 1 9-5 14-13 14" fill="#599A53" stroke="#2E6C40" strokeWidth="2"/><path d="M25 32V19M42 31V17" stroke="#376F35" strokeWidth="2.5" strokeLinecap="round"/><path d="M42 20c-9-2-10-10-6-14 7 1 10 7 6 14" fill="#7EBC66"/></svg></span>
-            <span className="mt-3 block text-xl font-bold">Garden Layout</span>
-            <span className={`mt-1 block text-sm ${layoutOpen ? "text-white/80" : "seasonal-muted"}`}>Explore and customize your garden plan</span>
-          </button>
-        </nav>}
-        <div className="mt-2 flex justify-end">
+        <nav className="mt-5 flex flex-wrap gap-2 lg:hidden" aria-label="Garden sections">
+          <button className="seasonal-card rounded-lg px-4 py-3 text-sm" onClick={()=>{setVaultOpen(false);setLayoutOpen(false);setCalendarOpen(false)}}>My Garden</button>
+          <button className="seasonal-card rounded-lg px-4 py-3 text-sm" onClick={()=>{setVaultOpen(true);setLayoutOpen(false);setCalendarOpen(false)}}>Plant Vault</button>
+          <button className="seasonal-card rounded-lg px-4 py-3 text-sm" onClick={()=>{setLayoutOpen(true);setVaultOpen(false);setCalendarOpen(false)}}>Garden Layout</button>
+          <button className="seasonal-card rounded-lg px-4 py-3 text-sm" onClick={()=>{setCalendarOpen(true);setVaultOpen(false);setLayoutOpen(false)}}>Calendar</button>
+        </nav>
+        <div className="mt-2 flex justify-end lg:hidden">
           <button type="button" onClick={onSignOut} disabled={busy} className="seasonal-muted min-h-11 px-3 text-xs font-semibold underline">Sign out</button>
         </div>
         {!vaultOpen && !calendarOpen && layoutOpen && <GardenLayout userId={userId} gardenId={gardenId || "planning"} gardenName={garden?.name ?? "your garden"} spaces={activeSpaces} onOpenSpace={spaceId=>{setPlantSpacing(undefined);setOpenId(spaceId);}} onCreateSpaces={createLayoutSpaces} onClose={() => setLayoutOpen(false)} />}
@@ -717,6 +723,7 @@ export default function GardenWorkspace({
             }}
           />
         )}
+      </div>
       </div>
     </main>
   );
