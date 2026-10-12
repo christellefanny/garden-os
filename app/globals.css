@@ -1409,7 +1409,7 @@ button.task-ring::after {
 .modern-garden-map{aspect-ratio:990 / 841;background-size:100% 100%;background-repeat:no-repeat;background-position:center}
 /* Cultivar-aware fallback: a purple/red cabbage must not look like a green one.
    Colorized generic cabbage is provisional until a verified cultivar photo is available. */
-.purple-cabbage-portrait img{filter:hue-rotate(108deg) saturate(1.15) brightness(.88)}
+.purple-cabbage-portrait img{filter:hue-rotate(170deg) saturate(1.65) brightness(.82)}
 /* The welcome artwork is intentionally framed, not an uncontained translucent square. */
 .welcome-hero-plant{position:absolute;right:18px;top:18px;width:34%;max-width:185px;z-index:0;overflow:hidden;border:1px solid #ffffff6b;border-radius:13px;background:#f6f4e9;box-shadow:0 8px 25px #07190f44}
 .welcome-hero-plant>div:first-child{border-radius:0;aspect-ratio:4/3}
