@@ -15,7 +15,10 @@ export default function PlantPortrait({
   photoUrl?: string;
 }) {
   const isPurpleCabbage = /cabbage/i.test(name) && /purple|red/i.test(variety);
-  const isDistinctCultivar = /dianthus/i.test(name) && /paint the town/i.test(variety);
+  const isDistinctCultivar =
+    (/dianthus/i.test(name) && /paint the town/i.test(variety)) ||
+    (/lettuce/i.test(name) && /red|purple|butter|romaine|oak|iceberg|little gem|lollo|salad bowl/i.test(variety)) ||
+    (/onion/i.test(name) && /red|purple|white|yellow|sweet|vidalia|shallot|scallion|green|bunching/i.test(variety));
   const art = isDistinctCultivar ? null : getPlantArt(name, variety);
   const [failed, setFailed] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
@@ -63,7 +66,7 @@ export default function PlantPortrait({
           <div className="seasonal-muted flex h-full flex-col items-center justify-center gap-3">
             <GardenIcon kind="leaf" className="h-12 w-12 opacity-50" />
             <span className="text-xs">
-              {failed ? "Illustration unavailable" : isDistinctCultivar ? "Cultivar photo needed" : "No verified illustration yet"}
+              {failed ? "Illustration unavailable" : isDistinctCultivar ? "Variety photo needed" : "No verified illustration yet"}
             </span>
           </div>
         )}
