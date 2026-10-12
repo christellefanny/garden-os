@@ -4,7 +4,7 @@ This redesign follows the supplied Modern Conservatory dashboard: forest sidebar
 
 ## Garden OS 2.0
 
-- Additive cloud state schema: `supabase/garden-os-state.sql`. User-specific RLS, authenticated API, version-checked writes, local migration backups, persistent offline queue and conflict preservation. **Not applied to the live project yet:** automatic approval review blocked Supabase administration sign-in. Gardens and spaces continue to use their existing authenticated Supabase tables; local vault/layout/calendar data remains usable without the new table.
+- Additive cloud state schema: `supabase/garden-os-state.sql`. User-specific RLS, authenticated API, version-checked writes, local migration backups, persistent offline queue and conflict preservation. **Applied to the live project after the owner approved Supabase sign-in.** Live checks verify RLS enabled, no anonymous read permission, a security-invoker write function, owner writes/reads, version increments, stale-write rejection and cross-owner isolation. Tests rolled back with zero retained synchronization records. Existing garden and growing-space counts remained 4 and 12.
 - Growing-space plants acquire/reuse a vault identity when saved. Vault name/variety edits resolve consistently in growing-space and layout views. Quantities and planting status belong to the growing-space assignment. No unrelated vault records are deleted.
 - Daily soil-moisture inspection, harvest-readiness, plant inspection and frost-preparation recommendations use saved Growing plants and the adjustable planning frost date. These are explicitly recommendations, not sensor readings, pest diagnoses or weather warnings.
 - Sixteen inspected botanical illustrations include tomato, bell pepper, garlic, okra, lettuce, zinnia, basil, mint and several flowers. Existing species photographs remain available. A mismatched bell-pepper image is no longer used for slender hot-pepper varieties; unsupported images have a clear unavailable state. Representative species art is not claimed to be an exact cultivar portrait. User plant-photo URLs remain supported.
@@ -18,7 +18,7 @@ Screenshots use clearly isolated QA records, not records inserted into the user'
 
 ## Activation / remaining verification
 
-Approve Supabase administration access, apply the additive SQL migration, then verify live account synchronization across two devices. The migration contains no destructive change to existing gardens/spaces. First migration retains local copies; differing local/cloud versions stay preserved and require an explicit choice in Settings.
+The additive SQL migration is active. Actual Garden OS account sign-in succeeded. Settings reported "Cloud connected. Local backups retained." and showed the existing 4 gardens and 12 growing spaces. Real vegetable-garden records and the original nine-bed layout loaded. Migration of browser-only records from the original device and final two-device verification remain to be completed. The migration contains no destructive change to existing gardens/spaces. First migration retains local copies; differing local/cloud versions stay preserved and require an explicit choice in Settings.
 
 Phone-push delivery retains its existing infrastructure. Vercel daily cron runs only in production; preview visual tests do not claim real phone delivery. No live weather integration is present; the hero card provides clearly labeled seasonal guidance instead of fabricated weather.
 

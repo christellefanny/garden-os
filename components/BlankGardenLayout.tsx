@@ -127,7 +127,7 @@ export default function BlankGardenLayout({
     onLayoutsChange(next);
     try {
       localStorage.setItem(storageKey, JSON.stringify(next));
-      setMessage("Layout saved in this browser.");
+      setMessage("Layout saved. Check cloud synchronization in Settings.");
     } catch {
       setMessage(
         "Could not save in this browser. Keep this page open; your latest changes are only available for this visit.",
@@ -295,8 +295,8 @@ export default function BlankGardenLayout({
               />
             </label>
             <p className="seasonal-muted mt-3 text-sm">
-              Your original nine-bed layout stays available. New layouts are
-              saved in this browser.
+              Your original nine-bed layout stays available. New layouts keep a
+              local backup and sync when cloud storage is connected.
             </p>
             <button
               type="submit"

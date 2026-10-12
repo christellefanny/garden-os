@@ -926,8 +926,9 @@ export default function GardenWorkspace({
               <footer className="seasonal-muted mt-12 border-t border-[var(--border)] pt-5 text-sm">
                 Garden OS · Grow smarter. Harvest better.{" "}
                 <span className="block mt-1">
-                  Your garden records sync across devices. Theme and seasonal
-                  checklist preferences stay on this browser.
+                  Garden records sync across devices. Vault entries, layouts and
+                  calendar settings sync when cloud storage is connected. Your
+                  theme preference stays on this browser.
                 </span>
               </footer>
             </>
