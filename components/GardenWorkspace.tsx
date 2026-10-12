@@ -110,10 +110,10 @@ export default function GardenWorkspace({
   const [calendarOpen, setCalendarOpen] = useState(
     () =>
       typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).get("view") === "calendar",
+      page === "Growing Calendar",
   );
-  const [vaultOpen, setVaultOpen] = useState(false);
-  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [vaultOpen, setVaultOpen] = useState(() => page === "Plant Vault");
+  const [layoutOpen, setLayoutOpen] = useState(() => page === "Garden Layout");
   const [gardenForm, setGardenForm] = useState<"new" | "edit" | null>(
     initialGardens.length ? null : "new",
   );
