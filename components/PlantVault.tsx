@@ -175,7 +175,7 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
   }).sort((a,b)=>a.name.trim().localeCompare(b.name.trim(),"en",{sensitivity:"base",numeric:true}) || a.variety.trim().localeCompare(b.variety.trim(),"en",{sensitivity:"base",numeric:true})),[plants,query,filter]);
   return <section className="mt-8">
     <div className="flex flex-wrap items-end justify-between gap-4">
-      <div><p className="eyebrow seasonal-muted">Your growing collection</p><h2 className="editorial-title seasonal-heading mt-2 text-4xl">Plant Vault 🌿</h2><p className="seasonal-muted mt-2 max-w-2xl">One organized home for every plant you grow, own, remember, or want someday.</p></div>
+      <div><p className="eyebrow seasonal-muted">Your growing collection</p><h2 className="editorial-title seasonal-heading mt-2 text-4xl">Plant Vault</h2><p className="seasonal-muted mt-2 max-w-2xl">A botanical record of your vegetables, herbs, flowers, and future plantings.</p></div>
       <div className="flex gap-2"><button onClick={()=>setAdding(true)} className="seasonal-button rounded-xl px-5 py-3 font-bold text-white">+ Add plant</button><button onClick={onClose} className="seasonal-outline rounded-xl border px-4 py-3 font-bold">Back to garden</button></div>
     </div>
     <div className="seasonal-card mt-5 rounded-2xl border p-4">
@@ -187,17 +187,17 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
       {pendingImport && <div className="mt-3"><p className="text-sm">Ready to combine {pendingImport.length} plants with your current collection. Existing details take priority; notes and statuses are combined.</p><div className="mt-2 flex gap-3"><button onClick={importVault} className="seasonal-button rounded-xl px-4 py-2 text-sm font-bold text-white">Import collection</button><button onClick={()=>setPendingImport(null)} className="seasonal-link text-sm font-bold">Cancel import</button></div></div>}
       {transferMessage && <p role="status" className="mt-3 text-sm">{transferMessage}</p>}
     </div>
-    <div className="seasonal-card mt-6 rounded-3xl border p-4">
+    <div className="seasonal-card mt-6 rounded-2xl border p-4">
       <input aria-label="Search Plant Vault" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search plants, varieties, flowers, seeds…" className="seasonal-input w-full rounded-xl border p-3"/>
       <div className="mt-3 flex flex-wrap gap-2">{["All","Growing","Seeds","Wishlist","Past",...categories].map(x=><button key={x} onClick={()=>setFilter(x)} className={`rounded-full border px-3 py-2 text-xs font-bold ${filter===x?"seasonal-button text-white":"seasonal-outline"}`}>{x}</button>)}</div>
     </div>
     <PhoneReminders userId={userId} tasks={reminderTasks} showControls={false} />
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-      {!shown.length && <div className="seasonal-card rounded-3xl border p-8 col-span-full"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
-      {shown.map(p=><article key={p.id} className="seasonal-card relative rounded-3xl border p-5 transition hover:shadow-md">
+      {!shown.length && <div className="seasonal-card rounded-2xl border p-8 col-span-full"><p className="seasonal-heading text-xl font-bold">{plants.length?"Nothing matches this view yet.":"Your vault is ready for its first plant."}</p><p className="seasonal-muted mt-2">Add something you grow now, seeds you already own, an old favorite, or something on your wishlist.</p></div>}
+      {shown.map(p=><article key={p.id} className="seasonal-card relative rounded-2xl border p-5 transition hover:shadow-md">
         <PlantPortrait key={`${p.name}-${p.variety}-${p.photoUrl}`} name={p.name} variety={p.variety} photoUrl={p.photoUrl} />
         <div className="mt-4 flex justify-between gap-3"><div><p className="eyebrow seasonal-muted">{p.category}</p><h3 className="seasonal-heading mt-1 text-xl font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}</div></div>
-        <div className="mt-4 flex flex-wrap gap-2">{p.statuses.map(s=><span key={s} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{s}</span>)}</div>
+        <div className="mt-4 flex flex-wrap gap-2">{p.statuses.map(s=><span key={s} className="seasonal-icon rounded-md px-3 py-1 text-xs font-semibold">{s}</span>)}</div>
         {(p.source||p.year)&&<p className="seasonal-muted mt-4 text-xs">{p.source}{p.source&&p.year?" · ":""}{p.year}</p>}
         {p.notes&&<p className="mt-3 text-sm leading-6">{p.notes}</p>}
         <button type="button" aria-label={`Open ${p.name}${p.variety ? ` ${p.variety}` : ""}`} onClick={()=>setViewing(p.id)} className="absolute inset-0 cursor-pointer rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)]" />
@@ -209,13 +209,13 @@ export default function PlantVault({ userId, onClose }: { userId: string; onClos
         <button type="button" aria-label={`Edit ${viewedPlant.name}${viewedPlant.variety ? ` ${viewedPlant.variety}` : ""}`} onClick={()=>{setViewing(null);setEditing(viewedPlant);}} className="seasonal-button rounded-xl px-4 py-3 font-bold text-white">Edit</button>
       </div>
       <div className="mt-4"><PlantPortrait name={viewedPlant.name} variety={viewedPlant.variety} photoUrl={viewedPlant.photoUrl}/></div>
-      <div className="mt-4 flex flex-wrap gap-2">{viewedPlant.statuses.map(status=><span key={status} className="seasonal-icon rounded-full px-3 py-1 text-xs font-semibold">{status}</span>)}</div>
+      <div className="mt-4 flex flex-wrap gap-2">{viewedPlant.statuses.map(status=><span key={status} className="seasonal-icon rounded-md px-3 py-1 text-xs font-semibold">{status}</span>)}</div>
       {(viewedPlant.source || viewedPlant.year) && <p className="seasonal-muted mt-4 text-sm">{[viewedPlant.source,viewedPlant.year].filter(Boolean).join(" · ")}</p>}
       {viewedPlant.notes && <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6">{viewedPlant.notes}</p>}
       <PlantReminders key={viewedPlant.id} plant={viewedPlant} options={calendar} onSave={saveCalendar}/>
     </Dialog>}
     {(adding||editing)&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]" onPointerDown={e=>{if(e.target===e.currentTarget){setAdding(false);setEditing(null)}}}>
-      <form onSubmit={submit} className="seasonal-card max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border p-6 sm:p-8">
+      <form onSubmit={submit} className="seasonal-card max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border p-6 sm:p-8">
         <div className="flex justify-between"><div><p className="eyebrow seasonal-muted">Plant Vault</p><h3 className="seasonal-heading mt-1 text-2xl font-bold">{editing?"Edit plant":"Add to your collection"}</h3></div><button type="button" onClick={()=>{setAdding(false);setEditing(null)}} className="text-2xl">×</button></div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-bold">Plant name<input name="name" required defaultValue={editing?.name} placeholder="Garlic" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
