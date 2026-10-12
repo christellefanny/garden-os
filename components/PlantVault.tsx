@@ -82,6 +82,7 @@ export default function PlantVault({
   const [statusFilter, setStatusFilter] = useState("All");
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const viewedPlant = plants.find((p) => p.id === viewing);
   const [editing, setEditing] = useState<VaultPlant | null>(null);
   const [transferMessage, setTransferMessage] = useState("");
@@ -96,6 +97,14 @@ export default function PlantVault({
         "Your browser could not save this collection. Export a backup before trying again.",
       );
       return false;
+    }
+  }
+  function deletePlant() {
+    if (!pendingDelete) return;
+    if (save(plants.filter((plant) => plant.id !== pendingDelete))) {
+      setViewing(null);
+      setEditing(null);
+      setPendingDelete(null);
     }
   }
   function exportVault() {
@@ -397,6 +406,13 @@ export default function PlantVault({
             >
               Edit
             </button>
+            <button
+              type="button"
+              onClick={() => setPendingDelete(viewedPlant.id)}
+              className="rounded-xl border border-red-300 px-4 py-3 font-bold text-red-700"
+            >
+              Delete plant
+            </button>
           </div>
           <div className="mt-4">
             <PlantPortrait
@@ -433,6 +449,20 @@ export default function PlantVault({
             options={calendar}
             onSave={saveCalendar}
           />
+        </Dialog>
+      )}
+      {pendingDelete && (
+        <Dialog title="Delete this plant?" onClose={() => setPendingDelete(null)}>
+          <p className="text-sm leading-6">
+            Remove <strong>{[plants.find((p) => p.id === pendingDelete)?.name, plants.find((p) => p.id === pendingDelete)?.variety].filter(Boolean).join(" · ")}</strong> from your Plant Vault? This cannot be undone.
+          </p>
+          <p className="seasonal-muted mt-2 text-sm">
+            This only removes the Plant Vault entry. It does not delete your garden beds or growing spaces.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-end gap-3">
+            <button type="button" className="seasonal-outline rounded-xl px-4 py-3 font-bold" onClick={() => setPendingDelete(null)}>Cancel</button>
+            <button type="button" className="rounded-xl bg-red-700 px-4 py-3 font-bold text-white" onClick={deletePlant}>Yes, delete plant</button>
+          </div>
         </Dialog>
       )}
       {(adding || editing) && (
