@@ -1365,3 +1365,41 @@ button.task-ring::after {
 .vault-plant-card [role="img"],.space-visual [role="img"] { clip-path:inset(2% 2% 3% 2%); }
 .layout-page .seasonal-card { border-radius:9px; border-color:#d8e0cd; box-shadow:none; }
 .seasonal-page [role="dialog"] h2 { font-family:Georgia,serif; font-weight:400; }
+
+
+/* Garden Layout — editorial bed profile, consistent with Modern Conservatory */
+.layout-page .layout-map-workspace{grid-template-columns:minmax(0,1.65fr) minmax(310px,.9fr);gap:22px;align-items:start}
+.layout-page .layout-map-panel{overflow:hidden;border-radius:15px;border:1px solid #e0e4d8;background:#fff}
+.layout-page .bed-editorial-panel{display:block;min-width:0;border:1px solid #dfe5d8;border-radius:15px;background:#fffefa;padding:29px 27px;box-shadow:0 9px 28px #203b2310}
+.bed-editorial-kicker{display:flex;align-items:center;gap:9px;font-size:10px;font-weight:750;letter-spacing:.17em;color:#6b795f}
+.bed-editorial-dot{height:9px;width:9px;flex:none;border-radius:50%}
+.bed-editorial-index{margin-left:auto;font-size:11px;letter-spacing:.08em;color:#9a9e8e}
+.bed-editorial-name{margin:16px 0 9px;font-family:Georgia,serif;font-size:clamp(27px,2.5vw,37px);line-height:1.16;font-weight:500;letter-spacing:-.03em;color:#254735}
+.bed-editorial-description{color:#647363;font-size:13px;line-height:1.85}
+.bed-editorial-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:23px 0;padding:19px 0;border-top:1px solid #e4e8df;border-bottom:1px solid #e4e8df}
+.bed-editorial-summary>div+div{padding-left:18px;border-left:1px solid #e4e8df}
+.bed-editorial-summary span{display:block;color:#73806e;font-size:11px;margin-bottom:6px}
+.bed-editorial-summary strong{font-family:Georgia,serif;font-size:22px;font-weight:500;color:#2d5038}
+.bed-editorial-section-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:14px}
+.bed-editorial-section h4{font-family:Georgia,serif;color:#2b4b36;font-size:21px;font-weight:500}
+.bed-editorial-subtle{font-size:11px;color:#879183}
+.bed-editorial-empty{background:#f5f7f1;border:1px dashed #d9e1d4;border-radius:10px;padding:17px;color:#677666;font-size:13px;line-height:1.7}
+.bed-editorial-plant-list{display:grid;gap:9px}
+.bed-editorial-plant{display:flex;align-items:center;gap:13px;border:1px solid #e7ebe2;border-radius:11px;padding:12px;background:#fff}
+.bed-editorial-plant-mark{display:grid;place-items:center;flex:none;width:37px;height:37px;border-radius:50%;background:#e8eee0;color:#527347;font-size:18px}
+.bed-editorial-plant strong{font-size:13px;color:#2b4834}
+.bed-editorial-plant p{font-size:11px;color:#71806e;margin-top:4px;line-height:1.5}
+.bed-editorial-primary{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:16px;padding:13px 16px;background:#244d37;color:white;border-radius:9px;font-size:12px;font-weight:700}
+.bed-editorial-primary:disabled{opacity:.5}
+.bed-editorial-next{display:grid;gap:8px;margin-top:23px;padding:16px;border-radius:10px;background:#f3f0e5}
+.bed-editorial-next>span{font-size:10px;letter-spacing:.13em;color:#7d785e;font-weight:700}
+.bed-editorial-next strong{font-family:Georgia,serif;color:#41543b;font-size:16px;font-weight:500}
+.bed-editorial-next strong span{color:#a4a88c;padding:0 3px}
+.bed-editorial-settings{margin-top:24px;border-top:1px solid #e5e9e1;padding-top:17px}
+.bed-editorial-settings>summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:#4c6754;font-size:12px;font-weight:700;list-style:none}
+.bed-editorial-settings>summary::-webkit-details-marker{display:none}
+.bed-editorial-settings-body{display:grid;gap:12px;padding-top:18px;color:#3e5b46}
+.layout-page .layout-bed-tabs{gap:6px}
+.layout-page .layout-bed-tabs button{border-radius:999px;font-size:11px}
+@media(max-width:1150px){.layout-page .layout-map-workspace{grid-template-columns:minmax(0,1fr)}.layout-page .bed-editorial-panel{padding:25px}}
+@media(max-width:600px){.layout-page .bed-editorial-panel{padding:21px 18px}.bed-editorial-name{font-size:30px}.bed-editorial-summary strong{font-size:19px}}
