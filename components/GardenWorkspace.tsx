@@ -14,6 +14,7 @@ import {
   TasksPage,
   JournalPage,
   useVault,
+  destinations,
   type Destination,
 } from "@/components/ConservatoryUI";
 import NewGardenModal from "@/components/NewGardenModal";
