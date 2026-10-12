@@ -1403,3 +1403,17 @@ button.task-ring::after {
 .layout-page .layout-bed-tabs button{border-radius:999px;font-size:11px}
 @media(max-width:1150px){.layout-page .layout-map-workspace{grid-template-columns:minmax(0,1fr)}.layout-page .bed-editorial-panel{padding:25px}}
 @media(max-width:600px){.layout-page .bed-editorial-panel{padding:21px 18px}.bed-editorial-name{font-size:30px}.bed-editorial-summary strong{font-size:19px}}
+
+
+/* Preserve the original nine-bed artwork proportions in dashboard previews. */
+.modern-garden-map{aspect-ratio:990 / 841;background-size:100% 100%;background-repeat:no-repeat;background-position:center}
+/* Cultivar-aware fallback: a purple/red cabbage must not look like a green one.
+   Colorized generic cabbage is provisional until a verified cultivar photo is available. */
+.purple-cabbage-portrait img{filter:hue-rotate(108deg) saturate(1.15) brightness(.88)}
+/* The welcome artwork is intentionally framed, not an uncontained translucent square. */
+.welcome-hero-plant{position:absolute;right:18px;top:18px;width:34%;max-width:185px;z-index:0;overflow:hidden;border:1px solid #ffffff6b;border-radius:13px;background:#f6f4e9;box-shadow:0 8px 25px #07190f44}
+.welcome-hero-plant>div:first-child{border-radius:0;aspect-ratio:4/3}
+.welcome-hero-plant>p{display:none}
+.welcome-hero-plant>span{display:block;padding:7px 9px;background:#faf8f0;color:#34533d;font-size:10px;font-weight:700}
+.seasonal-hero>.eyebrow,.seasonal-hero>.editorial-title,.seasonal-hero>div:last-child{position:relative;z-index:1}
+@media(max-width:480px){.welcome-hero-plant{width:30%;right:12px;top:12px}.welcome-hero-plant>span{font-size:9px}.seasonal-hero>.editorial-title{max-width:75%;font-size:25px}}
