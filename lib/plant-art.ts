@@ -300,10 +300,20 @@ export function cropPortrait(name: string, variety = "") {
       };
 }
 export function getPortraitArt(name: string, variety = "") {
+  if (/\bdianthus\b/i.test(name))
+    return {
+      src: "/conservatory/dianthus-portrait.webp",
+      column: 0,
+      row: 0,
+      illustration: true,
+      caption:
+        "Representative Dianthus illustration · flower color and variety may differ",
+      standalone: true,
+    };
   const crop = cropPortrait(name, variety);
-  if (crop) return crop;
+  if (crop) return { ...crop, standalone: false };
   const art = distinctCultivar(name, variety)
     ? null
     : getPlantArt(name, variety);
-  return art ? { ...art, caption: undefined } : null;
+  return art ? { ...art, caption: undefined, standalone: false } : null;
 }

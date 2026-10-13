@@ -54,3 +54,12 @@ test("the production illustration plate is a valid WebP asset", async () => {
   assert.equal(data.toString("ascii", 0, 4), "RIFF");
   assert.equal(data.toString("ascii", 8, 12), "WEBP");
 });
+
+test("Dianthus including Paint the Town resolves to a full individual illustration", () => {
+  for (const variety of ["", "Paint the Town", "Paint the Town Magenta"]) {
+    const art = getPortraitArt("Dianthus", variety);
+    assert.equal(art.src, "/conservatory/dianthus-portrait.webp");
+    assert.equal(art.standalone, true);
+    assert.match(art.caption, /Representative Dianthus/);
+  }
+});

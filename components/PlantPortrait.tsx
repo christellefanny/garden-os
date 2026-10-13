@@ -25,7 +25,9 @@ export default function PlantPortrait({
     !!photoUrl && /^https?:\/\//i.test(photoUrl) && !photoFailed;
   return (
     <>
-      <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-[var(--primary-soft)]">
+      <div
+        className={`relative ${art?.standalone ? "aspect-square" : "aspect-[3/2]"} overflow-hidden rounded-2xl bg-[var(--primary-soft)]`}
+      >
         {showPhoto ? (
           // User-provided URLs use a native image without an unrestricted optimization proxy.
           // eslint-disable-next-line @next/next/no-img-element
@@ -61,14 +63,18 @@ export default function PlantPortrait({
               src={art.src}
               width={2048}
               height={2048}
-              sizes="(max-width: 639px) 360vw, (max-width: 1023px) 180vw, 1500px"
+              sizes={
+                art.standalone
+                  ? "(max-width: 639px) 50vw, 400px"
+                  : "(max-width: 639px) 360vw, (max-width: 1023px) 180vw, 1500px"
+              }
               style={{
                 position: "absolute",
-                width: "400%",
-                height: "400%",
+                width: art.standalone ? "100%" : "400%",
+                height: art.standalone ? "100%" : "400%",
                 maxWidth: "none",
-                left: `${-art.column * 100}%`,
-                top: `${-art.row * 100}%`,
+                left: art.standalone ? 0 : `${-art.column * 100}%`,
+                top: art.standalone ? 0 : `${-art.row * 100}%`,
               }}
               onError={() => setFailed(true)}
             />

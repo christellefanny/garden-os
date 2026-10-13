@@ -41,12 +41,13 @@ try {
     ["Lettuce", "Romaine"],
     ["Tomatoes", "Roma"],
     ["Onions", "Red"],
+    ["Dianthus", "Paint the Town"],
   ];
   const plants = crops.map(([name, variety], i) => ({
     id: "crop-" + i,
     name,
     variety,
-    category: "Vegetable",
+    category: i === 4 ? "Flower" : "Vegetable",
     statuses: ["Growing Now"],
     source: "Image QA fixture",
     year: "2026",
@@ -117,14 +118,17 @@ try {
         ? ".space-visual img"
         : ".vault-plant-card img";
     await page.locator(selector).first().waitFor();
-    assert.equal(await page.locator(selector).count(), 4);
+    assert.equal(await page.locator(selector).count(), 5);
     for (const width of [1536, 390]) {
       await page.setViewportSize({ width, height: 1000 });
       for (const image of await page.locator(selector).all()) {
         await image.scrollIntoViewIfNeeded();
         await image.evaluate((img) => img.decode());
         assert.ok(await image.evaluate((img) => img.naturalWidth > 0));
-        assert.match(await image.getAttribute("src"), /crop-portraits-v2/);
+        assert.match(
+          await image.getAttribute("src"),
+          /crop-portraits-v2|dianthus-portrait/,
+        );
       }
       await page.evaluate(() => scrollTo(0, 0));
       assert.equal(
@@ -145,7 +149,7 @@ try {
   }
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: peppers, lettuce, tomatoes and onions render decoded artwork in growing spaces and Vault on desktop/mobile; no overflow or WCAG violations; no production data changed.",
+    "PASS: peppers, lettuce, tomatoes, onions and Dianthus render decoded artwork in growing spaces and Vault on desktop/mobile; no overflow or WCAG violations; no production data changed.",
   );
 } finally {
   await browser?.close();
