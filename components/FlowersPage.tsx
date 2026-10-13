@@ -40,18 +40,29 @@ const seedGuides = [
   {name:"Nasturtium",when:"Summer to fall, when fallen seeds have matured and dried",how:"Collect the large, wrinkled seeds as they drop or loosen. Dry completely in a ventilated place before storing."},
   {name:"Dianthus",when:"After flowering, when seed capsules are dry and opening",how:"Shake ripe capsules into a paper bag. Named hybrids may not grow true to type from seed."},
 ];
-type FlowerSection = "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care";
+type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
-  const [section,setSection]=useState<FlowerSection>("My flowers");
+  const [section,setSection]=useState<FlowerSection>("Overview");
   const {season}=useSeason();
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
-  const sections:FlowerSection[]=["My flowers","Seasonal planting","Seed saving","Flower care"];
+  const sections:FlowerSection[]=["Overview","My flowers","Seasonal planting","Seed saving","Flower care"];
   return <section className="interior-page">
     <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description="Your flowers, seasonal planting ideas, seed-saving guides, and practical flower care." />
     <nav aria-label="Flower Garden sections" className="mt-4 flex flex-wrap gap-2">
       {sections.map(item=><button key={item} type="button" aria-current={section===item?"page":undefined} onClick={()=>setSection(item)} className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${section===item?"seasonal-button text-white":"seasonal-outline"}`}>{item}</button>)}
     </nav>
+    {section==="Overview"&&<>
+      <div className="seasonal-card mt-7 rounded-2xl border p-6 sm:p-8">
+        <p className="eyebrow seasonal-muted">Flower garden · {season}</p>
+        <h2 className="seasonal-heading mt-2 text-2xl font-bold">{current.title}</h2>
+        <p className="seasonal-muted mt-2 text-sm">A little inspiration and the next practical steps for your flower garden.</p>
+        <ul className="mt-5 grid gap-3">{current.tasks.map(t=><li key={t} className="text-sm leading-6">✿ {t}</li>)}</ul>
+      </div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
+      </div>
+    </>}
     {section==="My flowers"&&<>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">My flowers <span className="seasonal-muted text-base">({flowers.length})</span></h2>
       <p className="seasonal-muted mt-2 text-sm">Your flowers from Plant Vault, in alphabetical order. Add, edit, or remove flowers in Plant Vault; this view stays in sync.</p>
