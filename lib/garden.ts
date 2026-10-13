@@ -19,6 +19,7 @@ export type Plant = {
   quantity: number;
   spacing: number;
   vaultPlantId?:string;
+  category?: string;
   planted: string;
   status: "Growing" | "Planned" | "Finished";
 };

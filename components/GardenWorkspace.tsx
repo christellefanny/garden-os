@@ -821,6 +821,8 @@ export default function GardenWorkspace({
             <SpacePanel
               key={opened.id}
               space={opened}
+              vault={vault}
+              gardenName={garden?.name ?? ""}
               busy={busy}
               initialSpacing={plantSpacing}
               onClose={() => setOpenId(null)}

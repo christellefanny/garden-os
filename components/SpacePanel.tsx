@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import type { VaultPlant } from "@/components/PlantVault";
+import { inferPlantFilter, plantChoices, type PlantFilter } from "@/lib/plant-picker";
 import Dialog from "@/components/ui/Dialog";
 import { Field } from "@/components/SpaceEditor";
 import {
@@ -16,6 +18,8 @@ import {
 
 export default function SpacePanel({
   space,
+  vault = [],
+  gardenName = "",
   busy,
   initialSpacing,
   onClose,
@@ -23,6 +27,8 @@ export default function SpacePanel({
   onSave,
 }: {
   space: Space;
+  vault?: VaultPlant[];
+  gardenName?: string;
   busy: boolean;
   initialSpacing?: number;
   onClose: () => void;
@@ -34,6 +40,12 @@ export default function SpacePanel({
   const [plantEditor, setPlantEditor] = useState<string | null>(
     initialSpacing ? "new" : null,
   );
+  const automaticFilter = inferPlantFilter(space, details, gardenName, vault);
+  const [filter, setFilter] = useState<PlantFilter | "Automatic">("Automatic");
+  const [query, setQuery] = useState("");
+  const [selection, setSelection] = useState("");
+  const choices = plantChoices(vault, filter === "Automatic" ? automaticFilter : filter, query);
+  const selected = plantChoices(vault, "All").find(p => p.id === selection);
   const [plantName, setPlantName] = useState("");
   const [plantSpacing, setPlantSpacing] = useState(String(initialSpacing ?? 12));
   const suggested = suggestedSpacing(plantName);
@@ -61,10 +73,13 @@ export default function SpacePanel({
       );
       return;
     }
+    const variety = String(f.get("variety") || "").trim();
     const plant: Plant = {
       id: editedPlant?.id ?? crypto.randomUUID(),
       name,
-      variety: String(f.get("variety") || "").trim(),
+      vaultPlantId: selected?.source === "vault" && selected.variety === variety ? selected.id.slice(6) : editedPlant?.name === name && editedPlant.variety === variety ? editedPlant.vaultPlantId : undefined,
+      category: selected?.category || editedPlant?.category,
+      variety,
       quantity,
       spacing,
       planted: String(f.get("planted") || ""),
@@ -149,6 +164,8 @@ export default function SpacePanel({
             onClick={() => {
               setPlantEditor("new");
               setPlantName("");
+              setSelection("");
+              setQuery("");
               setPlantSpacing(String(initialSpacing ?? 12));
               setMessage("");
             }}
@@ -177,7 +194,7 @@ export default function SpacePanel({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => {setPlantEditor(p.id);setPlantName(p.name);setPlantSpacing(String(p.spacing));}}
+                  onClick={() => {setPlantEditor(p.id);setSelection("");setQuery("");setPlantName(p.name);setPlantSpacing(String(p.spacing));}}
                   className="seasonal-link min-h-11 font-bold underline"
                   aria-label={`Edit ${p.name}`}
                 >
@@ -240,26 +257,40 @@ export default function SpacePanel({
               if (target instanceof HTMLInputElement && target.name === "name") setPlantName(target.value);
             }}
             onSubmit={savePlant}
-            className="seasonal-icon mt-4 rounded-2xl p-4"
+            className="space-plant-form seasonal-icon mt-4 rounded-2xl p-4"
           >
             <h4 className="mb-3 font-bold">
               {editedPlant ? "Edit Plant" : "Add Plant"}
             </h4>
             <fieldset disabled={busy} className="space-y-3 disabled:opacity-60">
-              <Field
-                name="name"
-                label="Plant name"
-                value={editedPlant?.name}
-                required
-                maxLength={100}
-                placeholder="Tomato, garlic, lettuce…"
-              />
-              <Field
-                name="variety"
-                label="Variety (optional)"
-                value={editedPlant?.variety}
-                maxLength={100}
-              />
+              <label className="block text-sm font-bold">Plant category
+                <select aria-label="Plant category" value={filter} onChange={e => {setFilter(e.target.value as PlantFilter | "Automatic");setQuery("");}} className="seasonal-input mt-1 w-full rounded-xl border p-3">
+                  <option value="Automatic">Automatic · {automaticFilter === "All" ? "all plants (mixed or unknown garden)" : automaticFilter}</option>
+                  {["All","Vegetable","Flower","Herb","Fruit & Berry"].map(c => <option key={c} value={c}>{c === "All" ? "All plants" : c}</option>)}
+                </select>
+              </label>
+              <label className="block text-sm font-bold">Find a plant
+                <input aria-label="Find a plant" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search plants and varieties…" className="seasonal-input mt-1 w-full rounded-xl border p-3" />
+              </label>
+              <label className="block text-sm font-bold">Choose a plant
+                <select aria-label="Choose a plant" value={selection} onChange={e => {
+                  setSelection(e.target.value);
+                  const choice = choices.find(p => p.id === e.target.value);
+                  if (choice) {setPlantName(choice.name);const spacing=suggestedSpacing(choice.name);if(spacing)setPlantSpacing(String(spacing));}
+                }} className="seasonal-input mt-1 w-full rounded-xl border p-3">
+                  <option value="">Enter a custom plant below</option>
+                  {selected && !choices.some(p => p.id === selected.id) && <option value={selected.id}>{selected.name} · selected</option>}
+                  {["vault","catalog"].map(source => <optgroup key={source} label={source === "vault" ? "Your Plant Vault" : "Plant catalog"}>{choices.filter(p => p.source === source).map(p => <option key={p.id} value={p.id}>{p.name}{p.variety ? ` · ${p.variety}` : ""}</option>)}</optgroup>)}
+                </select>
+              </label>
+              <p className="seasonal-muted text-sm">Automatic uses this bed’s name, garden name, and saved plants. Choose another category for companion planting. Catalog selections join your Vault when saved.</p>
+              {selected ? <>
+                <input type="hidden" name="name" value={selected.name} />
+                <Field key={selected.id} name="variety" label="Variety (optional)" value={selected.variety} maxLength={100} />
+              </> : <>
+                <Field name="name" label="Plant name" value={editedPlant?.name} required maxLength={100} placeholder="Enter a plant not listed…" />
+                <Field name="variety" label="Variety (optional)" value={editedPlant?.variety} maxLength={100} />
+              </>}
               <div className="grid grid-cols-2 gap-3">
                 <label className="block text-sm font-bold">
                   Quantity

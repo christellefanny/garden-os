@@ -25,7 +25,7 @@ export default function SpaceEditor({
   onClose: () => void;
 }) {
   const [type, setType] = useState(space?.type === "Grow Bag" ? "Grow Bag" : space?.type ?? "Raised Bed");
-  const growBag = type === "Growing Bag";
+  const growBag = type === "Grow Bag" || type === "Growing Bag";
   const round = type === "Container";
   const [error, setError] = useState("");
   const [diameterUnit, setDiameterUnit] = useState<"inches" | "feet">("inches");

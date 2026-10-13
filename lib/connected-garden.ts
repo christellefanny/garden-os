@@ -1,3 +1,4 @@
+import { catalogCategory } from "./plant-picker.ts";
 import type { Space, SpaceDetails } from "./garden";
 import type { VaultPlant } from "../components/PlantVault";
 const normalized = (name: string) =>
@@ -26,7 +27,7 @@ export function connectGardenPlants(
         id: plant.vaultPlantId || id(),
         name: plant.name,
         variety: plant.variety,
-        category: "Other",
+        category: plant.category || catalogCategory(plant.name) || "Other",
         statuses: [],
         source: "Growing space",
         year: plant.planted.slice(0, 4),
