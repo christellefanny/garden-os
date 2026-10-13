@@ -50,10 +50,19 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
     <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
     {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
-      <div className="seasonal-card mt-7 rounded-2xl border p-7 sm:p-10">
-        <p className="eyebrow seasonal-muted">Welcome to your flower garden</p>
-        <h2 className="seasonal-heading mt-3 text-3xl font-bold">Grow something beautiful.</h2>
-        <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
+      <div
+        className="relative mt-7 min-h-[340px] overflow-hidden rounded-2xl border bg-[#f8f5ee] sm:min-h-[365px]"
+        style={{
+          backgroundImage: `url(/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="relative z-10 max-w-[48%] p-7 sm:p-10 max-sm:max-w-[62%]">
+          <p className="eyebrow text-[#18332b]">Welcome to your flower garden</p>
+          <h2 className="seasonal-heading mt-3 text-3xl font-bold text-[#18332b]">Grow something beautiful.</h2>
+          <p className="mt-3 text-sm leading-7 text-[#32483c]">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
+        </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
