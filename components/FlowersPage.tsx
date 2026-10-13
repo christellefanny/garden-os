@@ -60,15 +60,15 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         </div>
       ) : (
         <div
-          className="relative mt-7 flex min-h-[350px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b] bg-cover bg-center sm:min-h-[400px]"
+          className="relative mt-7 flex min-h-[330px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f] bg-cover bg-center sm:min-h-[390px]"
           style={{
-            backgroundImage: `linear-gradient(90deg, #14271e 0%, #14271e 34%, rgba(20,39,30,0.98) 43%, rgba(20,39,30,0.70) 58%, rgba(20,39,30,0.08) 88%), url("/flower-garden-${season}.webp")`,
+            backgroundImage: `linear-gradient(90deg, #17291f 0%, #17291f 29%, rgba(23,41,31,0.98) 38%, rgba(23,41,31,0.80) 53%, rgba(23,41,31,0.12) 86%), url("/flower-garden-${season}.webp")`,
             backgroundPosition: "center, right center",
           }}
         >
-          <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
+          <div className="relative z-10 max-w-[720px] px-7 py-12 sm:px-12 sm:py-14">
             <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to your flower garden</p>
-            <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl">Grow something beautiful.</h2>
+            <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight !text-white sm:text-5xl">Grow something beautiful.</h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-white sm:text-base">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
           </div>
         </div>
