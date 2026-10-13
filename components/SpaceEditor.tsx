@@ -24,7 +24,7 @@ export default function SpaceEditor({
   onSave: (input: SpaceInput) => Promise<boolean>;
   onClose: () => void;
 }) {
-  const [type, setType] = useState(space?.type ?? "Raised Bed");
+  const [type, setType] = useState(space?.type === "Grow Bag" ? "Grow Bag" : space?.type ?? "Raised Bed");
   const growBag = type === "Growing Bag";
   const round = type === "Container";
   const [error, setError] = useState("");
