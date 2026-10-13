@@ -40,7 +40,7 @@ const seedGuides = [
   {name:"Nasturtium",when:"Summer to fall, when fallen seeds have matured and dried",how:"Collect the large, wrinkled seeds as they drop or loosen. Dry completely in a ventilated place before storing."},
   {name:"Dianthus",when:"After flowering, when seed capsules are dry and opening",how:"Shake ripe capsules into a paper bag. Named hybrids may not grow true to type from seed."},
 ];
-type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care";
+type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut flowers & bouquets";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
   const {season}=useSeason();
@@ -65,7 +65,41 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
+        {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}, {label:"Cut flowers & bouquets",detail:"Grow, harvest, and arrange beautiful homegrown bouquets",action:"Explore bouquet flowers"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
+      </div>
+    </>}
+    {section==="Cut flowers & bouquets"&&<>
+      <div className="seasonal-card mt-7 rounded-2xl border p-6 sm:p-8">
+        <p className="eyebrow seasonal-muted">From garden to vase</p>
+        <h2 className="seasonal-heading mt-2 text-3xl font-bold">Grow your own bouquets</h2>
+        <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Plan a cutting garden with flowers for every season, harvest at the right stage, and arrange long-lasting bouquets with stems from your own beds and pots.</p>
+      </div>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Flowers worth growing for cutting</h2>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        {[
+          {name:"Zinnias",when:"Summer to frost",tip:"Cut when stems are firm and do not wobble just below the bloom. Great colorful focal flowers."},
+          {name:"Cosmos",when:"Summer to frost",tip:"Harvest when buds are just opening. Their airy stems make bouquets feel light and natural."},
+          {name:"Dahlias",when:"Midsummer to frost",tip:"Cut blooms fully or nearly open; buds generally will not open much after cutting. Tubers need winter protection in northern Illinois."},
+          {name:"Snapdragons",when:"Late spring and fall",tip:"Cut when the lower third of florets are open. Excellent vertical accent; grow tall cutting varieties."},
+          {name:"Sunflowers",when:"Summer to early fall",tip:"Cut as petals begin lifting off the face. Choose pollenless varieties for cleaner indoor arrangements."},
+          {name:"Hydrangeas",when:"Summer to fall",tip:"Cut mature, firm blooms and hydrate promptly. Limelight panicles also dry beautifully."},
+          {name:"Ranunculus",when:"Cool spring",tip:"Cut when buds feel soft and show color, before fully opening. Protect corms from hard freezes."},
+          {name:"Celosia",when:"Summer to frost",tip:"Harvest fully formed plumes or crests. Also excellent for drying."}
+        ].map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p><p className="mt-3 text-sm leading-6">{g.tip}</p></article>)}
+      </div>
+      <h2 className="seasonal-heading mt-9 text-2xl font-bold">Harvesting and vase care</h2>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        {[
+          {title:"1 · Harvest at the right time",body:"Cut during the cool morning or evening. Use clean, sharp snips and choose the correct opening stage for each flower."},
+          {title:"2 · Hydrate right away",body:"Place stems promptly in a clean bucket of water in a cool, shaded spot. Remove foliage that would sit below the waterline."},
+          {title:"3 · Arrange with balance",body:"Combine focal blooms (zinnia or dahlia), airy fillers (cosmos), and greenery. Vary heights and keep the vase proportional."},
+          {title:"4 · Keep bouquets fresh",body:"Use a clean vase and flower food according to directions. Refresh water, recut stems as needed, and keep arrangements out of direct sun and away from ripening fruit."}
+        ].map(g=><article key={g.title} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-lg font-bold">{g.title}</h3><p className="mt-3 text-sm leading-6">{g.body}</p></article>)}
+      </div>
+      <div className="seasonal-card mt-7 rounded-2xl border p-6">
+        <h2 className="seasonal-heading text-xl font-bold">A simple bouquet recipe</h2>
+        <p className="mt-3 text-sm leading-7">Try 3–5 zinnias as focal flowers, 3–5 cosmos stems for movement, and 3 stems of greenery or ornamental foliage. Arrange loosely and turn the vase as you work.</p>
+        <p className="seasonal-muted mt-3 text-sm">For northern Illinois: sow warm-season annuals after frost risk passes, and make small successive sowings to keep fresh stems coming through summer.</p>
       </div>
     </>}
     {section==="My flowers"&&<>
