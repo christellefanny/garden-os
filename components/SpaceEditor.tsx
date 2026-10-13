@@ -28,6 +28,8 @@ export default function SpaceEditor({
   const growBag = type === "Growing Bag";
   const round = type === "Container";
   const [error, setError] = useState("");
+  const [diameterUnit, setDiameterUnit] = useState<"inches" | "feet">("inches");
+  const [depthUnit, setDepthUnit] = useState<"inches" | "feet">("feet");
   const details = space
     ? readDetails(space.notes)
     : ({ garden_os: 1, notes: "", plants: [], entries: [] } as SpaceDetails);
@@ -66,8 +68,8 @@ export default function SpaceEditor({
       type,
       length_feet: round || growBag ? null : length,
       width_feet: round || growBag ? null : width,
-      diameter_inches: round ? diameter : growBag ? space?.diameter_inches ?? null : null,
-      depth_feet: growBag ? null : depth,
+      diameter_inches: round && diameter !== null ? (diameterUnit === "feet" ? diameter * 12 : diameter) : growBag ? space?.diameter_inches ?? null : null,
+      depth_feet: growBag ? null : round && depth !== null && depthUnit === "inches" ? depth / 12 : depth,
       sun_exposure: String(form.get("sun") || "") || null,
       irrigation: String(form.get("irrigation") || "").trim() || null,
       soil_type: String(form.get("soil") || "").trim() || null,
@@ -116,14 +118,21 @@ export default function SpaceEditor({
             {growBag ? (
               <Field key="gallons" label="Capacity (gallons)" name="gallons" value={details.growBagGallons ?? undefined} type="number" required />
             ) : round ? (
-              <Field
-                key="diameter"
-                label="Diameter (inches)"
-                name="diameter"
-                value={space?.diameter_inches ?? undefined}
-                type="number"
-                required
-              />
+              <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2">
+                <Field
+                  key={`diameter-${diameterUnit}`}
+                  label={`Diameter (${diameterUnit})`}
+                  name="diameter"
+                  value={space?.diameter_inches != null ? (diameterUnit === "feet" ? space.diameter_inches / 12 : space.diameter_inches) : undefined}
+                  type="number"
+                  required
+                />
+                <label className="block text-sm font-bold">Diameter unit
+                  <select className="seasonal-input mt-1 w-full rounded-xl border p-3" value={diameterUnit} onChange={e=>setDiameterUnit(e.target.value as "inches" | "feet")}>
+                    <option value="inches">Inches</option><option value="feet">Feet</option>
+                  </select>
+                </label>
+              </div>
             ) : (
               <>
                 <Field
@@ -144,102 +153,14 @@ export default function SpaceEditor({
                 />
               </>
             )}
-            {!growBag && <Field
-              label="Depth (feet, optional)"
-              name="depth"
-              value={space?.depth_feet ?? undefined}
-              type="number"
-            />}
-            <label className="block text-sm font-bold">
-              Sun exposure
-              <select
-                aria-label="Sun exposure"
-                name="sun"
-                defaultValue={space?.sun_exposure ?? ""}
-                className="seasonal-input mt-1 w-full rounded-xl border p-3"
-              >
-                <option value="">Not set</option>
-                <option>Full sun</option>
-                <option>Part sun</option>
-                <option>Shade</option>
-                <option>Grow lights</option>
-              </select>
-            </label>
-          </div>
-          <Field
-            label="Watering setup (optional)"
-            name="irrigation"
-            value={space?.irrigation ?? ""}
-            placeholder="Hand watering, drip irrigation…"
-            maxLength={200}
-          />
-          <Field
-            label="Soil or growing medium (optional)"
-            name="soil"
-            value={space?.soil_type ?? ""}
-            maxLength={200}
-          />
-          <Field label="Growing-space photo URL (optional)" name="photoUrl" type="url" value={details.photoUrl || ""} maxLength={4096} placeholder="https://…" />
-          <p className="seasonal-muted text-xs leading-5">A photo of this bed or container takes priority. Leave blank to use a matching photo or illustration from your plants.</p>
-          <label className="block text-sm font-bold">
-            Notes
-            <textarea
-              name="notes"
-              rows={3}
-              defaultValue={details.notes}
-              maxLength={5000}
-              className="seasonal-input mt-1 w-full rounded-xl border p-3"
-            />
-          </label>
-          <button
-            type="submit"
-            className="seasonal-button w-full rounded-xl px-5 py-3 font-bold text-white"
-          >
-            {busy ? "Saving…" : "Save Growing Space"}
-          </button>
-        </fieldset>
-        {error && (
-          <p role="alert" className="text-sm font-semibold">
-            {error}
-          </p>
-        )}
-      </form>
-    </Dialog>
-  );
-}
+            {!growBag && (round ? (
+              <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2">
+                <Field key={`depth-${depthUnit}`} label={`Depth (${depthUnit}, optional)`} name="depth" value={space?.depth_feet != null ? (depthUnit === "inches" ? space.depth_feet * 12 : space.depth_feet) : undefined} type="number" />
+                <label className="block text-sm font-bold">Depth unit
+                  <select className="seasonal-input mt-1 w-full rounded-xl border p-3" value={depthUnit} onChange={e=>setDepthUnit(e.target.value as "inches" | "feet")}>
+                    <option value="inches">Inches</option><option value="feet">Feet</option>
+                  </select>
+                </label>
+              </div>
+            ) : <Field label="Depth (feet, optional)" name="depth" value={space?.depth_feet ?? undefined} type="number" />)}
 
-export function Field({
-  label,
-  name,
-  value,
-  type = "text",
-  required = false,
-  placeholder,
-  maxLength,
-}: {
-  label: string;
-  name: string;
-  value?: string | number;
-  type?: string;
-  required?: boolean;
-  placeholder?: string;
-  maxLength?: number;
-}) {
-  return (
-    <label className="block text-sm font-bold">
-      {label}
-      <input
-        name={name}
-        type={type}
-        defaultValue={value}
-        required={required}
-        placeholder={placeholder}
-        maxLength={maxLength}
-        min={type === "number" ? "0.01" : undefined}
-        max={type === "number" ? "10000" : undefined}
-        step={type === "number" ? "any" : undefined}
-        className="seasonal-input mt-1 w-full rounded-xl border p-3"
-      />
-    </label>
-  );
-}
