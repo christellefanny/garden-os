@@ -179,12 +179,131 @@ export function getPlantArt(name: string, variety = "") {
 
 // Keep collection and growing-space artwork subject to the same cultivar checks.
 export function distinctCultivar(name: string, variety: string) {
-  return (/dianthus/i.test(name) && /paint the town/i.test(variety)) ||
-    (/lettuce/i.test(name) && /red|purple|butter|romaine|oak|iceberg|little gem|lollo|salad bowl/i.test(variety)) ||
-    (/onion/i.test(name) && /red|purple|white|yellow|sweet|vidalia|shallot|scallion|green|bunching/i.test(variety)) ||
-    (/tomato/i.test(name) && /cherry|grape|roma|plum|beefsteak|heirloom|pear|yellow|orange|purple|black|green|brandywine|cherokee|san marzano|sungold|sun gold/i.test(variety)) ||
-    (/pepper/i.test(name) && /habanero|scotch bonnet|serrano|jalape|cayenne|thai|ghost|reaper|poblano|shishito|banana|miniature|redskin|purple|orange|yellow|red|chocolate/i.test(variety));
+  return (
+    (/dianthus/i.test(name) && /paint the town/i.test(variety)) ||
+    (/lettuce/i.test(name) &&
+      /red|purple|butter|romaine|oak|iceberg|little gem|lollo|salad bowl/i.test(
+        variety,
+      )) ||
+    (/onion/i.test(name) &&
+      /red|purple|white|yellow|sweet|vidalia|shallot|scallion|green|bunching/i.test(
+        variety,
+      )) ||
+    (/tomato/i.test(name) &&
+      /cherry|grape|roma|plum|beefsteak|heirloom|pear|yellow|orange|purple|black|green|brandywine|cherokee|san marzano|sungold|sun gold/i.test(
+        variety,
+      )) ||
+    (/pepper/i.test(name) &&
+      /habanero|scotch bonnet|serrano|jalape|cayenne|thai|ghost|reaper|poblano|shishito|banana|miniature|redskin|purple|orange|yellow|red|chocolate/i.test(
+        variety,
+      ))
+  );
+}
+// This plate provides representative crop/type illustrations, not cultivar identification.
+export function cropPortrait(name: string, variety = "") {
+  const crop = normalize(name),
+    description = normalize(`${name} ${variety}`);
+  let index: number | undefined,
+    caption = "Representative crop illustration";
+  if (/\b(peppers?|habanero|scotch bonnet|serrano)\b/.test(crop)) {
+    if (/scotch bonnet/.test(description)) {
+      index = 1;
+      caption = "Scotch bonnet pepper type";
+    } else if (/habanero/.test(description)) {
+      index = 0;
+      caption = "Habanero pepper type";
+    } else if (/serrano/.test(description)) {
+      index = 2;
+      caption = "Serrano pepper type";
+    } else if (/bell|miniature|redskin/.test(description)) {
+      if (/red|miniature|redskin/.test(description)) {
+        index = 3;
+        caption = "Red bell pepper type";
+      } else {
+        const art = getPlantArt("Bell Pepper");
+        return art
+          ? { ...art, caption: "Bell pepper illustration · variety may differ" }
+          : null;
+      }
+    } else if (/hot|chili|chilli/.test(description)) {
+      index = 2;
+      caption = "Representative chili pepper illustration · variety may differ";
+    } else {
+      const art = getPlantArt("Bell Pepper");
+      return art
+        ? {
+            ...art,
+            caption: "Representative pepper illustration · variety may differ",
+          }
+        : null;
+    }
+  } else if (/\btomato(?:es)?\b/.test(crop)) {
+    if (/roma|plum|san marzano/.test(description)) {
+      index = 4;
+      caption = "Plum tomato type";
+    } else if (/cherry|sungold|sun gold/.test(description)) {
+      index = 5;
+      caption = "Cherry tomato type · color may differ";
+    } else if (/cherokee|purple|black/.test(description)) {
+      index = 7;
+      caption = "Dark tomato type";
+    } else {
+      index = 6;
+      caption = /beefsteak|brandywine/.test(description)
+        ? "Beefsteak tomato type"
+        : "Representative tomato illustration · variety may differ";
+    }
+  } else if (/\b(lettuce|romaine)\b/.test(crop)) {
+    if (/romaine|little gem|\bcos\b/.test(description)) {
+      index = 8;
+      caption = "Romaine lettuce type";
+    } else if (
+      /oak|salad bowl/.test(description) &&
+      !/red|purple/.test(description)
+    ) {
+      index = 11;
+      caption = "Green oakleaf lettuce type";
+    } else if (/red|purple|lollo/.test(description)) {
+      index = 10;
+      caption = "Red leaf lettuce type";
+    } else {
+      index = 9;
+      caption = /butter/.test(description)
+        ? "Butterhead lettuce type"
+        : "Representative lettuce illustration · variety may differ";
+    }
+  } else if (/\b(onions?|scallions?)\b/.test(crop)) {
+    if (/scallion|green onion|bunching|spring onion/.test(description)) {
+      index = 15;
+      caption = "Bunching onion type";
+    } else if (/red|purple/.test(description)) {
+      index = 12;
+      caption = "Red bulb onion type";
+    } else if (/white/.test(description)) {
+      index = 14;
+      caption = "White bulb onion type";
+    } else {
+      index = 13;
+      caption = /yellow|sweet|vidalia/.test(description)
+        ? "Yellow bulb onion type"
+        : "Representative bulb onion illustration · variety may differ";
+    }
+  }
+  return index === undefined
+    ? null
+    : {
+        src: "/conservatory/crop-portraits-v2.webp",
+        column: index % 4,
+        row: Math.floor(index / 4),
+        illustration: true,
+        caption,
+      };
 }
 export function getPortraitArt(name: string, variety = "") {
-  return distinctCultivar(name, variety) ? null : getPlantArt(name, variety);
+  const crop = cropPortrait(name, variety);
+  if (crop) return crop;
+  const art = distinctCultivar(name, variety)
+    ? null
+    : getPlantArt(name, variety);
+  return art ? { ...art, caption: undefined } : null;
 }

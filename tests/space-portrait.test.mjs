@@ -31,13 +31,14 @@ test("growing-space portraits use the exact connected vault photo and preserve s
   const original = structuredClone(details);
   const p = spacePortraitCandidates(details, vault);
   assert.equal(p[0].photoUrl, vault[0].photoUrl);
-  assert.equal(p[0].art, null);
+  assert.equal(p[0].art.row, 1);
   assert.deepEqual(details, original);
 });
-test("another plant supplies verified artwork when the first cultivar has none", () => {
-  const p = spacePortraitCandidates(details, []).find(
-    (p) => p.art || p.photoUrl,
-  );
+test("another plant supplies verified artwork when the first plant is unsupported", () => {
+  const d = structuredClone(details);
+  d.plants[0].name = "Unidentified seedling";
+  d.plants[0].variety = "";
+  const p = spacePortraitCandidates(d, []).find((p) => p.art || p.photoUrl);
   assert.equal(p.name, "Garlic");
 });
 test("photo matching never borrows a different variety and prefers growing/planned crops to finished ones", () => {

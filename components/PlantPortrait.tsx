@@ -35,13 +35,25 @@ export default function PlantPortrait({
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover"
-            onError={() => {setPhotoFailed(true);onPhotoError?.();}}
+            onError={() => {
+              setPhotoFailed(true);
+              onPhotoError?.();
+            }}
           />
         ) : art && !failed ? (
           <div
             role="img"
             aria-label={`Representative ${art.illustration ? "botanical illustration" : "plant photograph"} of ${name.toLowerCase()}`}
-            className={isPurpleCabbage ? "purple-cabbage-portrait absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden" : "absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden"}
+            style={
+              art.src === "/conservatory/crop-portraits-v2.webp"
+                ? { clipPath: `inset(0% 0% ${[5, 8, 13, 3][art.row]}% 0%)` }
+                : undefined
+            }
+            className={
+              isPurpleCabbage
+                ? "purple-cabbage-portrait absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden"
+                : "absolute left-0 top-1/2 aspect-square w-full -translate-y-1/2 overflow-hidden"
+            }
           >
             <Image
               aria-hidden="true"
@@ -65,15 +77,19 @@ export default function PlantPortrait({
           <div className="seasonal-muted flex h-full flex-col items-center justify-center gap-3">
             <GardenIcon kind="leaf" className="h-12 w-12 opacity-50" />
             <span className="text-xs">
-              {failed ? "Illustration unavailable" : isDistinctCultivar ? "Variety photo needed" : "No verified illustration yet"}
+              {failed
+                ? "Illustration unavailable"
+                : isDistinctCultivar
+                  ? "Variety photo needed"
+                  : "No verified illustration yet"}
             </span>
           </div>
         )}
       </div>
       {!showPhoto && art && !failed && (
         <p className="seasonal-muted mt-2 text-[11px] leading-5">
-          {art.illustration ? "Botanical illustration" : "Plant photograph"} ·
-          varieties may differ
+          {art.caption ||
+            `${art.illustration ? "Botanical illustration" : "Plant photograph"} · varieties may differ`}
         </p>
       )}
     </>
