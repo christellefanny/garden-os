@@ -53,8 +53,8 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       <div
         className="relative mt-7 flex min-h-[350px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b] bg-cover bg-center sm:min-h-[400px]"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(19,37,29,0.86) 0%, rgba(19,37,29,0.65) 38%, rgba(19,37,29,0.12) 78%), url("/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp")`,
-          backgroundPosition: "center, center",
+          backgroundImage: `linear-gradient(90deg, #14271e 0%, #14271e 34%, rgba(20,39,30,0.98) 43%, rgba(20,39,30,0.70) 58%, rgba(20,39,30,0.08) 88%), url("/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp")`,
+          backgroundPosition: "center, right center",
         }}
       >
         <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
