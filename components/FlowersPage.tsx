@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import InteriorHeader from "@/components/InteriorHeader";
 import PlantPortrait from "@/components/PlantPortrait";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -26,22 +26,56 @@ const seasonal: Record<string,{title:string;tasks:string[]}> = {
   fall:{title:"Prepare for next spring",tasks:["Plant tulip and ornamental allium bulbs after soil cools.","Collect dry zinnia and cosmos seeds and label them.","Leave some sturdy stems and seedheads for winter habitat; mulch tender plants after soil cools."]},
   winter:{title:"Let the garden rest",tasks:["Avoid cutting back all perennial stems; some shelter overwintering insects.","Check stored bulbs and corms for rot or drying.","Plan spring color, order seeds, and protect pots from freeze–thaw damage."]},
 };
+const planting = [
+  {season:"Spring",title:"Cool-season color",flowers:"Pansies, violas, calendula, snapdragons, sweet alyssum",timing:"Plant hardy transplants in early spring when soil is workable. Start warm-season annuals indoors according to seed packet timing; wait until frost risk passes before planting them outside."},
+  {season:"Summer",title:"Heat-loving blooms",flowers:"Zinnias, cosmos, marigolds, sunflowers",timing:"Sow or transplant after the last spring frost when soil is warm. Succession-sow fast-growing annuals through early summer for continued flowers."},
+  {season:"Fall",title:"Plant next spring's bulbs",flowers:"Tulips, ornamental alliums, daffodils; cool-weather pansies",timing:"Plant spring-flowering bulbs once soil cools, before it freezes. In cold climates, fall-planted annuals may not overwinter."},
+  {season:"Winter",title:"Plan and start indoors",flowers:"Lisianthus and other long-season flowers; hardy annuals for later transplant",timing:"Order seeds, check germination requirements and start only varieties that need a long lead time. Most outdoor planting waits until spring."},
+];
+const seedGuides = [
+  {name:"Zinnia",when:"Late summer to fall, once flower heads are fully brown and dry",how:"Leave several blooms on the plant until dry. Break apart the seed head, separate mature seeds, and dry thoroughly before storing."},
+  {name:"Cosmos",when:"Summer to fall, when the narrow seeds turn brown or black",how:"Collect dry, elongated seeds from spent flower heads before they scatter. Dry and label by variety."},
+  {name:"Marigold",when:"Late summer to fall, when flower heads are papery and dry",how:"Pull apart the dry head to find slender, dark-and-pale seeds. Air-dry before storing."},
+  {name:"Calendula",when:"Late spring through fall, when curved seeds turn tan or brown",how:"Pick mature, dry seed heads and separate the curved seeds. Save in a labeled paper envelope."},
+  {name:"Nasturtium",when:"Summer to fall, when fallen seeds have matured and dried",how:"Collect the large, wrinkled seeds as they drop or loosen. Dry completely in a ventilated place before storing."},
+  {name:"Dianthus",when:"After flowering, when seed capsules are dry and opening",how:"Shake ripe capsules into a paper bag. Named hybrids may not grow true to type from seed."},
+];
+type FlowerSection = "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
+  const [section,setSection]=useState<FlowerSection>("My flowers");
   const {season}=useSeason();
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
+  const sections:FlowerSection[]=["My flowers","Seasonal planting","Seed saving","Flower care"];
   return <section className="interior-page">
-    <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description="Seasonal flower care, beautiful borders, and practical growing advice for your garden." />
-    <div className="seasonal-card rounded-2xl border p-6 sm:p-8">
-      <p className="eyebrow seasonal-muted">This season · {season}</p>
-      <h2 className="seasonal-heading mt-2 text-2xl font-bold">{current.title}</h2>
-      <ul className="mt-4 grid gap-3">{current.tasks.map(t=><li key={t} className="text-sm leading-6">✿ {t}</li>)}</ul>
-    </div>
-    <h2 className="seasonal-heading mt-8 text-2xl font-bold">Your flowers</h2>
-    <p className="seasonal-muted mt-2 text-sm">Flower entries from your Plant Vault. Manage them in Plant Vault; this page does not create duplicate records.</p>
-    {flowers.length ? <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{flowers.map(p=><article key={p.id} className="seasonal-card rounded-2xl border p-4"><PlantPortrait name={p.name} variety={p.variety} photoUrl={p.photoUrl}/><h3 className="seasonal-heading mt-3 text-lg font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}{p.notes&&<p className="mt-2 text-sm leading-6">{p.notes}</p>}</article>)}</div> : <p className="seasonal-muted mt-4 text-sm">No flowers in your vault yet. Add them under Plant Vault with category Flower.</p>}
-    <h2 className="seasonal-heading mt-9 text-2xl font-bold">Flower care library</h2>
-    <p className="seasonal-muted mt-2 text-sm">General guidance; adjust watering and winter protection to your site and variety.</p>
-    <div className="mt-5 grid gap-4 sm:grid-cols-2">{guides.map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.light} · {g.bloom}</p><p className="mt-3 text-sm leading-6">{g.care}</p></article>)}</div>
+    <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description="Your flowers, seasonal planting ideas, seed-saving guides, and practical flower care." />
+    <nav aria-label="Flower Garden sections" className="mt-4 flex flex-wrap gap-2">
+      {sections.map(item=><button key={item} type="button" aria-current={section===item?"page":undefined} onClick={()=>setSection(item)} className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${section===item?"seasonal-button text-white":"seasonal-outline"}`}>{item}</button>)}
+    </nav>
+    {section==="My flowers"&&<>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">My flowers <span className="seasonal-muted text-base">({flowers.length})</span></h2>
+      <p className="seasonal-muted mt-2 text-sm">Your flowers from Plant Vault, in alphabetical order. Add, edit, or remove flowers in Plant Vault; this view stays in sync.</p>
+      {flowers.length?<div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{flowers.map(p=><article key={p.id} className="seasonal-card rounded-2xl border p-4"><PlantPortrait name={p.name} variety={p.variety} photoUrl={p.photoUrl}/><h3 className="seasonal-heading mt-3 text-lg font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}{p.notes&&<p className="mt-2 text-sm leading-6">{p.notes}</p>}</article>)}</div>:<p className="seasonal-muted mt-5 text-sm">No flowers yet. Add your first flower in Plant Vault and select the Flower category.</p>}
+    </>}
+    {section==="Seasonal planting"&&<>
+      <div className="seasonal-card mt-7 rounded-2xl border p-6">
+        <p className="eyebrow seasonal-muted">Right now · {season}</p>
+        <h2 className="seasonal-heading mt-2 text-2xl font-bold">{current.title}</h2>
+        <ul className="mt-4 grid gap-3">{current.tasks.map(t=><li key={t} className="text-sm leading-6">✿ {t}</li>)}</ul>
+      </div>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">What to plant each season</h2>
+      <p className="seasonal-muted mt-2 text-sm">General guidance for cold-winter gardens around northern Illinois. Always check your local frost dates and each variety's requirements.</p>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">{planting.map(p=><article key={p.season} className="seasonal-card rounded-2xl border p-5"><p className="eyebrow seasonal-muted">{p.season}</p><h3 className="seasonal-heading mt-2 text-xl font-bold">{p.title}</h3><p className="mt-3 text-sm font-semibold">{p.flowers}</p><p className="mt-3 text-sm leading-6">{p.timing}</p></article>)}</div>
+    </>}
+    {section==="Seed saving"&&<>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">What seeds to save, and when</h2>
+      <p className="seasonal-muted mt-2 text-sm">Collect seed from healthy, fully mature, dry flower heads on a dry day. Store completely dry seeds in labeled envelopes in a cool, dark, dry place. Hybrids may not grow true to the parent.</p>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">{seedGuides.map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-3 text-xs font-semibold">WHEN TO COLLECT</p><p className="mt-1 text-sm leading-6">{g.when}</p><p className="seasonal-muted mt-3 text-xs font-semibold">HOW TO SAVE</p><p className="mt-1 text-sm leading-6">{g.how}</p></article>)}</div>
+    </>}
+    {section==="Flower care"&&<>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Flower care library</h2>
+      <p className="seasonal-muted mt-2 text-sm">Growing tips for flowers in your garden. Adjust watering, pruning, and winter protection to your specific variety and site.</p>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">{guides.map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.light} · {g.bloom}</p><p className="mt-3 text-sm leading-6">{g.care}</p></article>)}</div>
+    </>}
   </section>;
 }
