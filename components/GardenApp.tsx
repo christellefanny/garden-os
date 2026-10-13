@@ -7,7 +7,6 @@ import CloudDataBoundary from "@/components/CloudDataBoundary";
 import GardenWorkspace from "@/components/GardenWorkspace";
 import GardenHeader from "@/components/GardenHeader";
 import GardenIcon from "@/components/ui/GardenIcon";
-import PlantPortrait from "@/components/PlantPortrait";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { type Garden, type Space } from "@/lib/garden";
 
@@ -205,10 +204,6 @@ function Welcome({ authError }: { authError: string }) {
               Plan with confidence. Keep a record. Enjoy what grows.
             </p>
             <div className="seasonal-hero relative mt-8 max-w-xl overflow-hidden rounded-3xl p-6 text-white">
-              <div className="welcome-hero-plant" aria-label="Seasonal garden plant">
-                <PlantPortrait name={season==="winter"?"Garlic":season==="spring"?"Lettuce":season==="fall"?"Sweet Potato":"Tomato"} variety=""/>
-                <span>{season==="winter"?"Garlic":season==="spring"?"Lettuce":season==="fall"?"Sweet potatoes":"Tomatoes"} · Seasonal favorite</span>
-              </div>
               <p className="eyebrow text-white/80">Made for every season</p>
               <p className="editorial-title relative mt-3 max-w-xs text-3xl leading-tight">
                 Your garden changes.
