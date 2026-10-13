@@ -2,6 +2,7 @@ import type { VaultPlant } from "../components/PlantVault";
 export type PlantReminder = { id: string; plantId: string; title: string; date: string };
 export type CalendarOptions = {
   reminders?: PlantReminder[];
+  weekly?: import("./weekly-brief").WeeklyPreferences;
   lastFrost: string;
   firstFrost: string;
   plants: Record<string, { included?: boolean; mode?: "indoor" | "outdoor" }>;

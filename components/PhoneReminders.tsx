@@ -202,7 +202,7 @@ export default function PhoneReminders({
         One morning digest when tasks are due, even with Garden OS closed.
         Free-plan timing is approximate: around 8–10 a.m. Central. Open the
         calendar after changing your vault to update reminders. No tasks due
-        means no alert.
+        means no daily alert. An enabled weekly briefing can still arrive on its selected day.
       </p>
       <p className="seasonal-muted mt-2 text-xs">
         Android: allow notifications in Chrome; add Garden OS to your Home

@@ -74,6 +74,7 @@ export async function sendReminder(
   subscription: webpush.PushSubscription,
   title: string,
   message: string,
+  options?: { url: string; tag: string },
 ) {
   if (!validSubscription(subscription))
     throw new Error("Unsupported push subscription.");
@@ -84,7 +85,7 @@ export async function sendReminder(
   );
   return webpush.sendNotification(
     subscription,
-    JSON.stringify({ title, body: message }),
+    JSON.stringify({ title, body: message, ...options }),
     { TTL: 86400, timeout: 10000 },
   );
 }

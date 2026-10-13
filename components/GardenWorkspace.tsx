@@ -497,6 +497,8 @@ export default function GardenWorkspace({
           )}
           {calendarOpen && (
             <GrowingCalendar
+              garden={garden}
+              gardens={gardens}
               location={garden?.location || undefined}
               userId={userId}
             />

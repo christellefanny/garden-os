@@ -15,13 +15,19 @@ import {groupReminders} from "@/lib/reminder-groups";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
+import WeeklyBriefing from "@/components/WeeklyBriefing";
+import type { Garden } from "@/lib/garden";
 import PhoneReminders from "@/components/PhoneReminders";
 export default function GrowingCalendar({
   userId,
   location,
+  garden,
+  gardens,
 }: {
   userId: string;
   location?: string;
+  garden?: Garden;
+  gardens: Garden[];
 }) {
   const [plants] = useState<VaultPlant[]>(() => {
     try {
@@ -96,6 +102,7 @@ export default function GrowingCalendar({
         <button type="button" onClick={()=>setPlanningOpen(true)} className="seasonal-outline">Planning settings</button>
       </InteriorHeader>
       <InteriorStats items={[{label:"Plants in your plan",value:active},{label:"Steps this week",value:weeklyTasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)&&!t.status).length},{label:"Spring frost anchor",value:new Date(`2000-${options.lastFrost}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"})},{label:"Fall frost anchor",value:new Date(`2000-${options.firstFrost}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"})}]}/>
+      <WeeklyBriefing garden={garden} gardens={gardens} options={options} onSave={save} />
       <PhoneReminders userId={userId} tasks={reminderTasks} showControls={addingReminder && !!controlsTarget} controlsTarget={controlsTarget} />
       {addingReminder && <Dialog title="Add reminder" onClose={() => setAddingReminder(false)}>
         {plants.length ? <>

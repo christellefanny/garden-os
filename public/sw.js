@@ -16,14 +16,15 @@ self.addEventListener("push", (event) => {
       body: data.body,
       icon: "/garden-icon-192.png",
       badge: "/garden-icon-192.png",
-      tag: "garden-os-growing-calendar",
-      data: { url: "/?view=calendar" },
+      tag: data.tag === "garden-os-weekly-brief" ? data.tag : "garden-os-growing-calendar",
+      data: { url: data.url === "/?view=calendar&brief=weekly" ? data.url : "/?view=calendar" },
     }),
   );
 });
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = new URL("/?view=calendar", self.location.origin).href;
+  const path = event.notification.data?.url === "/?view=calendar&brief=weekly" ? "/?view=calendar&brief=weekly" : "/?view=calendar";
+  const url = new URL(path, self.location.origin).href;
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
