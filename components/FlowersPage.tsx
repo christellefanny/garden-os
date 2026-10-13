@@ -50,19 +50,17 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
     <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
     {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
-      <div className="mt-7 grid overflow-hidden rounded-2xl border border-[#aab4a7] bg-[#f8f5ee] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col justify-center px-7 py-10 sm:px-10 lg:py-14">
-          <p className="eyebrow text-[#18332b]">Welcome to your flower garden</p>
-          <h2 className="seasonal-heading mt-3 text-3xl font-bold text-[#18332b]">Grow something beautiful.</h2>
-          <p className="mt-3 max-w-lg text-sm leading-7 text-[#32483c]">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
-        </div>
-        <div className="relative h-60 min-w-0 overflow-hidden sm:h-80 lg:h-[365px]">
-          <img
-            src={`/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp`}
-            alt={`${season} flower garden illustration`}
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "right center", transform: "scale(1.17)", transformOrigin: "right center" }}
-          />
+      <div
+        className="relative mt-7 flex min-h-[350px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b] bg-cover bg-center sm:min-h-[400px]"
+        style={{
+          backgroundImage: `linear-gradient(90deg, rgba(19,37,29,0.86) 0%, rgba(19,37,29,0.65) 38%, rgba(19,37,29,0.12) 78%), url("/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp")`,
+          backgroundPosition: "center, center",
+        }}
+      >
+        <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
+          <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to your flower garden</p>
+          <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl">Grow something beautiful.</h2>
+          <p className="mt-5 max-w-xl text-sm leading-7 text-white sm:text-base">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
         </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
