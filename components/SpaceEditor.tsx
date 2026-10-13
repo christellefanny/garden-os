@@ -25,7 +25,8 @@ export default function SpaceEditor({
   onClose: () => void;
 }) {
   const [type, setType] = useState(space?.type ?? "Raised Bed");
-  const round = ["Container", "Growing Bag"].includes(type);
+  const growBag = type === "Growing Bag";
+  const round = type === "Container";
   const [error, setError] = useState("");
   const details = space
     ? readDetails(space.notes)
@@ -51,26 +52,29 @@ export default function SpaceEditor({
       setError("Enter a name and positive dimensions.");
       return;
     }
-    if (round ? !diameter : !length || !width) {
+    if (!growBag && (round ? !diameter : !length || !width)) {
       setError("Enter the dimensions for this space.");
       return;
     }
+    const gallons = dimension("gallons");
+    if (growBag && (!gallons || !Number.isFinite(gallons) || gallons <= 0 || gallons > 10000)) { setError("Enter grow bag capacity in gallons."); return; }
     const photoUrl=String(form.get("photoUrl")||"").trim();
     if(photoUrl && !validPhotoUrl(photoUrl)){setError("Use a valid http or https image URL, or leave the photo blank.");return;}
     setError("");
     const saved = await onSave({
       name,
       type,
-      length_feet: round ? null : length,
-      width_feet: round ? null : width,
-      diameter_inches: round ? diameter : null,
-      depth_feet: depth,
+      length_feet: round || growBag ? null : length,
+      width_feet: round || growBag ? null : width,
+      diameter_inches: round ? diameter : growBag ? space?.diameter_inches ?? null : null,
+      depth_feet: growBag ? null : depth,
       sun_exposure: String(form.get("sun") || "") || null,
       irrigation: String(form.get("irrigation") || "").trim() || null,
       soil_type: String(form.get("soil") || "").trim() || null,
       notes: JSON.stringify({
         ...details,
         photoUrl: photoUrl || undefined,
+        growBagGallons: growBag ? gallons ?? undefined : undefined,
         notes: String(form.get("notes") || "").trim(),
       }),
     });
@@ -109,7 +113,9 @@ export default function SpaceEditor({
             </select>
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
-            {round ? (
+            {growBag ? (
+              <Field key="gallons" label="Capacity (gallons)" name="gallons" value={details.growBagGallons ?? undefined} type="number" required />
+            ) : round ? (
               <Field
                 key="diameter"
                 label="Diameter (inches)"
@@ -138,12 +144,12 @@ export default function SpaceEditor({
                 />
               </>
             )}
-            <Field
+            {!growBag && <Field
               label="Depth (feet, optional)"
               name="depth"
               value={space?.depth_feet ?? undefined}
               type="number"
-            />
+            />}
             <label className="block text-sm font-bold">
               Sun exposure
               <select
