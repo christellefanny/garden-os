@@ -67,7 +67,7 @@ export default function LegacySpaces({
     const type = spaceTypes.includes(item.type as (typeof spaceTypes)[number])
       ? item.type
       : "Raised Bed";
-    const round = ["Container", "Growing Bag"].includes(type);
+    const round = ["Container", "Grow Bag", "Growing Bag"].includes(type);
     onImport({
       id: "import",
       garden_id: gardenId,
