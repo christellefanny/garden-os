@@ -9,7 +9,7 @@ export const spaceTypes = [
   "Raised Bed",
   "In-ground Bed",
   "Container",
-  "Growing Bag",
+  "Grow Bag",
   "Hydroponic",
 ] as const;
 export type Plant = {
@@ -119,7 +119,7 @@ export function readDetails(notes: string | null): SpaceDetails {
 export function spaceArea(
   space: Pick<Space, "type" | "diameter_inches" | "length_feet" | "width_feet">,
 ): number {
-  if (["Container", "Growing Bag"].includes(space.type))
+  if (["Container", "Grow Bag", "Growing Bag"].includes(space.type))
     return Math.PI * ((Number(space.diameter_inches) || 0) / 24) ** 2;
   return (Number(space.length_feet) || 0) * (Number(space.width_feet) || 0);
 }
@@ -154,7 +154,7 @@ export function gridCapacity(
 }
 
 export function spaceSize(space: Space): string {
-  if (space.type === "Growing Bag") {
+  if (["Grow Bag", "Growing Bag"].includes(space.type)) {
     const gallons = readDetails(space.notes).growBagGallons;
     return gallons ? `${gallons} gal` : "Capacity not set";
   }
