@@ -27,6 +27,7 @@ export type Destination =
   | "Dashboard"
   | "My Gardens"
   | "Plant Vault"
+  | "Flower Garden"
   | "Garden Layout"
   | "Growing Calendar"
   | "Tasks"
@@ -37,6 +38,7 @@ export const destinations: Destination[] = [
   "Dashboard",
   "My Gardens",
   "Plant Vault",
+  "Flower Garden",
   "Garden Layout",
   "Growing Calendar",
   "Tasks",
