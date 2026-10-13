@@ -40,7 +40,7 @@ const seedGuides = [
   {name:"Nasturtium",when:"Summer to fall, when fallen seeds have matured and dried",how:"Collect the large, wrinkled seeds as they drop or loosen. Dry completely in a ventilated place before storing."},
   {name:"Dianthus",when:"After flowering, when seed capsules are dry and opening",how:"Shake ripe capsules into a paper bag. Named hybrids may not grow true to type from seed."},
 ];
-type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut flowers & bouquets";
+type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
   const {season}=useSeason();
@@ -68,16 +68,16 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}, {label:"Cut flowers & bouquets",detail:"Grow, harvest, and arrange beautiful homegrown bouquets",action:"Explore bouquet flowers"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
+        {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}, {label:"Cut Flowers",detail:"Discover bouquet flowers, including varieties beyond your Plant Vault",action:"Explore cut flowers"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
       </div>
     </>}
-    {section==="Cut flowers & bouquets"&&<>
+    {section==="Cut Flowers"&&<>
       <div className="seasonal-card mt-7 rounded-2xl border p-6 sm:p-8">
         <p className="eyebrow seasonal-muted">From garden to vase</p>
         <h2 className="seasonal-heading mt-2 text-3xl font-bold">Grow your own bouquets</h2>
-        <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Plan a cutting garden with flowers for every season, harvest at the right stage, and arrange long-lasting bouquets with stems from your own beds and pots.</p>
+        <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Discover excellent cutting flowers whether or not you already grow them. Plan a cutting garden, harvest at the right stage, and arrange long-lasting bouquets with stems from your own beds and pots.</p>
       </div>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Flowers worth growing for cutting</h2>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Best flowers for cutting — even if they are not in your Plant Vault</h2>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         {[
           {name:"Zinnias",when:"Summer to frost",tip:"Cut when stems are firm and do not wobble just below the bloom. Great colorful focal flowers."},
@@ -87,7 +87,12 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
           {name:"Sunflowers",when:"Summer to early fall",tip:"Cut as petals begin lifting off the face. Choose pollenless varieties for cleaner indoor arrangements."},
           {name:"Hydrangeas",when:"Summer to fall",tip:"Cut mature, firm blooms and hydrate promptly. Limelight panicles also dry beautifully."},
           {name:"Ranunculus",when:"Cool spring",tip:"Cut when buds feel soft and show color, before fully opening. Protect corms from hard freezes."},
-          {name:"Celosia",when:"Summer to frost",tip:"Harvest fully formed plumes or crests. Also excellent for drying."}
+          {name:"Celosia",when:"Summer to frost",tip:"Harvest fully formed plumes or crests. Also excellent for drying."},
+          {name:"Lisianthus",when:"Summer",tip:"Long-lasting, rose-like blooms. Start very early indoors or buy plugs; harvest when one or more flowers are open."},
+          {name:"Sweet peas",when:"Late spring to early summer",tip:"Fragrant climbing flowers for cool weather. Cut frequently and provide a trellis."},
+          {name:"Statice",when:"Summer",tip:"Papery clusters add texture to fresh bouquets and dry beautifully. Start indoors before the last frost."},
+          {name:"Gomphrena",when:"Summer to frost",tip:"Heat-loving, colorful globe blooms. Cut when heads are fully colored; also great dried."},
+          {name:"Basil (flowering stems)",when:"Summer",tip:"Aromatic bouquet greenery. Harvest firm stems and remove leaves below the waterline."}
         ].map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p><p className="mt-3 text-sm leading-6">{g.tip}</p></article>)}
       </div>
       <h2 className="seasonal-heading mt-9 text-2xl font-bold">Harvesting and vase care</h2>
