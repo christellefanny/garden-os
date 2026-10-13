@@ -71,7 +71,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         <ul className="mt-4 grid gap-3">{current.tasks.map(t=><li key={t} className="text-sm leading-6">✿ {t}</li>)}</ul>
       </div>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">What to plant each season</h2>
-      <p className="seasonal-muted mt-2 text-sm">General guidance for cold-winter gardens around northern Illinois. Always check your local frost dates and each variety's requirements.</p>
+      <p className="seasonal-muted mt-2 text-sm">General guidance for cold-winter gardens around northern Illinois. Always check your local frost dates and each variety’s requirements.</p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">{planting.map(p=><article key={p.season} className="seasonal-card rounded-2xl border p-5"><p className="eyebrow seasonal-muted">{p.season}</p><h3 className="seasonal-heading mt-2 text-xl font-bold">{p.title}</h3><p className="mt-3 text-sm font-semibold">{p.flowers}</p><p className="mt-3 text-sm leading-6">{p.timing}</p></article>)}</div>
     </>}
     {section==="Seed saving"&&<>

@@ -176,3 +176,15 @@ export function getPlantArt(name: string, variety = "") {
     row: Math.floor((index % 16) / 4),
   };
 }
+
+// Keep collection and growing-space artwork subject to the same cultivar checks.
+export function distinctCultivar(name: string, variety: string) {
+  return (/dianthus/i.test(name) && /paint the town/i.test(variety)) ||
+    (/lettuce/i.test(name) && /red|purple|butter|romaine|oak|iceberg|little gem|lollo|salad bowl/i.test(variety)) ||
+    (/onion/i.test(name) && /red|purple|white|yellow|sweet|vidalia|shallot|scallion|green|bunching/i.test(variety)) ||
+    (/tomato/i.test(name) && /cherry|grape|roma|plum|beefsteak|heirloom|pear|yellow|orange|purple|black|green|brandywine|cherokee|san marzano|sungold|sun gold/i.test(variety)) ||
+    (/pepper/i.test(name) && /habanero|scotch bonnet|serrano|jalape|cayenne|thai|ghost|reaper|poblano|shishito|banana|miniature|redskin|purple|orange|yellow|red|chocolate/i.test(variety));
+}
+export function getPortraitArt(name: string, variety = "") {
+  return distinctCultivar(name, variety) ? null : getPlantArt(name, variety);
+}

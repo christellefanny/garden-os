@@ -32,6 +32,7 @@ export type Entry = {
   text: string;
 };
 export type SpaceDetails = {
+  photoUrl?: string;
   garden_os: 1;
   notes: string;
   plants: Plant[];

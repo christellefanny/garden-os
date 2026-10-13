@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { validPhotoUrl } from "@/lib/space-portrait";
 import Dialog from "@/components/ui/Dialog";
 import {
   readDetails,
@@ -54,6 +55,8 @@ export default function SpaceEditor({
       setError("Enter the dimensions for this space.");
       return;
     }
+    const photoUrl=String(form.get("photoUrl")||"").trim();
+    if(photoUrl && !validPhotoUrl(photoUrl)){setError("Use a valid http or https image URL, or leave the photo blank.");return;}
     setError("");
     const saved = await onSave({
       name,
@@ -67,6 +70,7 @@ export default function SpaceEditor({
       soil_type: String(form.get("soil") || "").trim() || null,
       notes: JSON.stringify({
         ...details,
+        photoUrl: photoUrl || undefined,
         notes: String(form.get("notes") || "").trim(),
       }),
     });
@@ -169,6 +173,8 @@ export default function SpaceEditor({
             value={space?.soil_type ?? ""}
             maxLength={200}
           />
+          <Field label="Growing-space photo URL (optional)" name="photoUrl" type="url" value={details.photoUrl || ""} maxLength={4096} placeholder="https://…" />
+          <p className="seasonal-muted text-xs leading-5">A photo of this bed or container takes priority. Leave blank to use a matching photo or illustration from your plants.</p>
           <label className="block text-sm font-bold">
             Notes
             <textarea

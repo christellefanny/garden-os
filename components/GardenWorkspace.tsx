@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
-import PlantPortrait from "@/components/PlantPortrait";
+import SpacePortrait from "@/components/SpacePortrait";
 import LegacySpaces from "@/components/LegacySpaces";
 import { connectGardenPlants } from "@/lib/connected-garden";
 import { useCloudData } from "@/components/CloudDataBoundary";
@@ -670,7 +670,7 @@ export default function GardenWorkspace({
                         key={s.id}
                         className="growing-space-card"
                       >
-                        <div className="space-visual" aria-hidden="true">{summary.details?.plants[0] ? <PlantPortrait name={summary.details.plants[0].name} variety={summary.details.plants[0].variety}/> : <div className="bed-blueprint"><span/><span/><span/></div>}</div>
+                        <SpacePortrait name={s.name} details={summary.details} vault={vault}/>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="eyebrow seasonal-muted">{s.type}</p>

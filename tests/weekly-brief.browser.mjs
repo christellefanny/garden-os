@@ -56,6 +56,7 @@ try {
       category: i === 4 ? "Flower" : "Vegetable",
       statuses: i === 2 ? ["Have Seeds"] : ["Growing Now"],
       source: "QA fixture",
+      photoUrl: i === 0 ? "https://garden-images.example/roma.jpg" : undefined,
       year: "2026",
       notes: "",
     }),
@@ -135,6 +136,12 @@ try {
     },
     { user, plants, calendar },
   );
+  await context.route("https://garden-images.example/**", (route) =>
+    route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#244d37"/></svg>',
+    }),
+  );
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("http://127.0.0.1:3000");
@@ -144,6 +151,33 @@ try {
     .getByRole("button", { name: "Open my garden", exact: true })
     .click();
   await page.locator(".modern-dashboard").waitFor();
+  await page
+    .getByRole("button", { name: "My Gardens", exact: true })
+    .first()
+    .click();
+  await page
+    .locator(
+      '.growing-space-card img[src="https://garden-images.example/roma.jpg"]',
+    )
+    .waitFor();
+  await page
+    .getByRole("button", { name: "North vegetable bed", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Edit space details", exact: true })
+    .click();
+  await page
+    .getByLabel("Growing-space photo URL (optional)", { exact: true })
+    .fill("https://garden-images.example/bed.jpg");
+  await page
+    .getByRole("button", { name: "Save Growing Space", exact: true })
+    .click();
+  await page
+    .locator(
+      '.growing-space-card img[src="https://garden-images.example/bed.jpg"]',
+    )
+    .waitFor();
+
   await page
     .getByRole("button", { name: "Growing Calendar", exact: true })
     .first()
