@@ -50,18 +50,21 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
     <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
     {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
-      <div
-        className="relative mt-7 min-h-[340px] overflow-hidden rounded-2xl border bg-[#f8f5ee] sm:min-h-[365px]"
-        style={{
-          backgroundImage: `url(/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp)`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="relative z-10 max-w-[48%] p-7 sm:p-10 max-sm:max-w-[62%]">
-          <p className="eyebrow text-[#18332b]">Welcome to your flower garden</p>
-          <h2 className="seasonal-heading mt-3 text-3xl font-bold text-[#18332b]">Grow something beautiful.</h2>
-          <p className="mt-3 text-sm leading-7 text-[#32483c]">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
+      <div className="relative mt-7 overflow-hidden rounded-2xl border bg-[#f8f5ee]">
+        <div className="relative flex min-h-[330px] flex-col sm:min-h-[350px] sm:flex-row sm:items-center">
+          <div className="relative z-10 w-full p-7 sm:w-[52%] sm:p-10">
+            <p className="eyebrow text-[#18332b]">Welcome to your flower garden</p>
+            <h2 className="seasonal-heading mt-3 text-3xl font-bold text-[#18332b]">Grow something beautiful.</h2>
+            <p className="mt-3 text-sm leading-7 text-[#32483c]">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
+          </div>
+          <div className="relative h-[220px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-full sm:w-[58%]">
+            <img
+              src={`/flower-garden-${season === "spring" || season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp`}
+              alt={`${season} flower garden illustration`}
+              className="absolute bottom-0 right-0 h-auto max-h-full w-auto max-w-full object-contain object-right-bottom"
+            />
+            <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-28 bg-gradient-to-r from-[#f8f5ee] to-transparent sm:block" />
+          </div>
         </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
