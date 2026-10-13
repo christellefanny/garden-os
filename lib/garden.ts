@@ -33,6 +33,7 @@ export type Entry = {
 };
 export type SpaceDetails = {
   photoUrl?: string;
+  growBagGallons?: number;
   garden_os: 1;
   notes: string;
   plants: Plant[];
@@ -153,7 +154,11 @@ export function gridCapacity(
 }
 
 export function spaceSize(space: Space): string {
-  if (["Container", "Growing Bag"].includes(space.type))
+  if (space.type === "Growing Bag") {
+    const gallons = readDetails(space.notes).growBagGallons;
+    return gallons ? `${gallons} gal` : "Capacity not set";
+  }
+  if (space.type === "Container")
     return space.diameter_inches
       ? `${space.diameter_inches}-inch diameter`
       : "Dimensions not set";
