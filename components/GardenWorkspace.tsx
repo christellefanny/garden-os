@@ -23,6 +23,7 @@ import SpacePanel from "@/components/SpacePanel";
 import PlantPlanner from "@/components/PlantPlanner";
 import GrowingCalendar from "@/components/GrowingCalendar";
 import PlantVault from "@/components/PlantVault";
+import FlowersPage from "@/components/FlowersPage";
 import { layoutSpaceDrafts, type Bed } from "@/lib/garden-layout";
 import GardenLayout from "@/components/GardenLayout";
 import {
@@ -503,6 +504,7 @@ export default function GardenWorkspace({
           {vaultOpen && (
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
+          {page === "Flower Garden" && <FlowersPage plants={vault} />}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">
               <InteriorHeader title="My Gardens" eyebrow="Your own patch of possibility" description="A clear view of your spaces, what is planted, and where there is room to grow.">
