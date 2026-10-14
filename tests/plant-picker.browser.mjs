@@ -111,9 +111,10 @@ try {
   await page.getByRole("button", {name:"My Gardens",exact:true}).first().click();
   await page.getByRole("button", {name:"Dianthus bed",exact:true}).click();
   await page.getByRole("button", {name:"+ Add Plant",exact:true}).click();
-  assert.match(await page.getByLabel("Plant category",{exact:true}).innerText(),/Automatic · Flower/);
+  assert.equal(await page.getByLabel("Plant category",{exact:true}).count(),0);
+  assert.equal(await page.getByLabel("Find a plant",{exact:true}).count(),0);
   const chooser=page.getByLabel("Choose a plant",{exact:true});
-  assert.equal(await chooser.locator('option[value="vault:crop-0"]').count(),0);
+  assert.equal(await chooser.locator('option[value="vault:crop-0"]').count(),1);
   assert.equal(await chooser.locator('option[value="vault:crop-4"]').count(),1);
   await chooser.selectOption("catalog:Tulip");
   await page.getByRole("button",{name:"Save Plant",exact:true}).click();
@@ -123,8 +124,6 @@ try {
   assert.ok(tulip.vaultPlantId);
   assert.equal(tulip.category,"Flower");
   await page.getByRole("button", {name:"+ Add Plant",exact:true}).click();
-  await page.getByLabel("Plant category",{exact:true}).selectOption("Vegetable");
-  await page.getByLabel("Find a plant",{exact:true}).fill("Serrano");
   await chooser.selectOption("vault:crop-0");
   await page.getByRole("button",{name:"Save Plant",exact:true}).click();
   await page.getByText("Plant saved.",{exact:true}).waitFor();
@@ -148,7 +147,7 @@ try {
   }
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: automatic flower filter, catalog save, Vault selection, category override, identity-preserving edits; desktop/mobile WCAG and overflow checks.",
+    "PASS: single dropdown with all plants, catalog save, Vault selection, identity-preserving edits; desktop/mobile WCAG and overflow checks.",
   );
 } finally {
   await browser?.close();

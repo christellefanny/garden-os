@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { VaultPlant } from "@/components/PlantVault";
-import { inferPlantFilter, plantChoices, type PlantFilter } from "@/lib/plant-picker";
+import { plantChoices } from "@/lib/plant-picker";
 import Dialog from "@/components/ui/Dialog";
 import { Field } from "@/components/SpaceEditor";
 import {
@@ -19,7 +19,6 @@ import {
 export default function SpacePanel({
   space,
   vault = [],
-  gardenName = "",
   busy,
   initialSpacing,
   onClose,
@@ -40,11 +39,8 @@ export default function SpacePanel({
   const [plantEditor, setPlantEditor] = useState<string | null>(
     initialSpacing ? "new" : null,
   );
-  const automaticFilter = inferPlantFilter(space, details, gardenName, vault);
-  const [filter, setFilter] = useState<PlantFilter | "Automatic">("Automatic");
-  const [query, setQuery] = useState("");
   const [selection, setSelection] = useState("");
-  const choices = plantChoices(vault, filter === "Automatic" ? automaticFilter : filter, query);
+  const choices = plantChoices(vault, "All");
   const selected = plantChoices(vault, "All").find(p => p.id === selection);
   const [plantName, setPlantName] = useState("");
   const [plantSpacing, setPlantSpacing] = useState(String(initialSpacing ?? 12));
@@ -165,7 +161,6 @@ export default function SpacePanel({
               setPlantEditor("new");
               setPlantName("");
               setSelection("");
-              setQuery("");
               setPlantSpacing(String(initialSpacing ?? 12));
               setMessage("");
             }}
@@ -194,7 +189,7 @@ export default function SpacePanel({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => {setPlantEditor(p.id);setSelection("");setQuery("");setPlantName(p.name);setPlantSpacing(String(p.spacing));}}
+                  onClick={() => {setPlantEditor(p.id);setSelection("");setPlantName(p.name);setPlantSpacing(String(p.spacing));}}
                   className="seasonal-link min-h-11 font-bold underline"
                   aria-label={`Edit ${p.name}`}
                 >
@@ -263,15 +258,6 @@ export default function SpacePanel({
               {editedPlant ? "Edit Plant" : "Add Plant"}
             </h4>
             <fieldset disabled={busy} className="space-y-3 disabled:opacity-60">
-              <label className="block text-sm font-bold">Plant category
-                <select aria-label="Plant category" value={filter} onChange={e => {setFilter(e.target.value as PlantFilter | "Automatic");setQuery("");}} className="seasonal-input mt-1 w-full rounded-xl border p-3">
-                  <option value="Automatic">Automatic · {automaticFilter === "All" ? "all plants (mixed or unknown garden)" : automaticFilter}</option>
-                  {["All","Vegetable","Flower","Herb","Fruit & Berry"].map(c => <option key={c} value={c}>{c === "All" ? "All plants" : c}</option>)}
-                </select>
-              </label>
-              <label className="block text-sm font-bold">Find a plant
-                <input aria-label="Find a plant" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search plants and varieties…" className="seasonal-input mt-1 w-full rounded-xl border p-3" />
-              </label>
               <label className="block text-sm font-bold">Choose a plant
                 <select aria-label="Choose a plant" value={selection} onChange={e => {
                   setSelection(e.target.value);
@@ -283,7 +269,7 @@ export default function SpacePanel({
                   {["vault","catalog"].map(source => <optgroup key={source} label={source === "vault" ? "Your Plant Vault" : "Plant catalog"}>{choices.filter(p => p.source === source).map(p => <option key={p.id} value={p.id}>{p.name}{p.variety ? ` · ${p.variety}` : ""}</option>)}</optgroup>)}
                 </select>
               </label>
-              <p className="seasonal-muted text-sm">Automatic uses this bed’s name, garden name, and saved plants. Choose another category for companion planting. Catalog selections join your Vault when saved.</p>
+              <p className="seasonal-muted text-sm">Choose from your Vault or the plant catalog. Catalog selections join your Vault when saved.</p>
               {selected ? <>
                 <input type="hidden" name="name" value={selected.name} />
                 <Field key={selected.id} name="variety" label="Variety (optional)" value={selected.variety} maxLength={100} />
