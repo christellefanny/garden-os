@@ -37,11 +37,12 @@ export default function CloudDataBoundary({
   userId: string;
   children: ReactNode;
 }) {
-  const [status, setStatus] = useState("Checking cloud synchronization…"),
-    [ready, setReady] = useState(false),
+  const [status, setStatus] = useState(userId === "guest" ? "Guest · Saved on this device. Create an account to back up and sync." : "Checking cloud synchronization…"),
+    [ready, setReady] = useState(userId === "guest"),
     [conflicts, setConflicts] = useState<string[]>([]),
     [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    if (userId === "guest") return;
     let alive = true,
       hydrating = true;
     const original = Storage.prototype.setItem;
@@ -253,6 +254,7 @@ export default function CloudDataBoundary({
         },
         download: () => {
           const data: Record<string, unknown> = {};
+          if (userId === "guest") data["garden-os-guest-data"] = localStorage.getItem("garden-os-guest-data");
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key && key.startsWith("garden-os-") && key.includes(userId)) {
