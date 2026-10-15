@@ -50,7 +50,20 @@ export const destinations: Destination[] = [
   "Settings",
   "Help",
 ];
-export function LineIcon({ index = 0 }: { index?: number }) {
+const navigationIconPaths: Record<string, string> = {
+  "Dashboard": "M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7",
+  "My Gardens": "M12 21V9M12 14C3 14 2 7 4 4c7 0 8 5 8 10M12 11c0-7 4-9 8-8 1 6-3 9-8 8",
+  "Plant Vault": "M5 20C1 6 9 3 21 3c0 13-6 19-16 17ZM5 20 17 7",
+  "Flower Garden": "M12 8C7 1 2 7 7 11c-7 3-2 10 3 6 0 7 8 7 7 0 6 3 10-4 3-7 3-6-4-10-8-2ZM14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0",
+  "Garden Layout": "M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z",
+  "Growing Calendar": "M3 6h18v15H3V6Zm4-3v6m10-6v6M3 11h18m-13 4h2m4 0h2m-8 3h2",
+  "Tasks": "M9 5h12M9 12h12M9 19h12M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4",
+  "Journal": "M4 3h15v18H4V3Zm4 0v18m3-13h5m-5 4h5m-5 4h3",
+  "Photo Journal": "M3 6h5l2-3h4l2 3h5v15H3V6Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  "Settings": "M10 3h4l1 3 3 1 3 3v4l-3 1-1 3-3 3h-4l-1-3-3-1-3-3v-4l3-1 1-3 3-3Zm6 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  "Help": "M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5m0 3v1M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
+};
+export function LineIcon({ index = 0, name }: { index?: number; name?: string }) {
   const paths = [
     "M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7",
     "M12 21V9M12 14C3 14 2 7 4 4c7 0 8 5 8 10M12 11c0-7 4-9 8-8 1 6-3 9-8 8",
@@ -71,7 +84,7 @@ export function LineIcon({ index = 0 }: { index?: number }) {
       aria-hidden="true"
     >
       <path
-        d={paths[index % paths.length]}
+        d={name ? navigationIconPaths[name] : paths[index % paths.length]}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -98,13 +111,13 @@ export function ConservatoryNavigation({
         </span>
       </button>
       <nav aria-label="Garden OS navigation">
-        {destinations.map((name, i) => (
+        {destinations.map((name) => (
           <button
             key={name}
             aria-current={page === name ? "page" : undefined}
             onClick={() => navigate(name)}
           >
-            <LineIcon index={i} />
+            <LineIcon name={name} />
             <span>{name}</span>
           </button>
         ))}
