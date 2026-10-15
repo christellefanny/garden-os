@@ -1504,3 +1504,16 @@ html[data-season="winter"] { --home-garden-photo: url("/conservatory/home-garden
   background:#fffefa;
   color:#233b2d;
 }
+
+/* Light seasonal glass keeps the garden visible through the guidance card. */
+.hero-insight {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--sidebar-start) 18%, transparent), color-mix(in srgb, var(--sidebar-end) 18%, transparent));
+  color: #fff8e8;
+  backdrop-filter: blur(.5px);
+  -webkit-backdrop-filter: blur(.5px);
+  border: 1px solid #fff8e838;
+  box-shadow: none;
+  text-shadow: 0 1px 3px #102719, 0 0 12px #102719b3;
+}
+.hero-insight > svg { color: #fff8e8; }
+.hero-insight small { color: #fff8e8; border-color: #fff8e838; }
