@@ -1,4 +1,5 @@
 "use client";
+import { GUEST_ID } from "@/lib/guest";
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
