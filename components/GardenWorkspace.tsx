@@ -36,6 +36,16 @@ import {
   type SpaceDetails,
 } from "@/lib/garden";
 
+function pageView(page: Destination) {
+  return page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
+}
+
+function readPageFromUrl(): Destination {
+  if (typeof window === "undefined") return "Dashboard";
+  const view = new URLSearchParams(window.location.search).get("view");
+  return destinations.find((destination) => pageView(destination) === view) ?? "Dashboard";
+}
+
 function inspect(space: Space) {
   try {
     return { ...spaceSummary(space), error: "" };
@@ -65,19 +75,7 @@ export default function GardenWorkspace({
 }) {
   const sync = useCloudData();
   const guestMode = userId === GUEST_ID;
-  const [page, setPage] = useState<Destination>(() => {
-    if (typeof window === "undefined") return "Dashboard";
-    if (new URLSearchParams(window.location.search).get("view") === "calendar")
-      return "Growing Calendar";
-    try {
-      const saved = localStorage.getItem(`garden-os-last-page-${userId}`);
-      if (saved && destinations.includes(saved as Destination))
-        return saved as Destination;
-    } catch {
-      // Private browsing may block storage; the dashboard remains usable.
-    }
-    return "Dashboard";
-  });
+  const [page, setPage] = useState<Destination>(readPageFromUrl);
   const [vaultQuery,setVaultQuery]=useState("");
   const [search, setSearch] = useState("");
   const vault = useVault(userId, page);
@@ -122,11 +120,9 @@ export default function GardenWorkspace({
     initialGardens.length ? null : "new",
   );
   function navigate(next: Destination) {
-    try {
-      localStorage.setItem(`garden-os-last-page-${userId}`, next);
-    } catch {
-      // Navigation must still work without persistent browser storage.
-    }
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", pageView(next));
+    if (url.href !== window.location.href) window.history.pushState(null, "", url);
     setPage(next);
     setVaultOpen(next === "Plant Vault");
     setLayoutOpen(next === "Garden Layout");
@@ -134,6 +130,18 @@ export default function GardenWorkspace({
     setSearch("");
     window.scrollTo({ top: 0, behavior: "auto" });
   }
+  useEffect(() => {
+    function restorePage() {
+      const next = readPageFromUrl();
+      setPage(next);
+      setVaultOpen(next === "Plant Vault");
+      setLayoutOpen(next === "Garden Layout");
+      setCalendarOpen(next === "Growing Calendar");
+      setSearch("");
+    }
+    window.addEventListener("popstate", restorePage);
+    return () => window.removeEventListener("popstate", restorePage);
+  }, []);
   const [loaded, setLoaded] = useState(!initialError);
   useEffect(() => {
     Promise.resolve().then(() => {
