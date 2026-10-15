@@ -33,6 +33,7 @@ export type Destination =
   | "Growing Calendar"
   | "Tasks"
   | "Journal"
+  | "Photo Journal"
   | "Settings"
   | "Help";
 export const destinations: Destination[] = [
@@ -44,6 +45,7 @@ export const destinations: Destination[] = [
   "Growing Calendar",
   "Tasks",
   "Journal",
+  "Photo Journal",
   "Settings",
   "Help",
 ];
@@ -274,6 +276,7 @@ export function ModernDashboard({
   const category = (name: string) =>
     vault.filter((p) => p.category === name).length;
   const groups = ["Tomato", "Pepper", "Garlic", "Okra", "Lettuce", "Flowers"];
+  const isGuest = userId === GUEST_ID;
   let beds = initialLayout;
   try {
     beds = nineBedLayout(
@@ -336,8 +339,7 @@ export function ModernDashboard({
           ["Gardens", gardens.length, "My Gardens"],
           ["Plants", vault.length, "Plant Vault"],
           ["Tasks", confirmed.length, "Tasks"],
-          ["Flowers", category("Flower"), "Plant Vault"],
-          ["Herbs", category("Herb"), "Plant Vault"],
+          ["Photos", "Open journal", "Photo Journal"],
         ].map(([label, count, page], i) => (
           <button key={label} onClick={() => navigate(page as Destination)}>
             <span className="stat-icon">
@@ -361,21 +363,23 @@ export function ModernDashboard({
       <div className="modern-main-grid">
         <section className="modern-card layout-preview">
           <div className="modern-card-title">
-            <h2>My Garden Layout</h2>
-            <button onClick={() => navigate("Garden Layout")}>
+            <h2>{isGuest ? "Sample Garden Layout" : "My Garden Layout"}</h2>
+            {!isGuest && <button onClick={() => navigate("Garden Layout")}>
               View / Edit Layout →
-            </button>
+            </button>}
           </div>
           <div
             className="modern-garden-map"
             style={{
-              backgroundImage: selectedCustom
+              backgroundImage: isGuest || selectedCustom
                 ? "none"
                 : "url('/Garden Artwork.webp')",
-              backgroundColor: selectedCustom?.color || "#efede3",
+              backgroundColor: isGuest ? "#d9dfca" : selectedCustom?.color || "#efede3",
             }}
           >
-            {selectedCustom
+            {isGuest
+              ? [{id:"a",x:9,y:14,w:34,h:19},{id:"b",x:55,y:11,w:31,h:26},{id:"c",x:14,y:49,w:22,h:34},{id:"d",x:48,y:55,w:39,h:23},{id:"e",x:40,y:33,w:14,h:20}].map(bed => <div key={bed.id} className="sample-empty-bed" aria-label="Empty sample garden bed" style={{position:"absolute",left:bed.x+"%",top:bed.y+"%",width:bed.w+"%",height:bed.h+"%"}} />)
+              : selectedCustom
               ? selectedCustom.items.map((item) => (
                   <button
                     key={item.id}
@@ -410,10 +414,7 @@ export function ModernDashboard({
                 ))}
           </div>
           <small>
-            {selectedCustom
-              ? selectedCustom.name
-              : "Your saved nine-bed layout"}{" "}
-            · interactive preview
+            {isGuest ? "Example only · create an account to design your own garden" : selectedCustom ? selectedCustom.name : "Your saved nine-bed layout"}{!isGuest && " · interactive preview"}
           </small>
         </section>
         <section className="modern-card week-card">
