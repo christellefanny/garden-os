@@ -2,15 +2,18 @@
 
 import { useState, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
+import { saveGuestGarden } from "@/lib/guest";
 import { type Garden } from "@/lib/garden";
 import { Field } from "@/components/SpaceEditor";
 
 export default function NewGardenModal({
   garden,
+  guest = false,
   onSaved,
   onCancel,
 }: {
   garden?: Garden;
+  guest?: boolean;
   onSaved?: (garden: Garden) => void;
   onCancel?: () => void;
 }) {
@@ -35,6 +38,12 @@ export default function NewGardenModal({
         location: String(f.get("location") || "").trim() || null,
         hardiness_zone: String(f.get("zone") || "").trim() || null,
       };
+      if (guest) {
+        const saved = saveGuestGarden(input, garden);
+        onSaved?.(saved);
+        setMessage("Garden saved on this device.");
+        return;
+      }
       const query = garden
         ? supabase.from("gardens").update(input).eq("id", garden.id)
         : supabase.from("gardens").insert(input);

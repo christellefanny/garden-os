@@ -78,10 +78,12 @@ export function ConservatoryNavigation({
   page,
   navigate,
   onSignOut,
+  guest = false,
 }: {
   page: Destination;
   navigate: (page: Destination) => void;
   onSignOut: () => void;
+  guest?: boolean;
 }) {
   return (
     <aside className="modern-sidebar">
@@ -112,7 +114,7 @@ export function ConservatoryNavigation({
         </p>
       </div>
       <button className="modern-signout" onClick={onSignOut}>
-        Sign out
+        {guest ? "Leave guest garden" : "Sign out"}
       </button>
     </aside>
   );

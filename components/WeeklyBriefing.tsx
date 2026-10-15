@@ -1,5 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { GUEST_ID, readGuest } from "@/lib/guest";
+import { buildWeeklyBrief } from "@/lib/weekly-brief";
+import { loadCalendarOptions, localDay } from "@/lib/growing-calendar";
 import { supabase } from "@/lib/supabase";
 import { useCloudData } from "@/components/CloudDataBoundary";
 import type { CalendarOptions } from "@/lib/growing-calendar";
@@ -13,7 +16,19 @@ import Dialog from "@/components/ui/Dialog";
 async function requestBrief(
   gardenId: string,
   signal?: AbortSignal,
+  guest = false,
 ): Promise<WeeklyBrief> {
+  if (guest) {
+    const state = readGuest();
+    const garden = state.gardens.find(g => g.id === gardenId);
+    if (!garden) throw new Error("Create a garden first to prepare your weekly briefing.");
+    return buildWeeklyBrief({ garden, spaces: state.spaces,
+      vault: JSON.parse(localStorage.getItem(`garden-os-plant-vault-${GUEST_ID}`) || "[]"),
+      calendar: loadCalendarOptions(GUEST_ID), today: localDay(),
+      weather: { location: garden.location || "Location not set", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, periods: [], alerts: [], warning: "Live weather is unavailable in this device-only briefing. Check your local forecast before acting." },
+      sources: [],
+    });
+  }
   const { data } = await supabase.auth.getSession();
   if (!data.session)
     throw new Error("Sign in again to read your weekly briefing.");
@@ -67,11 +82,13 @@ const days = [
 ];
 export default function WeeklyBriefing({
   garden,
+  guest = false,
   gardens,
   options,
   onSave,
 }: {
   garden?: Garden;
+  guest?: boolean;
   gardens: Garden[];
   options: CalendarOptions;
   onSave: (next: CalendarOptions) => boolean;
@@ -90,7 +107,7 @@ export default function WeeklyBriefing({
     setBusy(true);
     setMessage("");
     try {
-      setBrief(await requestBrief(chosenGarden));
+      setBrief(await requestBrief(chosenGarden, undefined, guest));
     } catch (e) {
       setMessage(
         e instanceof Error ? e.message : "Could not prepare your briefing.",
@@ -98,12 +115,12 @@ export default function WeeklyBriefing({
     } finally {
       setBusy(false);
     }
-  }, [chosenGarden]);
+  }, [chosenGarden, guest]);
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("brief") !== "weekly")
       return;
     const controller = new AbortController();
-    requestBrief(chosenGarden, controller.signal)
+    requestBrief(chosenGarden, controller.signal, guest)
       .then((value) => {
         if (!controller.signal.aborted) setBrief(value);
       })
@@ -111,7 +128,7 @@ export default function WeeklyBriefing({
         if (!controller.signal.aborted) setMessage(e.message);
       });
     return () => controller.abort();
-  }, [chosenGarden]);
+  }, [chosenGarden, guest]);
   function save() {
     if (
       !gardens.some((g) => g.id === draft.gardenId) ||

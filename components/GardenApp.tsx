@@ -7,11 +7,17 @@ import CloudDataBoundary from "@/components/CloudDataBoundary";
 import GardenWorkspace from "@/components/GardenWorkspace";
 import GardenHeader from "@/components/GardenHeader";
 import GardenIcon from "@/components/ui/GardenIcon";
-import { useSeason } from "@/components/seasonal/SeasonProvider";
+import { GUEST_ID, readGuest, type GuestData } from "@/lib/guest";
+import { transferGuest } from "@/lib/guest-transfer";
 import { type Garden, type Space } from "@/lib/garden";
 
 export default function GardenApp() {
   const [session, setSession] = useState<Session | null>(null);
+  const [guest, setGuest] = useState<GuestData | null>(null);
+  const [accountForm, setAccountForm] = useState(false);
+  const [transferError, setTransferError] = useState("");
+  const [transferAttempt, setTransferAttempt] = useState(0);
+  const [guestWarning, setGuestWarning] = useState(false);
   const [checking, setChecking] = useState(true);
   const [data, setData] = useState<{
     gardens: Garden[];
@@ -25,6 +31,12 @@ export default function GardenApp() {
     let alive = true;
     supabase.auth.getSession().then(({ data, error }) => {
       if (!alive) return;
+      try {
+        if (!data.session && localStorage.getItem("garden-os-guest-active")) {
+          setGuest(readGuest());
+          setGuestWarning(!localStorage.getItem("garden-os-guest-warning-seen"));
+        }
+      } catch { setAuthError("Could not read guest storage. Existing data has been retained."); }
       setSession(data.session);
       setChecking(false);
       if (error) setAuthError(error.message);
@@ -48,6 +60,15 @@ export default function GardenApp() {
     if (!userId) return;
     let alive = true;
     (async () => {
+      const email = localStorage.getItem("garden-os-guest-transfer-email");
+      if (email && email.toLowerCase() === session?.user.email?.toLowerCase()) {
+        try { await transferGuest(userId, session!.access_token); }
+        catch (error) {
+          if (alive) setTransferError(error instanceof Error ? error.message : "Could not save guest work to your account.");
+          return;
+        }
+      }
+      if (alive) { setGuest(null); setAccountForm(false); setTransferError(""); }
       const g = await supabase
         .from("gardens")
         .select("*")
@@ -93,7 +114,7 @@ export default function GardenApp() {
     return () => {
       alive = false;
     };
-  }, [userId]);
+  }, [userId, transferAttempt, session]);
   async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -104,6 +125,22 @@ export default function GardenApp() {
     setData(null);
     setSession(null);
   }
+  function startGuest() {
+    try {
+      const saved = readGuest();
+      localStorage.setItem("garden-os-guest-active", "true");
+      setGuest(saved); setAccountForm(false);
+      setGuestWarning(!localStorage.getItem("garden-os-guest-warning-seen"));
+    } catch { setAuthError("Browser storage is unavailable. Enable site storage to save guest work, or sign in."); }
+  }
+  if (transferError && session) return <main className="seasonal-page min-h-screen p-8"><h1 className="editorial-title text-3xl">Your guest garden is still safe on this device.</h1><p role="alert" className="my-5">{transferError}</p><button className="seasonal-button rounded-xl p-3" onClick={() => { setTransferError(""); setTransferAttempt(n => n + 1); }}>Retry account save</button><button className="ml-5 underline" onClick={() => void signOut()}>Return to sign in</button></main>;
+  if (!session && guest && !accountForm) return <>
+    <section className="guest-storage-notice seasonal-card border-b px-5 py-3" aria-label="Guest storage">
+      <div className="flex flex-wrap items-center justify-between gap-3"><p className="font-semibold">Guest · Saved on this device</p><button className="seasonal-button rounded-xl px-4 py-2" onClick={() => setAccountForm(true)}>Save to an account</button></div>
+      {guestWarning && <div className="mt-4 max-w-2xl"><h2 className="font-bold">Keep your garden safe</h2><p className="my-3 text-sm leading-6">You’re using Garden OS as a guest. Your work is saved only in this browser. Clearing browser data, using private browsing, or changing devices could mean losing access to it. Create an account to back up and sync your garden.</p><button className="mr-5 underline" onClick={() => setAccountForm(true)}>Create an account</button><button className="underline" onClick={() => { try { localStorage.setItem("garden-os-guest-warning-seen", "true"); } catch {} setGuestWarning(false); }}>Continue as guest</button></div>}
+    </section>
+    <CloudDataBoundary userId={GUEST_ID}><GardenWorkspace key="guest" initialGardens={guest.gardens} initialSpaces={guest.spaces} initialError="" userId={GUEST_ID} onSignOut={async () => { setGuest(null); try { localStorage.removeItem("garden-os-guest-active"); } catch {} }} /></CloudDataBoundary>
+  </>;
   if (recovering && session)
     return <PasswordRecovery onDone={() => setRecovering(false)} />;
   if (checking || (session && (!data || data.userId !== userId)))
@@ -135,12 +172,11 @@ export default function GardenApp() {
         )}
       </CloudDataBoundary>
     );
-  return <Welcome authError={authError} />;
+  return <Welcome authError={authError} onGuest={startGuest} savingGuest={!!guest} />;
 }
 
-function Welcome({ authError }: { authError: string }) {
-  const { season } = useSeason();
-  const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
+function Welcome({ authError, onGuest, savingGuest }: { authError: string; onGuest: () => void; savingGuest: boolean }) {
+  const [mode, setMode] = useState<"signin" | "signup" | "reset">(savingGuest ? "signup" : "signin");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -162,6 +198,7 @@ function Welcome({ authError }: { authError: string }) {
         );
         return;
       }
+      if (savingGuest) localStorage.setItem("garden-os-guest-transfer-email", email.toLowerCase());
       const result =
         mode === "signin"
           ? await supabase.auth.signInWithPassword({ email, password })
@@ -240,6 +277,9 @@ function Welcome({ authError }: { authError: string }) {
                   ? "Sign in to keep your garden records together."
                   : "Create an account for your garden’s story, from first seed to final harvest."}
             </p>
+            <button type="button" disabled={busy} onClick={onGuest} className="seasonal-outline mt-5 w-full rounded-xl border px-4 py-3 font-bold">{savingGuest ? "Back to my guest garden" : "Continue as guest"}</button>
+            <p className="seasonal-muted mt-2 text-xs">Plan, track, and record your garden. Saved in this browser. No account required.</p>
+            {savingGuest && <p className="mt-3 text-sm">Your guest work will be added to this account after you sign in. Keep this browser’s data until the transfer finishes.</p>}
             <form onSubmit={submit} className="mt-6 space-y-4">
               <fieldset
                 disabled={busy}
