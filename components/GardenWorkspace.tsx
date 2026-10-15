@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import SpacePortrait from "@/components/SpacePortrait";
@@ -62,6 +63,7 @@ export default function GardenWorkspace({
   onSignOut: () => Promise<void>;
 }) {
   const sync = useCloudData();
+  const guestMode = userId === GUEST_ID;
   const [page, setPage] = useState<Destination>(() => {
     if (typeof window === "undefined") return "Dashboard";
     if (new URLSearchParams(window.location.search).get("view") === "calendar")
@@ -172,6 +174,12 @@ export default function GardenWorkspace({
   async function reload() {
     setBusy(true);
     try {
+      if (userId === GUEST_ID) {
+        const local = readGuest();
+        setGardens(local.gardens); setSpaces(local.spaces);
+        setNotice("Garden refreshed from this device.");
+        return;
+      }
       const g = await supabase
         .from("gardens")
         .select("*")
@@ -211,6 +219,13 @@ export default function GardenWorkspace({
     setNotice("");
     setError("");
     try {
+      if (userId === GUEST_ID) {
+        const saved = { ...input, id: existing?.id ?? crypto.randomUUID(), garden_id: gardenId, updated_at: new Date().toISOString() } as Space;
+        saveGuestSpaces([saved]);
+        setSpaces(readGuest().spaces);
+        setNotice("Changes saved on this device.");
+        return true;
+      }
       const query = existing
         ? supabase
             .from("growing_spaces")
@@ -251,6 +266,13 @@ export default function GardenWorkspace({
     setBusy(true);
     setError("");
     try {
+      if (userId === GUEST_ID) {
+        const drafts = layoutSpaceDrafts(beds, readGuest().spaces.filter(s => s.garden_id === gardenId), excludePeppers);
+        const next = drafts.map(draft => ({ ...draft, id: crypto.randomUUID(), garden_id: gardenId, updated_at: new Date().toISOString() })) as Space[];
+        saveGuestSpaces(next); setSpaces(readGuest().spaces);
+        setNotice(`${next.length} growing spaces saved on this device.`);
+        return next.length;
+      }
       const current = await supabase
         .from("growing_spaces")
         .select("*")
@@ -352,6 +374,7 @@ export default function GardenWorkspace({
       <ConservatoryNavigation
         page={page}
         navigate={navigate}
+        guest={guestMode}
         onSignOut={() => void onSignOut()}
       />
       <div className="conservatory-content">
@@ -438,11 +461,11 @@ export default function GardenWorkspace({
             <section className="interior-page settings-page">
               <InteriorHeader title="Settings" eyebrow="A garden that feels like yours" description="Your account, saved collection, appearance, and reminders — together in one calm place."/>
               <div className="settings-grid">
-                <section className="settings-card"><p className="modern-eyebrow">Safe and connected</p><h2>Cloud storage</h2><p role="status" className="sync-status">{sync.status}</p><p>Plants, layouts and calendar preferences stay with your account. Local backups protect your changes when you are offline.</p>
+                <section className="settings-card"><p className="modern-eyebrow">Safe and connected</p><h2>{guestMode ? "Device storage" : "Cloud storage"}</h2><p role="status" className="sync-status">{sync.status}</p><p>{guestMode ? "Your work is saved only in this browser. Use Save to an account above to back up and sync across devices." : "Plants, layouts and calendar preferences stay with your account. Local backups protect your changes when you are offline."}</p>
                   {sync.conflicts.map(key=><div className="interior-notice" key={key}><p>{key.startsWith("garden-os-plant-vault")?"Plant Vault":key.includes("calendar")?"Calendar preferences":"Saved layout"} has local and cloud versions. Both are preserved.</p><button className="seasonal-outline" onClick={()=>sync.useCloud(key)}>Use cloud version (keep local backup)</button></div>)}
-                  <details className="settings-recovery"><summary>Recovery & backups</summary><div className="settings-action-list"><button onClick={sync.retry}>Retry cloud synchronization</button><button onClick={sync.download}>Download full browser backup</button><button onClick={exportGarden}>Download garden backup</button></div></details>
+                  <details className="settings-recovery"><summary>Recovery & backups</summary><div className="settings-action-list">{!guestMode && <button onClick={sync.retry}>Retry cloud synchronization</button>}<button onClick={sync.download}>Download full browser backup</button><button onClick={exportGarden}>Download garden backup</button></div></details>
                 </section>
-                <section className="settings-card"><p className="modern-eyebrow">Your growing world</p><h2>Garden account</h2><p>{gardens.length} {gardens.length===1?"garden":"gardens"} · {spaces.length} {spaces.length===1?"growing space":"growing spaces"}</p><p>Manage locations, gardening years, bed dimensions and growing spaces in My Gardens.</p><div className="interior-actions"><button className="seasonal-button" onClick={()=>navigate("My Gardens")}>Manage gardens</button><button className="seasonal-outline" onClick={()=>void onSignOut()}>Sign out</button></div></section>
+                <section className="settings-card"><p className="modern-eyebrow">Your growing world</p><h2>Garden account</h2><p>{gardens.length} {gardens.length===1?"garden":"gardens"} · {spaces.length} {spaces.length===1?"growing space":"growing spaces"}</p><p>Manage locations, gardening years, bed dimensions and growing spaces in My Gardens.</p><div className="interior-actions"><button className="seasonal-button" onClick={()=>navigate("My Gardens")}>Manage gardens</button><button className="seasonal-outline" onClick={()=>void onSignOut()}>{guestMode ? "Leave guest garden" : "Sign out"}</button></div></section>
                 <section className="settings-card appearance-card"><p className="modern-eyebrow">The rhythm of the year</p><h2>Seasonal appearance</h2><p>Choose Automatic or your favorite season in the top navigation. The conservatory stays familiar as its accents change.</p><div className="season-swatches" aria-hidden="true"><span>Spring</span><span>Summer</span><span>Fall</span><span>Winter</span></div></section>
                 <section className="settings-card"><p className="modern-eyebrow">A gentle nudge</p><h2>Phone reminders</h2><p>Manage delivery, send a test, or turn notifications off from Growing Calendar → Add reminder.</p><button className="seasonal-outline" onClick={()=>navigate("Growing Calendar")}>Notification settings</button></section>
               </div>
@@ -611,6 +634,7 @@ export default function GardenWorkspace({
                       ×
                     </button>
                     <NewGardenModal
+                      guest={userId === GUEST_ID}
                       key={`${gardenForm}-${gardenId}`}
                       garden={gardenForm === "edit" ? garden : undefined}
                       onCancel={() => setGardenForm(null)}
