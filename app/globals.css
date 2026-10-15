@@ -1462,20 +1462,25 @@ html[data-season="winter"] { --home-garden-photo: url("/conservatory/home-garden
 .modern-sidebar button:focus-visible { outline: 2px solid var(--sidebar-botany); outline-offset: 2px; }
 .modern-brand svg { color: var(--sidebar-botany); }
 
-/* Search uses the same restored seasonal palette as the sidebar. */
+/* A soft seasonal tint becomes the full sidebar palette while searching. */
 .modern-search {
-  background: linear-gradient(145deg, var(--sidebar-start), var(--sidebar-end));
-  color: var(--sidebar-ink);
-  border-color: var(--sidebar-botany);
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  --search-ink: var(--foreground);
+  --search-icon: color-mix(in srgb, var(--sidebar-start) 70%, var(--foreground));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--sidebar-start) 12%, transparent), color-mix(in srgb, var(--sidebar-end) 12%, transparent));
+  color: var(--search-ink);
+  border-color: color-mix(in srgb, var(--sidebar-start) 22%, transparent);
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 .modern-search:focus-within {
+  --search-ink: var(--sidebar-ink);
+  --search-icon: var(--sidebar-botany);
+  background: linear-gradient(145deg, var(--sidebar-start), var(--sidebar-end));
   border-color: var(--sidebar-botany);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--sidebar-botany) 25%, transparent);
 }
-.modern-search svg { color: var(--sidebar-botany); }
-.modern-search input { color: var(--sidebar-ink); caret-color: var(--sidebar-ink); }
-.modern-search input::placeholder { color: var(--sidebar-ink); opacity: .85; }
+.modern-search svg { color: var(--search-icon); }
+.modern-search input { color: var(--search-ink); caret-color: var(--search-ink); }
+.modern-search input::placeholder { color: var(--search-ink); opacity: .75; }
 
 /* Guest dashboard: an inviting, intentionally empty example rather than private garden data. */
 .modern-garden-map:has(.sample-empty-bed) {
