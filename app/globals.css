@@ -34,6 +34,10 @@ html[data-season="spring"] {
   --hero-photo: url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1800&q=85");
 }
 html[data-season="summer"] {
+  --sidebar-start: #efbdce;
+  --sidebar-end: #e7a9bf;
+  --sidebar-ink: #442635;
+  --sidebar-botany: #683a50;
   --hero-photo: url("https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1800&q=85");
 }
 html[data-season="fall"] {
