@@ -107,7 +107,13 @@ const server = http.createServer(async (req, res) => {
       updated_at: new Date().toISOString(),
       ...p,
     }));
-    list.push(...items);
+    if (req.headers.prefer?.includes("resolution=merge-duplicates")) {
+      for (const item of items) {
+        const existing = list.find(row => row.id === item.id);
+        if (existing) Object.assign(existing, item);
+        else list.push(item);
+      }
+    } else list.push(...items);
     return send(
       res,
       201,
