@@ -1461,3 +1461,18 @@ html[data-season="winter"] { --home-garden-photo: url("/conservatory/home-garden
 .modern-sidebar:focus-within { outline-color: var(--sidebar-botany); }
 .modern-sidebar button:focus-visible { outline: 2px solid var(--sidebar-botany); outline-offset: 2px; }
 .modern-brand svg { color: var(--sidebar-botany); }
+
+/* Search uses the same restored seasonal palette as the sidebar. */
+.modern-search {
+  background: linear-gradient(145deg, var(--sidebar-start), var(--sidebar-end));
+  color: var(--sidebar-ink);
+  border-color: var(--sidebar-botany);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.modern-search:focus-within {
+  border-color: var(--sidebar-botany);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sidebar-botany) 25%, transparent);
+}
+.modern-search svg { color: var(--sidebar-botany); }
+.modern-search input { color: var(--sidebar-ink); caret-color: var(--sidebar-ink); }
+.modern-search input::placeholder { color: var(--sidebar-ink); opacity: .85; }

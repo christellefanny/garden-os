@@ -47,14 +47,15 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
   return <section className="interior-page">
-    <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
+    {section!=="Overview"&&<InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section} />}
     {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
-      <div className="relative mt-7 overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f]">
-        {/* Desktop: preserve the entire approved panoramic illustration and embedded lettering. */}
+      <div className="relative isolate min-h-[310px] overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f] sm:min-h-[360px] lg:min-h-[400px]">
+        {/* The seasonal artwork is retained; the original embedded banner lettering is
+            covered by the left-side green panel to make room for the page heading. */}
         <img
           src={`/flower-botanical-${season}.webp`}
-          alt={`${season} botanical flower garden illustration with welcome message`}
+          alt={`${season} botanical flower garden illustration`}
           onError={(event) => {
             const image = event.currentTarget;
             const fallback = season === "spring"
@@ -62,28 +63,14 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
               : `/approved-flower-${season}.webp`;
             if (!image.src.endsWith(fallback)) image.src = fallback;
           }}
-          className="hidden h-auto w-full sm:block"
+          className="absolute inset-0 h-full w-full object-cover object-[65%_center] sm:object-center"
         />
-        {/* Mobile: retain the seasonal artwork, with legible live text over the garden. */}
-        <div className="relative min-h-[280px] sm:hidden">
-          <img
-            src={`/flower-botanical-${season}.webp`}
-            alt=""
-            aria-hidden="true"
-            onError={(event) => {
-              const image = event.currentTarget;
-              const fallback = season === "spring"
-                ? "/wide_landscape_photorealistic_spring_garden_bann.png"
-                : `/approved-flower-${season}.webp`;
-              if (!image.src.endsWith(fallback)) image.src = fallback;
-            }}
-            className="absolute inset-0 h-full w-full object-cover object-right"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#17291f] via-[#17291f]/95 to-[#17291f]/55" />
-          <div className="relative z-10 max-w-[420px] px-6 py-8 text-white">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white">Welcome to your flower garden</p>
-            <h2 className="mt-3 font-serif text-3xl leading-tight text-white">Grow something beautiful.</h2>
-            <p className="mt-4 text-sm leading-6 text-white">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#17291f] via-[#17291f] via-[38%] to-[#17291f]/0 sm:via-[#17291f]/95 sm:via-[34%] sm:to-transparent" />
+        <div className="relative z-10 flex min-h-[310px] flex-col justify-center px-6 py-10 text-[#faf8ef] sm:min-h-[360px] sm:px-10 lg:min-h-[400px] lg:px-14">
+          <div className="max-w-[520px]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#faf8ef]">Bloom &amp; Flourish</p>
+            <h1 className="mt-4 font-serif text-[clamp(2.7rem,5vw,5.5rem)] leading-[1.04] tracking-[-0.03em] text-[#faf8ef]">Flower Garden</h1>
+            <p className="mt-5 max-w-[390px] text-base leading-7 text-[#faf8ef]/95 sm:text-lg">A home for your flowers, planting plans, and seasonal inspiration.</p>
           </div>
         </div>
       </div>
