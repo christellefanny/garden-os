@@ -1476,3 +1476,26 @@ html[data-season="winter"] { --home-garden-photo: url("/conservatory/home-garden
 .modern-search svg { color: var(--sidebar-botany); }
 .modern-search input { color: var(--sidebar-ink); caret-color: var(--sidebar-ink); }
 .modern-search input::placeholder { color: var(--sidebar-ink); opacity: .85; }
+
+/* Guest dashboard: an inviting, intentionally empty example rather than private garden data. */
+.modern-garden-map:has(.sample-empty-bed) {
+  position: relative;
+  background: repeating-linear-gradient(45deg,#c5d3ad 0 12px,#cbd9b8 12px 24px);
+  border: 10px solid #81966c;
+  border-radius: 14px;
+}
+.sample-empty-bed {
+  border: 9px solid #9a7953;
+  border-radius: 5px;
+  background: repeating-linear-gradient(32deg,#684c34 0 4px,#73563c 4px 8px,#806247 8px 12px);
+  box-shadow: 0 3px 9px #263a2455, inset 0 0 0 2px #ab8b60;
+  pointer-events: none;
+}
+.photo-journal-page input,.photo-journal-page select,.photo-journal-page textarea {
+  min-width:0;
+  border:1px solid #cbd4c4;
+  border-radius:9px;
+  padding:10px 12px;
+  background:#fffefa;
+  color:#233b2d;
+}
