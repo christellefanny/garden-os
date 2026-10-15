@@ -6,10 +6,12 @@ export default function Dialog({
   title,
   onClose,
   children,
+  headerActions,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  headerActions?: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const headingId = useId();
@@ -49,6 +51,8 @@ export default function Dialog({
         <h2 id={headingId} className="seasonal-heading text-2xl font-black">
           {title}
         </h2>
+        <div className="flex items-center gap-2">
+        {headerActions}
         <button
           type="button"
           aria-label="Close dialog"
@@ -57,6 +61,7 @@ export default function Dialog({
         >
           ×
         </button>
+        </div>
       </div>
       {children}
     </dialog>
