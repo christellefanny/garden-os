@@ -1454,17 +1454,25 @@ button.task-ring::after {
 .space-plant-form .seasonal-muted { color: #56654d; }
 
 
-/* Dashboard search: match the conservatory sidebar's deep forest palette. */
+/* Keep dashboard search and navigation on the same seasonal palette.
+   Changing the season updates both surfaces without changing the search behavior. */
+html[data-season="spring"] { --conservatory-nav-start: #334d39; --conservatory-nav-end: #4c6950; --conservatory-nav-border: #64816b; }
+html[data-season="summer"] { --conservatory-nav-start: #213d2a; --conservatory-nav-end: #3c5c3b; --conservatory-nav-border: #688260; }
+html[data-season="fall"] { --conservatory-nav-start: #423326; --conservatory-nav-end: #67472d; --conservatory-nav-border: #906a44; }
+html[data-season="winter"] { --conservatory-nav-start: #263c42; --conservatory-nav-end: #3d5b61; --conservatory-nav-border: #6a8990; }
+.modern-sidebar,
 .modern-search {
-  background: linear-gradient(120deg, #152219, #1c2c20);
-  border-color: #314b38;
+  background: linear-gradient(120deg, var(--conservatory-nav-start, #152219), var(--conservatory-nav-end, #1c2c20));
   color: #f8f3df;
+}
+.modern-search {
+  border-color: var(--conservatory-nav-border, #314b38);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 .modern-search:focus-within {
-  border-color: #b4b17f;
-  box-shadow: 0 0 0 3px rgba(180, 177, 127, 0.22);
+  border-color: #e1d5a6;
+  box-shadow: 0 0 0 3px rgba(225, 213, 166, 0.25);
 }
 .modern-search svg { color: #eadba7; }
 .modern-search input { color: #f8f3df; caret-color: #f8f3df; }
-.modern-search input::placeholder { color: #c8cfbf; opacity: 1; }
+.modern-search input::placeholder { color: #e1e5d9; opacity: 1; }
