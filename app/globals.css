@@ -34,10 +34,10 @@ html[data-season="spring"] {
   --hero-photo: url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1800&q=85");
 }
 html[data-season="summer"] {
-  --sidebar-start: #ead7db;
-  --sidebar-end: #dbc0c8;
-  --sidebar-ink: #543c46;
-  --sidebar-botany: #805e6c;
+  --sidebar-start: #ad4567;
+  --sidebar-end: #903650;
+  --sidebar-ink: #fff6ea;
+  --sidebar-botany: #f2c6d1;
   --hero-photo: url("https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1800&q=85");
 }
 html[data-season="fall"] {
