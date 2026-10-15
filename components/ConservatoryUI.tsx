@@ -49,8 +49,8 @@ export const destinations: Destination[] = [
 ];
 const navigationIconPaths: Record<string, string> = {
   "Dashboard": "M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7",
-  "My Gardens": "M12 21V9M12 14C3 14 2 7 4 4c7 0 8 5 8 10M12 11c0-7 4-9 8-8 1 6-3 9-8 8",
-  "Plant Vault": "M5 20C1 6 9 3 21 3c0 13-6 19-16 17ZM5 20 17 7",
+  "My Gardens": "M12 22V3M12 8C8 8 5 6 5 3c4 0 7 2 7 5Zm0-2c0-3 3-4 6-4 0 3-2 5-6 5M12 11l-5 2m5-2 5 3M10 16a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M21 17a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M4.5 13.5l2 1 2-1m7 1 2 1 2-1",
+  "Plant Vault": "M12 21V9M12 14C3 14 2 7 4 4c7 0 8 5 8 10M12 11c0-7 4-9 8-8 1 6-3 9-8 8",
   "Flower Garden": "M12 8C7 1 2 7 7 11c-7 3-2 10 3 6 0 7 8 7 7 0 6 3 10-4 3-7 3-6-4-10-8-2ZM14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0",
   "Garden Layout": "M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z",
   "Growing Calendar": "M3 6h18v15H3V6Zm4-3v6m10-6v6M3 11h18m-13 4h2m4 0h2m-8 3h2",
