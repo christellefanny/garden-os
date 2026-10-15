@@ -25,6 +25,7 @@ import PlantPlanner from "@/components/PlantPlanner";
 import GrowingCalendar from "@/components/GrowingCalendar";
 import PlantVault from "@/components/PlantVault";
 import FlowersPage from "@/components/FlowersPage";
+import PhotoJournal from "@/components/PhotoJournal";
 import { layoutSpaceDrafts, type Bed } from "@/lib/garden-layout";
 import GardenLayout from "@/components/GardenLayout";
 import {
@@ -449,6 +450,7 @@ export default function GardenWorkspace({
               onCalendar={() => navigate("Growing Calendar")}
             />
           )}
+          {page === "Photo Journal" && <PhotoJournal userId={userId} />}
           {page === "Journal" && (
             <JournalPage
               historySpaces={spaces}
