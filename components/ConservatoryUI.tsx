@@ -340,7 +340,8 @@ export function ModernDashboard({
           ["Gardens", gardens.length, "My Gardens"],
           ["Plants", vault.length, "Plant Vault"],
           ["Tasks", confirmed.length, "Tasks"],
-          ["Photos", "Open journal", "Photo Journal"],
+          ["Harvest Checklist", journalRows(spaces).filter(entry => entry.kind === "Harvest").length, "Journal"],
+          ["Photo Journal", "View photos", "Photo Journal"],
         ].map(([label, count, page], i) => (
           <button key={label} onClick={() => navigate(page as Destination)}>
             <span className="stat-icon">
@@ -354,7 +355,11 @@ export function ModernDashboard({
                   ? `${spaces.length} growing spaces`
                   : label === "Tasks"
                     ? "Upcoming saved reminders"
-                    : "Saved in your collection"}
+                    : label === "Harvest Checklist"
+                      ? "Record and review your harvests"
+                      : label === "Photo Journal"
+                        ? "Garden, seedlings and harvest photos"
+                        : "Saved in your collection"}
               </small>
             </span>
             <span>›</span>
