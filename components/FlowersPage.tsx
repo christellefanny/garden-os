@@ -50,23 +50,43 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
     <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
     {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
-      {season === "spring" ? (
-        <div className="relative mt-7 aspect-[3/1] min-h-[260px] overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b]">
+      <div className="relative mt-7 overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f]">
+        {/* Desktop: preserve the entire approved panoramic illustration and embedded lettering. */}
+        <img
+          src={`/flower-botanical-${season}.webp`}
+          alt={`${season} botanical flower garden illustration with welcome message`}
+          onError={(event) => {
+            const image = event.currentTarget;
+            const fallback = season === "spring"
+              ? "/wide_landscape_photorealistic_spring_garden_bann.png"
+              : `/approved-flower-${season}.webp`;
+            if (!image.src.endsWith(fallback)) image.src = fallback;
+          }}
+          className="hidden h-auto w-full sm:block"
+        />
+        {/* Mobile: retain the seasonal artwork, with legible live text over the garden. */}
+        <div className="relative min-h-[280px] sm:hidden">
           <img
-            src="/wide_landscape_photorealistic_spring_garden_bann.png"
-            alt="Spring flower garden with pink petunias, tulips and purple Gladiator alliums; welcome to your flower garden"
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            src={`/flower-botanical-${season}.webp`}
+            alt=""
+            aria-hidden="true"
+            onError={(event) => {
+              const image = event.currentTarget;
+              const fallback = season === "spring"
+                ? "/wide_landscape_photorealistic_spring_garden_bann.png"
+                : `/approved-flower-${season}.webp`;
+              if (!image.src.endsWith(fallback)) image.src = fallback;
+            }}
+            className="absolute inset-0 h-full w-full object-cover object-right"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#17291f] via-[#17291f]/95 to-[#17291f]/55" />
+          <div className="relative z-10 max-w-[420px] px-6 py-8 text-white">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white">Welcome to your flower garden</p>
+            <h2 className="mt-3 font-serif text-3xl leading-tight text-white">Grow something beautiful.</h2>
+            <p className="mt-4 text-sm leading-6 text-white">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
+          </div>
         </div>
-      ) : (
-        <div className="relative mt-7 aspect-[3/1] min-h-[260px] overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f]">
-          <img
-            src={`/approved-flower-${season === "summer" || season === "fall" || season === "winter" ? season : "fall"}.webp`}
-            alt={`${season} flower garden with the welcome message and seasonal blooms`}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-          />
-        </div>
-      )}
+      </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {([{label:"My flowers",detail:`${flowers.length} flowers in your collection`,action:"Explore your flower varieties"}, {label:"Seasonal planting",detail:"What to plant in each season",action:"Explore seasonal planting"}, {label:"Seed saving",detail:"What to collect, when, and how",action:"Explore seed saving"}, {label:"Flower care",detail:"Practical tips for healthier blooms",action:"Explore care guides"}, {label:"Cut Flowers",detail:"Discover bouquet flowers, including varieties beyond your Plant Vault",action:"Explore cut flowers"}] as {label:FlowerSection;detail:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="seasonal-card rounded-2xl border p-6 text-left transition-transform hover:-translate-y-0.5"><h3 className="seasonal-heading text-xl font-bold">{card.label}</h3><p className="seasonal-muted mt-2 text-sm">{card.detail}</p><span className="mt-4 inline-block text-sm font-semibold">{card.action} →</span></button>)}
       </div>
