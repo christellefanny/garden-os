@@ -720,6 +720,7 @@ export default function GardenWorkspace({
                               </button>
                             </h3>
                           </div>
+                          <button type="button" disabled={busy || !!summary.error} onClick={() => { setPlantSpacing(12); setOpenId(s.id); }} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap" aria-label={`Add plant to ${s.name}`}>+ Add plant</button>
                           {(summary.capacity ?? 0) >= 75 && (
                             <span className="rounded-full bg-[var(--highlight)] px-3 py-1 text-xs font-bold text-[var(--foreground)]">
                               Review spacing
@@ -846,6 +847,7 @@ export default function GardenWorkspace({
               space={editing}
               busy={busy}
               onClose={() => setEditor(null)}
+              onAddPlant={editing ? () => { setPlantSpacing(12); setOpenId(editing.id); } : undefined}
               onSave={(input) => saveSpace(input, editing)}
             />
           )}

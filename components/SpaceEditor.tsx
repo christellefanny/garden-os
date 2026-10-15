@@ -17,12 +17,14 @@ export default function SpaceEditor({
   busy,
   onSave,
   onClose,
+  onAddPlant,
 }: {
   space?: Space;
   title?: string;
   busy: boolean;
   onSave: (input: SpaceInput) => Promise<boolean>;
   onClose: () => void;
+  onAddPlant?: () => void;
 }) {
   const [type, setType] = useState(space?.type === "Grow Bag" ? "Grow Bag" : space?.type ?? "Raised Bed");
   const growBag = type === "Grow Bag" || type === "Growing Bag";
@@ -90,6 +92,7 @@ export default function SpaceEditor({
     <Dialog
       title={title ?? (space ? "Edit Growing Space" : "Add Growing Space")}
       onClose={onClose}
+      headerActions={onAddPlant && <button type="button" disabled={busy} onClick={onAddPlant} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap">+ Add plant</button>}
     >
       <form onSubmit={submit} className="space-y-4">
         <fieldset disabled={busy} className="space-y-4 disabled:opacity-60">
