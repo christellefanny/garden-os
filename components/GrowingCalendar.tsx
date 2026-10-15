@@ -102,8 +102,9 @@ export default function GrowingCalendar({
         <button type="button" onClick={()=>setPlanningOpen(true)} className="seasonal-outline">Planning settings</button>
       </InteriorHeader>
       <InteriorStats items={[{label:"Plants in your plan",value:active},{label:"Steps this week",value:weeklyTasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)&&!t.status).length},{label:"Spring frost anchor",value:new Date(`2000-${options.lastFrost}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"})},{label:"Fall frost anchor",value:new Date(`2000-${options.firstFrost}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"})}]}/>
-      <WeeklyBriefing garden={garden} gardens={gardens} options={options} onSave={save} />
-      <PhoneReminders userId={userId} tasks={reminderTasks} showControls={addingReminder && !!controlsTarget} controlsTarget={controlsTarget} />
+      <WeeklyBriefing guest={userId === "guest"} garden={garden} gardens={gardens} options={options} onSave={save} />
+      {userId !== "guest" && <PhoneReminders userId={userId} tasks={reminderTasks} showControls={addingReminder && !!controlsTarget} controlsTarget={controlsTarget} />}
+      {userId === "guest" && addingReminder && <p className="interior-notice">Your calendar reminders are saved on this device. Background phone delivery requires an account; use Save to an account above.</p>}
       {addingReminder && <Dialog title="Add reminder" onClose={() => setAddingReminder(false)}>
         {plants.length ? <>
           <label className="block text-sm font-bold">Plant
