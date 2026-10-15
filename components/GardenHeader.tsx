@@ -1,11 +1,11 @@
 "use client";
 
+import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import Link from "next/link";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { parseThemeSelection, seasonContent, seasons } from "@/lib/seasons";
 import GardenIcon from "@/components/ui/GardenIcon";
 
-const seasonEmoji = { spring: "🌷", summer: "🦋", fall: "🍂", winter: "❄️" } as const;
 
 export default function GardenHeader({ gardenYear, onOpenCalendar, onHome, calendarOpen = false }: { gardenYear: number; onOpenCalendar?: () => void; onHome?: () => void; calendarOpen?: boolean }) {
   const { season, selection, setSelection } = useSeason();
@@ -31,7 +31,7 @@ export default function GardenHeader({ gardenYear, onOpenCalendar, onHome, calen
       <div className="flex flex-wrap items-center gap-3">
       {onOpenCalendar && <button type="button" onClick={onOpenCalendar} aria-pressed={calendarOpen} className={`flex min-h-11 items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold shadow-sm transition ${calendarOpen ? "seasonal-button text-white" : "seasonal-card hover:bg-[var(--primary-soft)]"}`}><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/></svg>Growing Calendar</button>}
       <label className="seasonal-card relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-full border px-3 py-2 pr-9 shadow-sm transition hover:bg-[var(--primary-soft)]" title="Change seasonal theme">
-        <span aria-hidden="true" className="text-2xl">{seasonEmoji[season]}</span>
+        <SeasonIcon season={season} className="h-8 w-8 shrink-0" />
         <span className="leading-tight">
           
           <span aria-live="polite" className="seasonal-heading block text-sm font-bold">

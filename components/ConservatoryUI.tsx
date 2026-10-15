@@ -1,4 +1,5 @@
 "use client";
+import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import { groupReminders } from "@/lib/reminder-groups";
@@ -128,7 +129,7 @@ export function ConservatoryTopbar({
   onSearch: (value: string) => void;
   navigate: (page: Destination) => void;
 }) {
-  const { selection, setSelection } = useSeason();
+  const { season, selection, setSelection } = useSeason();
   return (
     <header className="modern-topbar">
       <label className="modern-search">
@@ -149,7 +150,7 @@ export function ConservatoryTopbar({
         />
       </label>
       <label className="modern-theme">
-        <LineIcon index={2} />
+        <SeasonIcon season={season} />
         <select
           aria-label="Change seasonal theme"
           value={selection}
