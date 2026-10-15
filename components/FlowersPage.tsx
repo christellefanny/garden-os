@@ -40,6 +40,38 @@ const seedGuides = [
   {name:"Nasturtium",when:"Summer to fall, when fallen seeds have matured and dried",how:"Collect the large, wrinkled seeds as they drop or loosen. Dry completely in a ventilated place before storing."},
   {name:"Dianthus",when:"After flowering, when seed capsules are dry and opening",how:"Shake ripe capsules into a paper bag. Named hybrids may not grow true to type from seed."},
 ];
+const cutFlowerEncyclopedia = [
+  {name:"Dahlias",when:"Midsummer to frost",tip:"Cut fully open blooms; lift and store tubers for winter."},
+  {name:"Lisianthus",when:"Summer",tip:"Start early or use plugs. Harvest when the first blooms open."},
+  {name:"Statice",when:"Summer",tip:"Papery clusters for fresh and dried arrangements."},
+  {name:"Sweet Alyssum",when:"Spring and fall",tip:"Low, fragrant filler; use small flowering sprigs."},
+  {name:"Strawflower",when:"Summer to frost",tip:"Harvest as outer bracts begin to open; excellent dried."},
+  {name:"Snapdragons",when:"Late spring to fall",tip:"Cut when lower florets open; tall varieties give structure."},
+  {name:"Calendula",when:"Spring and fall",tip:"Harvest newly opened flowers during cooler weather."},
+  {name:"Cosmos",when:"Summer to frost",tip:"Cut buds just opening for airy movement."},
+  {name:"Rudbeckia",when:"Summer to fall",tip:"Harvest firm blooms for long-lasting golden accents."},
+  {name:"Gomphrena",when:"Summer to frost",tip:"Harvest fully colored globe flowers, fresh or dried."},
+  {name:"Celosia",when:"Summer to frost",tip:"Cut developed plumes or crests; dries well."},
+  {name:"Amaranth",when:"Summer to fall",tip:"Dramatic upright or trailing tassels."},
+  {name:"Nigella",when:"Late spring to summer",tip:"Use flowers and decorative seed pods."},
+  {name:"Yarrow",when:"Summer",tip:"Cut when most small flowers are open."},
+  {name:"Scabiosa",when:"Summer to frost",tip:"Pincushion flowers in soft pinks and purples; cut often."},
+  {name:"Ammi Majus",when:"Early to midsummer",tip:"White lace-like umbels make airy bouquet filler."},
+  {name:"Chantilly Snapdragons",when:"Late spring to fall",tip:"Elegant open-faced snapdragon spikes; support tall stems."},
+  {name:"Bupleurum",when:"Late spring to summer",tip:"Chartreuse greenery for light, natural arrangements."},
+  {name:"Astrantia",when:"Late spring to summer",tip:"Starry blooms; prefers moisture and afternoon shade."},
+  {name:"Asters",when:"Late summer to fall",tip:"Colorful late-season daisy-like cut flowers."},
+  {name:"Feverfew",when:"Early summer",tip:"Clusters of small white flowers add soft texture."},
+  {name:"Larkspur",when:"Late spring to early summer",tip:"Cool-season blue, pink and lavender spires; all parts toxic."},
+  {name:"Orlaya",when:"Late spring to summer",tip:"Elegant white lace flowers for romantic bouquets."},
+  {name:"Bachelor's Buttons",when:"Late spring to summer",tip:"Bright blue blooms; cut before centers show pollen."},
+  {name:"Bells of Ireland",when:"Summer",tip:"Tall green bells for bouquet structure."},
+  {name:"Sweet Peas",when:"Late spring to early summer",tip:"Fragrant flowers for cool weather; provide a trellis."},
+  {name:"Rudbeckia Sahara",when:"Summer to fall",tip:"Warm copper, rose and terracotta blooms; colors vary."},
+  {name:"Hydrangeas",when:"Summer to fall",tip:"Harvest mature panicles and hydrate promptly."},
+  {name:"Ranunculus",when:"Spring",tip:"Cut soft, colored buds; protect corms from hard freezes."},
+  {name:"Zinnias",when:"Summer to frost",tip:"Harvest when stems pass the wiggle test; no Queen Lime variety."},
+] as const;
 type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
@@ -84,23 +116,27 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         <h2 className="seasonal-heading mt-2 text-3xl font-bold">Grow your own bouquets</h2>
         <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Discover excellent cutting flowers whether or not you already grow them. Plan a cutting garden, harvest at the right stage, and arrange long-lasting bouquets with stems from your own beds and pots.</p>
       </div>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Best flowers for cutting — even if they are not in your Plant Vault</h2>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
+      <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Illustrations use the same botanical portrait style as the Plant Vault.</p>
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {cutFlowerEncyclopedia.map(g=><article key={g.name} className="seasonal-card overflow-hidden rounded-2xl border p-3">
+          <PlantPortrait name={g.name} variety="" />
+          <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
+          <p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p>
+          <p className="mt-2 text-xs leading-5">{g.tip}</p>
+        </article>)}
+      </div>
+      <h2 className="seasonal-heading mt-9 text-2xl font-bold">Bouquet inspiration</h2>
+      <div className="mt-5 grid gap-5 md:grid-cols-2">
         {[
-          {name:"Zinnias",when:"Summer to frost",tip:"Cut when stems are firm and do not wobble just below the bloom. Great colorful focal flowers."},
-          {name:"Cosmos",when:"Summer to frost",tip:"Harvest when buds are just opening. Their airy stems make bouquets feel light and natural."},
-          {name:"Dahlias",when:"Midsummer to frost",tip:"Cut blooms fully or nearly open; buds generally will not open much after cutting. Tubers need winter protection in northern Illinois."},
-          {name:"Snapdragons",when:"Late spring and fall",tip:"Cut when the lower third of florets are open. Excellent vertical accent; grow tall cutting varieties."},
-          {name:"Sunflowers",when:"Summer to early fall",tip:"Cut as petals begin lifting off the face. Choose pollenless varieties for cleaner indoor arrangements."},
-          {name:"Hydrangeas",when:"Summer to fall",tip:"Cut mature, firm blooms and hydrate promptly. Limelight panicles also dry beautifully."},
-          {name:"Ranunculus",when:"Cool spring",tip:"Cut when buds feel soft and show color, before fully opening. Protect corms from hard freezes."},
-          {name:"Celosia",when:"Summer to frost",tip:"Harvest fully formed plumes or crests. Also excellent for drying."},
-          {name:"Lisianthus",when:"Summer",tip:"Long-lasting, rose-like blooms. Start very early indoors or buy plugs; harvest when one or more flowers are open."},
-          {name:"Sweet peas",when:"Late spring to early summer",tip:"Fragrant climbing flowers for cool weather. Cut frequently and provide a trellis."},
-          {name:"Statice",when:"Summer",tip:"Papery clusters add texture to fresh bouquets and dry beautifully. Start indoors before the last frost."},
-          {name:"Gomphrena",when:"Summer to frost",tip:"Heat-loving, colorful globe blooms. Cut when heads are fully colored; also great dried."},
-          {name:"Basil (flowering stems)",when:"Summer",tip:"Aromatic bouquet greenery. Harvest firm stems and remove leaves below the waterline."}
-        ].map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p><p className="mt-3 text-sm leading-6">{g.tip}</p></article>)}
+          {title:"Summer Garden Bouquet",flowers:["Dahlias","Lisianthus","Snapdragons","Sweet Alyssum"],description:"A cheerful, full arrangement with bold dahlias, delicate lisianthus, and vertical snapdragons."},
+          {title:"Soft Romantic Bouquet",flowers:["Lisianthus","Cosmos","Scabiosa","Yarrow"],description:"Airy pastel flowers and delicate filler for a soft, natural look."}
+        ].map(bouquet=><article key={bouquet.title} className="seasonal-card rounded-2xl border p-5">
+          <div className="grid grid-cols-4 gap-2">{bouquet.flowers.map(name=><div key={name}><PlantPortrait name={name} variety="" /></div>)}</div>
+          <h3 className="seasonal-heading mt-4 text-xl font-bold">{bouquet.title}</h3>
+          <p className="mt-2 text-sm leading-6">{bouquet.description}</p>
+          <p className="seasonal-muted mt-2 text-xs">{bouquet.flowers.join(" · ")}</p>
+        </article>)}
       </div>
       <h2 className="seasonal-heading mt-9 text-2xl font-bold">Harvesting and vase care</h2>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
