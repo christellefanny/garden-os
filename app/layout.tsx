@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Garden OS",
-  description: "Your garden’s operating system. Grow Smarter. Harvest Better.",
+  title: "Garden Atelier",
+  description: "Your garden, beautifully cultivated. Plan, grow, and enjoy every season.",
 };
 
 export default function RootLayout({
