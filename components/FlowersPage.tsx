@@ -79,8 +79,8 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
   return <section className="interior-page">
-    {section!=="Overview"&&<InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section} />}
-    {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
+    {section!=="Overview"&&section!=="Cut Flowers"&&<InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section} />}
+    {section!=="Overview"&&section!=="Cut Flowers"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
       <div className="relative isolate min-h-[310px] overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f] sm:min-h-[360px] lg:min-h-[400px]">
         {/* The seasonal artwork is retained; the original embedded banner lettering is
@@ -111,7 +111,8 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       </div>
     </>}
     {section==="Cut Flowers"&&<>
-      <div className="seasonal-card relative mt-7 min-h-[420px] overflow-hidden rounded-2xl border bg-[#f8f5ed] sm:min-h-[360px] lg:min-h-[400px]">
+      <button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mb-4 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>
+      <div className="seasonal-card relative min-h-[420px] overflow-hidden rounded-2xl border bg-[#f8f5ed] sm:min-h-[360px] lg:min-h-[400px]">
         <img
           src="/Bouquets.png"
           alt="Two romantic cut-flower arrangements: a small colorful bouquet in a glass jar and a larger bouquet in a white pitcher"
