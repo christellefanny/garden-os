@@ -377,7 +377,7 @@ a:focus-visible {
 .modern-sidebar nav button[aria-current="page"] {
   background: #ffffff24;
 }
-.modern-sidebar nav button:nth-child(8) {
+.modern-sidebar nav button:nth-child(9) {
   margin-top: 20px;
   border-top: 1px solid #d6d0a640;
   border-radius: 0;
@@ -967,7 +967,7 @@ a:focus-visible {
   .modern-sidebar nav svg {
     display: none;
   }
-  .modern-sidebar nav button:nth-child(8) {
+  .modern-sidebar nav button:nth-child(9) {
     margin: 0;
     padding: 6px 10px;
     border: 0;
