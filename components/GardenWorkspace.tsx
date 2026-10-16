@@ -512,7 +512,7 @@ export default function GardenWorkspace({
           )}
           {page === "Help" && (
             <section className="interior-page help-page">
-              <InteriorHeader title="A little guidance" eyebrow="Grow with confidence" description="A few simple ways to make Garden OS part of your growing routine."/>
+              <InteriorHeader title="A little guidance" eyebrow="Grow with confidence" description="A few simple ways to make Garden Atelier part of your growing routine."/>
               <div className="modern-card">
                 <h2>Your connected garden</h2>
                 <p>
@@ -525,7 +525,7 @@ export default function GardenWorkspace({
                 <p>
                   Calendar recommendations use adjustable frost anchors. Check
                   seed packets, soil temperature, and your local forecast.
-                  Garden OS does not invent weather observations.
+                  Garden Atelier does not invent weather observations.
                 </p>
                 <h2 className="mt-6">Remember your season</h2>
                 <p>
@@ -859,7 +859,7 @@ export default function GardenWorkspace({
               </section>
               <div className="interior-related"><div><h3>Your garden journal</h3><p>Observations, watering and harvest history live together in one place.</p></div><button className="seasonal-outline" onClick={()=>navigate("Journal")}>Open Journal →</button></div></>}
               <footer className="seasonal-muted mt-12 border-t border-[var(--border)] pt-5 text-sm">
-                Garden OS · Grow smarter. Harvest better.{" "}
+                Garden Atelier · Grow smarter. Harvest better.{" "}
                 <span className="block mt-1">
                   Garden records sync across devices. Vault entries, layouts and
                   calendar settings sync when cloud storage is connected. Your
