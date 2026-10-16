@@ -72,6 +72,65 @@ const cutFlowerEncyclopedia = [
   {name:"Ranunculus",when:"Spring",tip:"Cut soft, colored buds; protect corms from hard freezes."},
   {name:"Zinnias",when:"Summer to frost",tip:"Harvest when stems pass the wiggle test; no Queen Lime variety."},
 ] as const;
+
+const cutFlowerStyles: Record<string, {kind:string;petals:number;color:string;center:string;accent:string}> = {
+  "Dahlias":{kind:"double",petals:16,color:"#c96878",center:"#e6b64d",accent:"#e9a1aa"},
+  "Lisianthus":{kind:"rose",petals:7,color:"#a18ab8",center:"#e7d8a8",accent:"#d8c4e4"},
+  "Statice":{kind:"spray",petals:5,color:"#8977ba",center:"#e8d8a5",accent:"#b5a1d4"},
+  "Sweet Alyssum":{kind:"spray",petals:4,color:"#f6f0e6",center:"#d5b967",accent:"#eee3ee"},
+  "Strawflower":{kind:"double",petals:18,color:"#d89b54",center:"#ae7540",accent:"#f1c782"},
+  "Snapdragons":{kind:"spike",petals:5,color:"#e2a5b4",center:"#f7d6b3",accent:"#f1cbd4"},
+  "Calendula":{kind:"daisy",petals:13,color:"#e9a34c",center:"#9a6839",accent:"#f3c16c"},
+  "Cosmos":{kind:"daisy",petals:8,color:"#d38fa8",center:"#e4b95c",accent:"#f4c6d4"},
+  "Rudbeckia":{kind:"daisy",petals:12,color:"#dfa547",center:"#594a36",accent:"#f5ca6b"},
+  "Gomphrena":{kind:"pom",petals:12,color:"#be74a5",center:"#f0d6c2",accent:"#d69abb"},
+  "Celosia":{kind:"plume",petals:10,color:"#bf6376",center:"#d58d8b",accent:"#e4a1a3"},
+  "Amaranth":{kind:"plume",petals:10,color:"#b86b80",center:"#d18c9b",accent:"#e3adb4"},
+  "Nigella":{kind:"star",petals:8,color:"#8ba7c6",center:"#435f76",accent:"#c5d9e7"},
+  "Yarrow":{kind:"spray",petals:5,color:"#e9d6b2",center:"#bcaa75",accent:"#faf0d5"},
+  "Scabiosa":{kind:"pom",petals:12,color:"#9886ba",center:"#d9c7df",accent:"#c0b0d7"},
+  "Ammi Majus":{kind:"spray",petals:5,color:"#f5f0e5",center:"#c8b87f",accent:"#ffffff"},
+  "Chantilly Snapdragons":{kind:"spike",petals:5,color:"#e6b4a6",center:"#f6d4b2",accent:"#f5d6c8"},
+  "Bupleurum":{kind:"spray",petals:5,color:"#b8c88c",center:"#879d63",accent:"#d7e0aa"},
+  "Astrantia":{kind:"star",petals:12,color:"#c68c9e",center:"#9d687c",accent:"#e9c4cc"},
+  "Asters":{kind:"daisy",petals:15,color:"#9b8bbd",center:"#e6ba59",accent:"#c7bce0"},
+  "Feverfew":{kind:"spray",petals:9,color:"#f6f0e6",center:"#d8b64f",accent:"#ffffff"},
+  "Larkspur":{kind:"spike",petals:6,color:"#8e91bf",center:"#d3c5df",accent:"#b8b9dc"},
+  "Orlaya":{kind:"spray",petals:7,color:"#f5f0e7",center:"#c7ba86",accent:"#ffffff"},
+  "Bachelor's Buttons":{kind:"star",petals:12,color:"#7197bd",center:"#496f9e",accent:"#9cb9da"},
+  "Bells of Ireland":{kind:"spike",petals:5,color:"#a7c183",center:"#e1d6a5",accent:"#d4e1aa"},
+  "Sweet Peas":{kind:"rose",petals:6,color:"#c48cae",center:"#f0d6c9",accent:"#e6b9d0"},
+  "Rudbeckia Sahara":{kind:"daisy",petals:11,color:"#b87553",center:"#65483a",accent:"#dfa176"},
+  "Hydrangeas":{kind:"spray",petals:4,color:"#9bafc8",center:"#e4d7aa",accent:"#c8d7e8"},
+  "Ranunculus":{kind:"rose",petals:12,color:"#e2a18e",center:"#d7b25d",accent:"#f3c9b9"},
+  "Zinnias":{kind:"double",petals:12,color:"#d8849c",center:"#dfb456",accent:"#f1b4c4"},
+};
+function CutFlowerIllustration({name}:{name:string}) {
+  const style=cutFlowerStyles[name];
+  const spray=style.kind==="spray", spike=style.kind==="spike", plume=style.kind==="plume";
+  const centers=spike ? [[110,50,0.62],[90,78,0.8],[126,94,0.8],[104,125,1],[135,151,0.8],[90,169,0.75]] :
+    spray ? [[108,74,0.68],[67,96,0.6],[151,105,0.62],[88,135,0.72],[138,151,0.62],[107,113,0.58]] :
+    plume ? [[108,82,1],[92,106,0.85],[124,113,0.85],[106,141,0.9]] :
+    [[110,100,1],[65,146,0.58],[151,158,0.65]];
+  return <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-[#f5f0e6]" role="img" aria-label={`Botanical-style illustration of ${name}`}>
+    <svg viewBox="0 0 220 190" preserveAspectRatio="xMidYMid slice" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id={`petal-${name.replace(/[^a-z]/gi,"")}`}><stop offset="0" stopColor={style.accent}/><stop offset="1" stopColor={style.color}/></radialGradient></defs>
+      <path d="M107 188 Q109 136 110 96 M108 180 Q80 155 65 146 M110 175 Q140 159 151 157" stroke="#6f8967" strokeWidth="3" fill="none" strokeLinecap="round"/>
+      <path d="M108 166 Q74 139 58 159 Q78 181 108 166 M113 151 Q153 127 171 143 Q153 165 113 151 M108 185 Q83 164 66 183 Q90 198 108 185" fill="#8ca381" stroke="#698362" strokeWidth="1"/>
+      {centers.map(([x,y,scale],i)=><g key={i} transform={`translate(${x} ${y}) scale(${scale})`}>
+        {Array.from({length:style.petals},(_,j)=>{
+          const angle=j*360/style.petals;
+          const radius=plume?14:style.kind==="rose"?12:style.kind==="pom"?15:style.kind==="double"?18:24;
+          return <ellipse key={j} cx="0" cy={-radius} rx={plume?7:style.kind==="star"?5:style.kind==="double"?8:style.kind==="rose"?12:style.kind==="pom"?9:style.kind==="spike"?12:10} ry={plume?17:style.kind==="rose"?18:style.kind==="pom"?15:style.kind==="double"?22:style.kind==="star"?25:style.kind==="spike"?18:23} transform={`rotate(${angle})`} fill={j%3===0?style.accent:style.color} stroke={style.accent} strokeWidth=".65" opacity=".95"/>;
+        })}
+        {(style.kind==="double"||style.kind==="rose"||style.kind==="pom")&&Array.from({length:8},(_,j)=><ellipse key={j} cx="0" cy="-11" rx="5" ry="12" transform={`rotate(${j*45})`} fill={style.accent} stroke={style.color} strokeWidth=".7"/>)}
+        <circle r={style.kind==="rose"?5:style.kind==="pom"?7:style.kind==="plume"?4:11} fill={style.center}/>
+        {Array.from({length:9},(_,j)=><circle key={j} cx={Math.cos(j*2.4)*6} cy={Math.sin(j*2.4)*6} r="1.2" fill="#f7e5b1"/>)}
+      </g>)}
+    </svg>
+  </div>;
+}
+
 type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
@@ -127,10 +186,10 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         </div>
       </div>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
-      <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Illustrations use the same botanical portrait style as the Plant Vault.</p>
+      <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Each flower has a stylized botanical illustration; colors and forms are representative rather than cultivar-specific.</p>
       <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {cutFlowerEncyclopedia.map(g=><article key={g.name} className="seasonal-card overflow-hidden rounded-2xl border p-3">
-          <PlantPortrait name={g.name} variety="" />
+          <CutFlowerIllustration name={g.name} />
           <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
           <p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p>
           <p className="mt-2 text-xs leading-5">{g.tip}</p>
