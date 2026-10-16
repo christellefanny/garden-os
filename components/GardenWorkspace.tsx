@@ -490,6 +490,7 @@ export default function GardenWorkspace({
           {page === "Photo Journal" && <PhotoJournal userId={userId} />}
           {page === "Journal" && (
             <JournalPage
+              userId={userId}
               historySpaces={spaces}
               spaces={activeSpaces}
               busy={busy}

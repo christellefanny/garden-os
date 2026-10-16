@@ -48,8 +48,9 @@ export default function PhotoJournal({userId}:{userId:string}) {
   useEffect(()=>{
     const urls:Record<string,string[]>={};
     for(const entry of entries) urls[entry.id]=entry.photos.map(blob=>URL.createObjectURL(blob));
-    setPreviewUrls(urls);
-    return ()=>Object.values(urls).flat().forEach(url=>URL.revokeObjectURL(url));
+    let active = true;
+    Promise.resolve().then(() => { if (active) setPreviewUrls(urls); });
+    return ()=>{ active = false; Object.values(urls).flat().forEach(url=>URL.revokeObjectURL(url)); };
   },[entries]);
   async function save(){
     if(!photos.length)return setError("Choose at least one photo.");
