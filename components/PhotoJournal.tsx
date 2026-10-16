@@ -69,7 +69,7 @@ function PhotoCard({ picture, folders, selected, busy, onSelect, onSave, onDelet
       {picture.info.description && <p className="mt-3 whitespace-pre-wrap break-words text-sm">{picture.info.description}</p>}
       {(picture.entry.plant || picture.entry.bed) && <p className="seasonal-muted mt-2 text-xs">{[picture.entry.plant, picture.entry.bed].filter(Boolean).join(" · ")}</p>}
       {picture.info.folderId && <p className="seasonal-muted mt-2 text-xs">Folder: {folders.find(f => f.id === picture.info.folderId)?.name || "Unfiled"}</p>}
-      {editing && <form className="mt-4" onSubmit={async e => { e.preventDefault(); if (await onSave(draft)) setEditing(false); }}>
+      {editing && <Dialog title="Edit picture details" onClose={() => { if (!busy) setEditing(false); }}><form className="mt-4" onSubmit={async e => { e.preventDefault(); if (await onSave(draft)) setEditing(false); }}>
         <fieldset disabled={busy} className="grid gap-3 text-sm">
           <label className="grid gap-1">Photo name<input required maxLength={150} value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} /></label>
           <label className="grid gap-1">Description<textarea rows={3} maxLength={5000} value={draft.description} onChange={e => setDraft({ ...draft, description: e.target.value })} /></label>
@@ -78,7 +78,7 @@ function PhotoCard({ picture, folders, selected, busy, onSelect, onSave, onDelet
           <label className="grid gap-1">Photo folder<select value={draft.folderId} onChange={e => setDraft({ ...draft, folderId: e.target.value })}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label>
           <div className="flex flex-wrap gap-2"><button type="submit" className="seasonal-button rounded-lg px-3 py-2">Save details</button><button type="button" className="seasonal-outline rounded-lg border px-3 py-2" onClick={() => setEditing(false)}>Cancel</button></div>
         </fieldset>
-      </form>}
+      </form></Dialog>}
       {selected && <button type="button" disabled={busy} className="mt-3 block min-h-10 text-xs text-red-800 underline" onClick={onDelete}>Delete picture</button>}
     </div>
     {viewing && <Dialog title={label} onClose={() => setViewing(false)}>
@@ -88,7 +88,15 @@ function PhotoCard({ picture, folders, selected, busy, onSelect, onSave, onDelet
     </Dialog>}
   </article>;
 }
-export default function PhotoJournal({ userId, embedded = false, showComposer = true }: { userId: string; embedded?: boolean; showComposer?: boolean }) {
+function UploadPreview({ file }: { file: File }) {
+  const url = usePhotoUrl(file);
+  return <figure className="min-w-0 rounded-lg border border-[var(--border)] p-2">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={url || undefined} alt={file.name} className="h-28 w-full object-contain" />
+    <figcaption className="mt-2 truncate text-xs">{file.name}</figcaption>
+  </figure>;
+}
+export default function PhotoJournal({ userId, embedded = false, showComposer = false, onCloseComposer }: { userId: string; embedded?: boolean; showComposer?: boolean; onCloseComposer?: () => void }) {
   const [entries, setEntries] = useState<PhotoEntry[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [category, setCategory] = useState("My Garden");
@@ -96,9 +104,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [year, setYear] = useState("All");
   const [activeFolder, setActiveFolder] = useState("folders");
   const [folderComposer, setFolderComposer] = useState(false);
-  const composerRef = useRef<HTMLFormElement>(null);
   const [uploadFolder, setUploadFolder] = useState("");
-  useEffect(() => { if (folderComposer) composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, [folderComposer, uploadFolder]);
   const [caption, setCaption] = useState("");
   const [plant, setPlant] = useState("");
   const [bed, setBed] = useState("");
@@ -197,8 +203,11 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     <p className="seasonal-muted mb-5 text-xs">Photos are saved on this device for now and are not synced to your account.</p>
     {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
     {notice && <p role="status" className="interior-notice">{notice}</p>}
-    {(showComposer || folderComposer) && <form ref={composerRef} className="modern-card mb-7" onSubmit={e => { e.preventDefault(); void save(); }}>
-      <h3 className="mb-4 font-serif text-2xl">Add pictures</h3>
+    {!embedded && <button type="button" className="seasonal-button mb-5 rounded-lg px-4 py-2" onClick={() => setFolderComposer(true)}>Add pictures</button>}
+    {(showComposer || folderComposer) && <Dialog title={uploadFolder ? `Add pictures to ${folders.find(folder => folder.id === uploadFolder)?.name || "folder"}` : "Add pictures"} onClose={() => { if (!saving) { setFolderComposer(false); onCloseComposer?.(); setPhotos([]); setError(""); } }}>
+    {error && <p role="alert" className="mb-4 text-sm text-red-800">{error}</p>}
+    <form onSubmit={e => { e.preventDefault(); void save(); }}>
+      {!!photos.length && <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Selected picture previews">{photos.map((file, index) => <UploadPreview key={`${file.name}-${index}`} file={file} />)}</div>}
       <fieldset disabled={saving || !loaded} className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm">Photos (select multiple)<input ref={fileInput} type="file" accept="image/*" multiple required onChange={e => setPhotos(Array.from(e.target.files || []))} /></label>
         <label className="grid gap-2 text-sm">Folder<select value={uploadFolder} onChange={e => setUploadFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label>
@@ -209,9 +218,9 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
         <label className="grid gap-2 text-sm sm:col-span-2">Description for this upload (optional)<textarea rows={2} maxLength={5000} value={caption} onChange={e => setCaption(e.target.value)} /><span className="seasonal-muted text-xs">You can edit each picture’s name and description after uploading.</span></label>
         <div className="flex flex-wrap items-center gap-3 sm:col-span-2"><button type="submit" className="seasonal-button rounded-lg px-5 py-3">{saving ? "Saving…" : `Save ${photos.length || ""} pictures`}</button>{photos.length > 0 && <span className="text-sm">{photos.length} selected</span>}</div>
       </fieldset>
-    </form>}
+    </form></Dialog>}
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="font-serif text-xl">Folders</h3><button type="button" disabled={saving || !loaded} className="seasonal-outline rounded-lg border px-3 py-2 text-sm" onClick={() => setFolderForm(open => !open)} aria-expanded={folderForm}>+ New folder</button></div>
-    {folderForm && <form onSubmit={createFolder} className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-[var(--border)] p-4"><label className="grid flex-1 gap-2 text-sm">Folder name<input autoFocus required maxLength={100} disabled={saving} value={folderName} onChange={e => setFolderName(e.target.value)} placeholder={`e.g. Seedlings — ${localDay()}`} /></label><button disabled={saving} className="seasonal-button rounded-lg px-4 py-2">Create folder</button><button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setFolderForm(false)}>Cancel</button></form>}
+    {folderForm && <Dialog title="New picture folder" onClose={() => { if (!saving) setFolderForm(false); }}>{error && <p role="alert" className="text-sm text-red-800">{error}</p>}<form onSubmit={createFolder} className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-[var(--border)] p-4"><label className="grid flex-1 gap-2 text-sm">Folder name<input autoFocus required maxLength={100} disabled={saving} value={folderName} onChange={e => setFolderName(e.target.value)} placeholder={`e.g. Seedlings — ${localDay()}`} /></label><button disabled={saving} className="seasonal-button rounded-lg px-4 py-2">Create folder</button><button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setFolderForm(false)}>Cancel</button></form></Dialog>}
     <div className="mb-7 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Picture folders">
       {[{ id: "unfiled", name: "Unfiled" }, ...folders].map(folder => <div key={folder.id} className="rounded-xl border bg-white p-4" style={{ borderColor: activeFolder === folder.id ? "var(--sidebar-start)" : "var(--border)" }}>
         <button type="button" disabled={saving} aria-pressed={activeFolder === folder.id} className="flex min-h-24 w-full flex-col items-start gap-3 text-left text-sm" style={{ color: "var(--sidebar-start)" }} onClick={() => { setActiveFolder(folder.id); setUploadFolder(folder.id === "unfiled" ? "" : folder.id); setSelected([]); setFilter("All"); setYear("All"); }}>
