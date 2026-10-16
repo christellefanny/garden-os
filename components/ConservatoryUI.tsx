@@ -102,10 +102,10 @@ export function ConservatoryNavigation({
       <button className="modern-brand" onClick={() => navigate("Dashboard")}>
         <LineIcon index={2} />
         <span>
-          Garden OS<small>PLAN · GROW · HARVEST · ENJOY</small>
+          Garden Atelier<small>PLAN · GROW · HARVEST · ENJOY</small>
         </span>
       </button>
-      <nav aria-label="Garden OS navigation">
+      <nav aria-label="Garden Atelier navigation">
         {destinations.map((name) => (
           <button
             key={name}
