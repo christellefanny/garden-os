@@ -849,7 +849,7 @@ export default function GardenWorkspace({
               space={editing}
               busy={busy}
               onClose={() => setEditor(null)}
-              onAddPlant={editing ? () => { setPlantSpacing(12); setOpenId(editing.id); } : undefined}
+              onAddPlant={editing ? () => { setEditor(null); setPlantSpacing(12); setOpenId(editing.id); } : undefined}
               onSave={(input) => saveSpace(input, editing)}
             />
           )}
