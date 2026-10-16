@@ -73,6 +73,41 @@ const cutFlowerEncyclopedia = [
   {name:"Zinnias",when:"Summer to frost",tip:"Harvest when stems pass the wiggle test; no Queen Lime variety."},
 ] as const;
 
+
+type BouquetStyle = "pastel" | "bright" | "romantic" | "garden";
+const bouquetPalettes: Record<BouquetStyle,string[]> = {
+  pastel:["#e9a7b7","#f5d2bc","#b7a4cf","#fff1df","#d98caa"],
+  bright:["#df7b66","#ecb75c","#c65c79","#f4d581","#de9a9c"],
+  romantic:["#a877a1","#e6a9ae","#f1c8bd","#c787a2","#f6dbcd"],
+  garden:["#cf738e","#e6b483","#b59dcb","#e0a6bf","#f0d8b4"]
+};
+function BotanicalFlower({color="#dc9bad",size=52,kind="dahlia"}:{color?:string;size?:number;kind?:string}) {
+  const petals=kind==="cosmos"?8:kind==="snapdragon"?5:kind==="foliage"?0:kind==="zinnia"?12:16;
+  return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 100 100" fill="none">
+    {kind==="foliage"?<><path d="M48 92 Q54 48 53 7" stroke="#63866a" strokeWidth="3"/>{[18,37,57,75].map((y,i)=><g key={y}><ellipse cx={i%2?35:72} cy={y} rx="22" ry="9" transform={`rotate(${i%2?-33:33} ${i%2?35:72} ${y})`} fill="#83a882"/><path d={`M51 ${y+5} L${i%2?35:72} ${y}`} stroke="#56775a" strokeWidth="1.5"/></g>)}</>:
+    <>{Array.from({length:petals},(_,i)=><ellipse key={i} cx="50" cy={kind==="snapdragon"?31:26} rx={kind==="cosmos"?12:kind==="snapdragon"?15:9} ry={kind==="cosmos"?26:kind==="snapdragon"?23:27} fill={color} stroke="#fff5ec" strokeOpacity=".7" strokeWidth="1" transform={`rotate(${i*360/petals} 50 50)`}/>)}<circle cx="50" cy="50" r={kind==="cosmos"?12:kind==="snapdragon"?14:kind==="zinnia"?12:16} fill={kind==="cosmos"?"#e8bd5a":"#f6d8a7"}/><circle cx="50" cy="50" r="5" fill="#bb8954"/></>}
+  </svg>;
+}
+function BouquetArtwork({style="garden",label}:{style?:BouquetStyle;label:string}) {
+  const palette=bouquetPalettes[style];
+  const blossoms=[{x:115,y:107,r:33,k:"dahlia"},{x:176,y:74,r:31,k:"zinnia"},{x:239,y:115,r:38,k:"dahlia"},{x:291,y:77,r:26,k:"cosmos"},{x:160,y:154,r:26,k:"cosmos"},{x:280,y:166,r:31,k:"zinnia"},{x:208,y:149,r:38,k:"dahlia"},{x:94,y:174,r:22,k:"cosmos"},{x:326,y:139,r:20,k:"cosmos"}];
+  return <svg role="img" aria-label={label} className="h-full w-full" viewBox="0 0 420 315" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <rect width="420" height="315" fill="#f8f2e9"/>
+    <path d="M0 269 Q95 253 210 265 T420 257 V315 H0Z" fill="#eee6d9"/>
+    {blossoms.map((b,i)=><g key={i}>
+      <path d={`M210 257 Q${b.x+6} 196 ${b.x} ${b.y}`} fill="none" stroke="#64856a" strokeWidth="3"/>
+      <ellipse cx={(210+b.x)/2-7} cy={(257+b.y)/2} rx="20" ry="8" fill="#7f9f79" transform={`rotate(-35 ${(210+b.x)/2-7} ${(257+b.y)/2})`}/>
+      <g transform={`translate(${b.x-b.r} ${b.y-b.r}) scale(${b.r*2/100})`}>
+        {Array.from({length:b.k==="cosmos"?8:14},(_,p)=><ellipse key={p} cx="50" cy="24" rx={b.k==="cosmos"?14:10} ry="28" fill={palette[i%palette.length]} stroke="#fff5ed" strokeOpacity=".6" transform={`rotate(${p*360/(b.k==="cosmos"?8:14)} 50 50)`}/>)}
+        <circle cx="50" cy="50" r="13" fill="#e8c481"/><circle cx="50" cy="50" r="5" fill="#a87d47"/>
+      </g>
+    </g>)}
+    <path d="M171 205 L246 205 L235 292 Q210 304 184 292Z" fill="#f7f7ef" stroke="#b9bcb0" strokeWidth="2"/>
+    <path d="M177 224 Q209 234 241 224" fill="none" stroke="#d9d9cb" strokeWidth="2"/>
+    <ellipse cx="209" cy="299" rx="83" ry="7" fill="#cfc8ba" opacity=".4"/>
+  </svg>;
+}
+
 type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
@@ -119,7 +154,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
       <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Illustrations appear where verified artwork is available; additional botanical portraits are being prepared.</p>
       <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        {cutFlowerEncyclopedia.map(g=><article key={g.name} className="seasonal-card overflow-hidden rounded-2xl border p-3">
+        {cutFlowerEncyclopedia.map(g=><article key={g.name} className="overflow-hidden rounded-2xl border border-[#e8dfd4] bg-white p-3 shadow-[0_4px_16px_#50463308]">
           <PlantPortrait name={g.name} variety="" />
           <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
           <p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p>
@@ -145,44 +180,47 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
           </article>)}
         </div>
       </section>
-      <section className="mt-8 overflow-hidden rounded-3xl border border-[#e7c9bf] bg-[#fcf5ee] p-5 sm:p-8">
+      <section className="mt-8 overflow-hidden rounded-3xl border border-[#eadbcf] bg-[#fcf1ed] p-5 sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a85e60]">Arrange something beautiful</p>
         <h2 className="mt-2 font-serif text-3xl text-[#304332] sm:text-4xl">Bouquet Inspiration</h2>
         <p className="mt-2 text-sm leading-6 text-[#59645a]">Start with a simple recipe, then play with colors, heights, and textures from your own garden.</p>
         <div className="mt-5 grid items-stretch gap-4 lg:grid-cols-[1.12fr_0.88fr]">
-          <figure className="relative overflow-hidden rounded-2xl border border-[#e6d7cb] bg-[#faf5ed]">
-            <img src="https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=1100&q=85" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src="/Bouquets.png";}} alt="Fresh flowers gathered into a garden-inspired bouquet" className="h-[240px] w-full object-cover object-center sm:h-[310px] lg:h-full lg:max-h-[390px]" />
-            <figcaption className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#fffaf1]/90 px-4 py-2 font-serif text-sm text-[#304332] shadow-sm">A fresh, garden-style bouquet</figcaption>
+          <figure className="relative min-h-[285px] overflow-hidden rounded-2xl border border-[#e6d7cb] bg-white">
+            <BouquetArtwork style="garden" label="Illustrated garden bouquet with dahlias, cosmos and zinnias arranged in a white vase" />
+            <figcaption className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/95 px-4 py-2 font-serif text-sm text-[#304332] shadow-sm">A fresh, garden-style bouquet</figcaption>
           </figure>
-          <article className="rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] px-5 py-4 sm:px-6">
+          <article className="rounded-2xl border border-[#e6d7cb] bg-white px-5 py-4 sm:px-6">
             <h3 className="font-serif text-2xl text-[#304332]">The Simple Bouquet Recipe</h3>
             <p className="mt-1 text-sm text-[#59645a]">A loose, colorful arrangement for a medium vase.</p>
             <div className="mt-3 divide-y divide-[#eee3d9]">
               {[
-                {count:"3",flower:"Dahlias",note:"One large and two medium focal blooms"},
-                {count:"2",flower:"Zinnias",note:"A bright pop of color"},
-                {count:"2",flower:"Cosmos",note:"Airy movement and texture"},
-                {count:"2",flower:"Snapdragons",note:"Or other tall stems for height"},
-                {count:"3–5",flower:"Foliage stems",note:"Yarrow, ammi, or suitable garden greenery"}
-              ].map(item=><div key={item.flower} className="flex items-center gap-3 py-2"><span className="w-10 shrink-0 font-serif text-xl text-[#a85e60]">{item.count}</span><div><p className="text-sm font-semibold text-[#304332]">{item.flower}</p><p className="text-xs leading-5 text-[#59645a]">{item.note}</p></div></div>)}
+                {count:"3",flower:"Dahlias",note:"One large and two medium focal blooms",color:"#cb7d96",kind:"dahlia"},
+                {count:"2",flower:"Zinnias",note:"A bright pop of color",color:"#de996a",kind:"zinnia"},
+                {count:"2",flower:"Cosmos",note:"Airy movement and texture",color:"#e4a3bd",kind:"cosmos"},
+                {count:"2",flower:"Snapdragons",note:"Or other tall stems for height",color:"#c29cc2",kind:"snapdragon"},
+                {count:"3–5",flower:"Foliage stems",note:"Yarrow, ammi, or suitable garden greenery",color:"#8caa83",kind:"foliage"}
+              ].map(item=><div key={item.flower} className="flex items-center gap-3 py-2">
+                <span className="w-10 shrink-0 font-serif text-xl text-[#a85e60]">{item.count}</span>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#faf4ed]"><BotanicalFlower color={item.color} kind={item.kind} size={48}/></span>
+                <div><p className="text-sm font-semibold text-[#304332]">{item.flower}</p><p className="text-xs leading-5 text-[#59645a]">{item.note}</p></div>
+              </div>)}
             </div>
           </article>
         </div>
-        <div className="mt-5 rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-serif text-2xl text-[#304332]">More Bouquet Ideas</h3><p className="mt-1 text-sm text-[#59645a]">Try different combinations using flowers from your garden.</p></div><span className="rounded-full bg-[#e7eadc] px-4 py-2 text-xs font-semibold text-[#435640]">4 arrangements</span></div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {title:"Soft Pastel",detail:"Dahlias, cosmos, snapdragons and airy fillers",photo:"photo-1490750967868-88aa4486c946"},
-              {title:"Bold & Bright",detail:"Zinnias, rudbeckia, dahlias and greenery",photo:"photo-1523438885200-e635ba2c371e"},
-              {title:"Romantic Garden",detail:"Dahlias, lisianthus, cosmos and statice",photo:"photo-1561181286-d3fee7d55364"},
-              {title:"Loose & Airy",detail:"Cosmos, larkspur, yarrow and greenery",photo:"photo-1525310072745-f49212b5ac6d"}
-            ].map(idea=><article key={idea.title} className="overflow-hidden rounded-xl border border-[#e6d7cb] bg-[#faf8f3]">
-              <img src={`https://images.unsplash.com/${idea.photo}?auto=format&fit=crop&w=600&q=80`} onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src="/Bouquets.png";}} alt={`Bouquet inspiration for ${idea.title}`} loading="lazy" className="h-36 w-full object-cover" />
-              <div className="p-3"><h4 className="font-serif text-lg text-[#304332]">{idea.title}</h4><p className="mt-1 text-xs leading-5 text-[#59645a]">{idea.detail}</p></div>
+        <div className="mt-5 rounded-2xl border border-[#e6d7cb] bg-white p-5">
+          <div><h3 className="font-serif text-2xl text-[#304332]">More Bouquet Ideas</h3><p className="mt-1 text-sm text-[#59645a]">Three illustrated combinations to inspire your next arrangement.</p></div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            {([
+              {title:"Soft Pastel",detail:"Blush dahlias, cosmos, snapdragons and airy fillers",style:"pastel"},
+              {title:"Bold & Bright",detail:"Warm zinnias, rudbeckia, dahlias and greenery",style:"bright"},
+              {title:"Romantic Garden",detail:"Mauve dahlias, lisianthus, cosmos and statice",style:"romantic"}
+            ] as {title:string;detail:string;style:BouquetStyle}[]).map(idea=><article key={idea.title} className="overflow-hidden rounded-2xl border border-[#e6d7cb] bg-white">
+              <div className="aspect-[4/3] w-full bg-[#f8f2e9]"><BouquetArtwork style={idea.style} label={`Illustrated ${idea.title.toLowerCase()} flower bouquet in a vase`}/></div>
+              <div className="p-4"><h4 className="font-serif text-lg text-[#304332]">{idea.title}</h4><p className="mt-1 text-xs leading-5 text-[#59645a]">{idea.detail}</p></div>
             </article>)}
           </div>
         </div>
-        <div className="mt-4 flex flex-col gap-2 rounded-2xl bg-[#e7eadc] p-4 sm:flex-row sm:items-center sm:gap-6">
+        <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-[#e2dcd2] bg-white p-4 sm:flex-row sm:items-center sm:gap-6">
           <h3 className="shrink-0 font-serif text-xl text-[#304332]">Design Tips</h3>
           <p className="text-sm leading-6 text-[#435640]">Choose a focal flower like a dahlia, add contrasting color and texture, use airy fillers, and vary stem heights for a relaxed garden-style bouquet.</p>
         </div>
