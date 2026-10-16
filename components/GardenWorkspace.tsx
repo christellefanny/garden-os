@@ -544,32 +544,6 @@ export default function GardenWorkspace({
             <section className="interior-page gardens-page">
               <InteriorHeader title="My Gardens" eyebrow="Your own patch of possibility" description="A clear view of your spaces, what is planted, and where there is room to grow.">
               </InteriorHeader>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
-                {gardens.map((g) => {
-                  const beds = spaces.filter((s) => s.garden_id === g.id && !summaries.get(s.id)?.details?.archived);
-                  const plants = beds.reduce((total, s) => total + (summaries.get(s.id)?.plants || 0), 0);
-                  const selected = g.id === gardenId;
-                  return (
-                    <button key={g.id} type="button" aria-pressed={selected} onClick={() => selectGarden(g.id)}
-                      className="rounded-xl border-2 p-5 text-left transition-colors"
-                      style={{ borderColor: selected ? "var(--sidebar-start)" : "var(--border)", background: selected ? "color-mix(in srgb, var(--sidebar-start) 8%, var(--surface))" : "var(--surface)" }}>
-                      <span className="flex items-center justify-between gap-3 text-xs" style={{ color: "var(--sidebar-start)" }}><span>{g.year}</span>{selected && <span>Viewing ✓</span>}</span>
-                      <span className="mt-3 block font-serif text-2xl">{g.name}</span>
-                      {g.location && <span className="seasonal-muted mt-1 block text-sm">{g.location}</span>}
-                      <span className="seasonal-muted mt-4 block text-xs">{beds.length} {beds.length === 1 ? "growing space" : "growing spaces"} · {plants} {plants === 1 ? "plant" : "plants"}</span>
-                    </button>
-                  );
-                })}
-                <button type="button" disabled={busy || !loaded} onClick={() => setGardenForm("new")}
-                  className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-5 text-center transition-colors hover:bg-black/5"
-                  style={{ borderColor: "color-mix(in srgb, var(--sidebar-start) 45%, transparent)", color: "var(--sidebar-start)" }}>
-                  <span aria-hidden="true" className="text-3xl leading-none">+</span>
-                  <span className="font-serif text-2xl">New Garden</span>
-                  <span className="seasonal-muted text-xs">Start a new growing space</span>
-                </button>
-              </div>
-              <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p>
-
               <div
                 className={
                   vaultOpen || layoutOpen || calendarOpen
@@ -577,7 +551,7 @@ export default function GardenWorkspace({
                     : "interior-toolbar garden-selection-bar"
                 }
               >
-                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">Choose a garden above to see its growing spaces.</p></div>
+                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">Choose a garden below to see its growing spaces.</p></div>
                 <div className="flex flex-wrap gap-3">
                   <button type="button" onClick={()=>setPlanner(true)} className="seasonal-outline min-h-11 rounded-xl border px-4">Plant planner</button>
                   {garden && (
@@ -604,6 +578,32 @@ export default function GardenWorkspace({
                   </button>
                 </div>
               </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
+                {gardens.map((g) => {
+                  const beds = spaces.filter((s) => s.garden_id === g.id && !summaries.get(s.id)?.details?.archived);
+                  const plants = beds.reduce((total, s) => total + (summaries.get(s.id)?.plants || 0), 0);
+                  const selected = g.id === gardenId;
+                  return (
+                    <button key={g.id} type="button" aria-pressed={selected} onClick={() => selectGarden(g.id)}
+                      className="rounded-xl border-2 p-5 text-left transition-colors"
+                      style={{ borderColor: selected ? "var(--sidebar-start)" : "var(--border)", background: selected ? "color-mix(in srgb, var(--sidebar-start) 8%, var(--surface))" : "var(--surface)" }}>
+                      <span className="flex items-center justify-between gap-3 text-xs" style={{ color: "var(--sidebar-start)" }}><span>{g.year}</span>{selected && <span>Viewing ✓</span>}</span>
+                      <span className="mt-3 block font-serif text-2xl">{g.name}</span>
+                      {g.location && <span className="seasonal-muted mt-1 block text-sm">{g.location}</span>}
+                      <span className="seasonal-muted mt-4 block text-xs">{beds.length} {beds.length === 1 ? "growing space" : "growing spaces"} · {plants} {plants === 1 ? "plant" : "plants"}</span>
+                    </button>
+                  );
+                })}
+                <button type="button" disabled={busy || !loaded} onClick={() => setGardenForm("new")}
+                  className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-5 text-center transition-colors hover:bg-black/5"
+                  style={{ borderColor: "color-mix(in srgb, var(--sidebar-start) 45%, transparent)", color: "var(--sidebar-start)" }}>
+                  <span aria-hidden="true" className="text-3xl leading-none">+</span>
+                  <span className="font-serif text-2xl">New Garden</span>
+                  <span className="seasonal-muted text-xs">Start a new growing space</span>
+                </button>
+              </div>
+              <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p>
+
               {error && (
                 <div
                   role="alert"
