@@ -26,6 +26,8 @@ export type Plant = {
 export type Entry = {
   id: string;
   kind: "Note" | "Watering" | "Harvest" | "Pests";
+  format?: "story";
+  title?: string;
   quantity?:number;
   unit?:string;
   plantId?:string;
