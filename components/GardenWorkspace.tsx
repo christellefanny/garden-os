@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
-import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
+import InteriorHeader from "@/components/InteriorHeader";
 import SpacePortrait from "@/components/SpacePortrait";
 import LegacySpaces from "@/components/LegacySpaces";
 import { connectGardenPlants } from "@/lib/connected-garden";
@@ -543,7 +543,24 @@ export default function GardenWorkspace({
               <InteriorHeader title="My Gardens" eyebrow="Your own patch of possibility" description="A clear view of your spaces, what is planted, and where there is room to grow.">
                 <button className="seasonal-button" disabled={busy || !loaded} onClick={()=>setGardenForm("new")}>New garden</button>
               </InteriorHeader>
-              <InteriorStats items={[{label:"Gardens",value:gardens.length},{label:"Growing spaces",value:activeSpaces.length},{label:"Plants in this garden",value:activeSpaces.reduce((total,space)=>total+(summaries.get(space.id)?.plants||0),0)}]}/>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
+                {gardens.map((g) => {
+                  const beds = spaces.filter((s) => s.garden_id === g.id && !summaries.get(s.id)?.details?.archived);
+                  const plants = beds.reduce((total, s) => total + (summaries.get(s.id)?.plants || 0), 0);
+                  const selected = g.id === gardenId;
+                  return (
+                    <button key={g.id} type="button" aria-pressed={selected} onClick={() => selectGarden(g.id)}
+                      className="rounded-xl border-2 p-5 text-left transition-colors"
+                      style={{ borderColor: selected ? "var(--sidebar-start)" : "var(--border)", background: selected ? "color-mix(in srgb, var(--sidebar-start) 8%, var(--surface))" : "var(--surface)" }}>
+                      <span className="flex items-center justify-between gap-3 text-xs" style={{ color: "var(--sidebar-start)" }}><span>{g.year}</span>{selected && <span>Viewing ✓</span>}</span>
+                      <span className="mt-3 block font-serif text-2xl">{g.name}</span>
+                      {g.location && <span className="seasonal-muted mt-1 block text-sm">{g.location}</span>}
+                      <span className="seasonal-muted mt-4 block text-xs">{beds.length} {beds.length === 1 ? "growing space" : "growing spaces"} · {plants} {plants === 1 ? "plant" : "plants"}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p>
 
               <div
                 className={
@@ -552,24 +569,7 @@ export default function GardenWorkspace({
                     : "interior-toolbar garden-selection-bar"
                 }
               >
-                <label className="block min-w-0 flex-1 text-xs font-bold uppercase tracking-widest sm:max-w-sm">
-                  Your garden
-                  <select
-                    aria-label="Your garden"
-                    value={gardenId}
-                    onChange={(e) => selectGarden(e.target.value)}
-                    className="seasonal-input mt-2 w-full rounded-xl border px-3 py-3 text-sm font-semibold normal-case tracking-normal"
-                  >
-                    {!gardens.length && (
-                      <option value="">Create your first garden</option>
-                    )}
-                    {gardens.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.name} · {g.year}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">Choose a garden above to see its growing spaces.</p></div>
                 <div className="flex flex-wrap gap-3">
                   <button type="button" onClick={()=>setPlanner(true)} className="seasonal-outline min-h-11 rounded-xl border px-4">Plant planner</button>
                   {garden && (
