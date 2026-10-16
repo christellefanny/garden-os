@@ -80,7 +80,7 @@ export default function GardenWorkspace({
   const [search, setSearch] = useState("");
   const vault = useVault(userId, page);
   const [allGardens, setGardens] = useState(initialGardens);
-  const gardens = useMemo(() => allGardens.filter((g) => g.name.trim().toLowerCase() !== "garden os verification"), [allGardens]);
+  const gardens = useMemo(() => allGardens.filter((g) => !/^garden os verification(?:\s*\(temporary\))?$/i.test(g.name.trim())), [allGardens]);
   const [storedSpaces, setSpaces] = useState(initialSpaces);
   const spaces = useMemo(
     () =>
