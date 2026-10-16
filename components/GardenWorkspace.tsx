@@ -827,8 +827,8 @@ export default function GardenWorkspace({
                   })}
                 </div>
                 {!!archivedSpaces.length && (
-                  <details className="seasonal-card mt-5 rounded-2xl border p-5">
-                    <summary className="cursor-pointer font-bold">
+                  <details className="vault-backup-tools mt-5">
+                    <summary>
                       Archived spaces ({archivedSpaces.length})
                     </summary>
                     <ul className="mt-3 space-y-3">
