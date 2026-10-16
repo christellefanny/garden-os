@@ -64,12 +64,12 @@ function PhotoCard({ picture, folders, selected, busy, onSelect, onSave, onDelet
       </label>
     </div>
     <div className="p-4">
-      <h3 className="break-words font-semibold">{label}</h3>
+      <h3 className="break-words font-semibold"><button type="button" className="text-left hover:underline" aria-label={`Edit name and description for ${label}`} onClick={() => { setDraft(picture.info); setEditing(true); }}>{label}</button></h3>
       <p className="seasonal-muted mt-1 text-xs">{picture.info.date} · {picture.info.category}</p>
       {picture.info.description && <p className="mt-3 whitespace-pre-wrap break-words text-sm">{picture.info.description}</p>}
       {(picture.entry.plant || picture.entry.bed) && <p className="seasonal-muted mt-2 text-xs">{[picture.entry.plant, picture.entry.bed].filter(Boolean).join(" · ")}</p>}
       {picture.info.folderId && <p className="seasonal-muted mt-2 text-xs">Folder: {folders.find(f => f.id === picture.info.folderId)?.name || "Unfiled"}</p>}
-      {!editing ? <button type="button" className="seasonal-outline mt-4 min-h-10 rounded-lg border px-3 text-sm" onClick={() => { setDraft(picture.info); setEditing(true); }}>Edit details</button> : <form className="mt-4" onSubmit={async e => { e.preventDefault(); if (await onSave(draft)) setEditing(false); }}>
+      {editing && <form className="mt-4" onSubmit={async e => { e.preventDefault(); if (await onSave(draft)) setEditing(false); }}>
         <fieldset disabled={busy} className="grid gap-3 text-sm">
           <label className="grid gap-1">Photo name<input required maxLength={150} value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} /></label>
           <label className="grid gap-1">Description<textarea rows={3} maxLength={5000} value={draft.description} onChange={e => setDraft({ ...draft, description: e.target.value })} /></label>
@@ -110,6 +110,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [folderName, setFolderName] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [moveFolder, setMoveFolder] = useState("");
+  const [bulkCategory, setBulkCategory] = useState("");
   useEffect(() => {
     let active = true;
     Promise.all([transact<PhotoEntry[]>("entries", "readonly", store => store.getAll()), transact<Folder[]>("folders", "readonly", store => store.getAll())]).then(([all, savedFolders]) => {
@@ -132,12 +133,12 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
       await transact("entries", "readwrite", store => store.put(entry));
       setEntries(current => [entry, ...current]); setPhotos([]); setCaption(""); setPlant(""); setBed("");
       setActiveFolder(uploadFolder || "all"); setFilter("All"); setYear("All");
-      setNotice(`${entry.photos.length} pictures saved. Use Edit details on any picture to add its own name or description.`);
+      setNotice(`${entry.photos.length} pictures saved. Click a picture’s name to edit its name or description.`);
       if (fileInput.current) fileInput.current.value = "";
     } catch { setError("Could not save photos. Check your browser storage space."); }
     finally { setSaving(false); }
   }
-  async function updatePictures(changes: { picture: Picture; info: PhotoInfo }[]) {
+  async function updatePictures(changes: { picture: Picture; info: PhotoInfo }[], successMessage?: string) {
     setSaving(true); setError(""); setNotice("");
     try {
       const updated = new Map<string, PhotoEntry>();
@@ -154,7 +155,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
         tx.onerror = () => { db.close(); reject(tx.error); };
       });
       setEntries(current => current.map(entry => updated.get(entry.id) || entry));
-      setNotice(changes.length === 1 ? "Picture details saved." : `${changes.length} pictures moved.`);
+      setNotice(successMessage ?? (changes.length === 1 ? "Picture details saved." : `${changes.length} pictures moved.`));
       return true;
     } catch { setError("Could not save changes. Please try again."); return false; }
     finally { setSaving(false); }
@@ -211,8 +212,8 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     <div className="mb-5 flex flex-wrap gap-2" aria-label="Picture folders">
       {[{ id: "all", name: "All pictures" }, { id: "unfiled", name: "Unfiled" }, ...folders].map(folder => <button type="button" key={folder.id} disabled={saving} aria-pressed={activeFolder === folder.id} className={`${activeFolder === folder.id ? "seasonal-button" : "seasonal-outline border"} rounded-lg px-4 py-3 text-sm`} onClick={() => { setActiveFolder(folder.id); setSelected([]); }}><span>{folder.name}</span><span className="ml-2 text-xs opacity-75">{pictures.filter(p => folder.id === "all" || p.info.folderId === (folder.id === "unfiled" ? "" : folder.id)).length}</span></button>)}
     </div>
-    <div className="mb-5 flex flex-wrap items-center gap-4"><label className="text-sm">Category <select className="ml-2" value={filter} onChange={e => { setFilter(e.target.value); setSelected([]); }}>{["All", ...categories].map(c => <option key={c}>{c}</option>)}</select></label><label className="text-sm">Year <select className="ml-2" value={year} onChange={e => { setYear(e.target.value); setSelected([]); }}>{["All", ...years].map(y => <option key={y}>{y}</option>)}</select></label><span className="seasonal-muted text-xs">{visible.length} pictures</span><button type="button" disabled={saving || !visible.length} className="seasonal-outline min-h-10 text-sm underline" onClick={() => setSelected(selected.length === visible.length ? [] : visible.map(p => p.key))}>{selected.length === visible.length && visible.length ? "Clear selection" : "Select all visible"}</button></div>
-    {!!selected.length && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4"><span className="text-sm">{selected.length} selected</span><label className="text-sm">Move to <select disabled={saving} className="ml-2" value={moveFolder} onChange={e => setMoveFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label><button disabled={saving} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const moved = await updatePictures(pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, folderId: moveFolder } }))); if (moved) setSelected([]); }}>Move selected</button></div>}
+    <div className="mb-5 flex flex-wrap items-center gap-4"><label className="text-sm">Category <select className="ml-2" value={filter} onChange={e => { setFilter(e.target.value); setSelected([]); }}>{["All", ...categories].map(c => <option key={c}>{c}</option>)}</select></label><label className="text-sm">Year <select className="ml-2" value={year} onChange={e => { setYear(e.target.value); setSelected([]); }}>{["All", ...years].map(y => <option key={y}>{y}</option>)}</select></label><span className="seasonal-muted text-xs">{visible.length} pictures</span><button type="button" disabled={saving || !visible.length} className="seasonal-outline min-h-10 text-sm underline" onClick={() => setSelected(selected.length === visible.length ? [] : visible.map(p => p.key))}>{selected.length === visible.length && visible.length ? "Clear selection" : "Select all"}</button></div>
+    {!!selected.length && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4"><span className="text-sm">{selected.length} selected</span><label className="text-sm">Photo category <select disabled={saving} className="ml-2" value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}><option value="">Choose category</option>{categories.map(c => <option key={c}>{c}</option>)}</select></label><button disabled={saving || !bulkCategory} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const changes = pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, category: bulkCategory } })); if (await updatePictures(changes, `Category updated for ${changes.length} pictures.`)) setSelected([]); }}>Apply category</button><label className="text-sm">Move to <select disabled={saving} className="ml-2" value={moveFolder} onChange={e => setMoveFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label><button disabled={saving} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const moved = await updatePictures(pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, folderId: moveFolder } }))); if (moved) setSelected([]); }}>Move selected</button></div>}
     {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">Room for your garden memories</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{visible.map(picture => <PhotoCard key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
   </section>;
 }
