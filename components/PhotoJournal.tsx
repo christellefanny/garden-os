@@ -24,7 +24,7 @@ async function transact<T>(mode:IDBTransactionMode, action:(store:IDBObjectStore
     tx.onerror=()=>{db.close();reject(tx.error);};
   });
 }
-export default function PhotoJournal({userId}:{userId:string}) {
+export default function PhotoJournal({userId, embedded = false, showComposer = true}:{userId:string; embedded?:boolean; showComposer?:boolean}) {
   const [entries,setEntries]=useState<PhotoEntry[]>([]);
   const [category,setCategory]=useState("My Garden");
   const [filter,setFilter]=useState("All");
@@ -72,9 +72,9 @@ export default function PhotoJournal({userId}:{userId:string}) {
   const visible=entries.filter(e=>(filter==="All"||e.category===filter)&&(year==="All"||e.date.startsWith(year)));
   const years=[...new Set(entries.map(e=>e.date.slice(0,4)))].sort().reverse();
   return <section className="interior-page photo-journal-page">
-    <InteriorHeader eyebrow="Your garden in pictures" title="Photo Journal" description="Keep the little moments: seedlings, blooms, harvests, and every stage in between." />
+    {embedded ? <div className="mb-4"><h2 className="font-serif text-2xl">Pictures</h2><p className="seasonal-muted mt-2 text-sm">Seedlings, blooms, harvests, and moments worth remembering.</p></div> : <InteriorHeader eyebrow="Your garden in pictures" title="Photo Journal" description="Keep the little moments: seedlings, blooms, harvests, and every stage in between." />}
     <p className="mb-5 rounded-xl bg-[#f1eee3] p-4 text-sm text-[#415341]">Photos are saved on this device for now, not synced to your account. Export or back up important photos separately.</p>
-    <div className="modern-card mb-7">
+    {showComposer && <div className="modern-card mb-7">
       <h2 className="mb-4 font-serif text-2xl">Add a garden memory</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm">Photos (select multiple)<input id="garden-photo-files" type="file" accept="image/*" multiple onChange={e=>setPhotos(Array.from(e.target.files||[]))} /></label>
@@ -86,12 +86,12 @@ export default function PhotoJournal({userId}:{userId:string}) {
       </div>
       <div className="mt-4 flex items-center gap-4"><button className="seasonal-button rounded-xl px-5 py-3" disabled={saving} onClick={()=>void save()}>{saving?"Saving…":`Save ${photos.length||""} photo${photos.length===1?"":"s"}`}</button>{photos.length>0&&<span className="text-sm">{photos.length} selected</span>}</div>
       {error&&<p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
-    </div>
+    </div>}
     <div className="mb-5 flex flex-wrap gap-3">
       <label className="text-sm">Category <select className="ml-2" value={filter} onChange={e=>setFilter(e.target.value)}>{["All",...categories].map(c=><option key={c}>{c}</option>)}</select></label>
       <label className="text-sm">Year <select className="ml-2" value={year} onChange={e=>setYear(e.target.value)}>{["All",...years].map(y=><option key={y}>{y}</option>)}</select></label>
     </div>
-    {visible.length===0?<p className="modern-card">No photos yet. Add your first garden memory above.</p>:<div className="grid gap-5 md:grid-cols-2">{visible.map(e=><article key={e.id} className="modern-card">
+    {visible.length===0?<p className="modern-card">No pictures yet. Use Add pictures to start your garden gallery.</p>:<div className="grid gap-5 md:grid-cols-2">{visible.map(e=><article key={e.id} className="modern-card">
       <div className="mb-3 flex items-center justify-between"><strong>{e.category}</strong><span className="text-sm">{e.date}</span></div>
       <div className="grid grid-cols-2 gap-2">{(previewUrls[e.id]||[]).map((url,i)=><a key={i} href={url} target="_blank" rel="noreferrer"><img src={url} alt={e.caption||e.plant||"Garden journal photo"} className="h-44 w-full rounded-lg object-cover" /></a>)}</div>
       {e.caption&&<p className="mt-3">{e.caption}</p>}
