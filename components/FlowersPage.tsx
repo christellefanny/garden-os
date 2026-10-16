@@ -112,19 +112,18 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
     </>}
     {section==="Cut Flowers"&&<>
       <button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mb-4 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>
-      <div className="seasonal-card relative min-h-[420px] overflow-hidden rounded-2xl border bg-[#f8f5ed] sm:min-h-[360px] lg:min-h-[400px]">
-        <img
-          src="/Bouquets.png"
-          alt="Two romantic cut-flower arrangements: a small colorful bouquet in a glass jar and a larger bouquet in a white pitcher"
-          className="absolute inset-0 h-full w-full object-cover object-[67%_center] sm:object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#faf8f1] via-[#faf8f1]/95 via-[43%] to-transparent sm:bg-gradient-to-r sm:from-[#faf8f1] sm:via-[#faf8f1]/95 sm:via-[39%] sm:to-transparent" />
-        <div className="relative z-10 flex min-h-[420px] items-start px-6 py-8 sm:min-h-[360px] sm:items-center sm:px-9 lg:min-h-[400px] lg:px-12">
-          <div className="max-w-[470px]">
-            <p className="eyebrow text-[#435640]">From garden to vase</p>
-            <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-[#253d2d] sm:text-4xl">Grow your own bouquets</h2>
-            <p className="mt-4 max-w-[410px] text-sm leading-7 text-[#465448] sm:text-base">Discover beautiful cutting flowers, plan a cut flower garden, harvest at the right stage, and create stunning bouquets with stems from your own beds and pots.</p>
-          </div>
+      <div className="seasonal-card grid overflow-hidden rounded-2xl border bg-[#faf8f1] lg:grid-cols-[42%_58%]">
+        <div className="flex flex-col justify-center px-6 py-9 sm:px-10 lg:px-12 lg:py-14">
+          <p className="eyebrow text-[#435640]">From garden to vase</p>
+          <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-[#253d2d] sm:text-4xl">Grow your own bouquets</h2>
+          <p className="mt-4 max-w-[410px] text-sm leading-7 text-[#465448] sm:text-base">Discover beautiful cutting flowers, plan a cut flower garden, harvest at the right stage, and create stunning bouquets with stems from your own beds and pots.</p>
+        </div>
+        <div className="min-h-[245px] bg-[#f6f0e5] sm:min-h-[320px] lg:min-h-[370px]">
+          <img
+            src="/Bouquets.png"
+            alt="Small garden bouquet in a glass jar and a large colorful bouquet in a white pitcher"
+            className="block h-full min-h-[245px] w-full object-cover object-center sm:min-h-[320px] lg:min-h-[370px]"
+          />
         </div>
       </div>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
