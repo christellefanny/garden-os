@@ -100,7 +100,8 @@ export function ConservatoryNavigation({
   return (
     <aside className="modern-sidebar">
       <button className="modern-brand" onClick={() => navigate("Dashboard")}>
-        <img src="/garden-atelier-logo.png" alt="Garden Atelier" className="garden-atelier-brand-image" />
+        <span className="garden-atelier-mark" aria-hidden="true"><img src="/garden-atelier-logo.png" alt="" /></span>
+        <span className="garden-atelier-wordmark"><span>Garden</span> <span className="garden-atelier-white">Atelier</span></span>
         <span className="garden-atelier-brand-tagline">PLAN · GROW · HARVEST · ENJOY</span>
       </button>
       <nav aria-label="Garden Atelier navigation">
