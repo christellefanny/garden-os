@@ -1537,3 +1537,24 @@ button[class*="bg-[var(--primary)]"]:hover:not(:disabled) {
 button:focus-visible {
   outline-color: var(--sidebar-start);
 }
+
+/* Branding-only treatment: preserve the existing seasonal sidebar palette and navigation. */
+.modern-brand:has(.garden-atelier-brand-image) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.garden-atelier-brand-image {
+  display: block;
+  width: 100%;
+  max-width: 185px;
+  height: auto;
+  object-fit: contain;
+}
+.garden-atelier-brand-tagline {
+  display: block;
+  font: 7px Arial, sans-serif;
+  letter-spacing: 1.6px;
+  white-space: nowrap;
+}
