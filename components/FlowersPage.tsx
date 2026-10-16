@@ -137,32 +137,64 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
           <p className="mt-2 text-xs leading-5">{g.tip}</p>
         </article>)}
       </div>
-      <h2 className="seasonal-heading mt-9 text-2xl font-bold">Bouquet inspiration</h2>
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        {[
-          {title:"Summer Garden Bouquet",flowers:["Dahlias","Lisianthus","Snapdragons","Sweet Alyssum"],description:"A cheerful, full arrangement with bold dahlias, delicate lisianthus, and vertical snapdragons."},
-          {title:"Soft Romantic Bouquet",flowers:["Lisianthus","Cosmos","Scabiosa","Yarrow"],description:"Airy pastel flowers and delicate filler for a soft, natural look."}
-        ].map(bouquet=><article key={bouquet.title} className="seasonal-card rounded-2xl border p-5">
-          <div className="grid grid-cols-4 gap-2">{bouquet.flowers.map(name=><div key={name}><PlantPortrait name={name} variety="" /></div>)}</div>
-          <h3 className="seasonal-heading mt-4 text-xl font-bold">{bouquet.title}</h3>
-          <p className="mt-2 text-sm leading-6">{bouquet.description}</p>
-          <p className="seasonal-muted mt-2 text-xs">{bouquet.flowers.join(" · ")}</p>
-        </article>)}
-      </div>
-      <h2 className="seasonal-heading mt-9 text-2xl font-bold">Harvesting and vase care</h2>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {[
-          {title:"1 · Harvest at the right time",body:"Cut during the cool morning or evening. Use clean, sharp snips and choose the correct opening stage for each flower."},
-          {title:"2 · Hydrate right away",body:"Place stems promptly in a clean bucket of water in a cool, shaded spot. Remove foliage that would sit below the waterline."},
-          {title:"3 · Arrange with balance",body:"Combine focal blooms (zinnia or dahlia), airy fillers (cosmos), and greenery. Vary heights and keep the vase proportional."},
-          {title:"4 · Keep bouquets fresh",body:"Use a clean vase and flower food according to directions. Refresh water, recut stems as needed, and keep arrangements out of direct sun and away from ripening fruit."}
-        ].map(g=><article key={g.title} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-lg font-bold">{g.title}</h3><p className="mt-3 text-sm leading-6">{g.body}</p></article>)}
-      </div>
-      <div className="seasonal-card mt-7 rounded-2xl border p-6">
-        <h2 className="seasonal-heading text-xl font-bold">A simple bouquet recipe</h2>
-        <p className="mt-3 text-sm leading-7">Try 3–5 zinnias as focal flowers, 3–5 cosmos stems for movement, and 3 stems of greenery or ornamental foliage. Arrange loosely and turn the vase as you work.</p>
-        <p className="seasonal-muted mt-3 text-sm">For northern Illinois: sow warm-season annuals after frost risk passes, and make small successive sowings to keep fresh stems coming through summer.</p>
-      </div>
+      <section className="mt-10 overflow-hidden rounded-3xl border border-[#e7c9bf] bg-[#fcf1ed]">
+        <div className="border-b border-[#eddad2] px-6 py-7 sm:px-9">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a85e60]">From the cutting garden</p>
+          <h2 className="mt-2 font-serif text-3xl text-[#304332] sm:text-4xl">✂ Harvesting &amp; Vase Care</h2>
+          <p className="mt-2 text-sm leading-6 text-[#59645a]">A few thoughtful steps help your flowers last longer after cutting.</p>
+        </div>
+        <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
+          {[
+            {number:"01",title:"Harvest at the right stage",body:"Cut in the cool morning when stems are hydrated. Dahlias should be nearly fully open; other flowers vary."},
+            {number:"02",title:"Cut cleanly",body:"Use sanitized, sharp snips. Cut long stems at an angle and avoid damaging the plant's growing points."},
+            {number:"03",title:"Condition your stems",body:"Remove leaves below the waterline and place stems immediately in a clean bucket of cool water."},
+            {number:"04",title:"Refresh the vase",body:"Use a clean vase and flower food as directed. Change water, recut stems as needed, and keep away from sun, heat and ripening fruit."}
+          ].map(step=><article key={step.number} className="rounded-2xl border border-[#eadbd2] bg-[#fffdf9] p-5">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#ce8183] font-serif text-lg text-white">{step.number}</span>
+            <h3 className="mt-4 font-serif text-xl text-[#304332]">{step.title}</h3>
+            <p className="mt-3 text-sm leading-6 text-[#59645a]">{step.body}</p>
+          </article>)}
+        </div>
+      </section>
+      <section className="mt-8 overflow-hidden rounded-3xl border border-[#e7c9bf] bg-[#fcf5ee] p-5 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a85e60]">Arrange something beautiful</p>
+        <h2 className="mt-2 font-serif text-3xl text-[#304332] sm:text-4xl">Bouquet Inspiration</h2>
+        <p className="mt-2 text-sm leading-6 text-[#59645a]">Start with a simple recipe, then play with colors, heights, and textures from your own garden.</p>
+        <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+          <figure className="overflow-hidden rounded-2xl border border-[#e6d7cb] bg-[#faf5ed]">
+            <img src="/Bouquets.png" alt="Finished garden bouquets with colorful dahlias and mixed flowers arranged in a glass jar and a white pitcher" className="h-[260px] w-full object-cover object-[70%_center] sm:h-[340px]" />
+            <figcaption className="px-4 py-3 text-center font-serif text-sm text-[#435640]">Garden-grown bouquet inspiration</figcaption>
+          </figure>
+          <article className="rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] p-5 sm:p-6">
+            <h3 className="font-serif text-2xl text-[#304332]">The Simple Bouquet Recipe</h3>
+            <p className="mt-2 text-sm text-[#59645a]">A loose, colorful arrangement for a medium vase.</p>
+            <div className="mt-5 divide-y divide-[#eee3d9]">
+              {[
+                {count:"3",flower:"Dahlias",note:"One large and two medium focal blooms"},
+                {count:"2",flower:"Zinnias",note:"A bright pop of color"},
+                {count:"2",flower:"Cosmos",note:"Airy movement and texture"},
+                {count:"2",flower:"Snapdragons",note:"Or other tall stems for height"},
+                {count:"3–5",flower:"Foliage stems",note:"Yarrow, ammi, or suitable garden greenery"}
+              ].map(item=><div key={item.flower} className="flex gap-4 py-3"><span className="w-10 shrink-0 font-serif text-2xl text-[#a85e60]">{item.count}</span><div><p className="font-semibold text-[#304332]">{item.flower}</p><p className="mt-1 text-xs leading-5 text-[#59645a]">{item.note}</p></div></div>)}
+            </div>
+          </article>
+        </div>
+        <div className="mt-5 rounded-2xl bg-[#e7eadc] p-5">
+          <h3 className="font-serif text-xl text-[#304332]">Design tips</h3>
+          <p className="mt-2 text-sm leading-7 text-[#435640]">Use dahlias as the focal flowers, add contrasting blooms for color, and let cosmos and airy greenery soften the edges. Vary stem heights and rotate the vase as you arrange.</p>
+        </div>
+        <h3 className="mt-8 font-serif text-2xl text-[#304332]">More bouquet ideas</h3>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {[
+            {title:"Summer Garden Bouquet",flowers:["Dahlias","Lisianthus","Snapdragons","Sweet Alyssum"],description:"Full dahlias, delicate lisianthus and tall snapdragons make a cheerful summer arrangement."},
+            {title:"Soft Romantic Bouquet",flowers:["Lisianthus","Cosmos","Scabiosa","Yarrow"],description:"Pastel flowers and feathery filler create a soft, natural-looking bouquet."}
+          ].map(bouquet=><article key={bouquet.title} className="rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] p-5">
+            <h4 className="font-serif text-xl text-[#304332]">{bouquet.title}</h4>
+            <p className="mt-2 text-sm leading-6 text-[#59645a]">{bouquet.description}</p>
+            <p className="mt-3 text-xs font-medium text-[#7a806e]">{bouquet.flowers.join(" · ")}</p>
+          </article>)}
+        </div>
+      </section>
     </>}
     {section==="My flowers"&&<>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">My flowers <span className="seasonal-muted text-base">({flowers.length})</span></h2>
