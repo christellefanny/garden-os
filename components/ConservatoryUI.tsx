@@ -112,7 +112,7 @@ export function ConservatoryNavigation({
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />
-            <span>{name}</span>
+            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Observations & Stories"} as Record<string,string>)[name] || name}</span>
           </button>
         ))}
       </nav>
@@ -302,12 +302,6 @@ export function ModernDashboard({
       `garden-os-custom-layouts-v1-${userId}-${garden?.id}`,
     ).find((layout) => layout.id === selection);
   } catch {}
-  const headlines = {
-    spring: "A fresh beginning,\none seed at a time.",
-    summer: "A garden full of life.\nA season to enjoy.",
-    fall: "Your garden\nin every season.",
-    winter: "Rest, reflect,\nand dream of spring.",
-  };
   return (
     <div className="modern-dashboard">
       <section className={`atelier-welcome-banner atelier-welcome-${season}`}>
@@ -324,9 +318,9 @@ export function ModernDashboard({
             <button onClick={() => navigate("My Gardens")}>View all →</button>
           </div>
           <div className="atelier-gardens-grid">
-            {gardens.slice(0, 3).map((g, i) => (
+            {gardens.slice(0, 3).map((g) => (
               <button key={g.id} className="atelier-garden-tile" onClick={() => navigate("My Gardens")}>
-                <span className={`atelier-garden-art atelier-garden-art-${i % 3}`} aria-hidden="true" />
+                <span className={`atelier-garden-art atelier-garden-art-${/flower|cut|bloom/i.test(g.name) ? "flower" : /herb/i.test(g.name) ? "herb" : /front|yard|landscape/i.test(g.name) ? "front" : "vegetable"}`} aria-hidden="true" />
                 <strong>{g.name}</strong>
                 <small>{spaces.filter((space) => space.garden_id === g.id).length} growing spaces</small>
               </button>
@@ -508,7 +502,7 @@ export function ModernDashboard({
       <div className="modern-bottom-grid">
         <section className="modern-card">
           <div className="modern-card-title">
-            <h2>Recent Journal Entries</h2>
+            <h2>Recent Observations</h2>
             <button onClick={() => navigate("Journal")}>View All →</button>
           </div>
           {entries.length ? (
@@ -538,7 +532,7 @@ export function ModernDashboard({
         </section>
         <section className="modern-card">
           <div className="modern-card-title">
-            <h2>Featured Plants This Season</h2>
+            <h2>Plant Vault</h2>
             <button onClick={() => navigate("Plant Vault")}>
               View Vault →
             </button>
