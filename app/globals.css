@@ -1558,3 +1558,59 @@ button:focus-visible {
   letter-spacing: 1.6px;
   white-space: nowrap;
 }
+
+/* Compact Garden Atelier brand. All existing seasonal colors are preserved. */
+.modern-brand:has(.garden-atelier-mark) {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:0;
+}
+.garden-atelier-mark {
+  display:block;
+  width:175px;
+  height:87px;
+  max-width:100%;
+  overflow:hidden;
+  position:relative;
+}
+.garden-atelier-mark img {
+  width:175px;
+  max-width:none;
+  height:auto;
+  display:block;
+  position:absolute;
+  top:0;
+  left:0;
+}
+.garden-atelier-wordmark {
+  display:block;
+  white-space:nowrap;
+  font:normal 21px/1.15 Georgia,serif;
+  letter-spacing:-.7px;
+  color:var(--sidebar-ink);
+  margin-top:-17px;
+  position:relative;
+}
+.garden-atelier-white {
+  color:#fff;
+  text-shadow:0 1px 2px #192b2438;
+}
+.garden-atelier-brand-tagline {
+  font:7px/1.4 Arial,sans-serif;
+  letter-spacing:1.25px;
+  white-space:nowrap;
+  margin-top:7px;
+  color:var(--sidebar-ink);
+}
+@media (max-width:1024px) {
+ .garden-atelier-mark {width:155px;height:78px}
+ .garden-atelier-mark img {width:155px}
+ .garden-atelier-wordmark {font-size:19px;margin-top:-15px}
+}
+@media (max-width:640px) {
+ .garden-atelier-mark {width:138px;height:70px}
+ .garden-atelier-mark img {width:138px}
+ .garden-atelier-wordmark {font-size:17px;margin-top:-13px}
+ .garden-atelier-brand-tagline {font-size:6.5px;letter-spacing:1px}
+}
