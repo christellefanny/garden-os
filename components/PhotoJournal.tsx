@@ -94,8 +94,11 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [category, setCategory] = useState("My Garden");
   const [filter, setFilter] = useState("All");
   const [year, setYear] = useState("All");
-  const [activeFolder, setActiveFolder] = useState("all");
+  const [activeFolder, setActiveFolder] = useState("folders");
+  const [folderComposer, setFolderComposer] = useState(false);
+  const composerRef = useRef<HTMLFormElement>(null);
   const [uploadFolder, setUploadFolder] = useState("");
+  useEffect(() => { if (folderComposer) composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, [folderComposer, uploadFolder]);
   const [caption, setCaption] = useState("");
   const [plant, setPlant] = useState("");
   const [bed, setBed] = useState("");
@@ -132,7 +135,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
       const entry: PhotoEntry = { id: userId + ":" + crypto.randomUUID(), date, category, caption, plant, bed, photos: [...photos], photoDetails: Object.fromEntries(photos.map((file, index) => [String(index), { name: file.name.replace(/\.[^.]+$/, "") || `Garden photo ${index + 1}`, description: caption, date, category, folderId: uploadFolder }])) };
       await transact("entries", "readwrite", store => store.put(entry));
       setEntries(current => [entry, ...current]); setPhotos([]); setCaption(""); setPlant(""); setBed("");
-      setActiveFolder(uploadFolder || "all"); setFilter("All"); setYear("All");
+      setActiveFolder(uploadFolder || "unfiled"); setFolderComposer(false); setFilter("All"); setYear("All");
       setNotice(`${entry.photos.length} pictures saved. Click a picture’s name to edit its name or description.`);
       if (fileInput.current) fileInput.current.value = "";
     } catch { setError("Could not save photos. Check your browser storage space."); }
@@ -184,8 +187,8 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     try {
       const folder = { id: userId + ":" + crypto.randomUUID(), name };
       await transact("folders", "readwrite", store => store.put(folder));
-      setFolders(current => [...current, folder]); setFolderName(""); setFolderForm(false); setUploadFolder(folder.id); setMoveFolder(folder.id);
-      setNotice(`Folder “${name}” created. Select pictures and use Move selected to put them here.`);
+      setFolders(current => [...current, folder]); setFolderName(""); setFolderForm(false); setUploadFolder(folder.id); setMoveFolder(folder.id); setActiveFolder(folder.id); setSelected([]);
+      setNotice(`Folder “${name}” created. Add pictures directly here, or move existing pictures into this folder.`);
     } catch { setError("Could not create folder. Please try again."); }
     finally { setSaving(false); }
   }
@@ -194,7 +197,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     <p className="seasonal-muted mb-5 text-xs">Photos are saved on this device for now and are not synced to your account.</p>
     {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
     {notice && <p role="status" className="interior-notice">{notice}</p>}
-    {showComposer && <form className="modern-card mb-7" onSubmit={e => { e.preventDefault(); void save(); }}>
+    {(showComposer || folderComposer) && <form ref={composerRef} className="modern-card mb-7" onSubmit={e => { e.preventDefault(); void save(); }}>
       <h3 className="mb-4 font-serif text-2xl">Add pictures</h3>
       <fieldset disabled={saving || !loaded} className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm">Photos (select multiple)<input ref={fileInput} type="file" accept="image/*" multiple required onChange={e => setPhotos(Array.from(e.target.files || []))} /></label>
@@ -210,10 +213,19 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="font-serif text-xl">Folders</h3><button type="button" disabled={saving || !loaded} className="seasonal-outline rounded-lg border px-3 py-2 text-sm" onClick={() => setFolderForm(open => !open)} aria-expanded={folderForm}>+ New folder</button></div>
     {folderForm && <form onSubmit={createFolder} className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-[var(--border)] p-4"><label className="grid flex-1 gap-2 text-sm">Folder name<input autoFocus required maxLength={100} disabled={saving} value={folderName} onChange={e => setFolderName(e.target.value)} placeholder={`e.g. Seedlings — ${localDay()}`} /></label><button disabled={saving} className="seasonal-button rounded-lg px-4 py-2">Create folder</button><button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setFolderForm(false)}>Cancel</button></form>}
     <div className="mb-7 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Picture folders">
-      {[{ id: "all", name: "All pictures" }, { id: "unfiled", name: "Unfiled" }, ...folders].map(folder => <button type="button" key={folder.id} disabled={saving} aria-pressed={activeFolder === folder.id} className="flex min-h-28 flex-col items-start justify-between gap-4 rounded-xl border p-4 text-left text-sm transition-colors" style={{ borderColor: activeFolder === folder.id ? "var(--sidebar-start)" : "var(--border)", background: activeFolder === folder.id ? "color-mix(in srgb, var(--sidebar-start) 7%, white)" : "white", color: "var(--sidebar-start)" }} onClick={() => { setActiveFolder(folder.id); setSelected([]); }}><svg aria-hidden="true" width="26" height="22" viewBox="0 0 26 22" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M2 19V4a2 2 0 0 1 2-2h6l3 3h9a2 2 0 0 1 2 2v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1Z"/><path d="M2 8h22"/></svg><span className="break-words font-semibold">{folder.name}</span><span className="text-xs opacity-75">{pictures.filter(p => folder.id === "all" || p.info.folderId === (folder.id === "unfiled" ? "" : folder.id)).length} pictures</span></button>)}
+      {[{ id: "unfiled", name: "Unfiled" }, ...folders].map(folder => <div key={folder.id} className="rounded-xl border bg-white p-4" style={{ borderColor: activeFolder === folder.id ? "var(--sidebar-start)" : "var(--border)" }}>
+        <button type="button" disabled={saving} aria-pressed={activeFolder === folder.id} className="flex min-h-24 w-full flex-col items-start gap-3 text-left text-sm" style={{ color: "var(--sidebar-start)" }} onClick={() => { setActiveFolder(folder.id); setUploadFolder(folder.id === "unfiled" ? "" : folder.id); setSelected([]); setFilter("All"); setYear("All"); }}>
+          <svg aria-hidden="true" width="26" height="22" viewBox="0 0 26 22" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M2 19V4a2 2 0 0 1 2-2h6l3 3h9a2 2 0 0 1 2 2v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1Z"/><path d="M2 8h22"/></svg>
+          <span className="break-words font-semibold">{folder.name}</span><span className="text-xs opacity-75">{pictures.filter(p => p.info.folderId === (folder.id === "unfiled" ? "" : folder.id)).length} pictures</span>
+        </button>
+        <button type="button" disabled={saving || !loaded} aria-label={`Add pictures to ${folder.name}`} className="seasonal-outline mt-4 rounded-lg border px-3 py-2 text-sm" onClick={() => { setUploadFolder(folder.id === "unfiled" ? "" : folder.id); setActiveFolder(folder.id); setSelected([]); setFolderComposer(true); }}>Add pictures</button>
+      </div>)}
     </div>
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><button type="button" className="seasonal-link min-h-11 text-sm underline" onClick={() => { setActiveFolder(activeFolder === "all" ? "folders" : "all"); setSelected([]); setFilter("All"); setYear("All"); }}>{activeFolder === "all" ? "Back to folders" : "Show all pictures"}</button>{activeFolder !== "folders" && <h3 className="font-serif text-xl">{activeFolder === "all" ? "All pictures" : activeFolder === "unfiled" ? "Unfiled" : folders.find(folder => folder.id === activeFolder)?.name}</h3>}</div>
+    {activeFolder !== "folders" && <>
     <div className="mb-5 flex flex-wrap items-center gap-4"><label className="text-sm">Category <select className="ml-2" value={filter} onChange={e => { setFilter(e.target.value); setSelected([]); }}>{["All", ...categories].map(c => <option key={c}>{c}</option>)}</select></label><label className="text-sm">Year <select className="ml-2" value={year} onChange={e => { setYear(e.target.value); setSelected([]); }}>{["All", ...years].map(y => <option key={y}>{y}</option>)}</select></label><span className="seasonal-muted text-xs">{visible.length} pictures</span><button type="button" disabled={saving || !visible.length} className="seasonal-outline min-h-10 text-sm underline" onClick={() => setSelected(selected.length === visible.length ? [] : visible.map(p => p.key))}>{selected.length === visible.length && visible.length ? "Clear selection" : "Select all"}</button></div>
     {!!selected.length && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4"><span className="text-sm">{selected.length} selected</span><label className="text-sm">Photo category <select disabled={saving} className="ml-2" value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}><option value="">Choose category</option>{categories.map(c => <option key={c}>{c}</option>)}</select></label><button disabled={saving || !bulkCategory} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const changes = pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, category: bulkCategory } })); if (await updatePictures(changes, `Category updated for ${changes.length} pictures.`)) setSelected([]); }}>Apply category</button><label className="text-sm">Move to <select disabled={saving} className="ml-2" value={moveFolder} onChange={e => setMoveFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label><button disabled={saving} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const moved = await updatePictures(pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, folderId: moveFolder } }))); if (moved) setSelected([]); }}>Move selected</button></div>}
     {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">Room for your garden memories</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{visible.map(picture => <PhotoCard key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
+    </>}
   </section>;
 }
