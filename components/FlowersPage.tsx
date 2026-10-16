@@ -160,39 +160,42 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a85e60]">Arrange something beautiful</p>
         <h2 className="mt-2 font-serif text-3xl text-[#304332] sm:text-4xl">Bouquet Inspiration</h2>
         <p className="mt-2 text-sm leading-6 text-[#59645a]">Start with a simple recipe, then play with colors, heights, and textures from your own garden.</p>
-        <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-          <figure className="overflow-hidden rounded-2xl border border-[#e6d7cb] bg-[#faf5ed]">
-            <img src="/Bouquets.png" alt="Finished garden bouquets with colorful dahlias and mixed flowers arranged in a glass jar and a white pitcher" className="h-[260px] w-full object-cover object-[70%_center] sm:h-[340px]" />
-            <figcaption className="px-4 py-3 text-center font-serif text-sm text-[#435640]">Garden-grown bouquet inspiration</figcaption>
+        <div className="mt-5 grid items-stretch gap-4 lg:grid-cols-[1.12fr_0.88fr]">
+          <figure className="relative overflow-hidden rounded-2xl border border-[#e6d7cb] bg-[#faf5ed]">
+            <img src="https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=1100&q=85" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src="/Bouquets.png";}} alt="Fresh flowers gathered into a garden-inspired bouquet" className="h-[240px] w-full object-cover object-center sm:h-[310px] lg:h-full lg:max-h-[390px]" />
+            <figcaption className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#fffaf1]/90 px-4 py-2 font-serif text-sm text-[#304332] shadow-sm">A fresh, garden-style bouquet</figcaption>
           </figure>
-          <article className="rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] p-5 sm:p-6">
+          <article className="rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] px-5 py-4 sm:px-6">
             <h3 className="font-serif text-2xl text-[#304332]">The Simple Bouquet Recipe</h3>
-            <p className="mt-2 text-sm text-[#59645a]">A loose, colorful arrangement for a medium vase.</p>
-            <div className="mt-5 divide-y divide-[#eee3d9]">
+            <p className="mt-1 text-sm text-[#59645a]">A loose, colorful arrangement for a medium vase.</p>
+            <div className="mt-3 divide-y divide-[#eee3d9]">
               {[
                 {count:"3",flower:"Dahlias",note:"One large and two medium focal blooms"},
                 {count:"2",flower:"Zinnias",note:"A bright pop of color"},
                 {count:"2",flower:"Cosmos",note:"Airy movement and texture"},
                 {count:"2",flower:"Snapdragons",note:"Or other tall stems for height"},
                 {count:"3–5",flower:"Foliage stems",note:"Yarrow, ammi, or suitable garden greenery"}
-              ].map(item=><div key={item.flower} className="flex gap-4 py-3"><span className="w-10 shrink-0 font-serif text-2xl text-[#a85e60]">{item.count}</span><div><p className="font-semibold text-[#304332]">{item.flower}</p><p className="mt-1 text-xs leading-5 text-[#59645a]">{item.note}</p></div></div>)}
+              ].map(item=><div key={item.flower} className="flex items-center gap-3 py-2"><span className="w-10 shrink-0 font-serif text-xl text-[#a85e60]">{item.count}</span><div><p className="text-sm font-semibold text-[#304332]">{item.flower}</p><p className="text-xs leading-5 text-[#59645a]">{item.note}</p></div></div>)}
             </div>
           </article>
         </div>
-        <div className="mt-5 rounded-2xl bg-[#e7eadc] p-5">
-          <h3 className="font-serif text-xl text-[#304332]">Design tips</h3>
-          <p className="mt-2 text-sm leading-7 text-[#435640]">Use dahlias as the focal flowers, add contrasting blooms for color, and let cosmos and airy greenery soften the edges. Vary stem heights and rotate the vase as you arrange.</p>
+        <div className="mt-5 rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-serif text-2xl text-[#304332]">More Bouquet Ideas</h3><p className="mt-1 text-sm text-[#59645a]">Try different combinations using flowers from your garden.</p></div><span className="rounded-full bg-[#e7eadc] px-4 py-2 text-xs font-semibold text-[#435640]">4 arrangements</span></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {title:"Soft Pastel",detail:"Dahlias, cosmos, snapdragons and airy fillers",photo:"photo-1490750967868-88aa4486c946"},
+              {title:"Bold & Bright",detail:"Zinnias, rudbeckia, dahlias and greenery",photo:"photo-1523438885200-e635ba2c371e"},
+              {title:"Romantic Garden",detail:"Dahlias, lisianthus, cosmos and statice",photo:"photo-1561181286-d3fee7d55364"},
+              {title:"Loose & Airy",detail:"Cosmos, larkspur, yarrow and greenery",photo:"photo-1525310072745-f49212b5ac6d"}
+            ].map(idea=><article key={idea.title} className="overflow-hidden rounded-xl border border-[#e6d7cb] bg-[#faf8f3]">
+              <img src={`https://images.unsplash.com/${idea.photo}?auto=format&fit=crop&w=600&q=80`} onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src="/Bouquets.png";}} alt={`Bouquet inspiration for ${idea.title}`} loading="lazy" className="h-36 w-full object-cover" />
+              <div className="p-3"><h4 className="font-serif text-lg text-[#304332]">{idea.title}</h4><p className="mt-1 text-xs leading-5 text-[#59645a]">{idea.detail}</p></div>
+            </article>)}
+          </div>
         </div>
-        <h3 className="mt-8 font-serif text-2xl text-[#304332]">More bouquet ideas</h3>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {[
-            {title:"Summer Garden Bouquet",flowers:["Dahlias","Lisianthus","Snapdragons","Sweet Alyssum"],description:"Full dahlias, delicate lisianthus and tall snapdragons make a cheerful summer arrangement."},
-            {title:"Soft Romantic Bouquet",flowers:["Lisianthus","Cosmos","Scabiosa","Yarrow"],description:"Pastel flowers and feathery filler create a soft, natural-looking bouquet."}
-          ].map(bouquet=><article key={bouquet.title} className="rounded-2xl border border-[#e6d7cb] bg-[#fffdf9] p-5">
-            <h4 className="font-serif text-xl text-[#304332]">{bouquet.title}</h4>
-            <p className="mt-2 text-sm leading-6 text-[#59645a]">{bouquet.description}</p>
-            <p className="mt-3 text-xs font-medium text-[#7a806e]">{bouquet.flowers.join(" · ")}</p>
-          </article>)}
+        <div className="mt-4 flex flex-col gap-2 rounded-2xl bg-[#e7eadc] p-4 sm:flex-row sm:items-center sm:gap-6">
+          <h3 className="shrink-0 font-serif text-xl text-[#304332]">Design Tips</h3>
+          <p className="text-sm leading-6 text-[#435640]">Choose a focal flower like a dahlia, add contrasting color and texture, use airy fillers, and vary stem heights for a relaxed garden-style bouquet.</p>
         </div>
       </section>
     </>}
