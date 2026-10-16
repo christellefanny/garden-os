@@ -2,9 +2,6 @@
 import { GUEST_ID } from "@/lib/guest";
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
-import Dialog from "@/components/ui/Dialog";
-import dynamic from "next/dynamic";
-const JournalPictures = dynamic(() => import("@/components/PhotoJournal"), { loading: () => <p>Opening pictures…</p> });
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -14,7 +11,6 @@ import {
   type Garden,
   type Space,
   type SpaceDetails,
-  type Entry,
 } from "@/lib/garden";
 import type { VaultPlant } from "@/components/PlantVault";
 import PlantPortrait from "@/components/PlantPortrait";
@@ -24,7 +20,7 @@ import {
   localDay,
   shiftDay,
 } from "@/lib/growing-calendar";
-import { dailyRecommendations, harvestTotals } from "@/lib/connected-garden";
+import { dailyRecommendations } from "@/lib/connected-garden";
 import { loadCustomLayouts } from "@/components/BlankGardenLayout";
 import { initialLayout, nineBedLayout } from "@/lib/garden-layout";
 export type Destination =
@@ -619,199 +615,4 @@ export function TasksPage({
     </section>
   );
 }
-export function JournalPage({
-  userId,
-  spaces,
-  historySpaces,
-  busy,
-  onSave,
-}: {
-  userId: string;
-  spaces: Space[];
-  historySpaces?: Space[];
-  busy: boolean;
-  onSave: (space: Space, details: SpaceDetails) => Promise<boolean>;
-}) {
-  const [addingPictures, setAddingPictures] = useState(false);
-  const [adding,setAdding]=useState(false);
-  const [activity,setActivity]=useState<Entry["kind"]>("Note");
-  const [message, setMessage] = useState("");
-  const rows = journalRows(historySpaces || spaces);
-  return (
-    <section className="interior-page journal-page">
-      <InteriorHeader title="Garden Journal" eyebrow="Small observations, lasting knowledge" description="Keep the moments worth remembering. Review what grew well and carry that experience into your next season."><button className="seasonal-button" onClick={()=>setAdding(true)}>Add entry</button><button type="button" className="seasonal-outline" aria-controls="journal-pictures" aria-expanded={addingPictures} onClick={() => setAddingPictures((open) => !open)}>Add pictures</button></InteriorHeader>
-
-      <InteriorStats items={[{label:"Observations",value:rows.length},{label:"Measured harvests",value:rows.filter(row=>row.kind==="Harvest"&&row.quantity).length},{label:"Seasons recorded",value:new Set(rows.map(row=>row.date.slice(0,4))).size}]}/>
-      {message && <p role="status" className="interior-notice">{message}</p>}
-      {adding && <Dialog title="Add journal entry" onClose={()=>{if(!busy)setAdding(false);}}>
-      <form
-        className="journal-form"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const form = e.currentTarget,
-            f = new FormData(form),
-            space = spaces.find((s) => s.id === f.get("space"));
-          if (!space) return;
-          const amount = f.get("quantity")
-            ? Number(f.get("quantity"))
-            : undefined;
-          if (amount !== undefined && (!Number.isFinite(amount) || amount <= 0))
-            return;
-          const entry: Entry = {
-            id: crypto.randomUUID(),
-            kind: String(f.get("kind")) as Entry["kind"],
-            date: String(f.get("date")),
-            text: String(f.get("text") || "Observation recorded."),
-            ...(amount && f.get("kind") === "Harvest"
-              ? {
-                  quantity: amount,
-                  unit: String(f.get("unit")),
-                  plantId: String(f.get("plant")),
-                }
-              : {}),
-          };
-          const success = await onSave(space, {
-            ...details(space),
-            entries: [entry, ...details(space).entries],
-          });
-          setMessage(
-            success
-              ? "Journal entry saved."
-              : "Could not save. Please try again.",
-          );
-          if (success) {form.reset();setActivity("Note");setAdding(false);}
-        }}
-      >
-        <fieldset disabled={busy || !spaces.length}>
-          <label>
-            Growing space
-            <select aria-label="Growing space" name="space" required>
-              {spaces.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Activity
-            <select aria-label="Activity" name="kind" value={activity} onChange={event=>setActivity(event.target.value as Entry["kind"])}>
-              <option>Note</option>
-              <option>Watering</option>
-              <option>Harvest</option>
-              <option>Pests</option>
-            </select>
-          </label>
-          <label>
-            Date
-            <input name="date" type="date" required defaultValue={localDay()} />
-          </label>
-          {activity==="Harvest" && <><label>
-            Harvest plant / variety
-            <input name="plant" placeholder="e.g. Roma tomato" />
-          </label>
-          <label>
-            Harvest quantity (optional)
-            <input name="quantity" type="number" min="0.01" step="any" />
-          </label>
-          <label>
-            Harvest unit
-            <select aria-label="Harvest unit" name="unit">
-              <option>lb</option>
-              <option>oz</option>
-              <option>kg</option>
-              <option>g</option>
-              <option>count</option>
-            </select>
-          </label>
-          </>}<label className="journal-note">
-            Observation
-            <textarea name="text" rows={3} maxLength={5000} />
-          </label>
-          <button
-            type="submit"
-            className="seasonal-button rounded-xl px-4 py-3"
-          >
-            Save journal entry
-          </button>
-        </fieldset>
-        {!spaces.length && (
-          <p>Add a growing space before recording an observation.</p>
-        )}
-        {message && <p role="status">{message}</p>}
-      </form></Dialog>}
-      <div id="journal-pictures" className="mb-8"><JournalPictures userId={userId} embedded showComposer={addingPictures} /></div>
-      <div className="journal-content-grid"><div className="modern-card harvest-summary">
-        <h2>Harvest comparison</h2>
-        {harvestTotals(rows).length ? (
-          <div className="harvest-table-wrap">
-            <table className="harvest-table">
-              <thead>
-                <tr>
-                  <th>Season</th>
-                  <th>Plant / variety</th>
-                  <th>Yield</th>
-                  <th>Harvests</th>
-                </tr>
-              </thead>
-              <tbody>
-                {harvestTotals(rows).map((total) => (
-                  <tr key={`${total.year}-${total.plant}-${total.unit}`}>
-                    <td>{total.year}</td>
-                    <td>{total.plant}</td>
-                    <td>
-                      {Number(total.quantity.toFixed(2))} {total.unit}
-                    </td>
-                    <td>{total.harvests}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="empty-copy">
-            Record harvest quantities and units to compare yields. Older
-            text-only observations are preserved and are not counted as measured
-            yields.
-          </p>
-        )}
-      </div><div className="modern-card journal-history"><h2>Season history</h2>
-        {[...new Set(rows.map((r) => r.date.slice(0, 4)))]
-          .sort()
-          .reverse()
-          .map((year) => (
-            <details key={year} open>
-              <summary>
-                {year} · {rows.filter((r) => r.date.startsWith(year)).length}{" "}
-                observations
-              </summary>
-              {rows
-                .filter((r) => r.date.startsWith(year))
-                .map((e) => (
-                  <div className="modern-journal-row" key={e.id}>
-                    <time>{e.date}</time>
-                    <span>
-                      <strong>
-                        {e.kind} · {e.space.name}
-                      </strong>
-                      <small>
-                        {e.text}
-                        {e.quantity
-                          ? ` · ${e.quantity} ${e.unit} ${e.plantId || ""}`
-                          : ""}
-                      </small>
-                    </span>
-                  </div>
-                ))}
-            </details>
-          ))}
-        {!rows.length && (
-          <p className="empty-copy">
-            Your first growing season begins with your first entry. Historical
-            records will stay available here.
-          </p>
-        )}
-      </div></div>
-    </section>
-  );
-}
+export { default as JournalPage } from "@/components/GardenJournal";

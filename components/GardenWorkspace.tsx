@@ -491,7 +491,8 @@ export default function GardenWorkspace({
           {page === "Journal" && (
             <JournalPage
               userId={userId}
-              historySpaces={spaces}
+              gardenName={garden?.name}
+              historySpaces={gardenSpaces}
               spaces={activeSpaces}
               busy={busy}
               onSave={saveDetails}
