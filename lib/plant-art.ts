@@ -121,6 +121,16 @@ for (const [alias, name] of Object.entries({
   tulip: "Tulips",
   "allium gladiator": "Gladiator allium",
   "allium 'gladiator'": "Gladiator allium",
+  dahlias: "Dahlia",
+  zinnias: "Zinnia",
+  snapdragons: "Snapdragon",
+  hydrangeas: "Hydrangea",
+  asters: "New England Aster",
+  rudbeckia: "Black-eyed Susan / Rudbeckia",
+  "rudbeckia sahara": "Black-eyed Susan / Rudbeckia",
+  nigella: "Love-in-a-Mist / Nigella",
+  "bachelor's buttons": "Wildflower mix",
+
 })) {
   indexes.set(normalize(alias), indexes.get(normalize(name))!);
 }
