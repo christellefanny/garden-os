@@ -310,37 +310,51 @@ export function ModernDashboard({
   };
   return (
     <div className="modern-dashboard">
-      <section className={`modern-hero hero-${season}`}>
-        <div>
-          <p className="modern-eyebrow">
-            {season}{" "}
-            {garden?.location ? `in ${garden.location}` : "in your garden"}
-          </p>
-          <h1>{headlines[season]}</h1>
-          <p>
-            A thoughtful plan today for a healthier,
-            <br />
-            more productive garden tomorrow.
-          </p>
-          <button onClick={() => navigate("Tasks")}>
-            View today’s tasks <span>→</span>
-          </button>
+      <section className={`atelier-welcome-banner atelier-welcome-${season}`}>
+        <div className="atelier-welcome-copy">
+          <p>Welcome to</p>
+          <h1>Garden Atelier</h1>
+          <span>Plan <b>·</b> Grow <b>·</b> Record <b>·</b> Be Inspired</span>
         </div>
-        <aside className="hero-insight">
-          <LineIcon index={2} />
-          <h3>A season to grow</h3>
-          <p>
-            {season === "fall"
-              ? "Harvest thoughtfully. Save seeds. Prepare beds for the season ahead."
-              : season === "winter"
-                ? "Review your season, organize seeds, and plan your next garden."
-                : season === "spring"
-                  ? "Check your frost dates and make room for new growth."
-                  : "Observe your plants, check soil moisture, and enjoy the harvest."}
-          </p>
-          <small>Seasonal guidance · not live weather</small>
-        </aside>
       </section>
+      <div className="atelier-home-sections">
+        <section className="modern-card atelier-gardens-panel">
+          <div className="modern-card-title">
+            <h2>My Gardens</h2>
+            <button onClick={() => navigate("My Gardens")}>View all →</button>
+          </div>
+          <div className="atelier-gardens-grid">
+            {gardens.slice(0, 3).map((g, i) => (
+              <button key={g.id} className="atelier-garden-tile" onClick={() => navigate("My Gardens")}>
+                <span className={`atelier-garden-art atelier-garden-art-${i % 3}`} aria-hidden="true" />
+                <strong>{g.name}</strong>
+                <small>{spaces.filter((space) => space.garden_id === g.id).length} growing spaces</small>
+              </button>
+            ))}
+            <button className="atelier-add-garden" onClick={() => navigate("My Gardens")}>
+              <span aria-hidden="true">+</span>
+              <strong>{gardens.length ? "New Garden" : "Create your first garden"}</strong>
+              <small>Add a growing space</small>
+            </button>
+          </div>
+        </section>
+        <section className="modern-card atelier-upcoming-panel">
+          <div className="modern-card-title">
+            <h2>Upcoming Tasks</h2>
+            <button onClick={() => navigate("Tasks")}>View all →</button>
+          </div>
+          {tasks.length ? tasks.slice(0, 5).map((t) => (
+            <div className="modern-task-row" key={t.id}>
+              <button className="task-ring" aria-label={`Complete ${t.title}`} onClick={() => complete(t.id)} />
+              <button className="task-content" onClick={() => navigate("Tasks")}>
+                <strong>{t.title}</strong>
+                <small>{t.plant}</small>
+              </button>
+              <time>{t.date === today ? "Today" : t.date.slice(5)}</time>
+            </div>
+          )) : <p className="empty-copy">No upcoming tasks this week. Your garden is ready for its next chapter.</p>}
+        </section>
+      </div>
       <div className="modern-stats">
         {[
           ["Gardens", gardens.length, "My Gardens"],
