@@ -40,6 +40,74 @@ const seedGuides = [
   {name:"Nasturtium",when:"Summer to fall, when fallen seeds have matured and dried",how:"Collect the large, wrinkled seeds as they drop or loosen. Dry completely in a ventilated place before storing."},
   {name:"Dianthus",when:"After flowering, when seed capsules are dry and opening",how:"Shake ripe capsules into a paper bag. Named hybrids may not grow true to type from seed."},
 ];
+const cutFlowerEncyclopedia = [
+  {name:"Dahlias",when:"Midsummer to frost",tip:"Cut fully open blooms; lift and store tubers for winter."},
+  {name:"Lisianthus",when:"Summer",tip:"Start early or use plugs. Harvest when the first blooms open."},
+  {name:"Statice",when:"Summer",tip:"Papery clusters for fresh and dried arrangements."},
+  {name:"Sweet Alyssum",when:"Spring and fall",tip:"Low, fragrant filler; use small flowering sprigs."},
+  {name:"Strawflower",when:"Summer to frost",tip:"Harvest as outer bracts begin to open; excellent dried."},
+  {name:"Snapdragons",when:"Late spring to fall",tip:"Cut when lower florets open; tall varieties give structure."},
+  {name:"Calendula",when:"Spring and fall",tip:"Harvest newly opened flowers during cooler weather."},
+  {name:"Cosmos",when:"Summer to frost",tip:"Cut buds just opening for airy movement."},
+  {name:"Rudbeckia",when:"Summer to fall",tip:"Harvest firm blooms for long-lasting golden accents."},
+  {name:"Gomphrena",when:"Summer to frost",tip:"Harvest fully colored globe flowers, fresh or dried."},
+  {name:"Celosia",when:"Summer to frost",tip:"Cut developed plumes or crests; dries well."},
+  {name:"Amaranth",when:"Summer to fall",tip:"Dramatic upright or trailing tassels."},
+  {name:"Nigella",when:"Late spring to summer",tip:"Use flowers and decorative seed pods."},
+  {name:"Yarrow",when:"Summer",tip:"Cut when most small flowers are open."},
+  {name:"Scabiosa",when:"Summer to frost",tip:"Pincushion flowers in soft pinks and purples; cut often."},
+  {name:"Ammi Majus",when:"Early to midsummer",tip:"White lace-like umbels make airy bouquet filler."},
+  {name:"Chantilly Snapdragons",when:"Late spring to fall",tip:"Elegant open-faced snapdragon spikes; support tall stems."},
+  {name:"Bupleurum",when:"Late spring to summer",tip:"Chartreuse greenery for light, natural arrangements."},
+  {name:"Astrantia",when:"Late spring to summer",tip:"Starry blooms; prefers moisture and afternoon shade."},
+  {name:"Asters",when:"Late summer to fall",tip:"Colorful late-season daisy-like cut flowers."},
+  {name:"Feverfew",when:"Early summer",tip:"Clusters of small white flowers add soft texture."},
+  {name:"Larkspur",when:"Late spring to early summer",tip:"Cool-season blue, pink and lavender spires; all parts toxic."},
+  {name:"Orlaya",when:"Late spring to summer",tip:"Elegant white lace flowers for romantic bouquets."},
+  {name:"Bachelor's Buttons",when:"Late spring to summer",tip:"Bright blue blooms; cut before centers show pollen."},
+  {name:"Bells of Ireland",when:"Summer",tip:"Tall green bells for bouquet structure."},
+  {name:"Sweet Peas",when:"Late spring to early summer",tip:"Fragrant flowers for cool weather; provide a trellis."},
+  {name:"Rudbeckia Sahara",when:"Summer to fall",tip:"Warm copper, rose and terracotta blooms; colors vary."},
+  {name:"Hydrangeas",when:"Summer to fall",tip:"Harvest mature panicles and hydrate promptly."},
+  {name:"Ranunculus",when:"Spring",tip:"Cut soft, colored buds; protect corms from hard freezes."},
+  {name:"Zinnias",when:"Summer to frost",tip:"Harvest when stems pass the wiggle test; no Queen Lime variety."},
+] as const;
+
+
+type BouquetStyle = "pastel" | "bright" | "romantic" | "garden";
+const bouquetPalettes: Record<BouquetStyle,string[]> = {
+  pastel:["#e9a7b7","#f5d2bc","#b7a4cf","#fff1df","#d98caa"],
+  bright:["#df7b66","#ecb75c","#c65c79","#f4d581","#de9a9c"],
+  romantic:["#a877a1","#e6a9ae","#f1c8bd","#c787a2","#f6dbcd"],
+  garden:["#cf738e","#e6b483","#b59dcb","#e0a6bf","#f0d8b4"]
+};
+function BotanicalFlower({color="#dc9bad",size=52,kind="dahlia"}:{color?:string;size?:number;kind?:string}) {
+  const petals=kind==="cosmos"?8:kind==="snapdragon"?5:kind==="foliage"?0:kind==="zinnia"?12:16;
+  return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 100 100" fill="none">
+    {kind==="foliage"?<><path d="M48 92 Q54 48 53 7" stroke="#63866a" strokeWidth="3"/>{[18,37,57,75].map((y,i)=><g key={y}><ellipse cx={i%2?35:72} cy={y} rx="22" ry="9" transform={`rotate(${i%2?-33:33} ${i%2?35:72} ${y})`} fill="#83a882"/><path d={`M51 ${y+5} L${i%2?35:72} ${y}`} stroke="#56775a" strokeWidth="1.5"/></g>)}</>:
+    <>{Array.from({length:petals},(_,i)=><ellipse key={i} cx="50" cy={kind==="snapdragon"?31:26} rx={kind==="cosmos"?12:kind==="snapdragon"?15:9} ry={kind==="cosmos"?26:kind==="snapdragon"?23:27} fill={color} stroke="#fff5ec" strokeOpacity=".7" strokeWidth="1" transform={`rotate(${i*360/petals} 50 50)`}/>)}<circle cx="50" cy="50" r={kind==="cosmos"?12:kind==="snapdragon"?14:kind==="zinnia"?12:16} fill={kind==="cosmos"?"#e8bd5a":"#f6d8a7"}/><circle cx="50" cy="50" r="5" fill="#bb8954"/></>}
+  </svg>;
+}
+function BouquetArtwork({style="garden",label}:{style?:BouquetStyle;label:string}) {
+  const palette=bouquetPalettes[style];
+  const blossoms=[{x:115,y:107,r:33,k:"dahlia"},{x:176,y:74,r:31,k:"zinnia"},{x:239,y:115,r:38,k:"dahlia"},{x:291,y:77,r:26,k:"cosmos"},{x:160,y:154,r:26,k:"cosmos"},{x:280,y:166,r:31,k:"zinnia"},{x:208,y:149,r:38,k:"dahlia"},{x:94,y:174,r:22,k:"cosmos"},{x:326,y:139,r:20,k:"cosmos"}];
+  return <svg role="img" aria-label={label} className="h-full w-full" viewBox="0 0 420 315" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <rect width="420" height="315" fill="#f8f2e9"/>
+    <path d="M0 269 Q95 253 210 265 T420 257 V315 H0Z" fill="#eee6d9"/>
+    {blossoms.map((b,i)=><g key={i}>
+      <path d={`M210 257 Q${b.x+6} 196 ${b.x} ${b.y}`} fill="none" stroke="#64856a" strokeWidth="3"/>
+      <ellipse cx={(210+b.x)/2-7} cy={(257+b.y)/2} rx="20" ry="8" fill="#7f9f79" transform={`rotate(-35 ${(210+b.x)/2-7} ${(257+b.y)/2})`}/>
+      <g transform={`translate(${b.x-b.r} ${b.y-b.r}) scale(${b.r*2/100})`}>
+        {Array.from({length:b.k==="cosmos"?8:14},(_,p)=><ellipse key={p} cx="50" cy="24" rx={b.k==="cosmos"?14:10} ry="28" fill={palette[i%palette.length]} stroke="#fff5ed" strokeOpacity=".6" transform={`rotate(${p*360/(b.k==="cosmos"?8:14)} 50 50)`}/>)}
+        <circle cx="50" cy="50" r="13" fill="#e8c481"/><circle cx="50" cy="50" r="5" fill="#a87d47"/>
+      </g>
+    </g>)}
+    <path d="M171 205 L246 205 L235 292 Q210 304 184 292Z" fill="#f7f7ef" stroke="#b9bcb0" strokeWidth="2"/>
+    <path d="M177 224 Q209 234 241 224" fill="none" stroke="#d9d9cb" strokeWidth="2"/>
+    <ellipse cx="209" cy="299" rx="83" ry="7" fill="#cfc8ba" opacity=".4"/>
+  </svg>;
+}
+
 type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
 export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
@@ -47,31 +115,20 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
   return <section className="interior-page">
-    {section!=="Overview"&&<InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section} />}
+    <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
     {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
     {section==="Overview"&&<>
-      <div className="relative isolate min-h-[310px] overflow-hidden rounded-2xl border border-[#8c988a] bg-[#17291f] sm:min-h-[360px] lg:min-h-[400px]">
-        {/* The seasonal artwork is retained; the original embedded banner lettering is
-            covered by the left-side green panel to make room for the page heading. */}
-        <img
-          src={`/flower-botanical-${season}.webp`}
-          alt={`${season} botanical flower garden illustration`}
-          onError={(event) => {
-            const image = event.currentTarget;
-            const fallback = season === "spring"
-              ? "/wide_landscape_photorealistic_spring_garden_bann.png"
-              : `/approved-flower-${season}.webp`;
-            if (!image.src.endsWith(fallback)) image.src = fallback;
-          }}
-          className="absolute inset-0 h-full w-full object-cover object-[65%_center] sm:object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#17291f] via-[#17291f] via-[38%] to-[#17291f]/0 sm:via-[#17291f]/95 sm:via-[34%] sm:to-transparent" />
-        <div className="relative z-10 flex min-h-[310px] flex-col justify-center px-6 py-10 text-[#faf8ef] sm:min-h-[360px] sm:px-10 lg:min-h-[400px] lg:px-14">
-          <div className="max-w-[520px]">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#faf8ef]">Bloom &amp; Flourish</p>
-            <h1 className="mt-4 font-serif text-[clamp(2.7rem,5vw,5.5rem)] leading-[1.04] tracking-[-0.03em] text-[#faf8ef]">Flower Garden</h1>
-            <p className="mt-5 max-w-[390px] text-base leading-7 text-[#faf8ef]/95 sm:text-lg">A home for your flowers, planting plans, and seasonal inspiration.</p>
-          </div>
+      <div
+        className="relative mt-7 flex min-h-[350px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b] bg-cover bg-center sm:min-h-[400px]"
+        style={{
+          backgroundImage: `linear-gradient(90deg, rgba(19,37,29,0.86) 0%, rgba(19,37,29,0.65) 38%, rgba(19,37,29,0.12) 78%), url("/flower-botanical-${season}.webp")`,
+          backgroundPosition: "center, center",
+        }}
+      >
+        <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
+          <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to your flower garden</p>
+          <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl">Grow something beautiful.</h2>
+          <p className="mt-5 max-w-xl text-sm leading-7 text-white sm:text-base">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
         </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -79,43 +136,95 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       </div>
     </>}
     {section==="Cut Flowers"&&<>
-      <div className="seasonal-card mt-7 rounded-2xl border p-6 sm:p-8">
-        <p className="eyebrow seasonal-muted">From garden to vase</p>
-        <h2 className="seasonal-heading mt-2 text-3xl font-bold">Grow your own bouquets</h2>
-        <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Discover excellent cutting flowers whether or not you already grow them. Plan a cutting garden, harvest at the right stage, and arrange long-lasting bouquets with stems from your own beds and pots.</p>
+      <button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mb-4 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>
+      <div className="seasonal-card grid overflow-hidden rounded-2xl border bg-[#faf8f1] lg:grid-cols-[42%_58%]">
+        <div className="flex flex-col justify-center px-6 py-9 sm:px-10 lg:px-12 lg:py-14">
+          <p className="eyebrow text-[#435640]">From garden to vase</p>
+          <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-[#253d2d] sm:text-4xl">Grow your own bouquets</h2>
+          <p className="mt-4 max-w-[410px] text-sm leading-7 text-[#465448] sm:text-base">Discover beautiful cutting flowers, plan a cut flower garden, harvest at the right stage, and create stunning bouquets with stems from your own beds and pots.</p>
+        </div>
+        <div className="min-h-[245px] bg-[#f6f0e5] sm:min-h-[320px] lg:min-h-[370px]">
+          <img
+            src="/Bouquets.png"
+            alt="Small garden bouquet in a glass jar and a large colorful bouquet in a white pitcher"
+            className="block h-full min-h-[245px] w-full object-cover object-center sm:min-h-[320px] lg:min-h-[370px]"
+          />
+        </div>
       </div>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Best flowers for cutting — even if they are not in your Plant Vault</h2>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {[
-          {name:"Zinnias",when:"Summer to frost",tip:"Cut when stems are firm and do not wobble just below the bloom. Great colorful focal flowers."},
-          {name:"Cosmos",when:"Summer to frost",tip:"Harvest when buds are just opening. Their airy stems make bouquets feel light and natural."},
-          {name:"Dahlias",when:"Midsummer to frost",tip:"Cut blooms fully or nearly open; buds generally will not open much after cutting. Tubers need winter protection in northern Illinois."},
-          {name:"Snapdragons",when:"Late spring and fall",tip:"Cut when the lower third of florets are open. Excellent vertical accent; grow tall cutting varieties."},
-          {name:"Sunflowers",when:"Summer to early fall",tip:"Cut as petals begin lifting off the face. Choose pollenless varieties for cleaner indoor arrangements."},
-          {name:"Hydrangeas",when:"Summer to fall",tip:"Cut mature, firm blooms and hydrate promptly. Limelight panicles also dry beautifully."},
-          {name:"Ranunculus",when:"Cool spring",tip:"Cut when buds feel soft and show color, before fully opening. Protect corms from hard freezes."},
-          {name:"Celosia",when:"Summer to frost",tip:"Harvest fully formed plumes or crests. Also excellent for drying."},
-          {name:"Lisianthus",when:"Summer",tip:"Long-lasting, rose-like blooms. Start very early indoors or buy plugs; harvest when one or more flowers are open."},
-          {name:"Sweet peas",when:"Late spring to early summer",tip:"Fragrant climbing flowers for cool weather. Cut frequently and provide a trellis."},
-          {name:"Statice",when:"Summer",tip:"Papery clusters add texture to fresh bouquets and dry beautifully. Start indoors before the last frost."},
-          {name:"Gomphrena",when:"Summer to frost",tip:"Heat-loving, colorful globe blooms. Cut when heads are fully colored; also great dried."},
-          {name:"Basil (flowering stems)",when:"Summer",tip:"Aromatic bouquet greenery. Harvest firm stems and remove leaves below the waterline."}
-        ].map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p><p className="mt-3 text-sm leading-6">{g.tip}</p></article>)}
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
+      <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Illustrations appear where verified artwork is available; additional botanical portraits are being prepared.</p>
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {cutFlowerEncyclopedia.map(g=><article key={g.name} className="overflow-hidden rounded-2xl border border-[#e8dfd4] bg-white p-3 shadow-[0_4px_16px_#50463308]">
+          <PlantPortrait name={g.name} variety="" />
+          <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
+          <p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p>
+          <p className="mt-2 text-xs leading-5">{g.tip}</p>
+        </article>)}
       </div>
-      <h2 className="seasonal-heading mt-9 text-2xl font-bold">Harvesting and vase care</h2>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {[
-          {title:"1 · Harvest at the right time",body:"Cut during the cool morning or evening. Use clean, sharp snips and choose the correct opening stage for each flower."},
-          {title:"2 · Hydrate right away",body:"Place stems promptly in a clean bucket of water in a cool, shaded spot. Remove foliage that would sit below the waterline."},
-          {title:"3 · Arrange with balance",body:"Combine focal blooms (zinnia or dahlia), airy fillers (cosmos), and greenery. Vary heights and keep the vase proportional."},
-          {title:"4 · Keep bouquets fresh",body:"Use a clean vase and flower food according to directions. Refresh water, recut stems as needed, and keep arrangements out of direct sun and away from ripening fruit."}
-        ].map(g=><article key={g.title} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-lg font-bold">{g.title}</h3><p className="mt-3 text-sm leading-6">{g.body}</p></article>)}
-      </div>
-      <div className="seasonal-card mt-7 rounded-2xl border p-6">
-        <h2 className="seasonal-heading text-xl font-bold">A simple bouquet recipe</h2>
-        <p className="mt-3 text-sm leading-7">Try 3–5 zinnias as focal flowers, 3–5 cosmos stems for movement, and 3 stems of greenery or ornamental foliage. Arrange loosely and turn the vase as you work.</p>
-        <p className="seasonal-muted mt-3 text-sm">For northern Illinois: sow warm-season annuals after frost risk passes, and make small successive sowings to keep fresh stems coming through summer.</p>
-      </div>
+      <section className="mt-10 overflow-hidden rounded-3xl border border-[#e7c9bf] bg-[#fcf1ed]">
+        <div className="border-b border-[#eddad2] px-6 py-7 sm:px-9">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a85e60]">From the cutting garden</p>
+          <h2 className="mt-2 font-serif text-3xl text-[#304332] sm:text-4xl">✂ Harvesting &amp; Vase Care</h2>
+          <p className="mt-2 text-sm leading-6 text-[#59645a]">A few thoughtful steps help your flowers last longer after cutting.</p>
+        </div>
+        <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
+          {[
+            {number:"01",title:"Harvest at the right stage",body:"Cut in the cool morning when stems are hydrated. Dahlias should be nearly fully open; other flowers vary."},
+            {number:"02",title:"Cut cleanly",body:"Use sanitized, sharp snips. Cut long stems at an angle and avoid damaging the plant's growing points."},
+            {number:"03",title:"Condition your stems",body:"Remove leaves below the waterline and place stems immediately in a clean bucket of cool water."},
+            {number:"04",title:"Refresh the vase",body:"Use a clean vase and flower food as directed. Change water, recut stems as needed, and keep away from sun, heat and ripening fruit."}
+          ].map(step=><article key={step.number} className="rounded-2xl border border-[#eadbd2] bg-[#fffdf9] p-5">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#ce8183] font-serif text-lg text-white">{step.number}</span>
+            <h3 className="mt-4 font-serif text-xl text-[#304332]">{step.title}</h3>
+            <p className="mt-3 text-sm leading-6 text-[#59645a]">{step.body}</p>
+          </article>)}
+        </div>
+      </section>
+      <section className="mt-8 overflow-hidden rounded-3xl border border-[#eadbcf] bg-[#fcf1ed] p-5 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a85e60]">Arrange something beautiful</p>
+        <h2 className="mt-2 font-serif text-3xl text-[#304332] sm:text-4xl">Bouquet Inspiration</h2>
+        <p className="mt-2 text-sm leading-6 text-[#59645a]">Start with a simple recipe, then play with colors, heights, and textures from your own garden.</p>
+        <div className="mt-5 grid items-stretch gap-4 lg:grid-cols-[1.12fr_0.88fr]">
+          <figure className="relative min-h-[285px] overflow-hidden rounded-2xl border border-[#e6d7cb] bg-white">
+            <BouquetArtwork style="garden" label="Illustrated garden bouquet with dahlias, cosmos and zinnias arranged in a white vase" />
+            <figcaption className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/95 px-4 py-2 font-serif text-sm text-[#304332] shadow-sm">A fresh, garden-style bouquet</figcaption>
+          </figure>
+          <article className="rounded-2xl border border-[#e6d7cb] bg-white px-5 py-4 sm:px-6">
+            <h3 className="font-serif text-2xl text-[#304332]">The Simple Bouquet Recipe</h3>
+            <p className="mt-1 text-sm text-[#59645a]">A loose, colorful arrangement for a medium vase.</p>
+            <div className="mt-3 divide-y divide-[#eee3d9]">
+              {[
+                {count:"3",flower:"Dahlias",note:"One large and two medium focal blooms",color:"#cb7d96",kind:"dahlia"},
+                {count:"2",flower:"Zinnias",note:"A bright pop of color",color:"#de996a",kind:"zinnia"},
+                {count:"2",flower:"Cosmos",note:"Airy movement and texture",color:"#e4a3bd",kind:"cosmos"},
+                {count:"2",flower:"Snapdragons",note:"Or other tall stems for height",color:"#c29cc2",kind:"snapdragon"},
+                {count:"3–5",flower:"Foliage stems",note:"Yarrow, ammi, or suitable garden greenery",color:"#8caa83",kind:"foliage"}
+              ].map(item=><div key={item.flower} className="flex items-center gap-3 py-2">
+                <span className="w-10 shrink-0 font-serif text-xl text-[#a85e60]">{item.count}</span>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#faf4ed]"><BotanicalFlower color={item.color} kind={item.kind} size={48}/></span>
+                <div><p className="text-sm font-semibold text-[#304332]">{item.flower}</p><p className="text-xs leading-5 text-[#59645a]">{item.note}</p></div>
+              </div>)}
+            </div>
+          </article>
+        </div>
+        <div className="mt-5 rounded-2xl border border-[#e6d7cb] bg-white p-5">
+          <div><h3 className="font-serif text-2xl text-[#304332]">More Bouquet Ideas</h3><p className="mt-1 text-sm text-[#59645a]">Three illustrated combinations to inspire your next arrangement.</p></div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            {([
+              {title:"Soft Pastel",detail:"Blush dahlias, cosmos, snapdragons and airy fillers",style:"pastel"},
+              {title:"Bold & Bright",detail:"Warm zinnias, rudbeckia, dahlias and greenery",style:"bright"},
+              {title:"Romantic Garden",detail:"Mauve dahlias, lisianthus, cosmos and statice",style:"romantic"}
+            ] as {title:string;detail:string;style:BouquetStyle}[]).map(idea=><article key={idea.title} className="overflow-hidden rounded-2xl border border-[#e6d7cb] bg-white">
+              <div className="aspect-[4/3] w-full bg-[#f8f2e9]"><BouquetArtwork style={idea.style} label={`Illustrated ${idea.title.toLowerCase()} flower bouquet in a vase`}/></div>
+              <div className="p-4"><h4 className="font-serif text-lg text-[#304332]">{idea.title}</h4><p className="mt-1 text-xs leading-5 text-[#59645a]">{idea.detail}</p></div>
+            </article>)}
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-[#e2dcd2] bg-white p-4 sm:flex-row sm:items-center sm:gap-6">
+          <h3 className="shrink-0 font-serif text-xl text-[#304332]">Design Tips</h3>
+          <p className="text-sm leading-6 text-[#435640]">Choose a focal flower like a dahlia, add contrasting color and texture, use airy fillers, and vary stem heights for a relaxed garden-style bouquet.</p>
+        </div>
+      </section>
     </>}
     {section==="My flowers"&&<>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">My flowers <span className="seasonal-muted text-base">({flowers.length})</span></h2>
