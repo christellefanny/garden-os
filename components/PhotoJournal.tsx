@@ -1,102 +1,218 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import InteriorHeader from "@/components/InteriorHeader";
+import Dialog from "@/components/ui/Dialog";
+import { localDay } from "@/lib/growing-calendar";
 
-type PhotoEntry = { id:string; date:string; category:string; caption:string; plant:string; bed:string; photos:Blob[] };
-const categories = ["My Garden","Seedlings","Harvests","Flowers","Plant Progress"];
+type PhotoInfo = { name: string; description: string; date: string; category: string; folderId: string };
+type PhotoEntry = { id: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo> };
+type Folder = { id: string; name: string };
+type Picture = { key: string; entry: PhotoEntry; index: number; blob: Blob; info: PhotoInfo };
+const categories = ["My Garden", "Seedlings", "Harvests", "Flowers", "Plant Progress"];
 const database = "garden-os-photo-journal-v1";
-function openDatabase():Promise<IDBDatabase> {
-  return new Promise((resolve,reject)=>{
-    const request=indexedDB.open(database,1);
-    request.onupgradeneeded=()=>{ if(!request.result.objectStoreNames.contains("entries")) request.result.createObjectStore("entries",{keyPath:"id"}); };
-    request.onsuccess=()=>resolve(request.result);
-    request.onerror=()=>reject(request.error);
+function openDatabase(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    // Upgrade the existing database in place; all original photo blobs stay intact.
+    const request = indexedDB.open(database, 2);
+    request.onupgradeneeded = () => {
+      for (const name of ["entries", "folders"]) if (!request.result.objectStoreNames.contains(name)) request.result.createObjectStore(name, { keyPath: "id" });
+    };
+    request.onsuccess = () => { request.result.onversionchange = () => request.result.close(); resolve(request.result); };
+    request.onerror = () => reject(request.error);
+    request.onblocked = () => reject(new Error("Close other Garden OS tabs and try again to update photo storage."));
   });
 }
-async function transact<T>(mode:IDBTransactionMode, action:(store:IDBObjectStore)=>IDBRequest<T>):Promise<T> {
-  const db=await openDatabase();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction("entries",mode);
-    const req=action(tx.objectStore("entries"));
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
-    tx.oncomplete=()=>db.close();
-    tx.onerror=()=>{db.close();reject(tx.error);};
+async function transact<T>(storeName: "entries" | "folders", mode: IDBTransactionMode, action: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, mode);
+    const request = action(tx.objectStore(storeName));
+    // A successful request is not yet a committed save.
+    tx.oncomplete = () => { db.close(); resolve(request.result); };
+    tx.onabort = () => { db.close(); reject(tx.error || request.error || new Error("Photo storage transaction failed.")); };
+    tx.onerror = () => { db.close(); reject(tx.error || request.error); };
   });
 }
-export default function PhotoJournal({userId, embedded = false, showComposer = true}:{userId:string; embedded?:boolean; showComposer?:boolean}) {
-  const [entries,setEntries]=useState<PhotoEntry[]>([]);
-  const [category,setCategory]=useState("My Garden");
-  const [filter,setFilter]=useState("All");
-  const [year,setYear]=useState("All");
-  const [caption,setCaption]=useState("");
-  const [plant,setPlant]=useState("");
-  const [bed,setBed]=useState("");
-  const [date,setDate]=useState(()=>new Date().toLocaleDateString("en-CA"));
-  const [photos,setPhotos]=useState<File[]>([]);
-  const [error,setError]=useState("");
-  const [saving,setSaving]=useState(false);
-  const [refresh,setRefresh]=useState(0);
-  useEffect(()=>{
-    let active=true;
-    transact<PhotoEntry[]>("readonly",store=>store.getAll()).then(all=>{
-      if(active)setEntries(all.filter(e=>e.id.startsWith(userId+":")).sort((a,b)=>b.date.localeCompare(a.date)));
-    }).catch(()=>{if(active)setError("Photo storage is unavailable in this browser.");});
-    return ()=>{active=false;};
-  },[userId,refresh]);
-  const [previewUrls,setPreviewUrls]=useState<Record<string,string[]>>({});
-  useEffect(()=>{
-    const urls:Record<string,string[]>={};
-    for(const entry of entries) urls[entry.id]=entry.photos.map(blob=>URL.createObjectURL(blob));
+function pictureInfo(entry: PhotoEntry, index: number): PhotoInfo {
+  return entry.photoDetails?.[String(index)] ?? { name: entry.plant || `Garden photo ${index + 1}`, description: entry.caption || "", date: entry.date, category: entry.category, folderId: "" };
+}
+function usePhotoUrl(blob: Blob) {
+  const [url, setUrl] = useState("");
+  useEffect(() => {
+    const next = URL.createObjectURL(blob);
     let active = true;
-    Promise.resolve().then(() => { if (active) setPreviewUrls(urls); });
-    return ()=>{ active = false; Object.values(urls).flat().forEach(url=>URL.revokeObjectURL(url)); };
-  },[entries]);
-  async function save(){
-    if(!photos.length)return setError("Choose at least one photo.");
-    setSaving(true);setError("");
-    try {
-      const entry:PhotoEntry={id:userId+":"+crypto.randomUUID(),date,category,caption,plant,bed,photos:[...photos]};
-      await transact("readwrite",store=>store.put(entry));
-      setPhotos([]);setCaption("");setPlant("");setBed("");setRefresh(n=>n+1);
-      const input=document.getElementById("garden-photo-files") as HTMLInputElement|null;
-      if(input)input.value="";
-    } catch {setError("Could not save photos. Check your browser storage space.");}
-    finally {setSaving(false);}
-  }
-  async function remove(id:string){
-    if(!window.confirm("Delete this photo journal entry?"))return;
-    try {await transact("readwrite",store=>store.delete(id));setRefresh(n=>n+1);}
-    catch {setError("Could not delete this entry.");}
-  }
-  const visible=entries.filter(e=>(filter==="All"||e.category===filter)&&(year==="All"||e.date.startsWith(year)));
-  const years=[...new Set(entries.map(e=>e.date.slice(0,4)))].sort().reverse();
-  return <section className="interior-page photo-journal-page">
-    {embedded ? <div className="mb-4"><h2 className="font-serif text-2xl">Pictures</h2><p className="seasonal-muted mt-2 text-sm">Seedlings, blooms, harvests, and moments worth remembering.</p></div> : <InteriorHeader eyebrow="Your garden in pictures" title="Photo Journal" description="Keep the little moments: seedlings, blooms, harvests, and every stage in between." />}
-    <p className="mb-5 rounded-xl bg-[#f1eee3] p-4 text-sm text-[#415341]">Photos are saved on this device for now, not synced to your account. Export or back up important photos separately.</p>
-    {showComposer && <div className="modern-card mb-7">
-      <h2 className="mb-4 font-serif text-2xl">Add a garden memory</h2>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-sm">Photos (select multiple)<input id="garden-photo-files" type="file" accept="image/*" multiple onChange={e=>setPhotos(Array.from(e.target.files||[]))} /></label>
-        <label className="grid gap-2 text-sm">Category<select value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
-        <label className="grid gap-2 text-sm">Date<input type="date" value={date} onChange={e=>setDate(e.target.value)} /></label>
-        <label className="grid gap-2 text-sm">Plant name (optional)<input value={plant} onChange={e=>setPlant(e.target.value)} placeholder="e.g. Limelight hydrangea" /></label>
-        <label className="grid gap-2 text-sm">Garden bed (optional)<input value={bed} onChange={e=>setBed(e.target.value)} placeholder="e.g. Raised bed 2" /></label>
-        <label className="grid gap-2 text-sm sm:col-span-2">Caption<textarea rows={2} value={caption} onChange={e=>setCaption(e.target.value)} placeholder="What happened in your garden today?" /></label>
-      </div>
-      <div className="mt-4 flex items-center gap-4"><button className="seasonal-button rounded-xl px-5 py-3" disabled={saving} onClick={()=>void save()}>{saving?"Saving…":`Save ${photos.length||""} photo${photos.length===1?"":"s"}`}</button>{photos.length>0&&<span className="text-sm">{photos.length} selected</span>}</div>
-      {error&&<p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
-    </div>}
-    <div className="mb-5 flex flex-wrap gap-3">
-      <label className="text-sm">Category <select className="ml-2" value={filter} onChange={e=>setFilter(e.target.value)}>{["All",...categories].map(c=><option key={c}>{c}</option>)}</select></label>
-      <label className="text-sm">Year <select className="ml-2" value={year} onChange={e=>setYear(e.target.value)}>{["All",...years].map(y=><option key={y}>{y}</option>)}</select></label>
+    Promise.resolve().then(() => { if (active) setUrl(next); });
+    return () => { active = false; URL.revokeObjectURL(next); };
+  }, [blob]);
+  return url;
+}
+function PhotoCard({ picture, folders, selected, busy, onSelect, onSave, onDelete }: { picture: Picture; folders: Folder[]; selected: boolean; busy: boolean; onSelect: () => void; onSave: (info: PhotoInfo) => Promise<boolean>; onDelete: () => void }) {
+  const url = usePhotoUrl(picture.blob);
+  const [editing, setEditing] = useState(false);
+  const [viewing, setViewing] = useState(false);
+  const [draft, setDraft] = useState(picture.info);
+  const label = picture.info.name || "Garden photo";
+  return <article className="min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+    <div className="relative bg-[var(--surface-alt)]">
+      <button type="button" className="block aspect-[4/3] w-full" aria-label={`View ${label}`} onClick={() => setViewing(true)}>
+        {/* Blob URLs are local originals; retain the full picture without cropping. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {url && <img src={url} alt={picture.info.description || label} className="h-full w-full object-contain" loading="lazy" />}
+      </button>
+      <label className="absolute left-2 top-2 flex items-center gap-2 rounded-lg bg-white/95 px-2 py-1 text-xs text-[#233b2d]">
+        <input type="checkbox" checked={selected} disabled={busy} onChange={onSelect} aria-label={`Select ${label}`} /> Select
+      </label>
     </div>
-    {visible.length===0?<p className="modern-card">No pictures yet. Use Add pictures to start your garden gallery.</p>:<div className="grid gap-5 md:grid-cols-2">{visible.map(e=><article key={e.id} className="modern-card">
-      <div className="mb-3 flex items-center justify-between"><strong>{e.category}</strong><span className="text-sm">{e.date}</span></div>
-      <div className="grid grid-cols-2 gap-2">{(previewUrls[e.id]||[]).map((url,i)=><a key={i} href={url} target="_blank" rel="noreferrer"><img src={url} alt={e.caption||e.plant||"Garden journal photo"} className="h-44 w-full rounded-lg object-cover" /></a>)}</div>
-      {e.caption&&<p className="mt-3">{e.caption}</p>}
-      {(e.plant||e.bed)&&<p className="mt-2 text-sm text-[#53634d]">{[e.plant,e.bed].filter(Boolean).join(" · ")}</p>}
-      <button className="mt-3 text-sm underline" onClick={()=>void remove(e.id)}>Delete entry</button>
-    </article>)}</div>}
+    <div className="p-4">
+      <h3 className="break-words font-semibold">{label}</h3>
+      <p className="seasonal-muted mt-1 text-xs">{picture.info.date} · {picture.info.category}</p>
+      {picture.info.description && <p className="mt-3 whitespace-pre-wrap break-words text-sm">{picture.info.description}</p>}
+      {(picture.entry.plant || picture.entry.bed) && <p className="seasonal-muted mt-2 text-xs">{[picture.entry.plant, picture.entry.bed].filter(Boolean).join(" · ")}</p>}
+      {picture.info.folderId && <p className="seasonal-muted mt-2 text-xs">Folder: {folders.find(f => f.id === picture.info.folderId)?.name || "Unfiled"}</p>}
+      {!editing ? <button type="button" className="seasonal-outline mt-4 min-h-10 rounded-lg border px-3 text-sm" onClick={() => { setDraft(picture.info); setEditing(true); }}>Edit details</button> : <form className="mt-4" onSubmit={async e => { e.preventDefault(); if (await onSave(draft)) setEditing(false); }}>
+        <fieldset disabled={busy} className="grid gap-3 text-sm">
+          <label className="grid gap-1">Photo name<input required maxLength={150} value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} /></label>
+          <label className="grid gap-1">Description<textarea rows={3} maxLength={5000} value={draft.description} onChange={e => setDraft({ ...draft, description: e.target.value })} /></label>
+          <label className="grid gap-1">Photo date<input type="date" required value={draft.date} onChange={e => setDraft({ ...draft, date: e.target.value })} /></label>
+          <label className="grid gap-1">Photo category<select value={draft.category} onChange={e => setDraft({ ...draft, category: e.target.value })}>{categories.map(c => <option key={c}>{c}</option>)}</select></label>
+          <label className="grid gap-1">Photo folder<select value={draft.folderId} onChange={e => setDraft({ ...draft, folderId: e.target.value })}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label>
+          <div className="flex flex-wrap gap-2"><button type="submit" className="seasonal-button rounded-lg px-3 py-2">Save details</button><button type="button" className="seasonal-outline rounded-lg border px-3 py-2" onClick={() => setEditing(false)}>Cancel</button></div>
+        </fieldset>
+      </form>}
+      <button type="button" disabled={busy} className="mt-3 block min-h-10 text-xs text-red-800 underline" onClick={onDelete}>Delete picture</button>
+    </div>
+    {viewing && <Dialog title={label} onClose={() => setViewing(false)}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt={picture.info.description || label} className="max-h-[70vh] w-full object-contain" />
+      {picture.info.description && <p className="mt-3 whitespace-pre-wrap text-sm">{picture.info.description}</p>}
+    </Dialog>}
+  </article>;
+}
+export default function PhotoJournal({ userId, embedded = false, showComposer = true }: { userId: string; embedded?: boolean; showComposer?: boolean }) {
+  const [entries, setEntries] = useState<PhotoEntry[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [category, setCategory] = useState("My Garden");
+  const [filter, setFilter] = useState("All");
+  const [year, setYear] = useState("All");
+  const [activeFolder, setActiveFolder] = useState("all");
+  const [uploadFolder, setUploadFolder] = useState("");
+  const [caption, setCaption] = useState("");
+  const [plant, setPlant] = useState("");
+  const [bed, setBed] = useState("");
+  const [date, setDate] = useState(localDay);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [folderForm, setFolderForm] = useState(false);
+  const [folderName, setFolderName] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [moveFolder, setMoveFolder] = useState("");
+  useEffect(() => {
+    let active = true;
+    Promise.all([transact<PhotoEntry[]>("entries", "readonly", store => store.getAll()), transact<Folder[]>("folders", "readonly", store => store.getAll())]).then(([all, savedFolders]) => {
+      if (!active) return;
+      setEntries(all.filter(e => e.id.startsWith(userId + ":")));
+      setFolders(savedFolders.filter(f => f.id.startsWith(userId + ":")));
+      setLoaded(true);
+    }).catch(err => { if (active) setError(err instanceof Error ? err.message : "Photo storage is unavailable in this browser."); });
+    return () => { active = false; };
+  }, [userId]);
+  const pictures: Picture[] = entries.flatMap(entry => entry.photos.map((blob, index) => ({ key: `${entry.id}/${index}`, entry, index, blob, info: pictureInfo(entry, index) })));
+  const visible = pictures.filter(p => (filter === "All" || p.info.category === filter) && (year === "All" || p.info.date.startsWith(year)) && (activeFolder === "all" || p.info.folderId === (activeFolder === "unfiled" ? "" : activeFolder))).sort((a, b) => b.info.date.localeCompare(a.info.date));
+  const years = [...new Set(pictures.map(p => p.info.date.slice(0, 4)))].sort().reverse();
+  async function save() {
+    if (!photos.length) return setError("Choose at least one photo.");
+    if (photos.some(file => !file.type.startsWith("image/"))) return setError("Please choose image files only.");
+    setSaving(true); setError(""); setNotice("");
+    try {
+      const entry: PhotoEntry = { id: userId + ":" + crypto.randomUUID(), date, category, caption, plant, bed, photos: [...photos], photoDetails: Object.fromEntries(photos.map((file, index) => [String(index), { name: file.name.replace(/\.[^.]+$/, "") || `Garden photo ${index + 1}`, description: caption, date, category, folderId: uploadFolder }])) };
+      await transact("entries", "readwrite", store => store.put(entry));
+      setEntries(current => [entry, ...current]); setPhotos([]); setCaption(""); setPlant(""); setBed("");
+      setActiveFolder(uploadFolder || "all"); setFilter("All"); setYear("All");
+      setNotice(`${entry.photos.length} pictures saved. Use Edit details on any picture to add its own name or description.`);
+      if (fileInput.current) fileInput.current.value = "";
+    } catch { setError("Could not save photos. Check your browser storage space."); }
+    finally { setSaving(false); }
+  }
+  async function updatePictures(changes: { picture: Picture; info: PhotoInfo }[]) {
+    setSaving(true); setError(""); setNotice("");
+    try {
+      const updated = new Map<string, PhotoEntry>();
+      for (const { picture, info } of changes) {
+        const entry = updated.get(picture.entry.id) || picture.entry;
+        updated.set(entry.id, { ...entry, photoDetails: { ...entry.photoDetails, [String(picture.index)]: info } });
+      }
+      const db = await openDatabase();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction("entries", "readwrite");
+        for (const entry of updated.values()) tx.objectStore("entries").put(entry);
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onabort = () => { db.close(); reject(tx.error); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      });
+      setEntries(current => current.map(entry => updated.get(entry.id) || entry));
+      setNotice(changes.length === 1 ? "Picture details saved." : `${changes.length} pictures moved.`);
+      return true;
+    } catch { setError("Could not save changes. Please try again."); return false; }
+    finally { setSaving(false); }
+  }
+  async function deletePicture(picture: Picture) {
+    if (!window.confirm("Delete this picture? This cannot be undone.")) return;
+    setSaving(true); setError("");
+    try {
+      const entry = picture.entry;
+      const remaining = entry.photos.filter((_, index) => index !== picture.index);
+      const photoDetails = Object.fromEntries(entry.photos.flatMap((_, index) => index === picture.index ? [] : [[String(index > picture.index ? index - 1 : index), pictureInfo(entry, index)]]));
+      const updated = { ...entry, photos: remaining, photoDetails };
+      if (remaining.length) await transact("entries", "readwrite", store => store.put(updated));
+      else await transact("entries", "readwrite", store => store.delete(entry.id));
+      setEntries(current => remaining.length ? current.map(e => e.id === entry.id ? updated : e) : current.filter(e => e.id !== entry.id));
+      setSelected([]); setNotice("Picture deleted.");
+    } catch { setError("Could not delete picture. Please try again."); }
+    finally { setSaving(false); }
+  }
+  async function createFolder(e: React.FormEvent) {
+    e.preventDefault();
+    const name = folderName.trim();
+    if (!name) return;
+    if (folders.some(f => f.name.toLowerCase() === name.toLowerCase())) return setError("A folder with this name already exists.");
+    setSaving(true); setError("");
+    try {
+      const folder = { id: userId + ":" + crypto.randomUUID(), name };
+      await transact("folders", "readwrite", store => store.put(folder));
+      setFolders(current => [...current, folder]); setFolderName(""); setFolderForm(false); setUploadFolder(folder.id); setMoveFolder(folder.id);
+      setNotice(`Folder “${name}” created. Select pictures and use Move selected to put them here.`);
+    } catch { setError("Could not create folder. Please try again."); }
+    finally { setSaving(false); }
+  }
+  return <section className={embedded ? "photo-journal-page" : "interior-page photo-journal-page"}>
+    {embedded ? <div className="mb-4"><h2 className="font-serif text-2xl">Pictures</h2><p className="seasonal-muted mt-2 text-sm">Your garden, one picture at a time.</p></div> : <InteriorHeader eyebrow="Your garden in pictures" title="Photo Journal" description="Seedlings, blooms, harvests, and every stage in between." />}
+    <p className="seasonal-muted mb-5 text-xs">Photos are saved on this device for now and are not synced to your account.</p>
+    {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+    {notice && <p role="status" className="interior-notice">{notice}</p>}
+    {showComposer && <form className="modern-card mb-7" onSubmit={e => { e.preventDefault(); void save(); }}>
+      <h3 className="mb-4 font-serif text-2xl">Add pictures</h3>
+      <fieldset disabled={saving || !loaded} className="grid gap-4 sm:grid-cols-2">
+        <label className="grid gap-2 text-sm">Photos (select multiple)<input ref={fileInput} type="file" accept="image/*" multiple required onChange={e => setPhotos(Array.from(e.target.files || []))} /></label>
+        <label className="grid gap-2 text-sm">Folder<select value={uploadFolder} onChange={e => setUploadFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label>
+        <label className="grid gap-2 text-sm">Category<select value={category} onChange={e => setCategory(e.target.value)}>{categories.map(c => <option key={c}>{c}</option>)}</select></label>
+        <label className="grid gap-2 text-sm">Date<input type="date" required value={date} onChange={e => setDate(e.target.value)} /></label>
+        <label className="grid gap-2 text-sm">Plant name (optional)<input value={plant} onChange={e => setPlant(e.target.value)} /></label>
+        <label className="grid gap-2 text-sm">Garden bed (optional)<input value={bed} onChange={e => setBed(e.target.value)} /></label>
+        <label className="grid gap-2 text-sm sm:col-span-2">Description for this upload (optional)<textarea rows={2} maxLength={5000} value={caption} onChange={e => setCaption(e.target.value)} /><span className="seasonal-muted text-xs">You can edit each picture’s name and description after uploading.</span></label>
+        <div className="flex flex-wrap items-center gap-3 sm:col-span-2"><button type="submit" className="seasonal-button rounded-lg px-5 py-3">{saving ? "Saving…" : `Save ${photos.length || ""} pictures`}</button>{photos.length > 0 && <span className="text-sm">{photos.length} selected</span>}</div>
+      </fieldset>
+    </form>}
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="font-serif text-xl">Folders</h3><button type="button" disabled={saving || !loaded} className="seasonal-outline rounded-lg border px-3 py-2 text-sm" onClick={() => setFolderForm(open => !open)} aria-expanded={folderForm}>+ New folder</button></div>
+    {folderForm && <form onSubmit={createFolder} className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-[var(--border)] p-4"><label className="grid flex-1 gap-2 text-sm">Folder name<input autoFocus required maxLength={100} disabled={saving} value={folderName} onChange={e => setFolderName(e.target.value)} placeholder={`e.g. Seedlings — ${localDay()}`} /></label><button disabled={saving} className="seasonal-button rounded-lg px-4 py-2">Create folder</button><button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setFolderForm(false)}>Cancel</button></form>}
+    <div className="mb-5 flex flex-wrap gap-2" aria-label="Picture folders">
+      {[{ id: "all", name: "All pictures" }, { id: "unfiled", name: "Unfiled" }, ...folders].map(folder => <button type="button" key={folder.id} disabled={saving} aria-pressed={activeFolder === folder.id} className={`${activeFolder === folder.id ? "seasonal-button" : "seasonal-outline border"} rounded-lg px-4 py-3 text-sm`} onClick={() => { setActiveFolder(folder.id); setSelected([]); }}><span>{folder.name}</span><span className="ml-2 text-xs opacity-75">{pictures.filter(p => folder.id === "all" || p.info.folderId === (folder.id === "unfiled" ? "" : folder.id)).length}</span></button>)}
+    </div>
+    <div className="mb-5 flex flex-wrap items-center gap-4"><label className="text-sm">Category <select className="ml-2" value={filter} onChange={e => { setFilter(e.target.value); setSelected([]); }}>{["All", ...categories].map(c => <option key={c}>{c}</option>)}</select></label><label className="text-sm">Year <select className="ml-2" value={year} onChange={e => { setYear(e.target.value); setSelected([]); }}>{["All", ...years].map(y => <option key={y}>{y}</option>)}</select></label><span className="seasonal-muted text-xs">{visible.length} pictures</span><button type="button" disabled={saving || !visible.length} className="seasonal-outline min-h-10 text-sm underline" onClick={() => setSelected(selected.length === visible.length ? [] : visible.map(p => p.key))}>{selected.length === visible.length && visible.length ? "Clear selection" : "Select all visible"}</button></div>
+    {!!selected.length && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4"><span className="text-sm">{selected.length} selected</span><label className="text-sm">Move to <select disabled={saving} className="ml-2" value={moveFolder} onChange={e => setMoveFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label><button disabled={saving} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const moved = await updatePictures(pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, folderId: moveFolder } }))); if (moved) setSelected([]); }}>Move selected</button></div>}
+    {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">Room for your garden memories</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{visible.map(picture => <PhotoCard key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
   </section>;
 }
