@@ -78,7 +78,8 @@ export default function GardenWorkspace({
   const [vaultQuery,setVaultQuery]=useState("");
   const [search, setSearch] = useState("");
   const vault = useVault(userId, page);
-  const [gardens, setGardens] = useState(initialGardens);
+  const [allGardens, setGardens] = useState(initialGardens);
+  const gardens = useMemo(() => allGardens.filter((g) => g.name.trim().toLowerCase() !== "garden os verification"), [allGardens]);
   const [storedSpaces, setSpaces] = useState(initialSpaces);
   const spaces = useMemo(
     () =>
@@ -99,7 +100,8 @@ export default function GardenWorkspace({
     [storedSpaces, vault],
   );
   const [layoutBed, setLayoutBed] = useState<string | undefined>();
-  const [gardenId, setGardenId] = useState(initialGardens[0]?.id ?? "");
+  const [selectedGardenId, setGardenId] = useState(initialGardens[0]?.id ?? "");
+  const gardenId = gardens.some((g) => g.id === selectedGardenId) ? selectedGardenId : (gardens[0]?.id ?? "");
   const [error, setError] = useState(initialError);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -541,7 +543,6 @@ export default function GardenWorkspace({
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">
               <InteriorHeader title="My Gardens" eyebrow="Your own patch of possibility" description="A clear view of your spaces, what is planted, and where there is room to grow.">
-                <button className="seasonal-button" disabled={busy || !loaded} onClick={()=>setGardenForm("new")}>New garden</button>
               </InteriorHeader>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
                 {gardens.map((g) => {
@@ -559,6 +560,13 @@ export default function GardenWorkspace({
                     </button>
                   );
                 })}
+                <button type="button" disabled={busy || !loaded} onClick={() => setGardenForm("new")}
+                  className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-5 text-center transition-colors hover:bg-black/5"
+                  style={{ borderColor: "color-mix(in srgb, var(--sidebar-start) 45%, transparent)", color: "var(--sidebar-start)" }}>
+                  <span aria-hidden="true" className="text-3xl leading-none">+</span>
+                  <span className="font-serif text-2xl">New Garden</span>
+                  <span className="seasonal-muted text-xs">Start a new growing space</span>
+                </button>
               </div>
               <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p>
 
