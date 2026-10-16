@@ -45,6 +45,12 @@ function readPageFromUrl(): Destination {
   return destinations.find((destination) => pageView(destination) === view) ?? "Dashboard";
 }
 
+function readGardenPageFromUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("view") === "my-gardens" ? params.get("garden") : null;
+}
+
 function inspect(space: Space) {
   try {
     return { ...spaceSummary(space), error: "" };
@@ -100,8 +106,9 @@ export default function GardenWorkspace({
     [storedSpaces, vault],
   );
   const [layoutBed, setLayoutBed] = useState<string | undefined>();
+  const [gardenPageId, setGardenPageId] = useState<string | null>(readGardenPageFromUrl);
   const [selectedGardenId, setGardenId] = useState(initialGardens[0]?.id ?? "");
-  const gardenId = gardens.some((g) => g.id === selectedGardenId) ? selectedGardenId : (gardens[0]?.id ?? "");
+  const gardenId = gardenPageId ?? (gardens.some((g) => g.id === selectedGardenId) ? selectedGardenId : (gardens[0]?.id ?? ""));
   const [error, setError] = useState(initialError);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -123,6 +130,11 @@ export default function GardenWorkspace({
   function navigate(next: Destination) {
     const url = new URL(window.location.href);
     url.searchParams.set("view", pageView(next));
+    url.searchParams.delete("garden");
+    setGardenPageId(null);
+    setEditor(null);
+    setOpenId(null);
+    setGardenForm(null);
     if (url.href !== window.location.href) window.history.pushState(null, "", url);
     setPage(next);
     setVaultOpen(next === "Plant Vault");
@@ -135,6 +147,10 @@ export default function GardenWorkspace({
     function restorePage() {
       const next = readPageFromUrl();
       setPage(next);
+      setGardenPageId(readGardenPageFromUrl());
+      setEditor(null);
+      setOpenId(null);
+      setGardenForm(null);
       setVaultOpen(next === "Plant Vault");
       setLayoutOpen(next === "Garden Layout");
       setCalendarOpen(next === "Growing Calendar");
@@ -168,6 +184,17 @@ export default function GardenWorkspace({
   );
   const opened = activeSpaces.find((s) => s.id === openId);
   const editing = activeSpaces.find((s) => s.id === editor);
+
+  function openGarden(id: string) {
+    selectGarden(id);
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", "my-gardens");
+    url.searchParams.set("garden", id);
+    if (url.href !== window.location.href) window.history.pushState(null, "", url);
+    setGardenPageId(id);
+    setPage("My Gardens");
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
 
   function selectGarden(id: string) {
     setGardenId(id);
@@ -542,16 +569,17 @@ export default function GardenWorkspace({
           {page === "Flower Garden" && <FlowersPage plants={vault} />}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">
-              <InteriorHeader title="My Gardens" eyebrow="Your own patch of possibility" description="A clear view of your spaces, what is planted, and where there is room to grow.">
+              {gardenPageId && <button type="button" onClick={() => navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← All gardens</button>}
+              <InteriorHeader title={gardenPageId ? (garden?.name || "Garden unavailable") : "My Gardens"} eyebrow={gardenPageId ? "Your garden" : "Your own patch of possibility"} description={gardenPageId ? (garden ? [String(garden.year), garden.location, garden.hardiness_zone ? `Zone ${garden.hardiness_zone}` : null].filter(Boolean).join(" · ") : "This garden is unavailable. Return to All gardens to choose another.") : "Choose a garden to open its growing spaces, plants, and records."}>
               </InteriorHeader>
-              <div
+              {gardenPageId && garden && <div
                 className={
                   vaultOpen || layoutOpen || calendarOpen
                     ? "hidden"
                     : "interior-toolbar garden-selection-bar"
                 }
               >
-                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">Choose a garden below to see its growing spaces.</p></div>
+                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">Manage this garden’s growing spaces and plants.</p></div>
                 <div className="flex flex-wrap gap-3">
                   <button type="button" onClick={()=>setPlanner(true)} className="seasonal-outline min-h-11 rounded-xl border px-4">Plant planner</button>
                   {garden && (
@@ -577,17 +605,16 @@ export default function GardenWorkspace({
                     {busy ? "Working…" : "Refresh"}
                   </button>
                 </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
+              </div>}
+              {!gardenPageId && <><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
                 {gardens.map((g) => {
                   const beds = spaces.filter((s) => s.garden_id === g.id && !summaries.get(s.id)?.details?.archived);
                   const plants = beds.reduce((total, s) => total + (summaries.get(s.id)?.plants || 0), 0);
-                  const selected = g.id === gardenId;
                   return (
-                    <button key={g.id} type="button" aria-pressed={selected} onClick={() => selectGarden(g.id)}
+                    <button key={g.id} type="button" onClick={() => openGarden(g.id)}
                       className="rounded-xl border-2 p-5 text-left transition-colors"
-                      style={{ borderColor: selected ? "var(--sidebar-start)" : "var(--border)", background: selected ? "color-mix(in srgb, var(--sidebar-start) 8%, var(--surface))" : "var(--surface)" }}>
-                      <span className="flex items-center justify-between gap-3 text-xs" style={{ color: "var(--sidebar-start)" }}><span>{g.year}</span>{selected && <span>Viewing ✓</span>}</span>
+                      style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+                      <span className="flex items-center justify-between gap-3 text-xs" style={{ color: "var(--sidebar-start)" }}><span>{g.year}</span><span>Open garden →</span></span>
                       <span className="mt-3 block font-serif text-2xl">{g.name}</span>
                       {g.location && <span className="seasonal-muted mt-1 block text-sm">{g.location}</span>}
                       <span className="seasonal-muted mt-4 block text-xs">{beds.length} {beds.length === 1 ? "growing space" : "growing spaces"} · {plants} {plants === 1 ? "plant" : "plants"}</span>
@@ -602,7 +629,7 @@ export default function GardenWorkspace({
                   <span className="seasonal-muted text-xs">Start a new growing space</span>
                 </button>
               </div>
-              <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p>
+              <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p></>}
 
               {error && (
                 <div
@@ -617,7 +644,7 @@ export default function GardenWorkspace({
                   {notice}
                 </p>
               )}
-              <details className="vault-backup-tools"><summary>Recover older growing spaces</summary>              <LegacySpaces
+              {gardenPageId && garden && <details className="vault-backup-tools"><summary>Recover older growing spaces</summary>              <LegacySpaces
                 gardenId={gardenId}
                 busy={busy}
                 importedIds={Array.from(summaries.values())
@@ -625,7 +652,7 @@ export default function GardenWorkspace({
                   .filter((id): id is string => !!id)}
                 onImport={setImportCandidate}
               />
-</details>
+</details>}
               {gardenForm && loaded && (
                 <div
                   className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]"
@@ -659,14 +686,14 @@ export default function GardenWorkspace({
                           g,
                           ...current.filter((item) => item.id !== g.id),
                         ]);
-                        selectGarden(g.id);
+                        openGarden(g.id);
                         setNotice("Garden saved.");
                       }}
                     />
                   </div>
                 </div>
               )}
-              <section className="spaces-section">
+              {gardenPageId && garden && <><section className="spaces-section">
                 <div className="section-heading">
                   <div>
 
@@ -828,7 +855,7 @@ export default function GardenWorkspace({
                   </details>
                 )}
               </section>
-              <div className="interior-related"><div><h3>Your garden journal</h3><p>Observations, watering and harvest history live together in one place.</p></div><button className="seasonal-outline" onClick={()=>navigate("Journal")}>Open Journal →</button></div>
+              <div className="interior-related"><div><h3>Your garden journal</h3><p>Observations, watering and harvest history live together in one place.</p></div><button className="seasonal-outline" onClick={()=>navigate("Journal")}>Open Journal →</button></div></>}
               <footer className="seasonal-muted mt-12 border-t border-[var(--border)] pt-5 text-sm">
                 Garden OS · Grow smarter. Harvest better.{" "}
                 <span className="block mt-1">
