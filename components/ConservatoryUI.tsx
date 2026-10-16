@@ -2,6 +2,8 @@
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
+import dynamic from "next/dynamic";
+const JournalPictures = dynamic(() => import("@/components/PhotoJournal"), { loading: () => <p>Opening pictures…</p> });
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -611,23 +613,27 @@ export function TasksPage({
   );
 }
 export function JournalPage({
+  userId,
   spaces,
   historySpaces,
   busy,
   onSave,
 }: {
+  userId: string;
   spaces: Space[];
   historySpaces?: Space[];
   busy: boolean;
   onSave: (space: Space, details: SpaceDetails) => Promise<boolean>;
 }) {
+  const [addingPictures, setAddingPictures] = useState(false);
   const [adding,setAdding]=useState(false);
   const [activity,setActivity]=useState<Entry["kind"]>("Note");
   const [message, setMessage] = useState("");
   const rows = journalRows(historySpaces || spaces);
   return (
     <section className="interior-page journal-page">
-      <InteriorHeader title="Garden Journal" eyebrow="Small observations, lasting knowledge" description="Keep the moments worth remembering. Review what grew well and carry that experience into your next season."><button className="seasonal-button" onClick={()=>setAdding(true)}>Add entry</button></InteriorHeader>
+      <InteriorHeader title="Garden Journal" eyebrow="Small observations, lasting knowledge" description="Keep the moments worth remembering. Review what grew well and carry that experience into your next season."><button className="seasonal-button" onClick={()=>setAdding(true)}>Add entry</button><button type="button" className="seasonal-outline" onClick={() => setAddingPictures(true)}>Add pictures</button></InteriorHeader>
+      {addingPictures && <Dialog title="Journal pictures" onClose={() => setAddingPictures(false)}><JournalPictures userId={userId} /></Dialog>}
       <InteriorStats items={[{label:"Observations",value:rows.length},{label:"Measured harvests",value:rows.filter(row=>row.kind==="Harvest"&&row.quantity).length},{label:"Seasons recorded",value:new Set(rows.map(row=>row.date.slice(0,4))).size}]}/>
       {message && <p role="status" className="interior-notice">{message}</p>}
       {adding && <Dialog title="Add journal entry" onClose={()=>{if(!busy)setAdding(false);}}>
