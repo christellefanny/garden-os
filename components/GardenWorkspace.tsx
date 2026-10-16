@@ -707,8 +707,7 @@ export default function GardenWorkspace({
                         <SpacePortrait name={s.name} details={summary.details} vault={vault}/>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="eyebrow seasonal-muted">{s.type}</p>
-                            <h3 className="seasonal-heading mt-2 break-words text-2xl font-bold">
+                            <h3 className="seasonal-heading break-words text-2xl font-bold">
                               <button
                                 type="button"
                                 disabled={!!summary.error}
@@ -722,7 +721,7 @@ export default function GardenWorkspace({
                               </button>
                             </h3>
                           </div>
-                          <button type="button" disabled={busy || !!summary.error} onClick={() => { setPlantSpacing(12); setOpenId(s.id); }} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap" aria-label={`Add plant to ${s.name}`}>+ Add plant</button>
+                          <button type="button" disabled={busy || !!summary.error} onClick={() => { setPlantSpacing(12); setOpenId(s.id); }} className="seasonal-button rounded-lg whitespace-nowrap" style={{ minHeight: 30, padding: "5px 10px", fontSize: 12 }} aria-label={`Add plant to ${s.name}`}>+ Add plant</button>
                           {(summary.capacity ?? 0) >= 75 && (
                             <span className="rounded-full bg-[var(--highlight)] px-3 py-1 text-xs font-bold text-[var(--foreground)]">
                               Review spacing
