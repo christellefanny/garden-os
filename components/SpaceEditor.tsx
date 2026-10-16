@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { validPhotoUrl } from "@/lib/space-portrait";
 import Dialog from "@/components/ui/Dialog";
 import {
@@ -26,6 +26,8 @@ export default function SpaceEditor({
   onClose: () => void;
   onAddPlant?: () => void;
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const addingPlant = useRef(false);
   const [type, setType] = useState(space?.type === "Grow Bag" ? "Grow Bag" : space?.type ?? "Raised Bed");
   const growBag = type === "Grow Bag" || type === "Growing Bag";
   const round = type === "Container";
@@ -82,7 +84,11 @@ export default function SpaceEditor({
         notes: String(form.get("notes") || "").trim(),
       }),
     });
-    if (saved) onClose();
+    if (saved) {
+      if (addingPlant.current) onAddPlant?.();
+      else onClose();
+      addingPlant.current = false;
+    }
     else
       setError(
         "The space was not saved. Check the dashboard message and try again.",
@@ -92,9 +98,9 @@ export default function SpaceEditor({
     <Dialog
       title={title ?? (space ? "Edit Growing Space" : "Add Growing Space")}
       onClose={onClose}
-      headerActions={onAddPlant && <button type="button" disabled={busy} onClick={onAddPlant} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap">+ Add plant</button>}
+      headerActions={onAddPlant && <button type="button" disabled={busy} onClick={() => { addingPlant.current = true; formRef.current?.requestSubmit(); }} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap">+ Add plant</button>}
     >
-      <form onSubmit={submit} className="space-y-4">
+      <form ref={formRef} onSubmit={submit} className="space-y-4">
         <fieldset disabled={busy} className="space-y-4 disabled:opacity-60">
           <Field
             label="Name"
@@ -210,6 +216,7 @@ export default function SpaceEditor({
           </label>
           <button
             type="submit"
+            onClick={() => { addingPlant.current = false; }}
             className="seasonal-button w-full rounded-xl px-5 py-3 font-bold text-white"
           >
             {busy ? "Saving…" : "Save Growing Space"}
