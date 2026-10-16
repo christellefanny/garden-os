@@ -777,7 +777,7 @@ export default function GardenWorkspace({
                               className="mt-2 h-2 overflow-hidden rounded-full bg-black/10"
                             >
                               <div
-                                className={`h-full rounded-full ${(summary.capacity ?? 0) >= 100 ? "bg-[var(--accent-2)]" : (summary.capacity ?? 0) >= 75 ? "bg-[var(--highlight)]" : "seasonal-progress"}`}
+                                className={`h-full rounded-full ${(summary.capacity ?? 0) > 98 ? "bg-red-600" : (summary.capacity ?? 0) >= 75 ? "bg-orange-500" : "bg-green-600"}`}
                                 style={{
                                   width: `${Math.min(summary.capacity ?? 0, 100)}%`,
                                 }}
