@@ -100,26 +100,17 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8d716e]">Explore the garden</p><h2 className="mt-1 font-serif text-3xl text-[#304332]">What would you like to grow?</h2></div>
         <p className="max-w-xs text-sm leading-6 text-[#667466]">Your flowers, seasonal know-how, and inspiration—all in one place.</p>
       </div>
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_1fr]">
-        <button type="button" onClick={()=>setSection("Cut Flowers")} className="group relative min-h-[285px] overflow-hidden rounded-3xl border border-[#d9d5c9] bg-[#f5ede5] text-left shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
-          <img src="/Bouquets.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[64%_center] opacity-90 transition-transform duration-500 group-hover:scale-[1.03]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#faf6ed] via-[#faf6ed]/95 via-[45%] to-transparent" />
-          <div className="relative flex min-h-[285px] max-w-[70%] flex-col justify-between p-6 sm:p-8">
-            <div><span className="text-xs font-bold uppercase tracking-[0.16em] text-[#a56768]">Featured collection</span><h3 className="mt-3 font-serif text-3xl text-[#304332]">Cut Flowers</h3><p className="mt-3 max-w-[260px] text-sm leading-6 text-[#536254]">Discover flowers for bouquets, harvest tips, and beautiful arrangements.</p></div>
-            <span className="mt-6 inline-flex w-fit items-center rounded-full border border-[#9fae9b] bg-[#fffaf2]/90 px-4 py-2 text-sm font-semibold text-[#304332]">Explore bouquets →</span>
-          </div>
-        </button>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {([
-            {label:"My flowers",eyebrow:"Your collection",detail:`${flowers.length} flowers in your collection`,symbol:"✿",color:"#edf2e7",ink:"#648066",action:"View collection"},
-            {label:"Seasonal planting",eyebrow:"Garden calendar",detail:"Know what to plant each season",symbol:"☀",color:"#f6efe0",ink:"#ac8655",action:"Plan the season"},
-            {label:"Seed saving",eyebrow:"From bloom to seed",detail:"Collect, dry, and save seeds",symbol:"❋",color:"#f2e9ed",ink:"#a77889",action:"Learn seed saving"},
-            {label:"Flower care",eyebrow:"Grow beautifully",detail:"Help every bloom thrive",symbol:"❀",color:"#e9eeed",ink:"#6e8a83",action:"Explore care guides"}
-          ] as {label:FlowerSection;eyebrow:string;detail:string;symbol:string;color:string;ink:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="group flex min-h-[136px] flex-col justify-between rounded-2xl border border-[#e2dfd4] p-5 text-left transition-all hover:-translate-y-1 hover:shadow-md" style={{backgroundColor:card.color}}>
-            <div className="flex items-start justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#697469]">{card.eyebrow}</span><span aria-hidden="true" className="font-serif text-4xl leading-none opacity-80" style={{color:card.ink}}>{card.symbol}</span></div>
-            <div><h3 className="mt-1 font-serif text-xl text-[#304332]">{card.label}</h3><p className="mt-1 text-xs leading-5 text-[#667466]">{card.detail}</p><span className="mt-2 inline-block text-xs font-semibold text-[#435640]">{card.action} →</span></div>
-          </button>)}
-        </div>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {([
+          {label:"My flowers",eyebrow:"Your collection",detail:`${flowers.length} flowers in your collection`,symbol:"✿",color:"#edf2e7",ink:"#648066",action:"View collection"},
+          {label:"Seasonal planting",eyebrow:"Garden calendar",detail:"Know what to plant each season",symbol:"☀",color:"#f6efe0",ink:"#ac8655",action:"Plan the season"},
+          {label:"Cut Flowers",eyebrow:"From garden to vase",detail:"Discover bouquet flowers and arrangements",symbol:"✾",color:"#f6e9e6",ink:"#b57c82",action:"Explore bouquets"},
+          {label:"Seed saving",eyebrow:"From bloom to seed",detail:"Collect, dry, and save seeds",symbol:"❋",color:"#f2e9ed",ink:"#a77889",action:"Learn seed saving"},
+          {label:"Flower care",eyebrow:"Grow beautifully",detail:"Help every bloom thrive",symbol:"❀",color:"#e9eeed",ink:"#6e8a83",action:"Explore care guides"}
+        ] as {label:FlowerSection;eyebrow:string;detail:string;symbol:string;color:string;ink:string;action:string}[]).map(card=><button key={card.label} type="button" onClick={()=>setSection(card.label)} className="group flex min-h-[152px] flex-col justify-between rounded-2xl border border-[#e2dfd4] p-5 text-left transition-all hover:-translate-y-1 hover:shadow-md" style={{backgroundColor:card.color}}>
+          <div className="flex items-start justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#697469]">{card.eyebrow}</span><span aria-hidden="true" className="font-serif text-4xl leading-none opacity-80" style={{color:card.ink}}>{card.symbol}</span></div>
+          <div><h3 className="mt-1 font-serif text-xl text-[#304332]">{card.label}</h3><p className="mt-1 text-xs leading-5 text-[#667466]">{card.detail}</p><span className="mt-2 inline-block text-xs font-semibold text-[#435640]">{card.action} →</span></div>
+        </button>)}
       </div>
     </>}
     {section==="Cut Flowers"&&<>
