@@ -1615,3 +1615,38 @@ button:focus-visible {
  .garden-atelier-wordmark {font-size:17px;margin-top:0}
  .garden-atelier-brand-tagline {font-size:6.5px;letter-spacing:1px}
 }
+
+/* Garden Atelier homepage: illustrated seasonal identity, without stock photos. */
+.atelier-welcome-banner {
+ position:relative;display:flex;align-items:center;min-height:260px;
+ padding:38px clamp(22px,4vw,60px);border-radius:18px;overflow:hidden;
+ background-color:#f5f0e5;background-position:center;background-size:cover;
+ border:1px solid color-mix(in srgb,var(--sidebar-start) 16%,transparent);
+}
+.atelier-welcome-spring {background-image:url("/conservatory/atelier-spring-illustration.svg")}
+.atelier-welcome-summer {background-image:url("/conservatory/atelier-summer-illustration.svg")}
+.atelier-welcome-fall {background-image:url("/conservatory/atelier-fall-illustration.svg")}
+.atelier-welcome-winter {background-image:url("/conservatory/atelier-winter-illustration.svg")}
+.atelier-welcome-copy {position:relative;max-width:590px;color:#203d2c;text-shadow:0 1px 2px #fff8;}
+.atelier-welcome-copy p {font:clamp(22px,2.7vw,40px)/1.2 Georgia,serif;}
+.atelier-welcome-copy h1 {font:clamp(38px,5vw,68px)/1.1 Georgia,serif;margin:0 0 8px;letter-spacing:-1.5px;}
+.atelier-welcome-copy span {font:clamp(13px,1.6vw,19px)/1.5 Georgia,serif;}
+.atelier-welcome-copy b {font-weight:normal;padding:0 7px;}
+.atelier-home-sections {display:grid;grid-template-columns:minmax(0,1.85fr) minmax(280px,1fr);gap:14px;margin:16px 0;}
+.atelier-home-sections .modern-card {border-radius:17px;padding:22px;background:#fffdf9;}
+.atelier-gardens-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+.atelier-garden-tile,.atelier-add-garden {min-width:0;text-align:left;overflow:hidden;border:1px solid #ebe5dc;border-radius:12px;background:white;padding-bottom:11px;}
+.atelier-garden-tile strong,.atelier-garden-tile small {display:block;padding:0 10px;}
+.atelier-garden-tile strong {font:17px/1.25 Georgia,serif;color:#29422f;margin-top:10px;}
+.atelier-garden-tile small {font-size:11px;color:#687568;margin-top:5px;}
+.atelier-garden-art {display:block;height:114px;background-size:cover;background-position:75% center;}
+.atelier-garden-art-0 {background-image:url("/conservatory/atelier-summer-illustration.svg")}
+.atelier-garden-art-1 {background-image:url("/conservatory/atelier-spring-illustration.svg")}
+.atelier-garden-art-2 {background-image:url("/conservatory/atelier-fall-illustration.svg")}
+.atelier-add-garden {display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:color-mix(in srgb,var(--sidebar-start) 6%,#fffdf9);padding:15px 8px;border-style:dashed;}
+.atelier-add-garden>span {height:42px;width:42px;border-radius:50%;display:grid;place-items:center;color:white;background:var(--sidebar-start);font-size:28px;margin-bottom:12px;}
+.atelier-add-garden strong {font:17px Georgia,serif;color:#29422f;}
+.atelier-add-garden small {font-size:11px;margin-top:6px;color:#687568;}
+.atelier-upcoming-panel .modern-task-row {padding:10px 0;}
+@media(max-width:1100px){.atelier-home-sections {grid-template-columns:1fr}}
+@media(max-width:680px){.atelier-welcome-banner{min-height:205px;padding:24px}.atelier-gardens-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.atelier-welcome-copy h1{font-size:39px}.atelier-welcome-copy b{padding:0 3px}}
