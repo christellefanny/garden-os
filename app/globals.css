@@ -1569,7 +1569,7 @@ button:focus-visible {
 .garden-atelier-mark {
   display:block;
   width:175px;
-  height:87px;
+  height:58px;
   max-width:100%;
   overflow:hidden;
   position:relative;
@@ -1590,7 +1590,7 @@ button:focus-visible {
   letter-spacing:-.7px;
   color:#fff;
   text-shadow:0 1px 2px #192b2438;
-  margin-top:-17px;
+  margin-top:0;
   position:relative;
 }
 .garden-atelier-white {
@@ -1605,13 +1605,13 @@ button:focus-visible {
   color:var(--sidebar-ink);
 }
 @media (max-width:1024px) {
- .garden-atelier-mark {width:155px;height:78px}
+ .garden-atelier-mark {width:155px;height:51px}
  .garden-atelier-mark img {width:155px}
- .garden-atelier-wordmark {font-size:19px;margin-top:-15px}
+ .garden-atelier-wordmark {font-size:19px;margin-top:0}
 }
 @media (max-width:640px) {
- .garden-atelier-mark {width:138px;height:70px}
+ .garden-atelier-mark {width:138px;height:46px}
  .garden-atelier-mark img {width:138px}
- .garden-atelier-wordmark {font-size:17px;margin-top:-13px}
+ .garden-atelier-wordmark {font-size:17px;margin-top:0}
  .garden-atelier-brand-tagline {font-size:6.5px;letter-spacing:1px}
 }
