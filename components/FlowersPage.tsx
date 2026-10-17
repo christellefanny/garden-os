@@ -102,7 +102,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       >
         <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
           <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to your flower garden</p>
-          <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl">Grow something beautiful.</h2>
+          <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight sm:text-5xl" style={{ color: "#fff8eb" }}>Grow something beautiful.</h2>
           <p className="mt-5 max-w-xl text-sm leading-7 text-white sm:text-base">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
         </div>
       </div>
