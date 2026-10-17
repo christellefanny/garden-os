@@ -1622,21 +1622,23 @@ html[data-season="spring"] {--atelier-tint:#e7cbd9;--atelier-deep:#8a4f70;--atel
 html[data-season="fall"] {--atelier-tint:#e6c5a6;--atelier-deep:#99552f;--atelier-light:#fbf0e5;--atelier-dark:#743d24;}
 html[data-season="winter"] {--atelier-tint:#bfd3cb;--atelier-deep:#355e50;--atelier-light:#edf3ef;--atelier-dark:#254438;}
 html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;--primary:var(--atelier-deep);--primary-dark:var(--atelier-dark);--primary-soft:var(--atelier-light);--accent:var(--atelier-deep);--sidebar-start:var(--atelier-deep);--sidebar-end:var(--atelier-dark);}
-.modern-sidebar {background:#fffdf7;color:#263d30;border-right:1px solid #e9e6dd;padding:28px 16px;overflow-y:auto;}
+.modern-sidebar {background:linear-gradient(165deg,var(--atelier-deep),var(--atelier-dark));color:#fff8eb;border-right:1px solid var(--atelier-dark);padding:28px 16px;overflow-y:auto;}
 .modern-sidebar nav {gap:5px;}
-.modern-sidebar nav button {color:#2d4034;font-weight:400;border-radius:10px;min-height:46px;font-size:14px;}
-.modern-sidebar svg {color:#53684d;stroke-width:1.5;}
-.modern-sidebar nav button:hover,.modern-sidebar nav button[aria-current="page"] {background:var(--atelier-light);color:var(--atelier-deep);}
-.modern-sidebar nav button[aria-current="page"] {font-weight:600;box-shadow:inset 3px 0 var(--atelier-deep);}
-.modern-sidebar nav button:nth-child(9) {border-color:#eee6dd;margin-top:16px;}
+.modern-sidebar nav button {color:#fff8eb;font-weight:400;border-radius:10px;min-height:46px;font-size:14px;}
+.modern-sidebar svg {color:currentColor;stroke-width:1.5;}
+.modern-sidebar nav button:hover {background:#ffffff18;color:#fffdf7;}
+.modern-sidebar nav button[aria-current="page"] {background:#fff8eb;color:var(--atelier-dark);font-weight:600;box-shadow:0 2px 8px #0000000a;}
+.modern-sidebar button:focus-visible {outline:2px solid #fff8eb;outline-offset:3px;}
+.modern-sidebar nav button:nth-child(9) {border-color:#ffffff35;margin-top:16px;}
 .modern-brand:has(.garden-atelier-mark) {align-items:center;padding:0 0 24px;gap:0;}
-.garden-atelier-mark {height:96px;width:177px;}
+.garden-atelier-mark {height:96px;width:177px;background:#fffdf7;border-radius:12px;}
 .garden-atelier-mark img {width:177px;}
 .garden-atelier-wordmark,.garden-atelier-white {color:#243d2e;text-shadow:none;}
 .garden-atelier-wordmark {font-size:25px;letter-spacing:-.8px;}
 .garden-atelier-brand-tagline {color:#65745e;letter-spacing:1.1px;}
 .sidebar-botany {display:none;}
-.modern-signout {color:#3f5d4a;}
+.modern-signout {color:#fff8eb;}
+.modern-sidebar .garden-atelier-brand-tagline {color:#fff8eb;}
 .modern-topbar {min-height:64px;gap:14px;}
 .modern-search {border-radius:24px;background:#fffdfa80;border:1px solid #e8e3d8;padding:12px 18px;}
 .modern-search:focus-within {background:var(--atelier-light);box-shadow:0 0 0 2px var(--atelier-tint);border-color:var(--atelier-deep);}
