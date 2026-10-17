@@ -106,7 +106,7 @@ export function ConservatoryNavigation({
         <span className="garden-atelier-brand-tagline">PLAN · GROW · HARVEST · ENJOY</span>
       </button>
       <nav aria-label="Garden Atelier navigation">
-        {destinations.map((name) => (
+        {destinations.filter((name) => !guest || name !== "Plant Vault").map((name) => (
           <button
             key={name}
             aria-current={page === name ? "page" : undefined}
@@ -362,7 +362,7 @@ export function ModernDashboard({
           ["Tasks", confirmed.length, "Tasks"],
           ["Flowers", category("Flower"), "Plant Vault"],
           ["Herbs", category("Herb"), "Plant Vault"],
-        ].map(([label, count, page], i) => (
+        ].filter(([, , destination]) => userId !== "guest" || destination !== "Plant Vault").map(([label, count, page], i) => (
           <button key={label} onClick={() => navigate(page as Destination)}>
             <span className="stat-icon">
               <LineIcon index={i} />
@@ -472,8 +472,7 @@ export function ModernDashboard({
             ))
           ) : (
             <p className="empty-copy">
-              No scheduled steps this week. Add plants to your vault or create a
-              reminder in Growing Calendar.
+              No scheduled steps this week. {userId === "guest" ? "Create a reminder in Growing Calendar." : "Add plants to your vault or create a reminder in Growing Calendar."}
             </p>
           )}
         </section>
@@ -538,7 +537,7 @@ export function ModernDashboard({
             </p>
           )}
         </section>
-        <section className="modern-card">
+        {userId !== "guest" && <section className="modern-card">
           <div className="modern-card-title">
             <h2>Plant Vault</h2>
             <button onClick={() => navigate("Plant Vault")}>
@@ -571,7 +570,7 @@ export function ModernDashboard({
               );
             })}
           </div>
-        </section>
+        </section>}
       </div>
     </div>
   );

@@ -40,10 +40,10 @@ function pageView(page: Destination) {
   return page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
 }
 
-function readPageFromUrl(): Destination {
+function readPageFromUrl(guest = false): Destination {
   if (typeof window === "undefined") return "Dashboard";
   const view = new URLSearchParams(window.location.search).get("view");
-  return destinations.find((destination) => pageView(destination) === view) ?? "Dashboard";
+  return destinations.find((destination) => pageView(destination) === view && (!guest || destination !== "Plant Vault")) ?? "Dashboard";
 }
 
 function readGardenPageFromUrl(): string | null {
@@ -81,7 +81,7 @@ export default function GardenWorkspace({
 }) {
   const sync = useCloudData();
   const guestMode = userId === GUEST_ID;
-  const [page, setPage] = useState<Destination>(readPageFromUrl);
+  const [page, setPage] = useState<Destination>(() => readPageFromUrl(guestMode));
   const [vaultQuery,setVaultQuery]=useState("");
   const [search, setSearch] = useState("");
   const vault = useVault(userId, page);
@@ -129,6 +129,7 @@ export default function GardenWorkspace({
     initialGardens.length ? null : "new",
   );
   function navigate(next: Destination) {
+    if (guestMode && next === "Plant Vault") next = "Dashboard";
     const url = new URL(window.location.href);
     url.searchParams.set("view", pageView(next));
     url.searchParams.delete("garden");
@@ -146,7 +147,7 @@ export default function GardenWorkspace({
   }
   useEffect(() => {
     function restorePage() {
-      const next = readPageFromUrl();
+      const next = readPageFromUrl(guestMode);
       setPage(next);
       setGardenPageId(readGardenPageFromUrl());
       setEditor(null);
@@ -159,7 +160,7 @@ export default function GardenWorkspace({
     }
     window.addEventListener("popstate", restorePage);
     return () => window.removeEventListener("popstate", restorePage);
-  }, []);
+  }, [guestMode]);
   const [loaded, setLoaded] = useState(!initialError);
   useEffect(() => {
     Promise.resolve().then(() => {
@@ -425,7 +426,7 @@ export default function GardenWorkspace({
           {search && (
             <section className="modern-card search-results">
               <h2>Search results</h2>
-              {vault
+              {(guestMode ? [] : vault)
                 .filter((plant) =>
                   `${plant.name} ${plant.variety} ${plant.notes}`
                     .toLowerCase()
@@ -569,7 +570,7 @@ export default function GardenWorkspace({
               userId={userId}
             />
           )}
-          {vaultOpen && (
+          {!guestMode && vaultOpen && (
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
           {page === "Flower Garden" && <FlowersPage plants={vault} />}
