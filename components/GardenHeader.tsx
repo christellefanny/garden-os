@@ -17,15 +17,15 @@ export default function GardenHeader({ gardenYear, onOpenCalendar, onHome, calen
             <GardenIcon className="h-8 w-8" />
           </span>
           <h1 className="editorial-title text-4xl tracking-tight text-[var(--primary-dark)] sm:text-5xl">
-            <Link href="/" aria-label="Garden OS home" className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)]" onClick={event => {
+            <Link href="/" aria-label="Garden Atelier home" className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)]" onClick={event => {
               if (onHome && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
                 event.preventDefault();
                 onHome();
               }
-            }}>Garden OS<span className="text-[var(--accent)]">.</span></Link>
+            }}>Garden Atelier</Link>
           </h1>
         </div>
-        <p className="seasonal-muted mt-3 text-sm">Grow smarter. Harvest better.</p>
+        <p className="seasonal-muted mt-3 text-sm">Plan · Grow · Record · Be Inspired</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
