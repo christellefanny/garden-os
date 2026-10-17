@@ -127,10 +127,10 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         </div>
       </div>
       <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
-      <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Illustrations appear where verified artwork is available; additional botanical portraits are being prepared.</p>
-      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Each entry includes a representative hand-painted botanical illustration; flower colors and varieties may differ.</p>
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Cut Flower Encyclopedia">
         {cutFlowerEncyclopedia.map(g=><article key={g.name} className="overflow-hidden rounded-2xl border border-[#e8dfd4] bg-white p-3 shadow-[0_4px_16px_#50463308]">
-          <PlantPortrait name={g.name} variety="" />
+          <Image src={`/cut-flowers/${g.name.toLowerCase().replaceAll("'", "").replaceAll(" ", "-")}.webp`} alt={`Botanical watercolor illustration of ${g.name.toLowerCase()}`} width={640} height={640} sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 240px" className="aspect-square w-full rounded-xl bg-[#fbf6ec] object-contain" />
           <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
           <p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p>
           <p className="mt-2 text-xs leading-5">{g.tip}</p>
