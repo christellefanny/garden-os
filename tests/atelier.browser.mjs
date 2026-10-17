@@ -49,7 +49,7 @@ try {
  assert.equal(await page.getByLabel('Change seasonal theme').inputValue(),'winter');
  await cards.filter({hasText:'Vegetable Garden'}).click();assert.match(page.url(),/garden=garden-2/);await page.getByRole('heading',{name:'Vegetable Garden',exact:true}).waitFor();
  await nav.getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:/New Garden Make room/}).click();await page.getByRole('dialog').waitFor();await page.getByRole('button',{name:'Cancel',exact:true}).click();
- const names=['My Gardens','Plant Vault','Flower Garden','Plan & Design','Growing Calendar','Tasks','Observations & Stories','Settings','Help','Home'];
+ const names=['My Gardens','Plant Vault','Flower Garden','Plan & Design','Growing Calendar','Tasks','Garden Journal','Settings','Help','Home'];
  for(const width of [1536,1024,768,390,320]){
   await page.setViewportSize({width,height:1000});
   for(const name of names){await nav.getByRole('button',{name,exact:true}).click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,name+' overflow at '+width);}

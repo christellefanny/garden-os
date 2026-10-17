@@ -112,7 +112,7 @@ export function ConservatoryNavigation({
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />
-            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Observations & Stories"} as Record<string,string>)[name] || name}</span>
+            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Garden Journal"} as Record<string,string>)[name] || name}</span>
           </button>
         ))}
       </nav>

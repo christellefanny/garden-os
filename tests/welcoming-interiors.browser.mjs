@@ -27,7 +27,7 @@ try {
  await page.goto('http://127.0.0.1:3000');
  await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
  const nav=page.getByRole('navigation',{name:'Garden Atelier navigation'});
- const pages=[['Plant Vault','vault'],['Growing Calendar','calendar'],['Tasks','tasks'],['Observations & Stories','journal']];
+ const pages=[['Plant Vault','vault'],['Growing Calendar','calendar'],['Tasks','tasks'],['Garden Journal','journal']];
  await mkdir('docs/previews/interiors',{recursive:true});
  const sources=new Set();
  for(const [name,key] of pages){
@@ -57,7 +57,7 @@ try {
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'mobile month overflow');
  await nav.getByRole('button',{name:'Tasks',exact:true}).click();
  const task=page.getByRole('button',{name:/Complete Check soil moisture for/});await task.click();await page.reload();await page.locator('.tasks-page').waitFor();assert.equal(await task.count(),0);
- await nav.getByRole('button',{name:'Observations & Stories',exact:true}).click();
+ await nav.getByRole('button',{name:'Garden Journal',exact:true}).click();
  await page.getByRole('button',{name:'Add observation',exact:true}).click();
  await page.getByRole('dialog').getByLabel('Observation',{exact:true}).fill('A small new leaf in the garden.');await page.getByRole('button',{name:'Save observation',exact:true}).click();
  await page.getByText('A small new leaf in the garden.',{exact:true}).waitFor();
