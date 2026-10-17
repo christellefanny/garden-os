@@ -1692,3 +1692,45 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .atelier-gardens-grid>.atelier-add-garden>span {width:30px;height:30px;font-size:23px;margin:0;}
 .atelier-gardens-grid>.atelier-add-garden small {margin:0;}
 .atelier-upcoming-panel {align-self:start;min-height:240px;}
+
+/* My Gardens: an illustrated collection with live garden records. */
+.garden-collection-header {position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.75fr);overflow:hidden;isolation:isolate;border:1px solid #e5dfd3;border-radius:18px;background:#faf6ed;margin:12px 0 30px;}
+.garden-collection-intro {padding:34px 36px;position:relative;z-index:1;}
+.garden-collection-intro h1 {font:clamp(32px,3.4vw,48px)/1.15 Georgia,serif;color:#29422f;letter-spacing:-1px;margin:13px 0;overflow-wrap:anywhere;}
+.garden-collection-intro>p:last-of-type {font-size:14px;line-height:1.8;color:#5c685b;max-width:430px;}
+.garden-create-button {margin-top:20px;border-radius:9px;padding:11px 18px;min-height:44px;}
+.garden-collection-header-art {position:relative;min-height:260px;}
+.garden-collection-header-art img {width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.garden-collection-header-art::after {content:'';position:absolute;inset:0;background:linear-gradient(90deg,#faf6ed,transparent 40%);}
+.garden-collection-summary {display:flex;flex-wrap:wrap;gap:20px 28px;margin-top:26px;padding-top:19px;border-top:1px solid #ded9cb;max-width:380px;}
+.garden-collection-summary>div {display:flex;flex-direction:column-reverse;gap:5px;}
+.garden-collection-summary dt {font-size:11px;color:#5c685b;}
+.garden-collection-summary dd {font:27px/1 Georgia,serif;color:var(--atelier-deep);}
+.garden-collection-section-title {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:18px;}
+.garden-collection-section-title h2 {font:27px Georgia,serif;color:#29422f;}
+.garden-collection-section-title p {font-size:12px;color:#626e60;}
+.garden-collection-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;}
+.garden-collection-card,.garden-collection-new {min-width:0;overflow:hidden;border:1px solid #e4dfd3;border-radius:14px;background:#fffdf8;text-align:left;transition:border-color .2s,box-shadow .2s,transform .2s;}
+.garden-collection-card:hover,.garden-collection-new:hover {transform:translateY(-3px);border-color:var(--atelier-deep);box-shadow:0 8px 24px #263d3010;}
+.garden-collection-card:focus-visible,.garden-collection-new:focus-visible {outline:2px solid var(--atelier-deep);outline-offset:4px;}
+.garden-collection-card-art {display:block;position:relative;aspect-ratio:1.65;overflow:hidden;background:#f4f0e5;}
+.garden-collection-card-art img {width:100%;height:100%;object-fit:cover;}
+.garden-year {position:absolute;top:14px;left:14px;background:#fffdf8ed;border:1px solid #ffffffa0;border-radius:30px;padding:5px 11px;font-size:11px;color:#344a37;}
+.garden-collection-card-copy {display:flex;flex-direction:column;padding:22px;}
+.garden-card-name {display:block;font:25px/1.25 Georgia,serif;color:#29422f;overflow-wrap:anywhere;}
+.garden-card-location {display:block;font-size:12px;color:#626e60;margin-top:9px;overflow-wrap:anywhere;line-height:1.6;}
+.garden-card-counts {display:block;font-size:12px;color:#626e60;margin:19px 0;}
+.garden-card-open {display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;font-size:12px;font-weight:600;color:var(--atelier-deep);border-top:1px solid #ebe5d9;padding-top:15px;margin-top:auto;}
+.garden-card-open>span {font-size:18px;font-weight:400;}
+.garden-collection-new {display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:30px;min-height:330px;border-style:dashed;border-color:var(--atelier-tint);background:linear-gradient(135deg,#fffdf8,var(--atelier-light));}
+.garden-new-plus {display:grid;place-items:center;width:45px;height:45px;background:#fffdf8;border:1px solid var(--atelier-tint);border-radius:50%;color:var(--atelier-deep);font:28px Georgia,serif;margin-bottom:22px;}
+.garden-collection-new>.garden-card-name {max-width:220px;}
+.garden-collection-new>span:nth-child(3) {font-size:13px;line-height:1.8;color:#626e60;margin:13px 0 24px;max-width:230px;}
+.garden-collection-new .garden-card-open {margin-top:0;}
+.gardens-page .garden-selection-bar {background:#fffdf8;border:1px solid #e4dfd3;border-radius:12px;gap:20px;}
+.gardens-page .growing-space-card {border-radius:14px;border-color:#e4dfd3;box-shadow:none;}
+.gardens-page .space-visual {background:radial-gradient(ellipse at 50% 110%,var(--atelier-light),#faf7ef 75%);}
+.gardens-page .growing-space-card>div:nth-child(3) {background:#f7f4ec;}
+@media(max-width:1200px) {.garden-collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.garden-collection-intro{padding:28px;}}
+@media(max-width:600px) {.garden-collection-header{grid-template-columns:1fr;margin-top:8px;margin-bottom:26px}.garden-collection-intro{padding:25px}.garden-collection-header-art{min-height:140px;max-height:140px;grid-row:1}.garden-collection-header-art::after{background:linear-gradient(0deg,#faf6ed,transparent 60%)}.garden-collection-intro h1{font-size:36px}.garden-collection-summary{gap:22px}.garden-collection-grid{grid-template-columns:1fr;gap:18px}.garden-collection-card-art{aspect-ratio:1.9}.garden-collection-card-copy{padding:20px}.garden-collection-new{min-height:270px;padding:25px}.garden-collection-section-title h2{font-size:25px}.gardens-page .garden-selection-bar>div{width:100%}.gardens-page .garden-selection-bar button{font-size:12px}}
+@media(prefers-reduced-motion:reduce) {.garden-collection-card,.garden-collection-new{transition:none}.garden-collection-card:hover,.garden-collection-new:hover{transform:none}}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
 import InteriorHeader from "@/components/InteriorHeader";
+import GardenCollection from "@/components/GardenCollection";
 import SpacePortrait from "@/components/SpacePortrait";
 import LegacySpaces from "@/components/LegacySpaces";
 import { connectGardenPlants } from "@/lib/connected-garden";
@@ -575,8 +576,16 @@ export default function GardenWorkspace({
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">
               {gardenPageId && <button type="button" onClick={() => navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← All gardens</button>}
-              <InteriorHeader title={gardenPageId ? (garden?.name || "Garden unavailable") : "My Gardens"} eyebrow={gardenPageId ? "Your garden" : "Your own patch of possibility"} description={gardenPageId ? (garden ? [String(garden.year), garden.location, garden.hardiness_zone ? `Zone ${garden.hardiness_zone}` : null].filter(Boolean).join(" · ") : "This garden is unavailable. Return to All gardens to choose another.") : "Choose a garden to open its growing spaces, plants, and records."}>
-              </InteriorHeader>
+              {gardenPageId && !garden ? <InteriorHeader title="Garden unavailable" eyebrow="Your garden" description="Return to All gardens to choose another garden." /> : <GardenCollection
+                gardens={(gardenPageId && garden ? [garden] : gardens).map((g) => {
+                  const beds = spaces.filter((s) => s.garden_id === g.id && !summaries.get(s.id)?.details?.archived);
+                  return { garden: g, spaces: beds.length, plants: beds.reduce((total, s) => total + (summaries.get(s.id)?.plants || 0), 0) };
+                })}
+                detail={Boolean(gardenPageId)}
+                disabled={busy || !loaded}
+                onOpen={openGarden}
+                onNew={() => setGardenForm("new")}
+              />}
               {gardenPageId && garden && <div
                 className={
                   vaultOpen || layoutOpen || calendarOpen
@@ -584,8 +593,10 @@ export default function GardenWorkspace({
                     : "interior-toolbar garden-selection-bar"
                 }
               >
-                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">Manage this garden’s growing spaces and plants.</p></div>
+                <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">A place for your plans, plants, and progress.</p></div>
                 <div className="flex flex-wrap gap-3">
+                  <button type="button" onClick={()=>navigate("Garden Layout")} className="seasonal-outline min-h-11 rounded-xl border px-4">Plan &amp; Design</button>
+                  <button type="button" onClick={()=>navigate("Growing Calendar")} className="seasonal-outline min-h-11 rounded-xl border px-4">Growing calendar</button>
                   <button type="button" onClick={()=>setPlanner(true)} className="seasonal-outline min-h-11 rounded-xl border px-4">Plant planner</button>
                   {garden && (
                     <>
@@ -611,30 +622,6 @@ export default function GardenWorkspace({
                   </button>
                 </div>
               </div>}
-              {!gardenPageId && <><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your gardens">
-                {gardens.map((g) => {
-                  const beds = spaces.filter((s) => s.garden_id === g.id && !summaries.get(s.id)?.details?.archived);
-                  const plants = beds.reduce((total, s) => total + (summaries.get(s.id)?.plants || 0), 0);
-                  return (
-                    <button key={g.id} type="button" onClick={() => openGarden(g.id)}
-                      className="rounded-xl border-2 p-5 text-left transition-colors"
-                      style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-                      <span className="flex items-center justify-between gap-3 text-xs" style={{ color: "var(--sidebar-start)" }}><span>{g.year}</span><span>Open garden →</span></span>
-                      <span className="mt-3 block font-serif text-2xl">{g.name}</span>
-                      {g.location && <span className="seasonal-muted mt-1 block text-sm">{g.location}</span>}
-                      <span className="seasonal-muted mt-4 block text-xs">{beds.length} {beds.length === 1 ? "growing space" : "growing spaces"} · {plants} {plants === 1 ? "plant" : "plants"}</span>
-                    </button>
-                  );
-                })}
-                <button type="button" disabled={busy || !loaded} onClick={() => setGardenForm("new")}
-                  className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-5 text-center transition-colors hover:bg-black/5"
-                  style={{ borderColor: "color-mix(in srgb, var(--sidebar-start) 45%, transparent)", color: "var(--sidebar-start)" }}>
-                  <span aria-hidden="true" className="text-3xl leading-none">+</span>
-                  <span className="font-serif text-2xl">New Garden</span>
-                  <span className="seasonal-muted text-xs">Start a new growing space</span>
-                </button>
-              </div>
-              <p className="seasonal-muted mt-3 text-xs">{gardens.length} {gardens.length === 1 ? "garden" : "gardens"} total</p></>}
 
               {error && (
                 <div
