@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import InteriorHeader from "@/components/InteriorHeader";
 import PlantPortrait from "@/components/PlantPortrait";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -75,37 +76,11 @@ const cutFlowerEncyclopedia = [
 
 
 type BouquetStyle = "pastel" | "bright" | "romantic" | "garden";
-const bouquetPalettes: Record<BouquetStyle,string[]> = {
-  pastel:["#e9a7b7","#f5d2bc","#b7a4cf","#fff1df","#d98caa"],
-  bright:["#df7b66","#ecb75c","#c65c79","#f4d581","#de9a9c"],
-  romantic:["#a877a1","#e6a9ae","#f1c8bd","#c787a2","#f6dbcd"],
-  garden:["#cf738e","#e6b483","#b59dcb","#e0a6bf","#f0d8b4"]
-};
-function BotanicalFlower({color="#dc9bad",size=52,kind="dahlia"}:{color?:string;size?:number;kind?:string}) {
-  const petals=kind==="cosmos"?8:kind==="snapdragon"?5:kind==="foliage"?0:kind==="zinnia"?12:16;
-  return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 100 100" fill="none">
-    {kind==="foliage"?<><path d="M48 92 Q54 48 53 7" stroke="#63866a" strokeWidth="3"/>{[18,37,57,75].map((y,i)=><g key={y}><ellipse cx={i%2?35:72} cy={y} rx="22" ry="9" transform={`rotate(${i%2?-33:33} ${i%2?35:72} ${y})`} fill="#83a882"/><path d={`M51 ${y+5} L${i%2?35:72} ${y}`} stroke="#56775a" strokeWidth="1.5"/></g>)}</>:
-    <>{Array.from({length:petals},(_,i)=><ellipse key={i} cx="50" cy={kind==="snapdragon"?31:26} rx={kind==="cosmos"?12:kind==="snapdragon"?15:9} ry={kind==="cosmos"?26:kind==="snapdragon"?23:27} fill={color} stroke="#fff5ec" strokeOpacity=".7" strokeWidth="1" transform={`rotate(${i*360/petals} 50 50)`}/>)}<circle cx="50" cy="50" r={kind==="cosmos"?12:kind==="snapdragon"?14:kind==="zinnia"?12:16} fill={kind==="cosmos"?"#e8bd5a":"#f6d8a7"}/><circle cx="50" cy="50" r="5" fill="#bb8954"/></>}
-  </svg>;
+function BotanicalFlower({size=52,kind="dahlia"}:{size?:number;kind?:string}) {
+  return <Image src={`/bouquets/recipe-${kind}.webp`} alt="" width={size} height={size} sizes={`${size}px`} className="h-full w-full object-contain" />;
 }
 function BouquetArtwork({style="garden",label}:{style?:BouquetStyle;label:string}) {
-  const palette=bouquetPalettes[style];
-  const blossoms=[{x:115,y:107,r:33,k:"dahlia"},{x:176,y:74,r:31,k:"zinnia"},{x:239,y:115,r:38,k:"dahlia"},{x:291,y:77,r:26,k:"cosmos"},{x:160,y:154,r:26,k:"cosmos"},{x:280,y:166,r:31,k:"zinnia"},{x:208,y:149,r:38,k:"dahlia"},{x:94,y:174,r:22,k:"cosmos"},{x:326,y:139,r:20,k:"cosmos"}];
-  return <svg role="img" aria-label={label} className="h-full w-full" viewBox="0 0 420 315" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <rect width="420" height="315" fill="#f8f2e9"/>
-    <path d="M0 269 Q95 253 210 265 T420 257 V315 H0Z" fill="#eee6d9"/>
-    {blossoms.map((b,i)=><g key={i}>
-      <path d={`M210 257 Q${b.x+6} 196 ${b.x} ${b.y}`} fill="none" stroke="#64856a" strokeWidth="3"/>
-      <ellipse cx={(210+b.x)/2-7} cy={(257+b.y)/2} rx="20" ry="8" fill="#7f9f79" transform={`rotate(-35 ${(210+b.x)/2-7} ${(257+b.y)/2})`}/>
-      <g transform={`translate(${b.x-b.r} ${b.y-b.r}) scale(${b.r*2/100})`}>
-        {Array.from({length:b.k==="cosmos"?8:14},(_,p)=><ellipse key={p} cx="50" cy="24" rx={b.k==="cosmos"?14:10} ry="28" fill={palette[i%palette.length]} stroke="#fff5ed" strokeOpacity=".6" transform={`rotate(${p*360/(b.k==="cosmos"?8:14)} 50 50)`}/>)}
-        <circle cx="50" cy="50" r="13" fill="#e8c481"/><circle cx="50" cy="50" r="5" fill="#a87d47"/>
-      </g>
-    </g>)}
-    <path d="M171 205 L246 205 L235 292 Q210 304 184 292Z" fill="#f7f7ef" stroke="#b9bcb0" strokeWidth="2"/>
-    <path d="M177 224 Q209 234 241 224" fill="none" stroke="#d9d9cb" strokeWidth="2"/>
-    <ellipse cx="209" cy="299" rx="83" ry="7" fill="#cfc8ba" opacity=".4"/>
-  </svg>;
+  return <Image src={`/bouquets/bouquet-${style}.webp`} alt={label} width={1200} height={900} sizes="(max-width: 639px) 100vw, (max-width: 1023px) 80vw, 600px" className="h-full w-full object-contain bg-[#fbf6ec]" />;
 }
 
 type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
@@ -201,7 +176,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
                 {count:"3–5",flower:"Foliage stems",note:"Yarrow, ammi, or suitable garden greenery",color:"#8caa83",kind:"foliage"}
               ].map(item=><div key={item.flower} className="flex items-center gap-3 py-2">
                 <span className="w-10 shrink-0 font-serif text-xl text-[#a85e60]">{item.count}</span>
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#faf4ed]"><BotanicalFlower color={item.color} kind={item.kind} size={48}/></span>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#faf4ed]"><BotanicalFlower kind={item.kind} size={48}/></span>
                 <div><p className="text-sm font-semibold text-[#304332]">{item.flower}</p><p className="text-xs leading-5 text-[#59645a]">{item.note}</p></div>
               </div>)}
             </div>
