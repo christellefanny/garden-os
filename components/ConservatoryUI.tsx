@@ -3,6 +3,7 @@ import Image from "next/image";
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
+import GuestGardenExample from "@/components/GuestGardenExample";
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -384,7 +385,7 @@ export function ModernDashboard({
       </div>
       <div className="modern-main-grid">
         {userId === "guest" && <GuestPlantingNow />}
-        <section className="modern-card layout-preview">
+        {userId === "guest" && !selectedCustom && !hasSavedLayout ? <GuestGardenExample onCreate={() => navigate("Garden Layout")} /> : <section className="modern-card layout-preview">
           <div className="modern-card-title">
             <h2>My Garden Layout</h2>
             <button onClick={() => navigate("Garden Layout")}>
@@ -440,7 +441,7 @@ export function ModernDashboard({
               : hasSavedLayout ? "Your saved nine-bed layout" : "Create or choose a layout"}{" "}
             · interactive preview
           </small>
-        </section>
+        </section>}
         <section className="modern-card week-card">
           <div className="modern-card-title">
             <h2>This Week</h2>
