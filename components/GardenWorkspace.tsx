@@ -468,8 +468,11 @@ export default function GardenWorkspace({
               garden={garden}
               gardens={gardens}
               spaces={activeSpaces}
+              allSpaces={spaces}
               vault={vault}
               navigate={navigate}
+              onGarden={openGarden}
+              onNewGarden={() => { navigate("My Gardens"); setGardenForm("new"); }}
               onSpace={setOpenId}
               onVault={query=>{setVaultQuery(query);navigate("Plant Vault");}}
               onBed={(id) => {
