@@ -47,7 +47,7 @@ try {
  await page.reload();await section.getByText('Plainfield, Illinois',{exact:true}).waitFor();assert.equal(requests.length,1,'Saved profile reused');
  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('garden-os-guest-data')||'{"gardens":[],"spaces":[]}')),{gardens:[],spaces:[]},'Suggestions never create gardens or plants');
  mode='fail';await section.getByRole('button',{name:'Change location',exact:true}).click();await page.getByLabel('U.S. ZIP code',{exact:true}).fill('10001');await page.getByRole('button',{name:'Show local planting ideas',exact:true}).click();await page.getByRole('alert').getByText('Lookup unavailable. Please retry.',{exact:true}).waitFor();await page.getByRole('button',{name:'Close dialog',exact:true}).click();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('garden-atelier-guest-planting-location-v1')).zip),'60544');
- const example=page.getByRole('region',{name:'Imagine your kitchen garden',exact:true});await example.waitFor();
+ const example=page.getByRole('region',{name:'Imagine your Vegetable garden',exact:true});await example.waitFor();
  await example.locator('img').evaluate(el=>el.decode());
  for(let i=0;i<4;i++){await example.getByRole('button',{name:`Explore example bed ${i+1}:`,exact:false}).click();assert.equal(await example.locator('.guest-example-art button[aria-pressed="true"]').count(),1);}
  const exampleAxe=await new AxeBuilder({page}).include('.guest-garden-example').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(exampleAxe.violations.map(v=>v.id),[]);
