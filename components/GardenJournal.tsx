@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Dialog from "@/components/ui/Dialog";
+import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import { readDetails, type Entry, type Space, type SpaceDetails } from "@/lib/garden";
 import { localDay } from "@/lib/growing-calendar";
 import { harvestTotals } from "@/lib/connected-garden";
@@ -63,15 +64,11 @@ export default function GardenJournal({ userId, gardenName, spaces, historySpace
     setEditing(entry || null); setComposer("story"); chooseTab("Stories");
   }
   const targetSpaces = editing && !spaces.some(space => space.id === editing.space.id) ? [editing.space, ...spaces] : spaces;
-  return <section className="interior-page journal-page">
-    <header className="mb-7 rounded-2xl border border-[var(--border)] bg-[#fffdf7] px-6 py-7 sm:px-9 sm:py-9">
-      <p className="mb-3 text-xs uppercase tracking-[0.18em]" style={{ color: "var(--sidebar-start)" }}>{gardenName || "Your garden"} · A growing diary</p>
-      <div className="flex flex-wrap items-start justify-between gap-5">
-        <div><h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Garden Journal</h1><p className="seasonal-muted mt-3 max-w-lg text-sm leading-relaxed">The little discoveries. The longer stories. A place to remember your garden as it grows.</p></div>
-        <div className="flex flex-wrap gap-2"><button type="button" className={button} onClick={() => { setEditing(null); setActivity("Note"); setComposer("entry"); }}>Add observation</button><button type="button" className={outline} onClick={() => { chooseTab("Photos"); setAddingPictures(true); }}>Add pictures</button></div>
-      </div>
-      <p className="seasonal-muted mt-6 text-xs">{notes.length} {notes.length === 1 ? "observation" : "observations"} <span className="mx-2">·</span> {stories.length} journal {stories.length === 1 ? "entry" : "entries"} <span className="mx-2">·</span> {new Set(rows.map(row => row.date.slice(0, 4))).size} seasons remembered</p>
-    </header>
+  return <section className="interior-page journal-page atelier-welcoming-page">
+    <InteriorHeader illustration="journal" title="Garden Journal" eyebrow={`${gardenName || "Your garden"} · A growing diary`} description="The little discoveries. The longer stories. A place to remember your garden as it grows.">
+      <button type="button" className={button} onClick={() => { setEditing(null); setActivity("Note"); setComposer("entry"); }}>Add observation</button><button type="button" className={outline} onClick={() => { chooseTab("Photos"); setAddingPictures(true); }}>Add pictures</button>
+    </InteriorHeader>
+    <InteriorStats items={[{ label: "Observations", value: notes.length }, { label: "Journal entries", value: stories.length }, { label: "Years remembered", value: new Set(rows.map(row => row.date.slice(0, 4))).size }]} />
     <div role="tablist" aria-label="Journal views" className="mb-8 flex gap-7 border-b border-[var(--border)]">{tabs.map(name => <button key={name} id={`journal-tab-${name}`} type="button" role="tab" aria-selected={tab === name} aria-controls={`journal-panel-${name}`} className="min-h-12 border-b-2 px-1 pb-3 text-sm" style={{ borderColor: tab === name ? "var(--sidebar-start)" : "transparent", color: tab === name ? "var(--sidebar-start)" : "var(--muted)", fontWeight: tab === name ? 650 : 400 }} onClick={() => chooseTab(name)}>{tabLabels[name]}</button>)}</div>
     {message && <p role="status" className="interior-notice">{message}</p>}
     <div role="tabpanel" id={`journal-panel-${tab}`} aria-labelledby={`journal-tab-${tab}`}>

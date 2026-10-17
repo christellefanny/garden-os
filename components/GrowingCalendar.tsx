@@ -96,8 +96,8 @@ export default function GrowingCalendar({
     (p) => options.plants[p.id]?.included ?? includedByDefault(p),
   ).length;
   return (
-    <section className="interior-page conservatory-calendar outline-none" ref={headingRef} tabIndex={-1}>
-      <InteriorHeader title="Growing Calendar" eyebrow={`${location || "Your growing year"} · ${year}`} description="A thoughtful rhythm for planting, tending, and harvesting throughout the year.">
+    <section className="interior-page conservatory-calendar atelier-welcoming-page outline-none" ref={headingRef} tabIndex={-1}>
+      <InteriorHeader illustration="calendar" title="Growing Calendar" eyebrow={`${location || "Your growing year"} · ${year}`} description="Good things take their own time. Find your rhythm for sowing, tending, and gathering throughout the year.">
         <button type="button" onClick={() => setAddingReminder(true)} className="seasonal-button">Add reminder</button>
         <button type="button" onClick={()=>setPlanningOpen(true)} className="seasonal-outline">Planning settings</button>
       </InteriorHeader>

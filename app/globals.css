@@ -1734,3 +1734,27 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 @media(max-width:1200px) {.garden-collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.garden-collection-intro{padding:28px;}}
 @media(max-width:600px) {.garden-collection-header{grid-template-columns:1fr;margin-top:8px;margin-bottom:26px}.garden-collection-intro{padding:25px}.garden-collection-header-art{min-height:140px;max-height:140px;grid-row:1}.garden-collection-header-art::after{background:linear-gradient(0deg,#faf6ed,transparent 60%)}.garden-collection-intro h1{font-size:36px}.garden-collection-summary{gap:22px}.garden-collection-grid{grid-template-columns:1fr;gap:18px}.garden-collection-card-art{aspect-ratio:1.9}.garden-collection-card-copy{padding:20px}.garden-collection-new{min-height:270px;padding:25px}.garden-collection-section-title h2{font-size:25px}.gardens-page .garden-selection-bar>div{width:100%}.gardens-page .garden-selection-bar button{font-size:12px}}
 @media(prefers-reduced-motion:reduce) {.garden-collection-card,.garden-collection-new{transition:none}.garden-collection-card:hover,.garden-collection-new:hover{transform:none}}
+
+/* Quiet botanical welcomes for the working pages. */
+.atelier-interior-header {display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,1fr);isolation:isolate;position:relative;border:1px solid #e5dfd3;border-radius:18px;background:#faf6ed;margin:12px 0 24px;}
+.atelier-interior-copy {padding:34px 36px;min-width:0;position:relative;z-index:1;}
+.atelier-interior-copy h1 {font:clamp(32px,3.4vw,46px)/1.15 Georgia,serif;letter-spacing:-1px;color:#29422f;margin:14px 0;overflow-wrap:anywhere;}
+.atelier-interior-description {font-size:14px;line-height:1.8;color:#5c685b;max-width:500px;}
+.atelier-interior-copy .interior-actions {margin-top:22px;gap:10px;justify-content:flex-start;}
+.atelier-interior-copy .interior-actions button {min-height:44px;border-radius:9px;}
+.atelier-interior-art {display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;border-radius:0 18px 18px 0;position:relative;}
+.atelier-interior-art img {width:100%;height:100%;max-height:310px;object-fit:contain;mix-blend-mode:multiply;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent),linear-gradient(0deg,transparent,#000 12%,#000 88%,transparent);mask-composite:intersect;}
+.atelier-welcoming-page .interior-stats {gap:12px;padding:0;border:0;margin-bottom:24px;}
+.atelier-welcoming-page .interior-stats>div {padding:19px 22px;border:1px solid #e5dfd3;border-radius:12px;background:#fffdf8;position:relative;overflow:hidden;}
+.atelier-welcoming-page .interior-stats>div::before {content:'';position:absolute;top:0;left:20px;width:28px;height:3px;background:var(--atelier-tint);border-radius:0 0 3px 3px;}
+.atelier-welcoming-page .interior-stats dt {color:#626e60;font-size:10px;line-height:1.6;letter-spacing:.8px;}
+.atelier-welcoming-page .interior-stats dd {font-size:28px;color:var(--atelier-deep);}
+.atelier-welcoming-page .interior-toolbar {border:1px solid #e5dfd3;background:#fffdf8;padding:14px;border-radius:12px;}
+.atelier-welcoming-page .vault-plant-card,.atelier-welcoming-page .calendar-month-panel,.atelier-welcoming-page .agenda-category {border-color:#e5dfd3;border-radius:13px;box-shadow:none;}
+.atelier-welcoming-page .interior-empty {border-color:var(--atelier-tint);border-radius:15px;background:linear-gradient(135deg,#fffdf8,var(--atelier-light));padding:36px 26px;}
+.atelier-welcoming-page .collection-tab.is-active {background:var(--atelier-light);color:var(--atelier-deep);border-color:var(--atelier-tint);}
+.atelier-welcoming-page .agenda-category-title {background:#faf7ef;}
+.journal-page.atelier-welcoming-page [role="tablist"] {background:#fffdf8;border:1px solid #e5dfd3;border-radius:12px;padding:12px 20px 0;gap:28px;}
+.journal-page.atelier-welcoming-page [role="tabpanel"] article {border-color:#e5dfd3;background:#fffdf8;}
+@media(max-width:1000px) {.atelier-interior-copy{padding:28px}.atelier-interior-header{grid-template-columns:minmax(0,1.6fr) minmax(180px,1fr)}.atelier-welcoming-page .interior-stats>div{padding:17px}}
+@media(max-width:600px) {.atelier-interior-header{grid-template-columns:1fr;margin-top:8px}.atelier-interior-art{grid-row:1;height:135px;border-radius:18px 18px 0 0}.atelier-interior-art img{width:auto;max-width:100%;height:100%;max-height:160px;object-fit:contain}.atelier-interior-copy{padding:10px 24px 26px}.atelier-interior-copy h1{font-size:35px}.atelier-interior-copy .modern-eyebrow{font-size:9px;line-height:1.8}.atelier-interior-copy .interior-actions{margin-top:18px}.atelier-welcoming-page .interior-stats{gap:10px}.atelier-welcoming-page .interior-stats>div{padding:17px 15px}.atelier-welcoming-page .interior-stats dd{font-size:25px}.atelier-welcoming-page .interior-stats dt{font-size:9px;letter-spacing:.4px}.journal-page.atelier-welcoming-page [role="tablist"]{gap:22px;padding-inline:16px}}

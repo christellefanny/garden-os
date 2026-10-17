@@ -610,8 +610,8 @@ export function TasksPage({
     } catch {}
   }
   return (
-    <section className="interior-page tasks-page">
-      <InteriorHeader title="Tasks" eyebrow="One useful step at a time" description="A focused list for today and the week ahead. Your saved reminders and planning recommendations stay clearly identified.">
+    <section className="interior-page tasks-page atelier-welcoming-page">
+      <InteriorHeader illustration="tasks" title="Tasks" eyebrow="Little by little, a garden grows" description="A few thoughtful steps for today and the days ahead. Make a little time for the garden, and enjoy watching it grow.">
         <button className="seasonal-outline" onClick={onCalendar}>Open Growing Calendar</button>
       </InteriorHeader>
       <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>

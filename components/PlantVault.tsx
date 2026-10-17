@@ -225,8 +225,8 @@ export default function PlantVault({
     [plants, query, filter, statusFilter],
   );
   return (
-    <section className="interior-page vault-page">
-      <InteriorHeader title="Plant Vault" eyebrow="A living collection" description="The varieties you grow, the seeds you keep, and what comes next.">
+    <section className="interior-page vault-page atelier-welcoming-page">
+      <InteriorHeader illustration="vault" title="Plant Vault" eyebrow="A little collection. Endless possibility." description="The varieties you love, the seeds you’re saving, and the plants you can’t wait to grow.">
         <button onClick={() => setAdding(true)} className="seasonal-button">Add plant</button>
       <div className="header-tools">
         <button type="button" popoverTarget="vault-collection-tools" className="seasonal-outline">Collection tools</button>
