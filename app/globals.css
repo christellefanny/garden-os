@@ -1760,3 +1760,64 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .journal-page.atelier-welcoming-page [role="tabpanel"] article {border-color:#e5dfd3;background:#fffdf8;}
 @media(max-width:1000px) {.atelier-interior-copy{padding:28px}.atelier-interior-header{grid-template-columns:minmax(0,1.6fr) minmax(180px,1fr)}.atelier-welcoming-page .interior-stats>div{padding:17px}}
 @media(max-width:600px) {.atelier-interior-header{grid-template-columns:1fr;margin-top:8px}.atelier-interior-art{grid-row:1;height:135px;border-radius:18px 18px 0 0}.atelier-interior-art img{width:auto;max-width:100%;height:100%;max-height:160px;object-fit:contain}.atelier-interior-copy{padding:10px 24px 26px}.atelier-interior-copy h1{font-size:35px}.atelier-interior-copy .modern-eyebrow{font-size:9px;line-height:1.8}.atelier-interior-copy .interior-actions{margin-top:18px}.atelier-welcoming-page .interior-stats{gap:10px}.atelier-welcoming-page .interior-stats>div{padding:17px 15px}.atelier-welcoming-page .interior-stats dd{font-size:25px}.atelier-welcoming-page .interior-stats dt{font-size:9px;letter-spacing:.4px}.journal-page.atelier-welcoming-page [role="tablist"]{gap:22px;padding-inline:16px}}
+
+/* Guest discovery: real local timing, without a saved plant collection. */
+.guest-planting-card {align-self:start;min-width:0;}
+.guest-planting-intro {font:15px/1.6 Georgia,serif;color:#626e60;margin:10px 0 16px;}
+.guest-growing-location {display:flex;flex-direction:column;gap:5px;padding:12px;background:var(--atelier-light);border-radius:10px;margin-bottom:8px;}
+.guest-growing-location strong {font-size:12px;line-height:1.5;overflow-wrap:anywhere;}
+.guest-growing-location span {font-size:11px;color:#586653;}
+.guest-growing-location button {font-size:11px;min-height:36px;text-align:left;width:fit-content;}
+.guest-location-prompt {padding:14px;background:#faf6ed;border:1px solid #e7dfd0;border-radius:11px;margin-bottom:10px;}
+.guest-location-prompt p {font-size:12px;line-height:1.7;color:#5c685b;}
+.guest-location-prompt button {min-height:44px;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:8px;margin-top:12px;}
+.guest-plant-row {display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:13px 0;border-bottom:1px solid #e9e3d7;}
+.guest-plant-thumb {width:65px;height:65px;border-radius:10px;overflow:hidden;flex-shrink:0;background:#faf6ed;}
+.guest-plant-thumb img {width:100%;height:100%;object-fit:contain;}
+.guest-plant-row>span:nth-child(2) {min-width:0;flex:1;}
+.guest-plant-row strong {font:18px/1.3 Georgia,serif;color:#29422f;display:block;}
+.guest-plant-row small {display:block;color:var(--atelier-dark);font-size:11px;line-height:1.5;margin-top:5px;}
+.guest-plant-kind {display:block;color:#626e60;font-size:10px;margin-top:3px;}
+.guest-plant-row>span:last-child {font-size:20px;color:var(--atelier-deep);}
+.guest-planting-note {font-size:11px;line-height:1.7;color:#626e60;margin-top:13px;}
+.guest-browse-plants {font-size:12px;min-height:44px;margin-top:12px;text-align:left;}
+.guest-zip-form {display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:24px 0 16px;}
+.guest-zip-form label {display:grid;gap:8px;font-size:13px;font-weight:600;flex:1;min-width:130px;}
+.guest-zip-form input {padding:11px;border:1px solid #b9c2b2;border-radius:8px;width:100%;min-height:44px;}
+.guest-zip-form button {font-size:12px;}
+.guest-plant-filters {display:flex;gap:8px;flex-wrap:wrap;margin:20px 0;}
+.guest-plant-filters button {font-size:12px;min-height:44px;border:1px solid var(--atelier-tint);border-radius:22px;padding:8px 14px;}
+.guest-plant-guide-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.guest-plant-guide {display:flex;flex-direction:column;text-align:left;gap:9px;min-width:0;padding:13px;border:1px solid #e5dfd3;border-radius:12px;background:#fffdf8;}
+.guest-plant-guide img {width:100%;aspect-ratio:1;object-fit:contain;border-radius:9px;}
+.guest-plant-guide strong {font:20px/1.3 Georgia,serif;color:#29422f;}
+.guest-plant-guide small {font-size:11px;color:#626e60;line-height:1.5;}
+.guest-plant-badge {display:inline-block;width:fit-content;border-radius:12px;padding:5px 8px;background:#eeeae0;color:#505d4a;font-size:10px;line-height:1.5;}
+.guest-plant-badge-good {background:#e7eee2;color:#304d2a;}
+.guest-plant-badge-tight {background:#f5e7cc;color:#745016;}
+.guest-plant-badge-indoors {background:#f2e8ee;color:#753d60;}
+.guest-plant-detail-heading {display:flex;align-items:center;gap:24px;}
+.guest-plant-detail-heading>img {width:160px;height:160px;object-fit:contain;border-radius:12px;background:#faf6ed;}
+.guest-plant-detail-heading .guest-plant-badge {margin-top:12px;}
+.guest-plant-detail-section {margin-top:24px;}
+.guest-plant-detail-section h3 {font:24px Georgia,serif;color:#29422f;margin-bottom:10px;}
+.guest-plant-detail-section p {font-size:13px;line-height:1.9;margin-top:8px;}
+.guest-timing-equation {padding:12px;background:var(--atelier-light);border-radius:9px;color:var(--atelier-dark);}
+.guest-climate-explanation {margin-top:24px;padding:17px;background:#f7f3e9;border:1px solid #e5dfd3;border-radius:10px;font-size:11px;line-height:1.8;}
+.guest-climate-explanation p {margin-top:10px;}
+.guest-plant-sources {display:flex;flex-direction:column;gap:10px;font-size:12px;margin-top:22px;color:var(--atelier-dark);}
+.guest-plant-sources a {text-decoration:underline;min-height:30px;}
+@media(max-width:1150px) and (min-width:801px){.guest-planting-card{grid-column:1/-1}.guest-planting-card .guest-plant-row{max-width:550px}}
+@media(max-width:600px){.guest-plant-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.guest-plant-guide{padding:10px}.guest-plant-guide strong{font-size:18px}.guest-plant-detail-heading{gap:14px}.guest-plant-detail-heading>img{width:110px;height:110px}.guest-plant-detail-heading .modern-eyebrow{font-size:9px;letter-spacing:1px}}
+.guest-planting-card {grid-column:1/-1;order:-1;}
+.guest-planting-heading {display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;}
+.guest-planting-heading>div:first-child {flex:1;min-width:200px;}
+.guest-planting-heading .guest-growing-location,.guest-planting-heading .guest-location-prompt {width:290px;max-width:100%;margin-bottom:0;}
+.guest-plant-suggestions {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px;}
+.guest-plant-suggestions .guest-plant-row {border:1px solid #e7e1d5;border-radius:12px;background:#fffdf8;padding:16px;}
+.guest-plant-suggestions .guest-plant-thumb {width:90px;height:90px;}
+.guest-plant-suggestions .guest-plant-row strong {font-size:23px;}
+.guest-plant-suggestions .guest-plant-row small {font-size:12px;}
+@media(min-width:801px){.modern-main-grid:has(.guest-planting-card){grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}}
+@media(max-width:1100px){.guest-plant-suggestions{gap:10px}.guest-plant-suggestions .guest-plant-thumb{width:70px;height:70px}.guest-plant-suggestions .guest-plant-row{padding:12px}.guest-plant-suggestions .guest-plant-row strong{font-size:20px}}
+@media(max-width:700px){.guest-planting-heading{gap:12px}.guest-planting-heading .guest-growing-location,.guest-planting-heading .guest-location-prompt{width:100%}.guest-plant-suggestions{grid-template-columns:1fr}.guest-plant-suggestions .guest-plant-row{padding:12px 16px}.guest-plant-suggestions .guest-plant-thumb{width:75px;height:75px}}

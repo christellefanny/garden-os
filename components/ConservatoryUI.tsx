@@ -2,6 +2,7 @@
 import Image from "next/image";
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
+import GuestPlantingNow from "@/components/GuestPlantingNow";
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -382,6 +383,7 @@ export function ModernDashboard({
         ))}
       </div>
       <div className="modern-main-grid">
+        {userId === "guest" && <GuestPlantingNow />}
         <section className="modern-card layout-preview">
           <div className="modern-card-title">
             <h2>My Garden Layout</h2>
@@ -475,7 +477,7 @@ export function ModernDashboard({
             </p>
           )}
         </section>
-        <section className="modern-card now-card">
+        {userId !== "guest" && <section className="modern-card now-card">
           <h2>In the Garden Now</h2>
           {planted.length ? (
             planted.slice(0, 3).map((p) => (
@@ -503,7 +505,7 @@ export function ModernDashboard({
               Plants marked Growing in your spaces will appear here.
             </p>
           )}
-        </section>
+        </section>}
       </div>
       <div className="modern-bottom-grid">
         <section className="modern-card">
