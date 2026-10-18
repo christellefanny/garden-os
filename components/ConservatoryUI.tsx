@@ -3,6 +3,7 @@ import Image from "next/image";
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
+import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
 import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
@@ -20,6 +21,7 @@ import PlantPortrait from "@/components/PlantPortrait";
 import {
   loadCalendarOptions,
   buildGrowingTasks,
+  calendarTaskYears,
   localDay,
   shiftDay,
 } from "@/lib/growing-calendar";
@@ -258,13 +260,13 @@ export function ModernDashboard({
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   const candidates = [
     ...dailyRecommendations(spaces, details, season, today, options.firstFrost),
-    ...buildGrowingTasks(vault, Number(today.slice(0, 4)), options),
+    ...calendarTaskYears(options,today).flatMap(year=>buildGrowingTasks(vault,year,options)),
   ];
   const tasks = candidates.filter(
     (t) =>
       !options.tasks[t.id]?.status &&
       !t.status &&
-      t.date >= today &&
+      (t.date >= today || options.reminders?.some(r=>r.id===t.id&&!r.plantId)) &&
       t.date <= shiftDay(today, 7),
   ).sort((a, b) => a.date.localeCompare(b.date));
   function complete(id: string) {
@@ -289,9 +291,9 @@ export function ModernDashboard({
   );
   const confirmed = (options.reminders ?? []).filter(
     (r) =>
-      (options.tasks[r.id]?.date || r.date) >= today &&
+      ((options.tasks[r.id]?.date || r.date) >= today || !r.plantId) &&
       !options.tasks[r.id]?.status &&
-      vault.some((plant) => plant.id === r.plantId),
+      (!r.plantId || vault.some((plant) => plant.id === r.plantId)),
   );
   const category = (name: string) =>
     vault.filter((p) => p.category === name).length;
@@ -345,9 +347,9 @@ export function ModernDashboard({
           </div>
         </section>
         <section className="modern-card atelier-upcoming-panel">
-          <div className="modern-card-title">
+          <div className="modern-card-title tasks-heading">
             <h2>Upcoming Tasks</h2>
-            <button onClick={() => navigate("Tasks")}>View all →</button>
+            <div className="task-header-actions"><AddTaskButton userId={userId} onSaved={setOptions}/><button type="button" onClick={() => navigate("Tasks")}>View all →</button></div>
           </div>
           {tasks.length ? tasks.slice(0, 5).map((t) => (
             <div className="modern-task-row" key={t.id}>
@@ -356,7 +358,7 @@ export function ModernDashboard({
                 <strong>{t.title}</strong>
                 <small>{t.plant} · {t.id.startsWith("custom|") ? "Saved reminder" : "Planning recommendation"}</small>
               </button>
-              <time>{t.date === today ? "Today" : t.date.slice(5)}</time>
+              <time>{t.date < today ? "Overdue" : t.date === today ? "Today" : t.date.slice(5)}</time>
             </div>
           )) : <p className="empty-copy">No upcoming tasks this week. Your garden is ready for its next chapter.</p>}
         </section>
@@ -477,7 +479,7 @@ export function ModernDashboard({
                       : "Planning recommendation"}
                   </small>
                 </button>
-                <time>{t.date === today ? "Today" : t.date.slice(5)}</time>
+                <time>{t.date < today ? "Overdue" : t.date === today ? "Today" : t.date.slice(5)}</time>
               </div>
             ))
           ) : (
@@ -602,10 +604,9 @@ export function TasksPage({
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   const tasks = [
     ...dailyRecommendations(spaces, details, season, today, options.firstFrost),
-    ...buildGrowingTasks(vault, Number(today.slice(0, 4)), options),
-    ...buildGrowingTasks(vault, Number(today.slice(0, 4)) + 1, options),
+    ...calendarTaskYears(options,today).flatMap(year=>buildGrowingTasks(vault,year,options)),
   ]
-    .filter((t) => !t.status && !options.tasks[t.id]?.status && t.date >= today)
+    .filter((t) => !t.status && !options.tasks[t.id]?.status && (t.date >= today || options.reminders?.some(r=>r.id===t.id&&!r.plantId)))
     .sort((a, b) => a.date.localeCompare(b.date));
   function complete(id: string) {
     const next = {
@@ -623,11 +624,12 @@ export function TasksPage({
   return (
     <section className="interior-page tasks-page atelier-welcoming-page">
       <InteriorHeader illustration="tasks" title="Tasks" eyebrow="Little by little, a garden grows" description="A few thoughtful steps for today and the days ahead. Make a little time for the garden, and enjoy watching it grow.">
+        <AddTaskButton userId={userId} onSaved={setOptions}/>
         <button className="seasonal-outline" onClick={onCalendar}>Open Growing Calendar</button>
       </InteriorHeader>
-      <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
+      <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
       <div className="interior-toolbar"><div className="collection-tabs">{[{id:"today",label:"Today"},{id:"week",label:"This week"},{id:"all",label:"Upcoming"}].map(item=><button className={`collection-tab ${range===item.id?"is-active":""}`} aria-pressed={range===item.id} key={item.id} onClick={()=>setRange(item.id)}>{item.label}</button>)}</div></div>
-      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date}</time></div>)}</details>)}</div>
+      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
       {!tasks.some(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))&&<div className="interior-empty"><h2>A little breathing room.</h2><p>No upcoming steps in this view. Your calendar keeps the rest of the year within reach.</p><button className="seasonal-outline" onClick={onCalendar}>View calendar</button></div>}
     </section>
   );

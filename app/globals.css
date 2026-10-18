@@ -1947,3 +1947,5 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 /* Empty task summaries size to their message instead of reserving a full list. */
 .atelier-upcoming-panel:has(>.empty-copy){min-height:0;padding-block:18px;}
 .atelier-upcoming-panel:has(>.empty-copy) .empty-copy{margin-bottom:0;}
+
+.tasks-heading{flex-wrap:wrap;}.task-header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}.task-header-actions>button{font-size:11px;color:var(--atelier-deep);min-height:44px;}.task-header-actions .add-task-button{color:#fffdf4;font-size:12px;padding:8px 12px;border-radius:8px;}.personal-task-form{display:grid;gap:16px;}.personal-task-form>p{font-size:13px;line-height:1.7;}.personal-task-form label{display:grid;gap:7px;font-size:14px;font-weight:600;}.personal-task-form input,.personal-task-form textarea{width:100%;min-height:44px;border:1px solid var(--border);padding:11px;border-radius:9px;font-weight:400;}.personal-task-actions{display:flex;justify-content:flex-end;gap:10px;}.personal-task-actions button{padding:10px 16px;min-height:44px;border-radius:8px;}.interior-actions .add-task-button{min-height:44px;}

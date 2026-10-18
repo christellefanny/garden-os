@@ -23,6 +23,17 @@ try {
  assert.equal(await page.getByRole('heading',{name:'Plant Vault',exact:true}).count(),0);
  assert.equal(await page.locator('.garden-example-tile').count(),3);
  await mkdir('docs/previews/layout-studio',{recursive:true});
+ // Guests can save a freeform task without plants; overdue tasks survive reopening.
+ await page.getByRole('button',{name:'Add task',exact:false}).click();const taskDialog=page.getByRole('dialog',{name:'Add a task',exact:true});
+ await taskDialog.getByLabel('Task',{exact:true}).fill('Buy seed trays');await taskDialog.getByLabel('Due date',{exact:true}).fill('2020-01-01');await taskDialog.getByLabel('Notes (optional)',{exact:true}).fill('Check the garage before ordering');
+ await taskDialog.getByRole('button',{name:'Save task',exact:true}).click();await page.locator('.atelier-upcoming-panel').getByText('Buy seed trays',{exact:true}).waitFor();
+ await page.reload();await page.locator('.atelier-upcoming-panel').getByText('Buy seed trays',{exact:true}).waitFor();assert.equal(await page.locator('.atelier-upcoming-panel').getByText('Overdue',{exact:true}).count(),1);
+ await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Tasks',exact:true}).click();await page.getByText('Check the garage before ordering',{exact:false}).waitFor();
+ await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Add task',exact:false}).click();await taskDialog.waitFor();await page.screenshot({path:'docs/previews/layout-studio/add-task-mobile.png',fullPage:true});
+ const taskAxe=await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(taskAxe.violations.map(v=>v.id),[]);await taskDialog.getByRole('button',{name:'Cancel',exact:true}).click();
+ await page.getByRole('button',{name:'Complete Buy seed trays for Personal task',exact:true}).click();await page.reload();assert.equal(await page.getByRole('button',{name:'Complete Buy seed trays for Personal task',exact:true}).count(),0);
+ const guestTasks=await page.evaluate(()=>JSON.parse(localStorage.getItem('garden-os-calendar-guest')));assert.equal(guestTasks.reminders.length,1);assert.equal(guestTasks.tasks[guestTasks.reminders[0].id].status,'done');
+ await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.setViewportSize({width:1536,height:1000});
  await page.screenshot({path:'docs/previews/layout-studio/welcome-guest-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/previews/layout-studio/welcome-guest-mobile.png',fullPage:true});await page.setViewportSize({width:1536,height:1000});
  await inspiration.getByRole('button',{name:'Edit example four-bed vegetable garden',exact:true}).click();
@@ -140,6 +151,9 @@ try {
  for(const width of [1536,1024,768,390,320]){await welcome.setViewportSize({width,height:900});assert.equal(await welcome.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Welcome overflow '+width);}
  await welcome.setViewportSize({width:1536,height:1000});await welcome.screenshot({path:'docs/previews/layout-studio/welcome-account-desktop.png',fullPage:true});
  const welcomeAxe=await new AxeBuilder({page:welcome}).include('.modern-dashboard').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(welcomeAxe.violations.map(v=>({id:v.id,target:v.nodes.map(n=>n.target)})),[]);
+ await welcome.getByRole('button',{name:'Add task',exact:false}).click();const accountTask=welcome.getByRole('dialog',{name:'Add a task',exact:true});await accountTask.getByLabel('Task',{exact:true}).fill('Clean pruning shears');await accountTask.getByRole('button',{name:'Save task',exact:true}).click();await welcome.locator('.atelier-upcoming-panel').getByText('Clean pruning shears',{exact:true}).waitFor();
+ let syncedTask=false;for(let attempt=0;attempt<40;attempt++){const state=await(await fetch('http://127.0.0.1:54321/control/state')).json();syncedTask=state.syncedState.some(row=>row.key.startsWith('garden-os-calendar-')&&row.value?.reminders?.some(r=>r.title==='Clean pruning shears'&&!r.plantId));if(syncedTask)break;await new Promise(resolve=>setTimeout(resolve,100));}assert.ok(syncedTask,'Account personal tasks reach the existing cloud state API');
+ await welcome.reload();await welcome.locator('.atelier-upcoming-panel').getByText('Clean pruning shears',{exact:true}).waitFor();
  await welcome.getByRole('region',{name:'Imagine your dream garden',exact:true}).getByRole('button',{name:'Compact courtyard garden',exact:true}).click();await welcome.getByRole('button',{name:'Edit this layout',exact:false}).click();await welcome.getByRole('dialog',{name:'Customize compact courtyard garden',exact:true}).waitFor();
  assert.deepEqual(errors,[]);console.log('PASS: three homepage/gallery illustrations, blank start, independent editable copies, direct rotate/delete/undo, 19 illustrated decorations, keyboard/pointer planting, persistence, member legacy preservation, no fake records, five viewport widths and accessibility.');
 }catch(e){await page?.screenshot({path:"docs/previews/layout-studio/failure.png",fullPage:true}).catch(()=>{});console.error(e);console.error(log.slice(-2500));process.exitCode=1;}finally{await browser?.close();server.kill();fixture.kill();}

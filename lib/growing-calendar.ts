@@ -1,5 +1,5 @@
 import type { VaultPlant } from "../components/PlantVault";
-export type PlantReminder = { id: string; plantId: string; title: string; date: string };
+export type PlantReminder = { id: string; plantId: string; title: string; date: string; notes?: string };
 export type CalendarOptions = {
   reminders?: PlantReminder[];
   weekly?: import("./weekly-brief").WeeklyPreferences;
@@ -296,9 +296,9 @@ export function buildGrowingTasks(
     const change = options.tasks[reminder.id];
     if (!(change?.date || reminder.date).startsWith(`${year}-`)) continue;
     const plant = plants.find(p => p.id === reminder.plantId);
-    if (!plant) continue;
+    if (!plant && reminder.plantId) continue;
     result.push({id: reminder.id, date: change?.date || reminder.date, title: reminder.title,
-      plant: [plant.name, plant.variety].filter(Boolean).join(" · "), detail: "Your plant reminder.", status: change?.status});
+      plant: plant ? [plant.name, plant.variety].filter(Boolean).join(" · ") : "Personal task", detail: reminder.notes || (plant ? "Your plant reminder." : "Your saved task."), status: change?.status});
   }
   return result.sort(
     (a, b) => a.date.localeCompare(b.date) || a.plant.localeCompare(b.plant),
@@ -319,4 +319,10 @@ export function reminderSnapshot(plants: VaultPlant[], options: CalendarOptions,
   return [...years].flatMap(y => buildGrowingTasks(plants, y, options))
     .filter(t => !t.status && t.date >= today)
     .map(({id,date,title,plant}) => ({id,date,title,plant}));
+}
+
+/** Include saved task years so overdue and far-future personal tasks remain accessible. */
+export function calendarTaskYears(options:CalendarOptions,today=localDay()){
+  const year=Number(today.slice(0,4));
+  return [...new Set([year,year+1,...(options.reminders??[]).map(r=>Number((options.tasks[r.id]?.date||r.date).slice(0,4)))])].filter(y=>Number.isInteger(y)&&y>=1&&y<=9999);
 }

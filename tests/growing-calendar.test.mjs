@@ -117,3 +117,9 @@ test("custom plant reminders retain variety, inclusion independence and calendar
   assert.equal(reminderSnapshot([plant],{...options,tasks:{"custom|one":{status:"done"}}},"2026-10-10").length,0);
   assert.equal(buildGrowingTasks([],2026,options).length,0);
 });
+
+test('standalone tasks need no plant and keep notes, rescheduling and completion',()=>{
+ const options={...calendarDefaults,reminders:[{id:'custom|personal',plantId:'',title:'Order seed trays',date:'2026-10-15',notes:'Check the garage first'},{id:'custom|missing',plantId:'deleted',title:'Hidden plant reminder',date:'2026-10-15'}],tasks:{}};
+ const tasks=buildGrowingTasks([],2026,options);assert.equal(tasks.length,1);assert.equal(tasks[0].plant,'Personal task');assert.equal(tasks[0].detail,'Check the garage first');
+ const updated=buildGrowingTasks([],2027,{...options,tasks:{'custom|personal':{date:'2027-01-04',status:'done'}}});assert.equal(updated[0].status,'done');assert.equal(updated[0].date,'2027-01-04');
+});

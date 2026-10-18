@@ -67,3 +67,8 @@ When no saved design is selected, the homepage uses the approved three-layout in
 
 ### Plan & Design entry behavior
 Normal navigation to Plan & Design, including repeated clicks on the same sidebar item, starts at Inspiration & new layout and ignores the previous session's selected plan. Saved designs remain in the layout navigation. Explicit homepage template and bed edit actions still open their requested target. Gallery Customize buttons and homepage Edit this layout now use the primary seasonal button treatment, matching Start from scratch.
+
+### Standalone personal tasks
+Add task is available in the homepage Upcoming Tasks header and on Tasks for guests and account holders. The shared dialog accepts a title, due date (today by default), and optional notes. No plant or garden is required. Tasks reuse the existing calendar storage and account synchronization instead of creating a separate store. Guest tasks persist in the same browser, with the normal Save to an account path available.
+
+General tasks use the existing reminder record with an empty plantId, leaving existing plant-linked reminders unchanged. They appear in the shared calendar as well as Tasks and the dashboard. Unfinished personal tasks remain visible as Overdue across visits and year boundaries; completion persists. Cancel creates nothing, and failed or unreadable storage keeps the form open. Browser coverage exercises guest/account creation, notes, overdue persistence, completion, cancellation, mobile layout and dialog accessibility.
