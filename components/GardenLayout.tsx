@@ -10,13 +10,14 @@ import { layoutTemplates } from "@/lib/layout-design";
 import {initialLayout, type Bed } from "@/lib/garden-layout";
 import type { Space } from "@/lib/garden";
 
-export default function GardenLayout(props:{userId:string;gardenId:string;gardenName:string;initialBedId?:string;spaces:Space[];onOpenSpace:(spaceId:string)=>void;onClose:()=>void;onCreateSpaces:(beds:Bed[],excludePeppers?:boolean)=>Promise<number|null>}) {
+export default function GardenLayout(props:{userId:string;gardenId:string;gardenName:string;initialBedId?:string;initialTemplateId?:string;spaces:Space[];onOpenSpace:(spaceId:string)=>void;onClose:()=>void;onCreateSpaces:(beds:Bed[],excludePeppers?:boolean)=>Promise<number|null>}) {
   const {userId,gardenId,initialBedId}=props;
   const customKey=`garden-os-custom-layouts-v1-${userId}-${gardenId}`;
   const selectionKey=`garden-os-layout-selection-${userId}-${gardenId}`;
   const [layouts,setLayouts]=useState(()=>loadCustomLayouts(customKey));
   const [hasLegacy]=useState(()=>{try{return Boolean(localStorage.getItem(`garden-os-layout-2027-${userId}-${gardenId}`)) || props.spaces.some(s=>{try{return initialLayout.some(b=>b.id===JSON.parse(s.notes??"null")?.sourceLayoutId);}catch{return false;}});}catch{return false;}});
   const [selection,setSelection]=useState(()=>{
+    if(layoutTemplates.some(t=>t.id===props.initialTemplateId))return `new:${props.initialTemplateId}`;
     try{const saved=localStorage.getItem(selectionKey);const plans=loadCustomLayouts(customKey);const linked=plans.find(l=>l.items.some(i=>i.id===initialBedId));if(linked)return linked.id;if(plans.some(l=>l.id===saved))return saved!;if(hasLegacy&&(saved==="original"||initialBedId))return "original";}catch{}
     return "gallery";
   });

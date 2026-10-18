@@ -18,8 +18,18 @@ try {
  await page.addInitScript(()=>localStorage.setItem('garden-os-guest-warning-seen','true'));
  await page.goto('http://127.0.0.1:3000');await page.getByRole('button',{name:'Continue as guest',exact:true}).click();
  const inspiration=page.getByRole('region',{name:'Imagine your dream garden',exact:true});await inspiration.waitFor();
- for(const [label,count] of [['Compact courtyard garden',2],['A garden for bouquets',4],['Four-bed vegetable garden',4]]){await inspiration.getByRole('button',{name:label,exact:true}).click();assert.equal(await inspiration.locator('.guest-example-art button').count(),count);await inspiration.locator('img').evaluate(el=>el.decode());}
- await inspiration.getByRole('button',{name:'Design your own garden',exact:false}).click();
+ for(const [label,count] of [['Compact courtyard garden',2],['A garden for bouquets',4],['Four-bed vegetable garden',4]]){await inspiration.getByRole('button',{name:label,exact:true}).click();assert.equal(await inspiration.locator('.guest-example-art button[aria-pressed]').count(),count);await inspiration.locator('img').evaluate(el=>el.decode());}
+ await page.getByRole('heading',{name:'What to Plant Now',exact:true}).waitFor();
+ assert.equal(await page.getByRole('heading',{name:'Plant Vault',exact:true}).count(),0);
+ assert.equal(await page.locator('.garden-example-tile').count(),3);
+ await mkdir('docs/previews/layout-studio',{recursive:true});
+ await page.screenshot({path:'docs/previews/layout-studio/welcome-guest-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/previews/layout-studio/welcome-guest-mobile.png',fullPage:true});await page.setViewportSize({width:1536,height:1000});
+ await inspiration.getByRole('button',{name:'Edit example four-bed vegetable garden',exact:true}).click();
+ await page.getByRole('dialog',{name:'Customize four-bed vegetable garden',exact:true}).waitFor();
+ assert.equal(await page.evaluate(k=>localStorage.getItem(k),key),null,'Opening inspiration does not save sample layouts');
+ await page.getByRole('button',{name:'Close dialog',exact:true}).click();await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();
+ await inspiration.getByRole('button',{name:'Open Plan & Design',exact:false}).click();
  const gallery=page.locator('.layout-template-grid');await gallery.waitFor();assert.equal(await gallery.locator('article').count(),3);assert.equal(await page.getByRole('heading',{name:'Original nine-bed layout',exact:true}).count(),0);
  assert.equal(await page.evaluate(k=>localStorage.getItem(k),key),null,'Browsing never creates plans');
  for(const img of await gallery.locator('img').all())await img.evaluate(el=>el.decode());
@@ -118,5 +128,16 @@ try {
  await member.locator('.layout-template-grid').waitFor();await member.reload();await member.locator('.layout-template-grid').waitFor();
  assert.equal(await member.getByRole('navigation',{name:'Saved garden layouts'}).getByRole('button',{name:'My existing plan',exact:true}).count(),0,'Deleting the final custom layout returns to inspiration');
  assert.equal(await member.evaluate(k=>localStorage.getItem(k),legacyKey),legacyBefore,'Deleting a custom design preserves the existing nine-bed plan');
+ // A signed-in account without records receives the same useful welcome content.
+ const fresh=await browser.newContext({viewport:{width:1536,height:1000}}),welcome=await fresh.newPage();
+ await welcome.route('**/rest/v1/**',async route=>{if(route.request().method()==='GET')await route.fulfill({status:200,contentType:'application/json',body:'[]'});else await route.continue();});
+ await welcome.goto('http://127.0.0.1:3000');await welcome.evaluate(()=>localStorage.clear());await welcome.reload();await welcome.getByLabel('Email',{exact:true}).fill('garden@example.test');await welcome.getByLabel('Password',{exact:true}).fill('fixture-password');await welcome.getByRole('button',{name:'Open my garden',exact:true}).click();
+ await welcome.getByRole('heading',{name:'What to Plant Now',exact:true}).waitFor();
+ assert.equal(await welcome.getByRole('heading',{name:'Plant Vault',exact:true}).count(),0);assert.equal(await welcome.getByRole('heading',{name:'In the Garden Now',exact:true}).count(),0);
+ assert.equal(await welcome.locator('.garden-example-tile').count(),3);await welcome.getByRole('region',{name:'Imagine your dream garden',exact:true}).waitFor();
+ for(const width of [1536,1024,768,390,320]){await welcome.setViewportSize({width,height:900});assert.equal(await welcome.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Welcome overflow '+width);}
+ await welcome.setViewportSize({width:1536,height:1000});await welcome.screenshot({path:'docs/previews/layout-studio/welcome-account-desktop.png',fullPage:true});
+ const welcomeAxe=await new AxeBuilder({page:welcome}).include('.modern-dashboard').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(welcomeAxe.violations.map(v=>({id:v.id,target:v.nodes.map(n=>n.target)})),[]);
+ await welcome.getByRole('region',{name:'Imagine your dream garden',exact:true}).getByRole('button',{name:'Compact courtyard garden',exact:true}).click();await welcome.getByRole('button',{name:'Edit this layout',exact:false}).click();await welcome.getByRole('dialog',{name:'Customize compact courtyard garden',exact:true}).waitFor();
  assert.deepEqual(errors,[]);console.log('PASS: three homepage/gallery illustrations, blank start, independent editable copies, direct rotate/delete/undo, 19 illustrated decorations, keyboard/pointer planting, persistence, member legacy preservation, no fake records, five viewport widths and accessibility.');
 }catch(e){await page?.screenshot({path:"docs/previews/layout-studio/failure.png",fullPage:true}).catch(()=>{});console.error(e);console.error(log.slice(-2500));process.exitCode=1;}finally{await browser?.close();server.kill();fixture.kill();}

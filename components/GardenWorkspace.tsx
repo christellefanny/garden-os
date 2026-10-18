@@ -106,6 +106,7 @@ export default function GardenWorkspace({
       }),
     [storedSpaces, vault],
   );
+  const [layoutTemplate,setLayoutTemplate]=useState<string|undefined>();
   const [layoutBed, setLayoutBed] = useState<string | undefined>();
   const [gardenPageId, setGardenPageId] = useState<string | null>(readGardenPageFromUrl);
   const [selectedGardenId, setGardenId] = useState(initialGardens[0]?.id ?? "");
@@ -130,6 +131,7 @@ export default function GardenWorkspace({
   );
   function navigate(next: Destination) {
     if (guestMode && next === "Plant Vault") next = "Dashboard";
+    setLayoutTemplate(undefined);
     const url = new URL(window.location.href);
     url.searchParams.set("view", pageView(next));
     url.searchParams.delete("garden");
@@ -476,6 +478,7 @@ export default function GardenWorkspace({
               onGarden={openGarden}
               onNewGarden={() => { navigate("My Gardens"); setGardenForm("new"); }}
               onSpace={setOpenId}
+              onEditExample={id=>{navigate("Garden Layout");setLayoutTemplate(id);setLayoutBed(undefined);}}
               onVault={query=>{setVaultQuery(query);navigate("Plant Vault");}}
               onBed={(id) => {
                 setLayoutBed(id);
@@ -553,6 +556,7 @@ export default function GardenWorkspace({
               userId={userId}
               gardenId={gardenId || "planning"}
               initialBedId={layoutBed}
+              initialTemplateId={layoutTemplate}
               gardenName={garden?.name ?? "your garden"}
               spaces={activeSpaces}
               onOpenSpace={(spaceId) => {

@@ -11,7 +11,7 @@ const beds = [
   { name: "A summer picking bed", label: "Peppers & beans", x: 72, y: 65, description: "Give peppers and bush beans their own growing space. Choose the plants and spacing that suit your location, light, and available room." },
 ];
 
-export default function GuestGardenExample({ onCreate }: { onCreate: () => void }) {
+export default function GuestGardenExample({ onCreate,onEdit }: { onCreate: () => void;onEdit:(templateId:string)=>void }) {
   const [selected, setSelected] = useState(0);
   const [inspiration,setInspiration]=useState(0);
   const template=layoutTemplates[inspiration];
@@ -20,13 +20,13 @@ export default function GuestGardenExample({ onCreate }: { onCreate: () => void 
   return (
     <section className="modern-card guest-garden-example" aria-labelledby="guest-example-title">
       <div className="guest-example-heading">
-        <div><p className="guest-example-eyebrow">A little inspiration · Example plan</p><h2 id="guest-example-title">Imagine your dream garden</h2></div>
+        <div><p className="guest-example-eyebrow">My Garden Layout · Example plan</p><h2 id="guest-example-title">Imagine your dream garden</h2></div>
         <span className="guest-example-badge">{exampleBeds.length} raised beds</span>
       </div>
       <p className="guest-example-intro">A place for fresh vegetables, fragrant herbs, and a few flowers. Explore the beds, then make room for your own ideas.</p>
       <div className="layout-inspiration-tabs" aria-label="Garden inspiration layouts">{layoutTemplates.map((idea,index)=><button type="button" key={idea.id} aria-pressed={inspiration===index} onClick={()=>{setInspiration(index);setSelected(0);}}>{idea.name}</button>)}</div>
       <div className="guest-example-art">
-        <Image src={template.image} alt={`Watercolor concept of ${template.name.toLowerCase()}, with beds and walking paths.`} width={1200} height={800} sizes="(max-width: 800px) 100vw, 60vw" />
+        <button type="button" className="guest-example-edit-art" aria-label={`Edit example ${template.name.toLowerCase()}`} onClick={()=>onEdit(template.id)}><Image src={template.image} alt={`Watercolor concept of ${template.name.toLowerCase()}, with beds and walking paths.`} width={1200} height={800} sizes="(max-width: 800px) 100vw, 60vw" /></button>
         {exampleBeds.map((item, index) => <button type="button" key={item.name} style={{ left: `${item.x}%`, top: `${item.y}%` }} aria-label={`Explore example bed ${index + 1}: ${item.label}`} aria-pressed={selected === index} aria-controls="guest-example-detail" onClick={() => setSelected(index)}>{index + 1}</button>)}
       </div>
       <div className="guest-example-bed-list" aria-label="Explore the example beds">
@@ -34,7 +34,7 @@ export default function GuestGardenExample({ onCreate }: { onCreate: () => void 
       </div>
       <div className="guest-example-detail" id="guest-example-detail" aria-live="polite" aria-atomic="true"><h3>{bed.name}</h3><p>{bed.description}</p></div>
       <div className="guest-example-design-notes"><span>Room to move between beds</span><span>{inspiration===2?"Flowers for cutting":"Herbs in terracotta pots"}</span><span>Flowers for a finishing touch</span></div>
-      <div className="guest-example-footer"><p>Choose one of three editable starting points or begin with a blank canvas. These illustrations are inspiration, not measured planting plans.</p><button type="button" className="seasonal-button" onClick={onCreate}>Design your own garden <span aria-hidden="true">→</span></button></div>
+      <div className="guest-example-footer"><p>Choose one of three editable starting points or begin with a blank canvas. These illustrations are inspiration, not measured planting plans.</p><div className="guest-example-actions"><button type="button" className="seasonal-outline" onClick={()=>onEdit(template.id)}>Edit this layout →</button><button type="button" className="seasonal-button" onClick={onCreate}>Open Plan &amp; Design <span aria-hidden="true">→</span></button></div></div>
     </section>
   );
 }

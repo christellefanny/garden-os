@@ -237,6 +237,7 @@ export function ModernDashboard({
   onSpace,
   onBed,
   onVault,
+  onEditExample,
 }: {
   userId: string;
   garden?: Garden;
@@ -250,6 +251,7 @@ export function ModernDashboard({
   onSpace: (id: string) => void;
   onBed: (id: string) => void;
   onVault:(query:string)=>void;
+  onEditExample:(templateId:string)=>void;
 }) {
   const { season } = useSeason(),
     today = localDay();
@@ -325,7 +327,9 @@ export function ModernDashboard({
             <h2>My Gardens</h2>
             <button onClick={() => navigate("My Gardens")}>View all →</button>
           </div>
+          {!gardens.length&&<p className="garden-preview-intro">A home for every corner you grow. Organize your beds, keep plant notes, and follow each garden through the seasons.</p>}
           <div className="atelier-gardens-grid">
+            {!gardens.length&&[{type:"vegetable",name:"Vegetable garden",copy:"Raised beds & fresh harvests"},{type:"flower",name:"Flower garden",copy:"Borders & blooms for cutting"},{type:"herb",name:"Herb garden",copy:"Fragrant pots & kitchen favorites"}].map(example=><div key={example.type} className="atelier-garden-tile garden-example-tile"><span className={`atelier-garden-art atelier-garden-art-${example.type}`} aria-hidden="true"/><small className="garden-example-label">A possibility for your garden</small><strong>{example.name}</strong><small>{example.copy}</small></div>)}
             {gardens.map((g) => (
               <button key={g.id} className="atelier-garden-tile" onClick={() => onGarden(g.id)}>
                 <span className={`atelier-garden-art atelier-garden-art-${/flower|cut|bloom/i.test(g.name) ? "flower" : /herb/i.test(g.name) ? "herb" : /front|yard|landscape/i.test(g.name) ? "front" : "vegetable"}`} aria-hidden="true" />
@@ -385,8 +389,8 @@ export function ModernDashboard({
         ))}
       </div>
       <div className="modern-main-grid">
-        {userId === "guest" && <GuestPlantingNow />}
-        {userId === "guest" && !selectedCustom && !hasSavedLayout ? <GuestGardenExample onCreate={() => navigate("Garden Layout")} /> : <section className="modern-card layout-preview">
+        {(userId === "guest" || !planted.length) && <GuestPlantingNow />}
+        {!selectedCustom && !hasSavedLayout ? <GuestGardenExample onCreate={() => navigate("Garden Layout")} onEdit={onEditExample} /> : <section className="modern-card layout-preview">
           <div className="modern-card-title">
             <h2>My Garden Layout</h2>
             <button onClick={() => navigate("Garden Layout")}>
@@ -482,7 +486,7 @@ export function ModernDashboard({
             </p>
           )}
         </section>
-        {userId !== "guest" && <section className="modern-card now-card">
+        {userId !== "guest" && planted.length > 0 && <section className="modern-card now-card">
           <h2>In the Garden Now</h2>
           {planted.length ? (
             planted.slice(0, 3).map((p) => (
@@ -543,7 +547,7 @@ export function ModernDashboard({
             </p>
           )}
         </section>
-        {userId !== "guest" && <section className="modern-card">
+        {userId !== "guest" && vault.length > 0 && <section className="modern-card">
           <div className="modern-card-title">
             <h2>Plant Vault</h2>
             <button onClick={() => navigate("Plant Vault")}>
@@ -551,7 +555,7 @@ export function ModernDashboard({
             </button>
           </div>
           <div className="featured-grid">
-            {groups.map((name) => {
+            {groups.filter(name=>vault.some(p=>name==="Flowers"?p.category==="Flower":p.name.toLowerCase().includes(name.toLowerCase()))).map((name) => {
               const matches = vault.filter((p) =>
                 name === "Flowers"
                   ? p.category === "Flower"

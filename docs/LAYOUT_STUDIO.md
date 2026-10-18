@@ -59,3 +59,8 @@ Prompt used separately for each source flower: “Use case: background-extractio
 
 ### Delete a saved design
 Saved custom layouts have a Delete layout action beside Rename layout. A named confirmation distinguishes deleting the design from deleting actual growing spaces or plant data. Cancel preserves everything. Confirm stores the remaining array (including an empty array for the last layout, so existing metadata synchronization carries the deletion) and returns to the inspiration gallery. A failed storage write leaves the design and confirmation available for retry. Other layouts and the original saved nine-bed plan remain unchanged. Browser coverage checks cancel, targeted deletion, reload, final-layout deletion, and legacy preservation.
+
+### Useful first-visit home
+Guests and signed-in accounts with no growing plants see What to Plant Now, with zone-aware guidance after location permission or ZIP lookup. Empty vaults no longer render decorative collection categories; populated vault summaries use only categories with actual records. My Gardens shows three clearly labeled illustrated possibilities only while there are no actual gardens, without writing records or inventing counts. Accounts with real gardens keep actual garden cards.
+
+When no saved design is selected, the homepage uses the approved three-layout inspiration component for both guests and signed-in accounts. Clicking its artwork or Edit this layout opens the corresponding editable template's naming dialog; no design or growing-space data is created until confirmation. Open Plan & Design still leads to the full gallery and blank-canvas option. Guest sidebar restrictions stay intact, while account navigation continues to expose the account's tools.
