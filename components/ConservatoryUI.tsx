@@ -420,7 +420,7 @@ export function ModernDashboard({
                       borderRadius: item.kind === "Container" ? "50%" : "6px",
                     }}
                   >
-                    {safeDecorations(item.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <Image key={plant.id} src={art.src} alt="" width={60} height={60} className="layout-preview-plant" style={{position:"absolute",...plantStampStyle(item,plant),objectFit:"contain",transform:"translate(-50%,-50%)"}}/>;})}
+                    {safeDecorations(item.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <Image key={plant.id} src={art.src} alt="" width={60} height={60} className={`layout-preview-plant${art.group==="Flowers"?" layout-plant-flower":""}`} style={{position:"absolute",...plantStampStyle(item,plant),objectFit:"contain",transform:"translate(-50%,-50%)"}}/>;})}
                     <span>{item.name}</span>
                   </button>
                 ))

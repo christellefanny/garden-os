@@ -1884,7 +1884,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .layout-object-label {position:absolute;width:max-content;max-width:180px;font-size:11px;font-weight:500;line-height:1.4;padding:4px 7px;border:1px solid #dfd6c3;border-radius:5px;background:#fffaf1;color:#3d4d35;box-shadow:0 2px 6px #23351d14;z-index:25;pointer-events:none;opacity:0;}
 .layout-canvas-item:hover > .layout-object-label,.layout-canvas-item:has(:focus-visible) > .layout-object-label {opacity:1;}
 @media(hover:none){.layout-canvas-item[data-selected="true"] > .layout-object-label{opacity:1;}}
-.layout-plant-stamp {position:absolute;transform:translate(-50%,-50%);width:42%;height:42%;z-index:2;border-radius:12px;touch-action:none;mix-blend-mode:multiply;}
+.layout-plant-stamp {position:absolute;transform:translate(-50%,-50%);width:42%;height:42%;z-index:2;border-radius:12px;touch-action:none;background:transparent;border:0;padding:0;box-shadow:none;mix-blend-mode:multiply;}
 .layout-plant-stamp img {object-fit:contain;pointer-events:none;user-select:none;}
 .layout-plant-stamp[aria-pressed="true"] {outline:2px dashed var(--atelier-deep);outline-offset:1px;}
 .layout-plant-stamp:focus-visible {outline:3px solid var(--atelier-deep);outline-offset:2px;}
@@ -1907,8 +1907,8 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 
 /* Botanical marks stay readable independently of narrow border geometry. */
 .layout-design-canvas,.modern-garden-map {container-type:inline-size;}
-.layout-plant-stamp {mix-blend-mode:normal;}
-.layout-preview-plant {mask-image:radial-gradient(ellipse at center,#000 48%,#000c 65%,transparent 82%);}
+
+.layout-preview-plant {mix-blend-mode:multiply;mask-image:radial-gradient(ellipse at center,#000 48%,#000c 65%,transparent 82%);}
 .layout-ground-picker {border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:16px 18px;margin-top:14px;}
 .layout-ground-picker h3 {font:22px Georgia,serif;color:#344a37;}
 .layout-ground-picker p {font-size:12px;line-height:1.7;color:#5f6957;margin:8px 0 12px;}
@@ -1925,3 +1925,8 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .layout-empty-hint {background:#fffaf0ed;border:1px solid #e4dac6;border-radius:12px;padding:20px;color:#344a37;font-size:14px;line-height:1.7;}
 
 .layout-ground-area {position:absolute;pointer-events:none;border-radius:6px;background-position:0 0;}
+
+/* Transparent flower cutouts preserve pale petals on dark borders. Vegetables
+   blend their ivory paper into soil without a luminous vignette. */
+.layout-plant-flower {mix-blend-mode:normal;}
+.layout-plant-flower img,.layout-preview-plant.layout-plant-flower {mask-image:none;}

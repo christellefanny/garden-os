@@ -48,12 +48,12 @@ export const designPlants = [
   {id:"cucumber",name:"Cucumber",group:"Vegetables",src:"/layout-inspiration/cucumber.webp"},
   {id:"broccoli",name:"Broccoli",group:"Vegetables",src:"/layout-inspiration/broccoli.webp"},
   {id:"okra",name:"Okra",group:"Vegetables",src:"/layout-inspiration/okra.webp"},
-  {id:"dahlia",name:"Dahlia",group:"Flowers",src:"/cut-flowers/dahlias.webp"},
-  {id:"zinnia",name:"Zinnia",group:"Flowers",src:"/cut-flowers/zinnias.webp"},
-  {id:"cosmos",name:"Cosmos",group:"Flowers",src:"/cut-flowers/cosmos.webp"},
-  {id:"snapdragon",name:"Snapdragon",group:"Flowers",src:"/cut-flowers/snapdragons.webp"},
-  {id:"lisianthus",name:"Lisianthus",group:"Flowers",src:"/cut-flowers/lisianthus.webp"},
-  {id:"alyssum",name:"Sweet alyssum",group:"Flowers",src:"/cut-flowers/sweet-alyssum.webp"},
+  {id:"dahlia",name:"Dahlia",group:"Flowers",src:"/layout-inspiration/dahlia-transparent.webp"},
+  {id:"zinnia",name:"Zinnia",group:"Flowers",src:"/layout-inspiration/zinnia-transparent.webp"},
+  {id:"cosmos",name:"Cosmos",group:"Flowers",src:"/layout-inspiration/cosmos-transparent.webp"},
+  {id:"snapdragon",name:"Snapdragon",group:"Flowers",src:"/layout-inspiration/snapdragon-transparent.webp"},
+  {id:"lisianthus",name:"Lisianthus",group:"Flowers",src:"/layout-inspiration/lisianthus-transparent.webp"},
+  {id:"alyssum",name:"Sweet alyssum",group:"Flowers",src:"/layout-inspiration/alyssum-transparent.webp"},
 ] as const;
 export type LayoutTemplate = {id:string;name:string;description:string;image:string;summary:string;items:Omit<LayoutItem,"id"|"spaceId">[]};
 const stamps=(...ids:string[])=>ids.map((plantId,i)=>({id:`stamp-${i}`,plantId,x:25+(i%2)*50,y:25+Math.floor(i/2)*50}));

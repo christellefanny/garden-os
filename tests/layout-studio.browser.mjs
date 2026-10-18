@@ -52,7 +52,13 @@ try {
  // Pointer repositioning within a bed.
  const bounds=await stamp.boundingBox();await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);await page.mouse.down();await page.mouse.move(bounds.x+bounds.width/2+12,bounds.y+bounds.height/2+10,{steps:4});await page.mouse.up();assert.ok((await plans())[0].items.find(i=>i.name==='Tomato bed').decorations.at(-1).x>55);
  await canvas.getByRole('button',{name:'Delete plant',exact:true}).click();assert.equal((await plans())[0].items.find(i=>i.name==='Tomato bed').decorations.length,4);await page.getByRole('button',{name:'Undo removal',exact:true}).click();
- await page.getByRole('button',{name:'Flowers · 6',exact:true}).click();assert.equal(await page.getByRole('button',{name:/^Add decorative /}).count(),6);for(const img of await page.locator('.layout-plant-options img').all())await img.evaluate(el=>el.decode());await page.getByRole('button',{name:'Add decorative Dahlia',exact:true}).click();
+ await page.getByRole('button',{name:'Flowers · 6',exact:true}).click();assert.equal(await page.getByRole('button',{name:/^Add decorative /}).count(),6);for(const img of await page.locator('.layout-plant-options img').all()){
+ await img.evaluate(el=>el.decode());
+ const transparentFraction=await img.evaluate(el=>{const c=document.createElement('canvas');c.width=el.naturalWidth;c.height=el.naturalHeight;const ctx=c.getContext('2d');ctx.drawImage(el,0,0);const pixels=ctx.getImageData(0,0,c.width,c.height).data;let clear=0;for(let i=3;i<pixels.length;i+=4)if(pixels[i]===0)clear++;return clear/(c.width*c.height);});
+ assert.ok(transparentFraction>.2,'Each flower has real transparency, including at optimized image sizes');
+ }await page.getByRole('button',{name:'Add decorative Dahlia',exact:true}).click();
+ assert.equal(await canvas.locator('.layout-plant-flower').first().evaluate(el=>getComputedStyle(el).mixBlendMode),'normal','Flowers retain their painted colors on green borders');
+ assert.equal(await canvas.locator('.layout-plant-stamp:not(.layout-plant-flower)').first().evaluate(el=>getComputedStyle(el).mixBlendMode),'multiply','Vegetable paper blends into the bed without pale halos');
  await page.locator('.layout-plant-drawer > summary').click();
  await page.getByRole('button',{name:'Plan View',exact:true}).click();assert.equal(await canvas.locator('.layout-plant-stamp').count(),0);await page.getByRole('button',{name:'Garden View',exact:true}).click();assert.ok(await canvas.locator('.layout-plant-stamp').count()>0);
  // On-canvas removal never removes actual records.
