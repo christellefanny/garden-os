@@ -16,7 +16,7 @@ export default function GuestGardenExample({ onCreate }: { onCreate: () => void 
   return (
     <section className="modern-card guest-garden-example" aria-labelledby="guest-example-title">
       <div className="guest-example-heading">
-        <div><p className="guest-example-eyebrow">A little inspiration · Example plan</p><h2 id="guest-example-title">Imagine your Vegetable garden</h2></div>
+        <div><p className="guest-example-eyebrow">A little inspiration · Example plan</p><h2 id="guest-example-title">Imagine your dream garden</h2></div>
         <span className="guest-example-badge">4 raised beds</span>
       </div>
       <p className="guest-example-intro">A place for fresh vegetables, fragrant herbs, and a few flowers. Explore the beds, then make room for your own ideas.</p>
