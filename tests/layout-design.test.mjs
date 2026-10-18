@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {instantiateLayout,layoutTemplates,designPlants,rotateItem,safeDecorations} from '../lib/layout-design.ts';
+import {instantiateLayout,layoutTemplates,designPlants,rotateItem,safeDecorations,groundCovers,surfaceAppearance,plantStampStyle} from '../lib/layout-design.ts';
 test('inspiration copies get independent identities, unlinked beds, and no plant records',()=>{
  let n=0;const uuid=()=>`copy-${++n}`;const before=JSON.stringify(layoutTemplates);
  const a=instantiateLayout(layoutTemplates[0],'My garden',uuid),b=instantiateLayout(layoutTemplates[0],'Another garden',uuid);
@@ -30,4 +30,18 @@ test('courtyard entrance is unobstructed and the path reaches the front edge',()
  const courtyard=layoutTemplates.find(t=>t.id==='courtyard');const pots=courtyard.items.filter(i=>i.kind==='Container');assert.equal(pots.length,5);
  assert.ok(pots.every(p=>p.y+p.h<=80||p.x+p.w<=46||p.x>=54),'Front-center entrance must not contain a pot');
  const path=courtyard.items.find(i=>i.kind==='Path');assert.equal(path.y+path.h,100);
+});
+
+test('ground covers use only three approved texture assets and ignore invalid saved values',()=>{
+ assert.equal(groundCovers.length,3);assert.deepEqual(surfaceAppearance('https://untrusted.example/image'),{});assert.deepEqual(surfaceAppearance(undefined),{});
+ for(const cover of groundCovers){assert.ok(surfaceAppearance(cover.id).backgroundImage.includes(cover.src));const bytes=readFileSync(new URL(`../public${cover.src}`,import.meta.url));assert.equal(bytes.toString('ascii',8,12),'WEBP');}
+});
+test('thin horizontal and vertical shapes render square botanical stamps with a readable minimum',()=>{
+ for(const item of [{x:10,y:1,w:80,h:4},{x:1,y:10,w:4,h:80},{x:10,y:10,w:30,h:30}]){const style=plantStampStyle(item,{x:50,y:50});assert.equal(style.width,style.height);assert.match(style.width,/clamp\(44px, (8|12)cqw, 112px\)/);assert.match(style.left,/clamp/);assert.match(style.top,/clamp/);}
+});
+
+test('rotating a planted border turns its illustrations along the new long axis',()=>{
+ const border={x:10,y:20,w:80,h:4,decorations:[{id:'one',plantId:'dahlia',x:20,y:50},{id:'two',plantId:'alyssum',x:80,y:50}]};
+ let turned=rotateItem(border);assert.deepEqual(turned.decorations.map(p=>[p.x,p.y]),[[50,20],[50,80]]);
+ for(let i=0;i<3;i++)turned=rotateItem(turned);assert.deepEqual(turned.decorations,border.decorations);assert.equal(turned.w,border.w);assert.equal(turned.h,border.h);
 });

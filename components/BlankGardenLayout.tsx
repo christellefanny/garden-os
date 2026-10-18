@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
-import { designPlants, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
+import { designPlants, groundCovers, surfaceAppearance, plantStampStyle, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
 import type {Bed} from "@/lib/garden-layout";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
@@ -264,7 +264,7 @@ export default function BlankGardenLayout({
   function addPlant(plantId:string) {
     if(!editing||!item||item.kind==="Path"){setMessage("Select a bed, container, or border before adding an illustration.");return;}
     const decorations=safeDecorations(item.decorations),index=decorations.length;
-    replaceItem({...item,decorations:[...decorations,{id:crypto.randomUUID(),plantId,x:18+(index%3)*32,y:20+(Math.floor(index/3)%3)*30}]});
+    replaceItem({...item,decorations:[...decorations,{id:crypto.randomUUID(),plantId,...(item.kind==="Border" && item.w>item.h*2 ? {x:20+(index%4)*20,y:50} : item.kind==="Border" && item.h>item.w*2 ? {x:50,y:20+(index%4)*20} : {x:18+(index%3)*32,y:20+(Math.floor(index/3)%3)*30})}]});
     setSelectedPlant("");
   }
   function removePlant(){if(!item||!selectedPlant)return;setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===item.id?{...i,decorations:safeDecorations(i.decorations).filter(d=>d.id!==selectedPlant)}:i)}:l),true);setSelectedPlant("");}
@@ -360,12 +360,13 @@ export default function BlankGardenLayout({
               </button>
             ))}
           </div>
+          <section className="layout-ground-picker" aria-label="Garden ground cover"><div><h3>Ground between the beds</h3><p>Choose a finish for the open garden area. Paths can have their own finish.</p></div><div className="layout-ground-options"><button type="button" aria-pressed={!groundCovers.some(c=>c.id===layout.groundCover)} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:undefined}:l))}><span className="layout-ground-swatch layout-ground-plain"/>Plain ground</button>{groundCovers.map(cover=><button type="button" key={cover.id} aria-pressed={layout.groundCover===cover.id} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:cover.id}:l))}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></section>
           {undo&&<div className="layout-undo" role="status">Item removed. <button type="button" onClick={()=>{persist(undo);setSelectedPlant("");}}>Undo removal</button></div>}
           <details className="layout-plant-drawer"><summary>Add vegetables &amp; flowers <span>13 vegetables · 6 flowers</span></summary><section className="layout-plant-library" aria-labelledby="layout-library-title"><div><h3 id="layout-library-title">A little life for your plan</h3><p>Decorative illustrations only — no plant records, quantities, or capacity calculations. Select a bed, container, or border, then add a plant.</p></div><div className="layout-library-tabs">{["Vegetables","Flowers"].map(group=><button type="button" key={group} aria-pressed={plantGroup===group} onClick={()=>setPlantGroup(group)}>{group} · {designPlants.filter(p=>p.group===group).length}</button>)}</div><div className="layout-plant-options">{designPlants.filter(p=>p.group===plantGroup).map(p=><button type="button" key={p.id} disabled={!editing||!item||item.kind==="Path"} aria-label={`Add decorative ${p.name}`} onClick={()=>addPlant(p.id)}><Image src={p.src} alt="" width={66} height={66}/><span>{p.name}</span></button>)}</div></section></details>
           <p className="seasonal-muted mt-3 text-sm">
             Drag an item to move it. Drag its corner to resize. You can also use
             the position and size fields or arrow keys. This is a planning map,
-            not measured to scale. Select a shape to rotate or delete it on the canvas. Drag plant illustrations within their bed.
+            not measured to scale. Select a shape to rotate or delete it on the canvas. Drag plant illustrations within their bed. Illustrations may extend beyond thin borders to stay visible.
           </p>
           <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");setShowItemActions(Boolean(e.target.value));}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
           <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
@@ -374,16 +375,16 @@ export default function BlankGardenLayout({
               onPointerDown={event=>{if(event.target===event.currentTarget){setSelected("");setSelectedPlant("");setShowItemActions(false);}}}
               onKeyDown={event=>{if(event.key==="Escape"){setSelected("");setSelectedPlant("");setShowItemActions(false);}}}
               aria-label="Garden layout canvas"
-              className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
+              className="layout-design-canvas relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
               style={{
                 backgroundColor: safeColor(layout.color,"#f4f1e7"),
-                backgroundImage: view==="plan" ? "linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)" : "none",
-                backgroundSize: "5% 5%",
+                ...surfaceAppearance(layout.groundCover),
+                ...(view === "plan" ? {backgroundImage:"linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)",backgroundSize:"5% 5%"}:{}),
               }}
             >
               {!layout.items.length && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8 text-center">
-                  <p className="max-w-xs" style={{color:colorText(safeColor(layout.color,"#f4f1e7"))}}>
+                  <p className="layout-empty-hint max-w-xs">
                     Your blank canvas is ready. Add a bed or container to start
                     planning.
                   </p>
@@ -433,6 +434,7 @@ export default function BlankGardenLayout({
                     className={`layout-object-shape layout-object-${target.kind.toLowerCase()} h-full w-full touch-none overflow-hidden border-2 p-1 text-center text-xs font-bold shadow-sm focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] ${selected === target.id ? "border-[var(--atelier-deep)] ring-2 ring-[var(--atelier-deep)]" : "border-white/70"}`}
                     style={{
                       backgroundColor: safeColor(target.color,colors[target.kind]),
+                      ...surfaceAppearance(view === "garden" && target.kind === "Path" ? target.groundCover : undefined),
                       color: colorText(safeColor(target.color,colors[target.kind])),
                       borderRadius:
                         target.kind === "Container" ? "50%" : "10px",
@@ -440,7 +442,7 @@ export default function BlankGardenLayout({
                   >
                   </button>
                   <span aria-hidden="true" className="layout-object-label" style={{top:target.y<8?"100%":0,transform:target.y<8?"translateY(5px)":"translateY(calc(-100% - 5px))",left:target.x>65?"auto":0,right:target.x>65?0:"auto"}}>{target.name}</span>
-                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);setShowItemActions(true);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className="layout-plant-stamp" style={{left:`${plant.x}%`,top:`${plant.y}%`}}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
+                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);setShowItemActions(true);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className="layout-plant-stamp" style={plantStampStyle(target,plant)}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
                   {editing && selected === target.id && (
                     <button
                       type="button"
@@ -481,6 +483,7 @@ export default function BlankGardenLayout({
                     {item.kind} color
                     <input type="color" value={safeColor(item.color,colors[item.kind])} onChange={event=>replaceItem({...item,color:event.target.value})} className="h-11 w-14 cursor-pointer rounded-lg border border-[var(--border)] p-1" />
                   </label>
+                  {item.kind==="Path"&&<fieldset className="layout-path-cover"><legend>Path ground cover</legend><div className="layout-ground-options"><button type="button" disabled={!editing} aria-pressed={!groundCovers.some(c=>c.id===item.groundCover)} onClick={()=>replaceItem({...item,groundCover:undefined})}>Plain path</button>{groundCovers.map(cover=><button type="button" key={cover.id} disabled={!editing} aria-pressed={item.groundCover===cover.id} onClick={()=>replaceItem({...item,groundCover:cover.id})}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></fieldset>}
                   <p className="seasonal-muted text-sm">{item.kind}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {(

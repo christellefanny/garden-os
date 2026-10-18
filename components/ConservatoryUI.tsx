@@ -4,7 +4,7 @@ import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
 import GuestGardenExample from "@/components/GuestGardenExample";
-import {designPlants,safeDecorations} from "@/lib/layout-design";
+import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -401,6 +401,7 @@ export function ModernDashboard({
                 : "url('/Garden Artwork.webp')",
               backgroundColor: selectedCustom?.color || "#efede3",
               aspectRatio: selectedCustom ? "1" : undefined,
+              ...surfaceAppearance(selectedCustom?.groundCover),
             }}
           >
             {selectedCustom
@@ -415,10 +416,11 @@ export function ModernDashboard({
                       width: `${item.w}%`,
                       height: `${item.h}%`,
                       backgroundColor: item.color || (item.kind === "Path" ? "#d7ccb5" : "#e7d9bc"),
+                      ...surfaceAppearance(item.kind === "Path" ? item.groundCover : undefined),
                       borderRadius: item.kind === "Container" ? "50%" : "6px",
                     }}
                   >
-                    {safeDecorations(item.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <Image key={plant.id} src={art.src} alt="" width={60} height={60} style={{position:"absolute",left:`${plant.x}%`,top:`${plant.y}%`,width:"42%",height:"42%",objectFit:"contain",transform:"translate(-50%,-50%)",mixBlendMode:"multiply"}}/>;})}
+                    {safeDecorations(item.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <Image key={plant.id} src={art.src} alt="" width={60} height={60} className="layout-preview-plant" style={{position:"absolute",...plantStampStyle(item,plant),objectFit:"contain",transform:"translate(-50%,-50%)"}}/>;})}
                     <span>{item.name}</span>
                   </button>
                 ))

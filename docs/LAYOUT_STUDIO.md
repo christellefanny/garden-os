@@ -36,3 +36,11 @@ The front-center pot was removed from the original two-panel source using a prec
 ## Quiet canvas labels and selection
 
 Shape names are small tooltips on hover or keyboard focus; touch users see the name after selecting a shape. Labels sit outside the shape and never consume a border planting area. The on-canvas action toolbar opens only after an explicit shape selection and dismisses when clicking elsewhere. Clicking empty canvas or pressing Escape clears selection. Clicking plant-picker controls dismisses the toolbar while keeping the target bed selected for planting.
+
+## Readable border planting and ground materials
+
+Plant marks are square, at least 44 px and up to 112 px, with a preferred size based on the canvas rather than a thin shape's short dimension. They may overhang a border naturally; visible centers are clamped inside the overall canvas. Existing stored plant placements remain unchanged unless explicitly edited or rotated. Rotating a planted shape also turns its illustration positions to follow the new orientation. New plants added to long borders start along the long axis. Garden View and saved homepage previews use the same size rules.
+
+Ground between beds offers Plain ground, Bark mulch, Gravel & pebbles, and Stepping stones. Select a path to choose its own finish under Path ground cover. Both choices persist in the existing account-synced layout as optional `groundCover` values; old layouts default to plain and need no migration. Plan View keeps its simple grid while retaining material choices for Garden View. These are visual design materials, not claims of weed prevention.
+
+Three original generated watercolor-style material swatches are stored as `public/layout-inspiration/ground-{mulch,gravel,stone}.webp`. Built-in image prompt: three overhead full-surface hand-painted natural material swatches on a three-panel sheet—warm shredded bark mulch, pale limestone gravel/pebbles, and warm-gray natural stone paving—with soft diffuse light, subdued natural colors, no plants, labels, objects, photos, cartoons or vector shapes. Panels were cropped and compressed into 384 px WebP tiles.

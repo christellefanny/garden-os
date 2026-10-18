@@ -4,8 +4,25 @@ export type LayoutItem = {
   id: string; name: string; kind: "Bed" | "Container" | "Path" | "Border";
   x: number; y: number; w: number; h: number; spaceId: string; color?: string;
   decorations?: Decoration[];
+  groundCover?: GroundCoverId;
 };
-export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string };
+export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId };
+export type GroundCoverId = "mulch" | "gravel" | "stone";
+export const groundCovers = [
+  {id:"mulch",name:"Bark mulch",src:"/layout-inspiration/ground-mulch.webp",color:"#80634b"},
+  {id:"gravel",name:"Gravel & pebbles",src:"/layout-inspiration/ground-gravel.webp",color:"#ded6c4"},
+  {id:"stone",name:"Stepping stones",src:"/layout-inspiration/ground-stone.webp",color:"#c9c7b9"},
+] as const;
+export function surfaceAppearance(value:unknown) {
+  const cover=groundCovers.find(c=>c.id===value);
+  return cover ? {backgroundImage:`url("${cover.src}")`,backgroundSize:"170px 170px",backgroundRepeat:"repeat",backgroundColor:cover.color} : {};
+}
+/** Square botanical stamps use canvas units, not the short edge of a thin border. */
+export function plantStampStyle(item:Pick<LayoutItem,"x"|"y"|"w"|"h">,plant:Pick<Decoration,"x"|"y">) {
+  const preferred=Math.min(12,Math.max(8,Math.min(item.w,item.h)*.42));
+  const size=`clamp(44px, ${preferred}cqw, 112px)`,half=`clamp(22px, ${preferred/2}cqw, 56px)`;
+  return {width:size,height:size,left:`clamp(calc(${half} - ${item.x}cqw), ${plant.x}%, calc(${100-item.x}cqw - ${half}))`,top:`clamp(calc(${half} - ${item.y}cqw), ${plant.y}%, calc(${100-item.y}cqw - ${half}))`};
+}
 export const designPlants = [
   {id:"tomato",name:"Tomato",group:"Vegetables",src:"/planting-now/tomato.webp"},
   {id:"pepper",name:"Pepper",group:"Vegetables",src:"/planting-now/pepper.webp"},
@@ -50,8 +67,8 @@ export const layoutTemplates: LayoutTemplate[] = [
 export function instantiateLayout(template:LayoutTemplate|undefined,name:string,uuid:()=>string=()=>crypto.randomUUID()):Layout {
   return {id:uuid(),name,items:template?.items.map(item=>({...item,id:uuid(),spaceId:"",decorations:item.decorations?.map(plant=>({...plant,id:uuid()}))}))??[]};
 }
-export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h">>(item:T):T {
-  return {...item,x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w};
+export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[]}>(item:T):T {
+  return {...item,x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
 }
 export function safeDecorations(value:unknown):Decoration[] {
   if(!Array.isArray(value))return [];
