@@ -549,6 +549,7 @@ export default function GardenWorkspace({
           )}
           {!vaultOpen && !calendarOpen && layoutOpen && (
             <GardenLayout
+              key={`${userId}-${gardenId || "planning"}`}
               userId={userId}
               gardenId={gardenId || "planning"}
               initialBedId={layoutBed}

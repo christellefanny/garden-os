@@ -4,6 +4,7 @@ import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
 import GuestGardenExample from "@/components/GuestGardenExample";
+import {designPlants,safeDecorations} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -296,17 +297,17 @@ export function ModernDashboard({
   let beds = initialLayout;
   let hasSavedLayout = false;
   try {
-    const saved = localStorage.getItem(`garden-os-layout-2027-${userId}-${garden?.id}`);
+    const saved = localStorage.getItem(`garden-os-layout-2027-${userId}-${garden?.id || "planning"}`);
     hasSavedLayout = Boolean(saved && saved !== "null");
     beds = nineBedLayout(JSON.parse(saved || "null"));
   } catch {}
   let selectedCustom;
   try {
     const selection = localStorage.getItem(
-      `garden-os-layout-selection-${userId}-${garden?.id}`,
+      `garden-os-layout-selection-${userId}-${garden?.id || "planning"}`,
     );
     selectedCustom = loadCustomLayouts(
-      `garden-os-custom-layouts-v1-${userId}-${garden?.id}`,
+      `garden-os-custom-layouts-v1-${userId}-${garden?.id || "planning"}`,
     ).find((layout) => layout.id === selection);
   } catch {}
   return (
@@ -399,6 +400,7 @@ export function ModernDashboard({
                 ? "none"
                 : "url('/Garden Artwork.webp')",
               backgroundColor: selectedCustom?.color || "#efede3",
+              aspectRatio: selectedCustom ? "1" : undefined,
             }}
           >
             {selectedCustom
@@ -412,10 +414,11 @@ export function ModernDashboard({
                       top: `${item.y}%`,
                       width: `${item.w}%`,
                       height: `${item.h}%`,
-                      backgroundColor: item.color || "#71825b",
+                      backgroundColor: item.color || (item.kind === "Path" ? "#d7ccb5" : "#e7d9bc"),
                       borderRadius: item.kind === "Container" ? "50%" : "6px",
                     }}
                   >
+                    {safeDecorations(item.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <Image key={plant.id} src={art.src} alt="" width={60} height={60} style={{position:"absolute",left:`${plant.x}%`,top:`${plant.y}%`,width:"42%",height:"42%",objectFit:"contain",transform:"translate(-50%,-50%)",mixBlendMode:"multiply"}}/>;})}
                     <span>{item.name}</span>
                   </button>
                 ))

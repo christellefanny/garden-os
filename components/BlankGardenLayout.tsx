@@ -1,26 +1,18 @@
 "use client";
 
 import { useRef, useState, type PointerEvent } from "react";
+import Image from "next/image";
+import { designPlants, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
 import type {Bed} from "@/lib/garden-layout";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
 
-type Item = {
-  id: string;
-  name: string;
-  kind: "Bed" | "Container" | "Path" | "Border";
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  spaceId: string;
-  color?: string;
-};
-export type Layout = { id: string; name: string; items: Item[]; color?: string };
+type Item = LayoutItem;
+export type { Layout } from "@/lib/layout-design";
 const kinds: Item["kind"][] = ["Bed", "Container", "Path", "Border"];
 const colors = {
-  Bed: "#816344",
-  Container: "#707d59",
+  Bed: "#e7d9bc",
+  Container: "#e8d7ba",
   Path: "#c2b69f",
   Border: "#667c60",
 };
@@ -75,6 +67,8 @@ export default function BlankGardenLayout({
   onRename,
   onCreateSpaces,
   initialItemId,
+  initialTemplateId,
+  onNewLayout,
 }: {
   userId: string;
   gardenId: string;
@@ -86,17 +80,24 @@ export default function BlankGardenLayout({
   onLayoutsChange: (layouts:Layout[]) => void;
   onRename:()=>void;
   initialItemId?:string;
+  initialTemplateId?:string;
+  onNewLayout?:()=>void;
   onCreateSpaces:(beds:Bed[])=>Promise<number|null>;
 }) {
   const storageKey = `garden-os-custom-layouts-v1-${userId}-${gardenId}`;
   const [layouts, setLayouts] = useState<Layout[]>(() => loadCustomLayouts(storageKey));
   const layoutId = selectedLayoutId;
   const [view,setView]=useState<"garden"|"plan">("garden");
-  const [editing,setEditing]=useState(()=>selectedLayoutId === "new" || loadCustomLayouts(storageKey).find(layout=>layout.id===selectedLayoutId)?.items.length===0);
+  const [editing,setEditing]=useState(true);
   const [importing,setImporting]=useState(false);
-  const [selected, setSelected] = useState(initialItemId||"");
-  const [creating, setCreating] = useState(() => selectedLayoutId === "new" || loadCustomLayouts(storageKey).length === 0);
-  const [newName, setNewName] = useState("My garden layout");
+  const [selected, setSelected] = useState(()=>initialItemId||loadCustomLayouts(storageKey).find(l=>l.id===selectedLayoutId)?.items.find(i=>i.kind==="Bed")?.id||"");
+  const [creating, setCreating] = useState(() => selectedLayoutId.startsWith("new") || loadCustomLayouts(storageKey).length === 0);
+  const template = layoutTemplates.find(t=>t.id===initialTemplateId);
+  const [newName, setNewName] = useState(template?.name ?? "My garden layout");
+  const [undo, setUndo] = useState<Layout[] | null>(null);
+  const [plantGroup,setPlantGroup]=useState("Vegetables");
+  const [selectedPlant,setSelectedPlant]=useState("");
+  const plantGesture=useRef<{bedId:string;id:string;x:number;y:number;width:number;height:number;original:Decoration;latest:Decoration}|null>(null);
   const [message, setMessage] = useState("");
   const canvas = useRef<HTMLDivElement>(null);
   const gesture = useRef<{
@@ -122,7 +123,8 @@ export default function BlankGardenLayout({
         error instanceof Error ? error.message : "Could not read plants.";
     }
   }
-  function persist(next: Layout[]) {
+  function persist(next: Layout[], keepUndo = false) {
+    if(!keepUndo)setUndo(null);
     setLayouts(next);
     onLayoutsChange(next);
     try {
@@ -162,6 +164,7 @@ export default function BlankGardenLayout({
       ),
     );
     setSelected(next.id);
+    setSelectedPlant("");
   }
   function create() {
     const name = newName.trim();
@@ -169,10 +172,10 @@ export default function BlankGardenLayout({
       setMessage("Enter a layout name.");
       return;
     }
-    const next = { id: crypto.randomUUID(), name, items: [] };
+    const next = instantiateLayout(template,name);
     persist([...layouts, next]);
     onSelectLayout(next.id);
-    setSelected("");
+    setSelected(next.items.find(i=>i.kind==="Bed")?.id??"");
     setCreating(false);
     setEditing(true);
   }
@@ -186,6 +189,7 @@ export default function BlankGardenLayout({
     event.stopPropagation();
     event.currentTarget.focus();
     setSelected(target.id);
+    setSelectedPlant("");
     const bounds = canvas.current.getBoundingClientRect();
     gesture.current = {
       id: target.id,
@@ -240,8 +244,28 @@ export default function BlankGardenLayout({
     next.y = clamp(next.y, 0, 100 - next.h);
     replaceItem(next);
   }
+  function removeItem(target:Item) {
+    if(!editing)return;
+    setUndo(layouts);
+    persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.filter(i=>i.id!==target.id)}:l),true);
+    setSelected("");setSelectedPlant("");
+    setMessage("Shape removed. Linked growing spaces and garden records are unchanged.");
+  }
+  function addPlant(plantId:string) {
+    if(!editing||!item||item.kind==="Path"){setMessage("Select a bed, container, or border before adding an illustration.");return;}
+    const decorations=safeDecorations(item.decorations),index=decorations.length;
+    replaceItem({...item,decorations:[...decorations,{id:crypto.randomUUID(),plantId,x:18+(index%3)*32,y:20+(Math.floor(index/3)%3)*30}]});
+    setSelectedPlant("");
+  }
+  function removePlant(){if(!item||!selectedPlant)return;setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===item.id?{...i,decorations:safeDecorations(i.decorations).filter(d=>d.id!==selectedPlant)}:i)}:l),true);setSelectedPlant("");}
+  function startPlant(event:PointerEvent<HTMLButtonElement>,bed:Item,plant:Decoration){
+    if(!editing||event.button!==0||!canvas.current)return;event.preventDefault();event.stopPropagation();event.currentTarget.focus();setSelected(bed.id);setSelectedPlant(plant.id);
+    const bounds=canvas.current.getBoundingClientRect();plantGesture.current={bedId:bed.id,id:plant.id,x:event.clientX,y:event.clientY,width:bounds.width*bed.w/100,height:bounds.height*bed.h/100,original:plant,latest:plant};event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function movePlant(event:PointerEvent<HTMLButtonElement>){const g=plantGesture.current;if(!g)return;const next={...g.original,x:clamp(g.original.x+(event.clientX-g.x)/g.width*100,12,88),y:clamp(g.original.y+(event.clientY-g.y)/g.height*100,12,88)};g.latest=next;setLayouts(current=>current.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===g.bedId?{...i,decorations:safeDecorations(i.decorations).map(d=>d.id===g.id?next:d)}:i)}:l));}
+  function finishPlant(cancel=false){const g=plantGesture.current;if(!g)return;plantGesture.current=null;const bed=layout?.items.find(i=>i.id===g.bedId);if(bed)replaceItem({...bed,decorations:safeDecorations(bed.decorations).map(d=>d.id===g.id?(cancel?g.original:g.latest):d)});}
   return (
-    <section className="mt-8">
+    <section className="mt-8 layout-editor">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow seasonal-muted">Your garden, your design</p>
@@ -249,13 +273,14 @@ export default function BlankGardenLayout({
             {layout?.name ?? "New garden layout"}
           </h2>
           <p className="seasonal-muted mt-2">
-            Start empty. Place your beds, containers, paths, and borders.
+            Make it yours. Place beds, containers, paths, and decorative plants.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
             onClick={() => {
+              if(onNewLayout){onNewLayout();return;}
               setNewName("My garden layout");
               setCreating(true);
             }}
@@ -268,14 +293,14 @@ export default function BlankGardenLayout({
           <button type="button" aria-pressed={view==="garden"} onClick={()=>setView("garden")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Garden View</button>
           <button type="button" aria-pressed={view==="plan"} onClick={()=>setView("plan")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Plan View</button>
           <button type="button" onClick={()=>setEditing(!editing)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">{editing?"Done editing":"Edit Layout"}</button>
-          <button type="button" disabled={importing} onClick={async()=>{setImporting(true);try{const beds:Bed[]=layout.items.filter(item=>item.kind==="Bed"||item.kind==="Container").map(item=>({...item,emoji:"",color:safeColor(item.color,colors[item.kind]),notes:"",spaceType:item.kind==="Container"?"Container":"Raised Bed"}));const count=await onCreateSpaces(beds);setMessage(count===null?"Could not save growing spaces. Try again.":count===0?"No new growing spaces to add. Existing matches were kept.":`${count} growing spaces created.`);}finally{setImporting(false);}}} className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50">{importing?"Saving…":"Create growing spaces"}</button>
+          <button type="button" disabled={importing || gardenId === "planning"} title={gardenId === "planning" ? "Create a garden in My Gardens before linking growing spaces." : undefined} onClick={async()=>{setImporting(true);try{const beds:Bed[]=layout.items.filter(item=>item.kind==="Bed"||item.kind==="Container").map(item=>({...item,emoji:"",color:safeColor(item.color,colors[item.kind]),notes:"",spaceType:item.kind==="Container"?"Container":"Raised Bed"}));const count=await onCreateSpaces(beds);setMessage(count===null?"Could not save growing spaces. Try again.":count===0?"No new growing spaces to add. Existing matches were kept.":`${count} growing spaces created.`);}finally{setImporting(false);}}} className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50">{importing?"Saving…":"Create growing spaces"}</button>
           </>}
           <button type="button" onClick={onBack} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Back</button>
         </div>
       </div>
       {creating && (
         <Dialog
-          title="Create a blank layout"
+          title={template ? `Customize ${template.name.toLowerCase()}` : "Create a blank layout"}
           onClose={() => setCreating(false)}
         >
           <form
@@ -295,14 +320,13 @@ export default function BlankGardenLayout({
               />
             </label>
             <p className="seasonal-muted mt-3 text-sm">
-              Your original nine-bed layout stays available. New layouts keep a
-              local backup and sync when cloud storage is connected.
+              {template ? "Create your own editable copy. The inspiration stays unchanged." : "Start with an empty canvas and build your own arrangement."} Your plan stays on this device and syncs when an account is connected.
             </p>
             <button
               type="submit"
               className="seasonal-button mt-5 min-h-11 rounded-xl px-4 py-3 font-bold text-white"
             >
-              Create blank canvas
+              {template ? "Create my editable copy" : "Create blank canvas"}
             </button>
           </form>
         </Dialog>
@@ -326,11 +350,14 @@ export default function BlankGardenLayout({
               </button>
             ))}
           </div>
+          {undo&&<div className="layout-undo" role="status">Item removed. <button type="button" onClick={()=>{persist(undo);setSelectedPlant("");}}>Undo removal</button></div>}
+          <details className="layout-plant-drawer"><summary>Add vegetables &amp; flowers <span>13 vegetables · 6 flowers</span></summary><section className="layout-plant-library" aria-labelledby="layout-library-title"><div><h3 id="layout-library-title">A little life for your plan</h3><p>Decorative illustrations only — no plant records, quantities, or capacity calculations. Select a bed, container, or border, then add a plant.</p></div><div className="layout-library-tabs">{["Vegetables","Flowers"].map(group=><button type="button" key={group} aria-pressed={plantGroup===group} onClick={()=>setPlantGroup(group)}>{group} · {designPlants.filter(p=>p.group===group).length}</button>)}</div><div className="layout-plant-options">{designPlants.filter(p=>p.group===plantGroup).map(p=><button type="button" key={p.id} disabled={!editing||!item||item.kind==="Path"} aria-label={`Add decorative ${p.name}`} onClick={()=>addPlant(p.id)}><Image src={p.src} alt="" width={66} height={66}/><span>{p.name}</span></button>)}</div></section></details>
           <p className="seasonal-muted mt-3 text-sm">
             Drag an item to move it. Drag its corner to resize. You can also use
             the position and size fields or arrow keys. This is a planning map,
-            not measured to scale.
+            not measured to scale. Select a shape to rotate or delete it on the canvas. Drag plant illustrations within their bed.
           </p>
+          <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
           <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div
               ref={canvas}
@@ -364,13 +391,14 @@ export default function BlankGardenLayout({
                   <button
                     type="button"
                     aria-label={`Select ${target.name}`}
-                    onClick={() => setSelected(target.id)}
+                    onClick={() => {setSelected(target.id);setSelectedPlant("");}}
                     onPointerDown={(event) => start(event, target, "move")}
                     onPointerMove={move}
                     onPointerUp={() => finish()}
                     onPointerCancel={() => finish(true)}
                     onKeyDown={(event) => {
                       if(!editing)return;
+                      if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();removeItem(target);return;}
                       const delta = event.shiftKey ? 5 : 1;
                       const changes: Record<string, [number, number]> = {
                         ArrowLeft: [-delta, 0],
@@ -389,7 +417,7 @@ export default function BlankGardenLayout({
                         });
                       }
                     }}
-                    className={`h-full w-full touch-none overflow-hidden border-2 p-1 text-center text-xs font-bold shadow-sm focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] ${selected === target.id ? "border-[#d3a743] ring-2 ring-[#d3a743]" : "border-white/70"}`}
+                    className={`layout-object-shape layout-object-${target.kind.toLowerCase()} h-full w-full touch-none overflow-hidden border-2 p-1 text-center text-xs font-bold shadow-sm focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] ${selected === target.id ? "border-[var(--atelier-deep)] ring-2 ring-[var(--atelier-deep)]" : "border-white/70"}`}
                     style={{
                       backgroundColor: safeColor(target.color,colors[target.kind]),
                       color: colorText(safeColor(target.color,colors[target.kind])),
@@ -397,8 +425,9 @@ export default function BlankGardenLayout({
                         target.kind === "Container" ? "50%" : "10px",
                     }}
                   >
-                    {target.name}
+                    <span className="layout-object-label">{target.name}</span>
                   </button>
+                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className="layout-plant-stamp" style={{left:`${plant.x}%`,top:`${plant.y}%`}}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
                   {editing && selected === target.id && (
                     <button
                       type="button"
@@ -414,6 +443,9 @@ export default function BlankGardenLayout({
                   )}
                 </div>
               ))}
+              {editing&&item&&<div className="layout-on-canvas-actions" role="group" aria-label={`Actions for ${item.name}`} style={{left:`${clamp(item.x,1,40)}%`,top:`${clamp(item.y<18?item.y+item.h:item.y,18,80)}%`,transform:item.y<18?"translateY(4px)":"translateY(calc(-100% - 4px))"}}>
+                {selectedPlant?<button type="button" onClick={removePlant}>Delete plant</button>:<><button type="button" aria-label={`Rotate ${item.name} 90 degrees`} onClick={()=>replaceItem(rotateItem(item))}>↻ Rotate 90°</button><button type="button" aria-label={`Delete ${item.name}`} onClick={()=>removeItem(item)}>Delete</button></>}
+              </div>}
             </div>
             <aside className="seasonal-card min-w-0 rounded-2xl border p-5">
               <h3 className="seasonal-heading text-xl font-bold">
@@ -529,25 +561,7 @@ export default function BlankGardenLayout({
                       )}
                     </>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      persist(
-                        layouts.map((l) =>
-                          l.id === layoutId
-                            ? {
-                                ...l,
-                                items: l.items.filter((i) => i.id !== item.id),
-                              }
-                            : l,
-                        ),
-                      );
-                      setSelected("");
-                    }}
-                    className="min-h-11 text-sm font-bold text-red-700 underline"
-                  >
-                    Remove item
-                  </button>
+                  <button type="button" disabled={!editing} onClick={()=>removeItem(item)} className="min-h-11 text-sm font-bold text-red-700 underline">Remove item</button>
                 </div>
               ) : (
                 <p className="seasonal-muted mt-4 text-sm">

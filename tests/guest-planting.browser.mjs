@@ -5,7 +5,7 @@ import {mkdir} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 const fixture=spawn(process.execPath,['tests/fixtures/supabase.mjs'],{stdio:'ignore'});
-const server=spawn(process.execPath,['node_modules/next/dist/bin/next','dev','--webpack','--hostname','127.0.0.1'],{env:{...process.env,NEXT_PUBLIC_SUPABASE_URL:'http://127.0.0.1:54321',NEXT_PUBLIC_SUPABASE_ANON_KEY:'guest-planting-fixture'},stdio:['ignore','pipe','pipe']});
+const server=spawn(process.execPath,['node_modules/next/dist/bin/next',...(process.env.GARDEN_TEST_PRODUCTION?['start']:['dev','--webpack']),'--hostname','127.0.0.1'],{env:{...process.env,NEXT_PUBLIC_SUPABASE_URL:'http://127.0.0.1:54321',NEXT_PUBLIC_SUPABASE_ANON_KEY:'guest-planting-fixture'},stdio:['ignore','pipe','pipe']});
 let log='';server.stdout.on('data',d=>log+=d);server.stderr.on('data',d=>log+=d);
 let browser;
 const profile={version:1,zip:'60544',place:'Plainfield, Illinois',zone:'5b',timezone:'America/Chicago',lastSpringFrost:'04-28',firstFallFrost:'10-14',meanHigh:[31,36,48,61,72,81,85,83,76,63,48,36],meanLow:[17,21,31,41,52,62,66,64,55,43,32,22],years:15,frostYears:15,startYear:2011,endYear:2025,forecast:[],resolvedAt:'2026-10-17T12:00:00Z'};
@@ -55,7 +55,7 @@ try {
  for(const width of [1024,768,390,320]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'example overflow '+width);}
  await page.setViewportSize({width:390,height:844});await example.screenshot({path:'docs/previews/guest-planting/example-mobile.png'});
  assert.equal(await page.evaluate(()=>Object.keys(localStorage).some(key=>key.startsWith('garden-os-layout-2027-guest-'))),false,'Browsing example does not save a layout');
- await example.getByRole('button',{name:'Design your own garden',exact:false}).click();await page.getByRole('heading',{name:'Garden Layout',exact:true}).waitFor();await page.getByRole('button',{name:'Create a layout',exact:true}).click();await page.getByRole('heading',{name:'Create a blank layout',exact:true}).waitFor();await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+ await example.getByRole('button',{name:'Design your own garden',exact:false}).click();await page.getByRole('heading',{name:'Garden Layout',exact:true}).waitFor();await page.getByRole('button',{name:'Start from scratch',exact:false}).click();await page.getByRole('heading',{name:'Create a blank layout',exact:true}).waitFor();await page.getByRole('button',{name:'Close dialog',exact:true}).click();
  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();await example.waitFor();
  // Permission already granted: automatic lookup happens without a new prompt.
  const auto=await browser.newContext();await auto.addInitScript(()=>{localStorage.clear();localStorage.setItem('garden-os-guest-warning-seen','true');navigator.permissions.query=async()=>({state:'granted'});Object.defineProperty(navigator,'geolocation',{value:{getCurrentPosition:ok=>ok({coords:{latitude:41.63,longitude:-88.2}})}});});
