@@ -93,11 +93,30 @@ try {
  await nav.getByRole('button',{name:'Inspiration & new layout',exact:true}).click();await page.getByRole('button',{name:'Start from scratch',exact:false}).click();await page.getByLabel('Layout name',{exact:true}).fill('My blank plan');await page.getByRole('button',{name:'Create blank canvas',exact:true}).click();await page.getByRole('heading',{name:'My blank plan',exact:true}).waitFor();assert.equal((await plans()).at(-1).items.length,0);
  for(const kind of ['bed','container','path','border'])await page.getByRole('button',{name:`Add ${kind}`,exact:true}).click();assert.equal((await plans()).at(-1).items.length,4);
  await page.getByLabel('Select garden shape',{exact:true}).selectOption((await plans()).at(-1).items.find(i=>i.kind==='Path').id);await canvas.getByRole('button',{name:'Rotate Path 1 90 degrees',exact:true}).click();let path=(await plans()).at(-1).items.find(i=>i.kind==='Path');assert.equal(path.w,8);assert.equal(path.h,55);
+ // Deleting a design requires confirmation and preserves every other design.
+ const beforeDeletion=await plans();
+ await page.getByRole('button',{name:'Delete layout',exact:true}).click();
+ const deletion=page.getByRole('dialog',{name:'Delete this layout?',exact:true});await deletion.waitFor();
+ await deletion.getByRole('button',{name:'Keep layout',exact:true}).click();assert.deepEqual(await plans(),beforeDeletion,'Cancel keeps the design');
+ await page.getByRole('button',{name:'Delete layout',exact:true}).click();
+ await page.evaluate(k=>localStorage.setItem(k,'unreadable saved data'),key);
+ await deletion.getByRole('button',{name:'Delete layout',exact:true}).click();await deletion.getByRole('alert').waitFor();
+ assert.equal(await page.evaluate(k=>localStorage.getItem(k),key),'unreadable saved data','An unreadable save is never overwritten by deletion');
+ await page.evaluate(({key,plans})=>localStorage.setItem(key,JSON.stringify(plans)),{key,plans:beforeDeletion});
+ await deletion.getByRole('button',{name:'Delete layout',exact:true}).click();
+ await gallery.waitFor();assert.deepEqual(await plans(),beforeDeletion.slice(0,-1),'Only the selected layout is removed');
+ await page.reload();await gallery.waitFor();assert.equal(await page.getByRole('navigation',{name:'Saved garden layouts'}).getByRole('button',{name:'My blank plan',exact:true}).count(),0,'Deleted design stays deleted after reload');
  // Existing user layouts and original nine-bed edits remain available.
  const member=await context.newPage();await member.goto('http://127.0.0.1:3000');await member.evaluate(()=>localStorage.clear());await member.reload();
  const old=initialLayout.map(b=>({...b}));old[2].notes='Keep my saved garlic notes';
  await member.evaluate(({old})=>{const uid='a0a0a0a0-0000-4000-8000-000000000001';localStorage.setItem(`garden-os-layout-2027-${uid}-garden-1`,JSON.stringify(old));localStorage.setItem(`garden-os-layout-selection-${uid}-garden-1`,'original');localStorage.setItem(`garden-os-custom-layouts-v1-${uid}-garden-1`,JSON.stringify([{id:'existing',name:'My existing plan',items:[{id:'existing-bed',name:'Existing bed',kind:'Bed',x:10,y:10,w:20,h:30,spaceId:''}]}]));},{old});
  await member.getByLabel('Email',{exact:true}).fill('garden@example.test');await member.getByLabel('Password',{exact:true}).fill('fixture-password');await member.getByRole('button',{name:'Open my garden',exact:true}).click();await member.locator('.modern-dashboard').waitFor();await member.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Plan & Design',exact:true}).click();await member.getByRole('heading',{name:'Original nine-bed layout',exact:true}).waitFor();assert.equal(await member.getByText('Keep my saved garlic notes',{exact:true}).count(),1);
  await member.getByRole('button',{name:'← Back',exact:true}).click();await member.getByRole('navigation',{name:'Saved garden layouts'}).getByRole('button',{name:'My existing plan',exact:true}).click();await member.getByRole('button',{name:'Select Existing bed',exact:true}).click({position:{x:4,y:4}});await member.getByRole('button',{name:'Rotate Existing bed 90 degrees',exact:true}).click();await member.reload();await member.getByRole('heading',{name:'My existing plan',exact:true}).waitFor();assert.ok(await member.getByRole('button',{name:'Select Existing bed',exact:true}).count());
+ const legacyKey='garden-os-layout-2027-a0a0a0a0-0000-4000-8000-000000000001-garden-1';
+ const legacyBefore=await member.evaluate(k=>localStorage.getItem(k),legacyKey);
+ await member.getByRole('button',{name:'Delete layout',exact:true}).click();await member.getByRole('dialog',{name:'Delete this layout?',exact:true}).getByRole('button',{name:'Delete layout',exact:true}).click();
+ await member.locator('.layout-template-grid').waitFor();await member.reload();await member.locator('.layout-template-grid').waitFor();
+ assert.equal(await member.getByRole('navigation',{name:'Saved garden layouts'}).getByRole('button',{name:'My existing plan',exact:true}).count(),0,'Deleting the final custom layout returns to inspiration');
+ assert.equal(await member.evaluate(k=>localStorage.getItem(k),legacyKey),legacyBefore,'Deleting a custom design preserves the existing nine-bed plan');
  assert.deepEqual(errors,[]);console.log('PASS: three homepage/gallery illustrations, blank start, independent editable copies, direct rotate/delete/undo, 19 illustrated decorations, keyboard/pointer planting, persistence, member legacy preservation, no fake records, five viewport widths and accessibility.');
 }catch(e){await page?.screenshot({path:"docs/previews/layout-studio/failure.png",fullPage:true}).catch(()=>{});console.error(e);console.error(log.slice(-2500));process.exitCode=1;}finally{await browser?.close();server.kill();fixture.kill();}

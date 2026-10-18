@@ -107,6 +107,7 @@ export default function BlankGardenLayout({
   },[]);
   const plantGesture=useRef<{bedId:string;id:string;x:number;y:number;width:number;height:number;original:Decoration;latest:Decoration}|null>(null);
   const [message, setMessage] = useState("");
+  const [deleting,setDeleting]=useState(false),[deleteError,setDeleteError]=useState("");
   const canvas = useRef<HTMLDivElement>(null);
   const gesture = useRef<{
     id: string;
@@ -144,6 +145,18 @@ export default function BlankGardenLayout({
         "Could not save in this browser. Keep this page open; your latest changes are only available for this visit.",
       );
     }
+  }
+  function deleteLayout(){
+    if(!layout)return;
+    try{
+      const saved=JSON.parse(localStorage.getItem(storageKey)??"[]");
+      if(!Array.isArray(saved))throw new Error("Invalid saved layouts");
+      const remaining=saved.filter(l=>!l||l.id!==layout.id);
+      localStorage.setItem(storageKey,JSON.stringify(remaining));
+      onLayoutsChange(loadCustomLayouts(storageKey));
+      setDeleting(false);
+      onBack();
+    }catch{setDeleteError("Could not delete this layout in your browser. Please try again.");}
   }
   function replaceItem(next: Item) {
     if (!layout) return;
@@ -301,6 +314,7 @@ export default function BlankGardenLayout({
           </button>
           {layout&&<>
           <button type="button" onClick={onRename} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Rename layout</button>
+          <button type="button" onClick={()=>{setDeleteError("");setDeleting(true);}} className="min-h-11 rounded-xl border border-red-200 px-4 py-3 font-bold text-red-800">Delete layout</button>
           <button type="button" aria-pressed={view==="garden"} onClick={()=>setView("garden")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Garden View</button>
           <button type="button" aria-pressed={view==="plan"} onClick={()=>setView("plan")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Plan View</button>
           <button type="button" onClick={()=>setEditing(!editing)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">{editing?"Done editing":"Edit Layout"}</button>
@@ -309,6 +323,14 @@ export default function BlankGardenLayout({
           <button type="button" onClick={onBack} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Back</button>
         </div>
       </div>
+      {deleting&&layout&&<Dialog title="Delete this layout?" onClose={()=>setDeleting(false)}>
+        <p className="leading-relaxed">Delete <strong>{layout.name}</strong>? This removes only the saved design. Your gardens, growing spaces, plants, and journal entries will stay.</p>
+        {deleteError&&<p role="alert" className="mt-3 text-red-800">{deleteError}</p>}
+        <div className="mt-5 flex flex-wrap justify-end gap-3">
+          <button type="button" onClick={()=>setDeleting(false)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3">Keep layout</button>
+          <button type="button" onClick={deleteLayout} className="min-h-11 rounded-xl bg-red-800 px-4 py-3 font-bold text-white">Delete layout</button>
+        </div>
+      </Dialog>}
       {creating && (
         <Dialog
           title={template ? `Customize ${template.name.toLowerCase()}` : "Create a blank layout"}
