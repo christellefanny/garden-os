@@ -25,3 +25,9 @@ test('plant library has 13 vegetables and 6 flowers with real distinct illustrat
  assert.equal(designPlants.filter(p=>p.group==='Vegetables').length,13);assert.equal(designPlants.filter(p=>p.group==='Flowers').length,6);assert.equal(new Set(designPlants.map(p=>p.src)).size,19);
  for(const p of designPlants){const bytes=readFileSync(new URL(`../public${p.src}`,import.meta.url));assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.toString('ascii',8,12),'WEBP');}
 });
+
+test('courtyard entrance is unobstructed and the path reaches the front edge',()=>{
+ const courtyard=layoutTemplates.find(t=>t.id==='courtyard');const pots=courtyard.items.filter(i=>i.kind==='Container');assert.equal(pots.length,5);
+ assert.ok(pots.every(p=>p.y+p.h<=80||p.x+p.w<=46||p.x>=54),'Front-center entrance must not contain a pot');
+ const path=courtyard.items.find(i=>i.kind==='Path');assert.equal(path.y+path.h,100);
+});

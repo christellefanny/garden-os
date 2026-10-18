@@ -55,7 +55,7 @@ try {
  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('heading',{name:'My Garden Layout',exact:true}).waitFor();assert.equal(await page.getByRole('region',{name:'Imagine your dream garden',exact:true}).count(),0);
  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Plan & Design',exact:true}).click();
  const nav=page.getByRole('navigation',{name:'Saved garden layouts'});await nav.getByRole('button',{name:'Inspiration & new layout',exact:true}).click();
- await make('My courtyard','Customize compact courtyard garden');assert.equal((await plans()).at(-1).items.filter(i=>i.kind==='Container').length,6);
+ await make('My courtyard','Customize compact courtyard garden');assert.equal((await plans()).at(-1).items.filter(i=>i.kind==='Container').length,5);
  await nav.getByRole('button',{name:'Inspiration & new layout',exact:true}).click();await make('My flowers','Customize a garden for bouquets');assert.equal((await plans()).length,3);
  await nav.getByRole('button',{name:'Inspiration & new layout',exact:true}).click();await page.getByRole('button',{name:'Start from scratch',exact:false}).click();await page.getByLabel('Layout name',{exact:true}).fill('My blank plan');await page.getByRole('button',{name:'Create blank canvas',exact:true}).click();await page.getByRole('heading',{name:'My blank plan',exact:true}).waitFor();assert.equal((await plans()).at(-1).items.length,0);
  for(const kind of ['bed','container','path','border'])await page.getByRole('button',{name:`Add ${kind}`,exact:true}).click();assert.equal((await plans()).at(-1).items.length,4);

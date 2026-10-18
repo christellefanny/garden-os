@@ -1,6 +1,6 @@
 # Garden Atelier visual layout studio
 
-Plan & Design offers three illustrated starting points: a four-bed vegetable garden, a compact courtyard with two beds and six containers, and a four-bed cutting garden. Guests can browse all three from the homepage. Starting from scratch opens a name dialog and then an empty canvas. Choosing a template opens a name dialog and creates an independent editable copy only after submission. New visitors do not land on the old nine-bed plan.
+Plan & Design offers three illustrated starting points: a four-bed vegetable garden, a compact courtyard with two beds and five containers, and a four-bed cutting garden. Guests can browse all three from the homepage. Starting from scratch opens a name dialog and then an empty canvas. Choosing a template opens a name dialog and creates an independent editable copy only after submission. New visitors do not land on the old nine-bed plan.
 
 Saved custom layouts retain their existing keys, IDs, links, colors and geometry. Existing saved nine-bed layouts (or growing spaces explicitly linked to those beds) remain accessible in the legacy view. Opening a legacy plan no longer rewrites its stored layout as a side effect. No production database schema changes or seeded records are involved.
 
@@ -19,7 +19,7 @@ The existing `garden-os-custom-layouts-v1-{userId}-{gardenId}` data structure ga
 
 ## Artwork
 
-`public/layout-inspiration/{courtyard,cutting}.webp`: original watercolor concepts generated using the built-in image tool as two square panels, cropped and compressed for the app. Prompt: refined botanical watercolor/gouache overhead garden concepts on warm ivory paper; two cedar vegetable beds with central gravel path and six terracotta pots; separate four-bed cutting garden with dahlias, lisianthus, cosmos and snapdragons around cross paths; botanical realism, quiet margins, soft shadows; no labels, photographs, cartoons or vector stand-ins.
+`public/layout-inspiration/courtyard-open-entry.webp` and `public/layout-inspiration/cutting.webp`: original watercolor concepts generated using the built-in image tool as two square panels, cropped and compressed for the app. Prompt: refined botanical watercolor/gouache overhead garden concepts on warm ivory paper; two cedar vegetable beds with central gravel path and six terracotta pots; separate four-bed cutting garden with dahlias, lisianthus, cosmos and snapdragons around cross paths; botanical realism, quiet margins, soft shadows; no labels, photographs, cartoons or vector stand-ins.
 
 `{carrot,cucumber,broccoli}.webp`: generated as three isolated growing specimens on ivory paper, then cropped to individual assets. Prompt: realistic fine-art watercolor/gouache carrot foliage and orange roots, cucumber foliage/tendrils and fruit, broccoli leaves and head; no labels, pots or photographic substitutes. Okra is cropped from the application's existing approved botanical plate. Other vegetable and flower portraits reuse existing approved illustrated assets. The approved four-bed image remains unchanged.
 
@@ -28,3 +28,7 @@ The existing `garden-os-custom-layouts-v1-{userId}-{gardenId}` data structure ga
 `tests/layout-design.test.mjs` checks independent template copies, no real plant records, in-bounds geometry and quarter-turn rotation, decoration validation and all 19 real assets. `tests/layout-studio.browser.mjs` checks guest homepage/gallery, three editable templates, blank creation, on-canvas rotation/deletion/undo, illustrated planting via pointer and keyboard, responsive widths, accessibility, persistence and existing member plans using isolated fixtures. The guest planting browser test covers continued planting advice behavior and the new blank-start entry point. Screenshots are captured under `docs/previews/layout-studio/`.
 
 Concept images and editable arrangements are approximate, not surveyed or measured plans. Rotation supports quarter turns; the decorative plant library is intentionally limited. Local-only guests still need an account to sync across devices.
+
+## Open courtyard entrance
+
+The front-center pot was removed from the original two-panel source using a precise built-in image edit. Matching pale gravel now extends the central walkway through the front opening. The other five pots, two vegetable beds, and cutting-garden illustration are retained. The courtyard asset is now `public/layout-inspiration/courtyard-open-entry.webp`. New editable courtyard copies omit the front-center container and extend the path to the front canvas edge. Previously saved plans are not migrated or modified.
