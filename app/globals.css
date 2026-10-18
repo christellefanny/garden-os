@@ -1943,3 +1943,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 
 @media(min-width:801px){.guest-garden-example{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px 22px;}.guest-example-heading,.guest-example-intro,.guest-garden-example .layout-inspiration-tabs,.guest-example-footer{grid-column:1/-1;}.guest-example-art{grid-column:1;grid-row:4/7;align-self:start;}.guest-example-bed-list,.guest-example-detail,.guest-example-design-notes{grid-column:2;}.guest-example-bed-list{grid-row:4;align-self:end;}.guest-example-detail{grid-row:5;}.guest-example-design-notes{grid-row:6;align-self:start;}.modern-main-grid:has(.guest-garden-example)>.week-card{grid-column:1/-1;}}
 .modern-stats:has(>button:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr));}
+
+/* Empty task summaries size to their message instead of reserving a full list. */
+.atelier-upcoming-panel:has(>.empty-copy){min-height:0;padding-block:18px;}
+.atelier-upcoming-panel:has(>.empty-copy) .empty-copy{margin-bottom:0;}
