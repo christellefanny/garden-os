@@ -1923,3 +1923,5 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .layout-path-cover .layout-ground-options {display:grid;grid-template-columns:1fr;}
 
 .layout-empty-hint {background:#fffaf0ed;border:1px solid #e4dac6;border-radius:12px;padding:20px;color:#344a37;font-size:14px;line-height:1.7;}
+
+.layout-ground-area {position:absolute;pointer-events:none;border-radius:6px;background-position:0 0;}

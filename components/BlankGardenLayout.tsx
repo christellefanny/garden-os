@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
-import { designPlants, groundCovers, surfaceAppearance, plantStampStyle, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
+import { designPlants, groundCovers, surfaceAppearance, gardenFootprint, plantStampStyle, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
 import type {Bed} from "@/lib/garden-layout";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
@@ -119,6 +119,7 @@ export default function BlankGardenLayout({
     latest: Item;
   } | null>(null);
   const layout = layouts.find((l) => l.id === layoutId);
+  const footprint=layout?gardenFootprint(layout.items):null;
   const item = layout?.items.find((i) => i.id === selected);
   const space = item ? spaces.find(s=>{if(item.spaceId)return s.id===item.spaceId;try{return JSON.parse(s.notes??"null")?.sourceLayoutId===item.id;}catch{return false;}}) : undefined;
   let plants: ReturnType<typeof readDetails>["plants"] = [],
@@ -360,7 +361,7 @@ export default function BlankGardenLayout({
               </button>
             ))}
           </div>
-          <section className="layout-ground-picker" aria-label="Garden ground cover"><div><h3>Ground between the beds</h3><p>Choose a finish for the open garden area. Paths can have their own finish.</p></div><div className="layout-ground-options"><button type="button" aria-pressed={!groundCovers.some(c=>c.id===layout.groundCover)} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:undefined}:l))}><span className="layout-ground-swatch layout-ground-plain"/>Plain ground</button>{groundCovers.map(cover=><button type="button" key={cover.id} aria-pressed={layout.groundCover===cover.id} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:cover.id}:l))}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></section>
+          <section className="layout-ground-picker" aria-label="Garden ground cover"><div><h3>Ground between the beds</h3><p>Cover stays inside the garden area defined by your beds and borders. Paths can have their own finish.</p></div><div className="layout-ground-options"><button type="button" aria-pressed={!groundCovers.some(c=>c.id===layout.groundCover)} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:undefined}:l))}><span className="layout-ground-swatch layout-ground-plain"/>Plain ground</button>{groundCovers.map(cover=><button type="button" key={cover.id} aria-pressed={layout.groundCover===cover.id} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:cover.id}:l))}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></section>
           {undo&&<div className="layout-undo" role="status">Item removed. <button type="button" onClick={()=>{persist(undo);setSelectedPlant("");}}>Undo removal</button></div>}
           <details className="layout-plant-drawer"><summary>Add vegetables &amp; flowers <span>13 vegetables · 6 flowers</span></summary><section className="layout-plant-library" aria-labelledby="layout-library-title"><div><h3 id="layout-library-title">A little life for your plan</h3><p>Decorative illustrations only — no plant records, quantities, or capacity calculations. Select a bed, container, or border, then add a plant.</p></div><div className="layout-library-tabs">{["Vegetables","Flowers"].map(group=><button type="button" key={group} aria-pressed={plantGroup===group} onClick={()=>setPlantGroup(group)}>{group} · {designPlants.filter(p=>p.group===group).length}</button>)}</div><div className="layout-plant-options">{designPlants.filter(p=>p.group===plantGroup).map(p=><button type="button" key={p.id} disabled={!editing||!item||item.kind==="Path"} aria-label={`Add decorative ${p.name}`} onClick={()=>addPlant(p.id)}><Image src={p.src} alt="" width={66} height={66}/><span>{p.name}</span></button>)}</div></section></details>
           <p className="seasonal-muted mt-3 text-sm">
@@ -378,10 +379,10 @@ export default function BlankGardenLayout({
               className="layout-design-canvas relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
               style={{
                 backgroundColor: safeColor(layout.color,"#f4f1e7"),
-                ...surfaceAppearance(layout.groundCover),
                 ...(view === "plan" ? {backgroundImage:"linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)",backgroundSize:"5% 5%"}:{}),
               }}
             >
+              {view==="garden"&&footprint&&groundCovers.some(c=>c.id===layout.groundCover)&&<div className="layout-ground-area" data-ground-cover={layout.groundCover} aria-hidden="true" style={{...footprint,...surfaceAppearance(layout.groundCover)}}/>}
               {!layout.items.length && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8 text-center">
                   <p className="layout-empty-hint max-w-xs">

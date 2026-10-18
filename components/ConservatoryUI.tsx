@@ -4,7 +4,7 @@ import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
 import GuestGardenExample from "@/components/GuestGardenExample";
-import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle} from "@/lib/layout-design";
+import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -401,9 +401,9 @@ export function ModernDashboard({
                 : "url('/Garden Artwork.webp')",
               backgroundColor: selectedCustom?.color || "#efede3",
               aspectRatio: selectedCustom ? "1" : undefined,
-              ...surfaceAppearance(selectedCustom?.groundCover),
             }}
           >
+            {selectedCustom&&gardenFootprint(selectedCustom.items)&&selectedCustom.groundCover&&<div className="layout-ground-area" aria-hidden="true" style={{...gardenFootprint(selectedCustom.items),...surfaceAppearance(selectedCustom.groundCover)}}/>}
             {selectedCustom
               ? selectedCustom.items.map((item) => (
                   <button

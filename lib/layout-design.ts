@@ -9,13 +9,24 @@ export type LayoutItem = {
 export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId };
 export type GroundCoverId = "mulch" | "gravel" | "stone";
 export const groundCovers = [
-  {id:"mulch",name:"Bark mulch",src:"/layout-inspiration/ground-mulch.webp",color:"#80634b"},
-  {id:"gravel",name:"Gravel & pebbles",src:"/layout-inspiration/ground-gravel.webp",color:"#ded6c4"},
-  {id:"stone",name:"Stepping stones",src:"/layout-inspiration/ground-stone.webp",color:"#c9c7b9"},
+  {id:"mulch",name:"Bark mulch",src:"/layout-inspiration/ground-mulch-watercolor.webp",color:"#d9c8ac"},
+  {id:"gravel",name:"Gravel & pebbles",src:"/layout-inspiration/ground-gravel-watercolor.webp",color:"#ede4d0"},
+  {id:"stone",name:"Stepping stones",src:"/layout-inspiration/ground-stone-watercolor.webp",color:"#dbdccf"},
 ] as const;
 export function surfaceAppearance(value:unknown) {
   const cover=groundCovers.find(c=>c.id===value);
-  return cover ? {backgroundImage:`url("${cover.src}")`,backgroundSize:"170px 170px",backgroundRepeat:"repeat",backgroundColor:cover.color} : {};
+  return cover ? {backgroundImage:`url("${cover.src}")`,backgroundSize:"170px 170px",backgroundRepeat:"repeat",backgroundColor:cover.color,backgroundBlendMode:"soft-light"} : {};
+}
+/** Infer a closed garden extent from beds and border hints, without filling the whole workspace. */
+export function gardenFootprint(items:readonly Pick<LayoutItem,"kind"|"x"|"y"|"w"|"h">[]) {
+  const valid=items.filter(i=>[i.x,i.y,i.w,i.h].every(Number.isFinite)&&i.w>0&&i.h>0);
+  const growing=valid.filter(i=>i.kind!=="Path");
+  const basis=growing.length?growing:valid;
+  if(!basis.length)return null;
+  const left=Math.max(0,Math.min(100,Math.min(...basis.map(i=>i.x)))),top=Math.max(0,Math.min(100,Math.min(...basis.map(i=>i.y))));
+  const right=Math.min(100,Math.max(...basis.map(i=>i.x+i.w))),bottom=Math.min(100,Math.max(...basis.map(i=>i.y+i.h)));
+  if(right<=left||bottom<=top)return null;
+  return {left:`${left}%`,top:`${top}%`,width:`${right-left}%`,height:`${bottom-top}%`};
 }
 /** Square botanical stamps use canvas units, not the short edge of a thin border. */
 export function plantStampStyle(item:Pick<LayoutItem,"x"|"y"|"w"|"h">,plant:Pick<Decoration,"x"|"y">) {

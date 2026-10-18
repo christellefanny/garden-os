@@ -58,12 +58,15 @@ try {
  // On-canvas removal never removes actual records.
  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('garden-os-guest-data')||'{"gardens":[],"spaces":[]}')),{gardens:[],spaces:[]});
  const ground=page.getByRole('region',{name:'Garden ground cover',exact:true});
- for(const [label,id] of [['Bark mulch','mulch'],['Gravel & pebbles','gravel'],['Stepping stones','stone']]){await ground.getByRole('button',{name:label,exact:true}).click();assert.equal((await plans())[0].groundCover,id);assert.ok((await canvas.evaluate(el=>getComputedStyle(el).backgroundImage)).includes(`ground-${id}.webp`));}
- await ground.getByRole('button',{name:'Plain ground',exact:true}).click();assert.equal((await plans())[0].groundCover,undefined);
+ for(const [label,id] of [['Bark mulch','mulch'],['Gravel & pebbles','gravel'],['Stepping stones','stone']]){await ground.getByRole('button',{name:label,exact:true}).click();assert.equal((await plans())[0].groundCover,id);assert.ok((await canvas.locator('.layout-ground-area').evaluate(el=>getComputedStyle(el).backgroundImage)).includes(`ground-${id}-watercolor.webp`));}
+ assert.equal(await canvas.evaluate(el=>getComputedStyle(el).backgroundImage),'none');
+ const area=await canvas.locator('.layout-ground-area').boundingBox(), workspace=await canvas.boundingBox();
+ assert.ok(area.x>workspace.x&&area.y>workspace.y&&area.x+area.width<workspace.x+workspace.width,'Garden material leaves the outer workspace clear');
+ await ground.getByRole('button',{name:'Plain ground',exact:true}).click();assert.equal(await canvas.locator('.layout-ground-area').count(),0);assert.equal((await plans())[0].groundCover,undefined);
  await ground.getByRole('button',{name:'Bark mulch',exact:true}).click();
  await page.getByLabel('Select garden shape',{exact:true}).selectOption(before.id);
  const pathCover=page.getByRole('group',{name:'Path ground cover',exact:true});await pathCover.getByRole('button',{name:'Gravel & pebbles',exact:true}).click();
- assert.equal((await plans())[0].items.find(i=>i.id===before.id).groundCover,'gravel');assert.equal((await plans())[0].groundCover,'mulch');assert.ok((await page.getByRole('button',{name:'Select Main path',exact:true}).evaluate(el=>getComputedStyle(el).backgroundImage)).includes('ground-gravel.webp'));
+ assert.equal((await plans())[0].items.find(i=>i.id===before.id).groundCover,'gravel');assert.equal((await plans())[0].groundCover,'mulch');assert.ok((await page.getByRole('button',{name:'Select Main path',exact:true}).evaluate(el=>getComputedStyle(el).backgroundImage)).includes('ground-gravel-watercolor.webp'));
  const borderId=(await plans())[0].items.find(i=>i.kind==='Border').id;await page.getByLabel('Select garden shape',{exact:true}).selectOption(borderId);await page.getByLabel('Height (%)',{exact:true}).fill('4');
  await page.locator('.layout-plant-drawer > summary').click();await page.getByRole('button',{name:'Flowers · 6',exact:true}).click();await page.getByRole('button',{name:'Add decorative Dahlia',exact:true}).click();await page.locator('.layout-plant-drawer > summary').click();
  const borderPlants=canvas.locator('.layout-canvas-item').filter({has:page.getByRole('button',{name:'Select Flower border',exact:true})}).locator('.layout-plant-stamp');
