@@ -32,3 +32,7 @@ Concept images and editable arrangements are approximate, not surveyed or measur
 ## Open courtyard entrance
 
 The front-center pot was removed from the original two-panel source using a precise built-in image edit. Matching pale gravel now extends the central walkway through the front opening. The other five pots, two vegetable beds, and cutting-garden illustration are retained. The courtyard asset is now `public/layout-inspiration/courtyard-open-entry.webp`. New editable courtyard copies omit the front-center container and extend the path to the front canvas edge. Previously saved plans are not migrated or modified.
+
+## Quiet canvas labels and selection
+
+Shape names are small tooltips on hover or keyboard focus; touch users see the name after selecting a shape. Labels sit outside the shape and never consume a border planting area. The on-canvas action toolbar opens only after an explicit shape selection and dismisses when clicking elsewhere. Clicking empty canvas or pressing Escape clears selection. Clicking plant-picker controls dismisses the toolbar while keeping the target bed selected for planting.

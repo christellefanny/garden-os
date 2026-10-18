@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
 import { designPlants, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
 import type {Bed} from "@/lib/garden-layout";
@@ -97,6 +97,14 @@ export default function BlankGardenLayout({
   const [undo, setUndo] = useState<Layout[] | null>(null);
   const [plantGroup,setPlantGroup]=useState("Vegetables");
   const [selectedPlant,setSelectedPlant]=useState("");
+  const [showItemActions,setShowItemActions]=useState(false);
+  useEffect(()=>{
+    function dismiss(event:globalThis.PointerEvent){
+      if(event.target instanceof Element&&!event.target.closest(".layout-canvas-item, .layout-on-canvas-actions"))setShowItemActions(false);
+    }
+    document.addEventListener("pointerdown",dismiss);
+    return ()=>document.removeEventListener("pointerdown",dismiss);
+  },[]);
   const plantGesture=useRef<{bedId:string;id:string;x:number;y:number;width:number;height:number;original:Decoration;latest:Decoration}|null>(null);
   const [message, setMessage] = useState("");
   const canvas = useRef<HTMLDivElement>(null);
@@ -165,6 +173,7 @@ export default function BlankGardenLayout({
     );
     setSelected(next.id);
     setSelectedPlant("");
+    setShowItemActions(true);
   }
   function create() {
     const name = newName.trim();
@@ -190,6 +199,7 @@ export default function BlankGardenLayout({
     event.currentTarget.focus();
     setSelected(target.id);
     setSelectedPlant("");
+    setShowItemActions(true);
     const bounds = canvas.current.getBoundingClientRect();
     gesture.current = {
       id: target.id,
@@ -259,7 +269,7 @@ export default function BlankGardenLayout({
   }
   function removePlant(){if(!item||!selectedPlant)return;setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===item.id?{...i,decorations:safeDecorations(i.decorations).filter(d=>d.id!==selectedPlant)}:i)}:l),true);setSelectedPlant("");}
   function startPlant(event:PointerEvent<HTMLButtonElement>,bed:Item,plant:Decoration){
-    if(!editing||event.button!==0||!canvas.current)return;event.preventDefault();event.stopPropagation();event.currentTarget.focus();setSelected(bed.id);setSelectedPlant(plant.id);
+    if(!editing||event.button!==0||!canvas.current)return;event.preventDefault();event.stopPropagation();event.currentTarget.focus();setSelected(bed.id);setSelectedPlant(plant.id);setShowItemActions(true);
     const bounds=canvas.current.getBoundingClientRect();plantGesture.current={bedId:bed.id,id:plant.id,x:event.clientX,y:event.clientY,width:bounds.width*bed.w/100,height:bounds.height*bed.h/100,original:plant,latest:plant};event.currentTarget.setPointerCapture(event.pointerId);
   }
   function movePlant(event:PointerEvent<HTMLButtonElement>){const g=plantGesture.current;if(!g)return;const next={...g.original,x:clamp(g.original.x+(event.clientX-g.x)/g.width*100,12,88),y:clamp(g.original.y+(event.clientY-g.y)/g.height*100,12,88)};g.latest=next;setLayouts(current=>current.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===g.bedId?{...i,decorations:safeDecorations(i.decorations).map(d=>d.id===g.id?next:d)}:i)}:l));}
@@ -357,10 +367,12 @@ export default function BlankGardenLayout({
             the position and size fields or arrow keys. This is a planning map,
             not measured to scale. Select a shape to rotate or delete it on the canvas. Drag plant illustrations within their bed.
           </p>
-          <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
+          <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");setShowItemActions(Boolean(e.target.value));}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
           <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div
               ref={canvas}
+              onPointerDown={event=>{if(event.target===event.currentTarget){setSelected("");setSelectedPlant("");setShowItemActions(false);}}}
+              onKeyDown={event=>{if(event.key==="Escape"){setSelected("");setSelectedPlant("");setShowItemActions(false);}}}
               aria-label="Garden layout canvas"
               className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
               style={{
@@ -380,7 +392,8 @@ export default function BlankGardenLayout({
               {layout.items.map((target) => (
                 <div
                   key={target.id}
-                  className={`absolute ${selected === target.id ? "z-10" : ""}`}
+                  className={`layout-canvas-item absolute ${selected === target.id ? "z-10" : ""}`}
+                  data-selected={selected === target.id && showItemActions}
                   style={{
                     left: `${target.x}%`,
                     top: `${target.y}%`,
@@ -391,7 +404,7 @@ export default function BlankGardenLayout({
                   <button
                     type="button"
                     aria-label={`Select ${target.name}`}
-                    onClick={() => {setSelected(target.id);setSelectedPlant("");}}
+                    onClick={() => {setSelected(target.id);setSelectedPlant("");setShowItemActions(true);}}
                     onPointerDown={(event) => start(event, target, "move")}
                     onPointerMove={move}
                     onPointerUp={() => finish()}
@@ -425,9 +438,9 @@ export default function BlankGardenLayout({
                         target.kind === "Container" ? "50%" : "10px",
                     }}
                   >
-                    <span className="layout-object-label">{target.name}</span>
                   </button>
-                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className="layout-plant-stamp" style={{left:`${plant.x}%`,top:`${plant.y}%`}}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
+                  <span aria-hidden="true" className="layout-object-label" style={{top:target.y<8?"100%":0,transform:target.y<8?"translateY(5px)":"translateY(calc(-100% - 5px))",left:target.x>65?"auto":0,right:target.x>65?0:"auto"}}>{target.name}</span>
+                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);setShowItemActions(true);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className="layout-plant-stamp" style={{left:`${plant.x}%`,top:`${plant.y}%`}}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
                   {editing && selected === target.id && (
                     <button
                       type="button"
@@ -443,7 +456,7 @@ export default function BlankGardenLayout({
                   )}
                 </div>
               ))}
-              {editing&&item&&<div className="layout-on-canvas-actions" role="group" aria-label={`Actions for ${item.name}`} style={{left:`${clamp(item.x,1,40)}%`,top:`${clamp(item.y<18?item.y+item.h:item.y,18,80)}%`,transform:item.y<18?"translateY(4px)":"translateY(calc(-100% - 4px))"}}>
+              {editing&&item&&showItemActions&&<div className="layout-on-canvas-actions" role="group" aria-label={`Actions for ${item.name}`} style={{left:`${clamp(item.x,1,40)}%`,top:`${clamp(item.y<18?item.y+item.h:item.y,18,80)}%`,transform:item.y<18?"translateY(4px)":"translateY(calc(-100% - 4px))"}}>
                 {selectedPlant?<button type="button" onClick={removePlant}>Delete plant</button>:<><button type="button" aria-label={`Rotate ${item.name} 90 degrees`} onClick={()=>replaceItem(rotateItem(item))}>↻ Rotate 90°</button><button type="button" aria-label={`Delete ${item.name}`} onClick={()=>removeItem(item)}>Delete</button></>}
               </div>}
             </div>
