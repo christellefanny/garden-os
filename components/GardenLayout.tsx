@@ -18,7 +18,11 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
   const [hasLegacy]=useState(()=>{try{return Boolean(localStorage.getItem(`garden-os-layout-2027-${userId}-${gardenId}`)) || props.spaces.some(s=>{try{return initialLayout.some(b=>b.id===JSON.parse(s.notes??"null")?.sourceLayoutId);}catch{return false;}});}catch{return false;}});
   const [selection,setSelection]=useState(()=>{
     if(layoutTemplates.some(t=>t.id===props.initialTemplateId))return `new:${props.initialTemplateId}`;
-    try{const saved=localStorage.getItem(selectionKey);const plans=loadCustomLayouts(customKey);const linked=plans.find(l=>l.items.some(i=>i.id===initialBedId));if(linked)return linked.id;if(plans.some(l=>l.id===saved))return saved!;if(hasLegacy&&(saved==="original"||initialBedId))return "original";}catch{}
+    if(initialBedId){
+      const linked=layouts.find(l=>l.items.some(i=>i.id===initialBedId));
+      if(linked)return linked.id;
+      if(hasLegacy&&initialLayout.some(b=>b.id===initialBedId))return "original";
+    }
     return "gallery";
   });
   const [renaming,setRenaming]=useState(false),[name,setName]=useState(""),[error,setError]=useState("");
@@ -37,7 +41,7 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
       <div className="layout-gallery-intro"><div><p className="modern-eyebrow">A starting point, never a rule</p><h2>What would you love to grow?</h2><p>Choose an illustrated idea to make your own. Each opens as a separate editable plan.</p></div><button type="button" className="seasonal-button" onClick={()=>select("new")}>Start from scratch →</button></div>
       <div className="layout-template-grid">{layoutTemplates.map(template=><article className="layout-template-card" key={template.id}>
         <Image src={template.image} width={600} height={400} alt={`Illustrated inspiration for ${template.name.toLowerCase()}`} sizes="(max-width: 700px) 100vw, 33vw" />
-        <div><p className="modern-eyebrow">{template.summary}</p><h3>{template.name}</h3><p>{template.description}</p><button type="button" className="seasonal-outline" onClick={()=>select(`new:${template.id}`)}>Customize {template.name.toLowerCase()} →</button></div>
+        <div><p className="modern-eyebrow">{template.summary}</p><h3>{template.name}</h3><p>{template.description}</p><button type="button" className="seasonal-button" onClick={()=>select(`new:${template.id}`)}>Customize {template.name.toLowerCase()} →</button></div>
       </article>)}</div>
       <p className="layout-concept-note">Illustrated concepts, not measured planting plans. Customize the shapes and decorative plants for your space. Nothing is added to My Gardens until you choose to create growing spaces.</p>
     </>:<BlankGardenLayout key={selection.startsWith("new")?selection:current?.id??selection} userId={userId} gardenId={gardenId} spaces={props.spaces} onOpenSpace={props.onOpenSpace} onBack={()=>select("gallery")} initialItemId={initialBedId} selectedLayoutId={selection} onNewLayout={()=>select("gallery")} initialTemplateId={selection.startsWith("new:")?selection.slice(4):undefined} onSelectLayout={select} onLayoutsChange={setLayouts} onRename={()=>{setName(current?.name??"");setError("");setRenaming(true);}} onCreateSpaces={beds=>props.onCreateSpaces(beds,false)} />}

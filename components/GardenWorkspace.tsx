@@ -106,6 +106,7 @@ export default function GardenWorkspace({
       }),
     [storedSpaces, vault],
   );
+  const [layoutVisit,setLayoutVisit]=useState(0);
   const [layoutTemplate,setLayoutTemplate]=useState<string|undefined>();
   const [layoutBed, setLayoutBed] = useState<string | undefined>();
   const [gardenPageId, setGardenPageId] = useState<string | null>(readGardenPageFromUrl);
@@ -132,6 +133,8 @@ export default function GardenWorkspace({
   function navigate(next: Destination) {
     if (guestMode && next === "Plant Vault") next = "Dashboard";
     setLayoutTemplate(undefined);
+    setLayoutBed(undefined);
+    if(next==="Garden Layout")setLayoutVisit(visit=>visit+1);
     const url = new URL(window.location.href);
     url.searchParams.set("view", pageView(next));
     url.searchParams.delete("garden");
@@ -481,8 +484,8 @@ export default function GardenWorkspace({
               onEditExample={id=>{navigate("Garden Layout");setLayoutTemplate(id);setLayoutBed(undefined);}}
               onVault={query=>{setVaultQuery(query);navigate("Plant Vault");}}
               onBed={(id) => {
-                setLayoutBed(id);
                 navigate("Garden Layout");
+                setLayoutBed(id);
               }}
             />
           )}
@@ -552,7 +555,7 @@ export default function GardenWorkspace({
           )}
           {!vaultOpen && !calendarOpen && layoutOpen && (
             <GardenLayout
-              key={`${userId}-${gardenId || "planning"}`}
+              key={`${userId}-${gardenId || "planning"}-${layoutVisit}`}
               userId={userId}
               gardenId={gardenId || "planning"}
               initialBedId={layoutBed}

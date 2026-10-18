@@ -34,7 +34,7 @@ export default function GuestGardenExample({ onCreate,onEdit }: { onCreate: () =
       </div>
       <div className="guest-example-detail" id="guest-example-detail" aria-live="polite" aria-atomic="true"><h3>{bed.name}</h3><p>{bed.description}</p></div>
       <div className="guest-example-design-notes"><span>Room to move between beds</span><span>{inspiration===2?"Flowers for cutting":"Herbs in terracotta pots"}</span><span>Flowers for a finishing touch</span></div>
-      <div className="guest-example-footer"><p>Choose one of three editable starting points or begin with a blank canvas. These illustrations are inspiration, not measured planting plans.</p><div className="guest-example-actions"><button type="button" className="seasonal-outline" onClick={()=>onEdit(template.id)}>Edit this layout →</button><button type="button" className="seasonal-button" onClick={onCreate}>Open Plan &amp; Design <span aria-hidden="true">→</span></button></div></div>
+      <div className="guest-example-footer"><p>Choose one of three editable starting points or begin with a blank canvas. These illustrations are inspiration, not measured planting plans.</p><div className="guest-example-actions"><button type="button" className="seasonal-button" onClick={()=>onEdit(template.id)}>Edit this layout →</button><button type="button" className="seasonal-button" onClick={onCreate}>Open Plan &amp; Design <span aria-hidden="true">→</span></button></div></div>
     </section>
   );
 }
