@@ -326,8 +326,9 @@ export function ModernDashboard({
       <section className="modern-card atelier-welcome-note" aria-labelledby="atelier-welcome-note-title">
         <h2 id="atelier-welcome-note-title">A little planning.<br/> A lot of growing.</h2>
         <div>
-          <p>I created Garden Atelier to bring my garden ideas, planting plans, and everyday notes together in one place. I use it to imagine new beds, keep track of what I’m growing, save reminders, and remember what worked each season.</p>
-          <p>Whether you’re planning your first pot or your next vegetable garden, there’s room for your ideas here. Explore, make a plan, and start growing—no account needed.</p>
+          <p>Garden Atelier grew out of my own garden—and all the ideas, questions, and little things I didn’t want to forget. What did I plant in that bed? Which flowers did I love? What would I try differently next year?</p>
+          <p>I wanted a place to dream up new gardens, keep notes, and remember both the lovely harvests and the lessons along the way. So I created this little corner to bring it all together.</p>
+          <p>Whether you have a few pots or a garden full of plans, I hope you’ll feel at home here. Look around, gather a little inspiration, and make it your own. I’m glad you’re here.</p>
         </div>
       </section>
       <div className="atelier-home-sections">
