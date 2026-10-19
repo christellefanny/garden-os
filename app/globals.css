@@ -1676,7 +1676,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .atelier-add-garden>span {height:40px;width:40px;border-radius:50%;display:grid;place-items:center;color:var(--atelier-deep);background:#fffdf8;font-size:27px;margin-bottom:16px;}
 .atelier-add-garden strong {font:17px Georgia,serif;color:#29422f;}
 .atelier-add-garden small {font-size:11px;line-height:1.5;margin-top:8px;color:#626e60;}
-.atelier-upcoming-panel .modern-task-row {padding:13px 0;}
+
 .modern-stats {margin:24px 0;}
 .modern-stats>button {background:#fffefa;border-radius:13px;}
 .stat-icon {background:var(--atelier-light);color:var(--atelier-deep);}
@@ -1693,7 +1693,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .atelier-gardens-grid>.atelier-add-garden {grid-column:1/-1;min-height:64px;flex-direction:row;flex-wrap:wrap;gap:10px;padding:12px;}
 .atelier-gardens-grid>.atelier-add-garden>span {width:30px;height:30px;font-size:23px;margin:0;}
 .atelier-gardens-grid>.atelier-add-garden small {margin:0;}
-.atelier-upcoming-panel {align-self:start;min-height:240px;}
+
 
 /* My Gardens: an illustrated collection with live garden records. */
 .garden-collection-header {position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.75fr);overflow:hidden;isolation:isolate;border:1px solid #e5dfd3;border-radius:18px;background:#faf6ed;margin:12px 0 30px;}
@@ -1944,8 +1944,13 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 @media(min-width:801px){.guest-garden-example{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px 22px;}.guest-example-heading,.guest-example-intro,.guest-garden-example .layout-inspiration-tabs,.guest-example-footer{grid-column:1/-1;}.guest-example-art{grid-column:1;grid-row:4/7;align-self:start;}.guest-example-bed-list,.guest-example-detail,.guest-example-design-notes{grid-column:2;}.guest-example-bed-list{grid-row:4;align-self:end;}.guest-example-detail{grid-row:5;}.guest-example-design-notes{grid-row:6;align-self:start;}.modern-main-grid:has(.guest-garden-example)>.week-card{grid-column:1/-1;}}
 .modern-stats:has(>button:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr));}
 
-/* Empty task summaries size to their message instead of reserving a full list. */
-.atelier-upcoming-panel:has(>.empty-copy){min-height:0;padding-block:18px;}
-.atelier-upcoming-panel:has(>.empty-copy) .empty-copy{margin-bottom:0;}
+.personal-task-form{display:grid;gap:16px;}.personal-task-form>p{font-size:13px;line-height:1.7;}.personal-task-form label{display:grid;gap:7px;font-size:14px;font-weight:600;}.personal-task-form input,.personal-task-form textarea{width:100%;min-height:44px;border:1px solid var(--border);padding:11px;border-radius:9px;font-weight:400;}.personal-task-actions{display:flex;justify-content:flex-end;gap:10px;}.personal-task-actions button{padding:10px 16px;min-height:44px;border-radius:8px;}.interior-actions .add-task-button{min-height:44px;}
 
-.tasks-heading{flex-wrap:wrap;}.task-header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}.task-header-actions>button{font-size:11px;color:var(--atelier-deep);min-height:44px;}.task-header-actions .add-task-button{color:#fffdf4;font-size:12px;padding:8px 12px;border-radius:8px;}.personal-task-form{display:grid;gap:16px;}.personal-task-form>p{font-size:13px;line-height:1.7;}.personal-task-form label{display:grid;gap:7px;font-size:14px;font-weight:600;}.personal-task-form input,.personal-task-form textarea{width:100%;min-height:44px;border:1px solid var(--border);padding:11px;border-radius:9px;font-weight:400;}.personal-task-actions{display:flex;justify-content:flex-end;gap:10px;}.personal-task-actions button{padding:10px 16px;min-height:44px;border-radius:8px;}.interior-actions .add-task-button{min-height:44px;}
+.dashboard-quick-summary{display:flex;flex-direction:column;align-self:start;min-width:0;gap:14px;}
+.dashboard-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr));margin:0;gap:12px;}
+.dashboard-summary-cards>button{min-height:96px;}
+.dashboard-add-task{margin-top:0;display:flex;justify-content:flex-end;}
+.dashboard-add-task>.add-task-button{min-height:44px;border-radius:9px;padding:11px 18px;}
+.dashboard-collection-stats{grid-template-columns:repeat(3,minmax(0,1fr));}
+@media(max-width:1200px){.dashboard-quick-summary{align-self:start;}.dashboard-quick-summary>.dashboard-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr));}.dashboard-add-task{margin-top:0;}}
+@media(max-width:540px){.dashboard-summary-cards>button{min-height:90px;}.dashboard-add-task>.add-task-button{width:100%;}.dashboard-collection-stats{grid-template-columns:1fr;}}

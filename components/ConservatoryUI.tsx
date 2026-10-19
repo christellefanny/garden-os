@@ -346,50 +346,17 @@ export function ModernDashboard({
             </button>
           </div>
         </section>
-        <section className="modern-card atelier-upcoming-panel">
-          <div className="modern-card-title tasks-heading">
-            <h2>Upcoming Tasks</h2>
-            <div className="task-header-actions"><AddTaskButton userId={userId} onSaved={setOptions}/><button type="button" onClick={() => navigate("Tasks")}>View all →</button></div>
+        <aside className="dashboard-quick-summary" aria-label="Garden and task shortcuts">
+          <div className="modern-stats dashboard-summary-cards">
+            <button type="button" onClick={()=>navigate("My Gardens")}><span className="stat-icon"><LineIcon index={0}/></span><span><b>{gardens.length}</b><strong>Gardens</strong><small>{allSpaces.filter(space=>!details(space).archived).length} growing spaces</small></span><span aria-hidden="true">›</span></button>
+            <button type="button" onClick={()=>navigate("Tasks")}><span className="stat-icon"><LineIcon index={2}/></span><span><b>{confirmed.length}</b><strong>Tasks</strong><small>Saved tasks &amp; reminders</small></span><span aria-hidden="true">›</span></button>
           </div>
-          {tasks.length ? tasks.slice(0, 5).map((t) => (
-            <div className="modern-task-row" key={t.id}>
-              <button className="task-ring" role="checkbox" aria-checked={false} aria-label={`Complete ${t.title}`} onClick={() => complete(t.id)} />
-              <button className="task-content" onClick={() => navigate("Tasks")}>
-                <strong>{t.title}</strong>
-                <small>{t.plant} · {t.id.startsWith("custom|") ? "Saved reminder" : "Planning recommendation"}</small>
-              </button>
-              <time>{t.date < today ? "Overdue" : t.date === today ? "Today" : t.date.slice(5)}</time>
-            </div>
-          )) : <p className="empty-copy">No upcoming tasks this week. Your garden is ready for its next chapter.</p>}
-        </section>
+          <div className="dashboard-add-task"><AddTaskButton userId={userId} onSaved={setOptions}/></div>
+        </aside>
       </div>
-      <div className="modern-stats">
-        {[
-          ["Gardens", gardens.length, "My Gardens"],
-          ["Plants", vault.length, "Plant Vault"],
-          ["Tasks", confirmed.length, "Tasks"],
-          ["Flowers", category("Flower"), "Plant Vault"],
-          ["Herbs", category("Herb"), "Plant Vault"],
-        ].filter(([, , destination]) => userId !== "guest" || destination !== "Plant Vault").map(([label, count, page], i) => (
-          <button key={label} onClick={() => navigate(page as Destination)}>
-            <span className="stat-icon">
-              <LineIcon index={i} />
-            </span>
-            <span>
-              <b>{count}</b>
-              <strong>{label}</strong>
-              <small>
-                {label === "Gardens"
-                  ? `${allSpaces.filter((space) => !details(space).archived).length} growing spaces`
-                  : label === "Tasks"
-                    ? "Upcoming saved reminders"
-                    : "Saved in your collection"}
-              </small>
-            </span>
-            <span>›</span>
-          </button>
-        ))}
-      </div>
+      {userId!=="guest"&&vault.length>0&&<div className="modern-stats dashboard-collection-stats">
+        {[["Plants",vault.length],["Flowers",category("Flower")],["Herbs",category("Herb")]].map(([label,count],i)=><button key={label} type="button" onClick={()=>navigate("Plant Vault")}><span className="stat-icon"><LineIcon index={i+1}/></span><span><b>{count}</b><strong>{label}</strong><small>Saved in your collection</small></span><span aria-hidden="true">›</span></button>)}
+      </div>}
       <div className="modern-main-grid">
         {(userId === "guest" || !planted.length) && <GuestPlantingNow />}
         {!selectedCustom && !hasSavedLayout ? <GuestGardenExample onCreate={() => navigate("Garden Layout")} onEdit={onEditExample} /> : <section className="modern-card layout-preview">
