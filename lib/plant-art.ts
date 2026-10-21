@@ -299,7 +299,48 @@ export function cropPortrait(name: string, variety = "") {
         caption,
       };
 }
+
+/** Supplemental illustrations for packet crops and flower mixtures. */
+export function packetPortrait(name: string, variety = "") {
+  const crop = normalize(name);
+  const description = normalize(`${name} ${variety}`);
+  let index: number | undefined;
+  let caption = "Representative botanical illustration · variety may differ";
+  if (/\bcauliflower\b/.test(crop)) {
+    index = 0;
+  } else if (/\bpeas?\b/.test(crop)) {
+    index = 1;
+  } else if (/\bturnips?\b/.test(crop)) {
+    index = 2;
+  } else if (/\bsquash\b/.test(crop) && /acorn|table queen/.test(description)) {
+    index = 3;
+  } else if (/wildflower|shade flower/.test(crop)) {
+    index = /shade/.test(description) ? 6
+      : /bird|butterfly/.test(description) ? 7
+      : /pollinator/.test(description) ? 4 : 5;
+    caption = "Representative flower blend illustration · mix and colors may vary";
+  } else if (/\banemone\b/.test(crop) && /blanda/.test(description)) {
+    index = 8;
+  } else if (/\bgladiol(?:us|i)\b/.test(crop)) {
+    index = 9;
+  } else if (/triteleia|brodiaea/.test(crop)) {
+    index = 10;
+  } else if (/\bbroccoli\b/.test(crop) && /romanesco/.test(description)) {
+    index = 11;
+  }
+  return index === undefined ? null : {
+    src: "/conservatory/packet-botanical-plate.webp",
+    column: index % 4,
+    row: Math.floor(index / 4),
+    illustration: true,
+    caption,
+    standalone: false,
+  };
+}
+
 export function getPortraitArt(name: string, variety = "") {
+  const packet = packetPortrait(name, variety);
+  if (packet) return packet;
   if (/\bdianthus\b/i.test(name))
     return {
       src: "/conservatory/dianthus-portrait.webp",
