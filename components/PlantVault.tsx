@@ -429,7 +429,7 @@ export default function PlantVault({
                 {p.year}
               </p>
             )}
-            {p.notes && <PacketNotes notes={p.notes} className="mt-3 text-sm leading-6" />}
+
             <button
               type="button"
               aria-label={`Open ${p.name}${p.variety ? ` ${p.variety}` : ""}`}
