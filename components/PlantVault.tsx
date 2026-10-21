@@ -12,6 +12,7 @@ import {
 } from "@/lib/growing-calendar";
 import PlantPortrait from "@/components/PlantPortrait";
 import { readVaultBackup, mergeVaultPlants } from "@/lib/vault-transfer";
+import { tidyPacketNotes } from "@/lib/packet-notes";
 
 export type VaultPlant = {
   id: string;
@@ -41,6 +42,29 @@ const categories = [
   "Houseplant / Indoor",
   "Other",
 ];
+function PacketNotes({ notes, className }: { notes: string; className: string }) {
+  const text = tidyPacketNotes(notes);
+  const lines = text.split("\n");
+  if (!lines.some(line => line.startsWith("- "))) {
+    return <p className={`${className} whitespace-pre-wrap`}>{text}</p>;
+  }
+  const introductory = lines.filter(line => line && !line.startsWith("- "));
+  const bullets = lines.filter(line => line.startsWith("- "));
+  return (
+    <div className={className}>
+      {introductory.map((line, index) => <p key={index} className="mb-2 whitespace-pre-wrap">{line}</p>)}
+      <ul className="list-disc space-y-1 pl-5">
+        {bullets.map((line, index) => {
+          const body = line.slice(2);
+          const separator = body.indexOf(": ");
+          return <li key={index}>{separator > 0
+            ? <><strong>{body.slice(0, separator)}:</strong> {body.slice(separator + 2)}</>
+            : body}</li>;
+        })}
+      </ul>
+    </div>
+  );
+}
 const keyFor = (userId: string) => `garden-os-plant-vault-${userId}`;
 export default function PlantVault({
   userId,
@@ -53,7 +77,14 @@ export default function PlantVault({
     if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem(keyFor(userId));
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const original: VaultPlant[] = JSON.parse(raw);
+        const cleaned = original.map(p => ({ ...p, notes: tidyPacketNotes(p.notes) }));
+        if (cleaned.some((p, index) => p.notes !== original[index].notes)) {
+          try { localStorage.setItem(keyFor(userId), JSON.stringify(cleaned)); } catch { /* Keep the readable collection available if storage is full. */ }
+        }
+        return cleaned;
+      }
       return [];
     } catch {
       return [];
@@ -87,7 +118,8 @@ export default function PlantVault({
   const [editing, setEditing] = useState<VaultPlant | null>(null);
   const [transferMessage, setTransferMessage] = useState("");
   const [pendingImport, setPendingImport] = useState<VaultPlant[] | null>(null);
-  function save(next: VaultPlant[]) {
+  function save(incoming: VaultPlant[]) {
+    const next = incoming.map(p => ({ ...p, notes: tidyPacketNotes(p.notes) }));
     try {
       localStorage.setItem(keyFor(userId), JSON.stringify(next));
       setPlants(next);
@@ -137,7 +169,7 @@ export default function PlantVault({
     try {
       if (file.size > 5 * 1024 * 1024)
         throw new Error("Choose a backup smaller than 5 MB.");
-      setPendingImport(readVaultBackup(await file.text()));
+      setPendingImport(readVaultBackup(await file.text()).map(p => ({ ...p, notes: tidyPacketNotes(p.notes) })));
     } catch (error) {
       setTransferMessage(
         error instanceof Error ? error.message : "Could not read this backup.",
@@ -397,7 +429,7 @@ export default function PlantVault({
                 {p.year}
               </p>
             )}
-            {p.notes && <p className="mt-3 text-sm leading-6">{p.notes}</p>}
+            {p.notes && <PacketNotes notes={p.notes} className="mt-3 text-sm leading-6" />}
             <button
               type="button"
               aria-label={`Open ${p.name}${p.variety ? ` ${p.variety}` : ""}`}
@@ -460,9 +492,7 @@ export default function PlantVault({
             </p>
           )}
           {viewedPlant.notes && (
-            <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6">
-              {viewedPlant.notes}
-            </p>
+            <PacketNotes notes={viewedPlant.notes} className="mt-4 break-words text-sm leading-6" />
           )}
           <PlantReminders
             key={viewedPlant.id}
