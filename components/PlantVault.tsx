@@ -204,7 +204,17 @@ export default function PlantVault({
               .toLowerCase()
               .includes(query.toLowerCase());
           const categoryMatches = filter === "All" || p.category === filter;
-          const status = statusFilter === "All" || (statusFilter === "Seeds" ? p.statuses.includes("Have Seeds") : statusFilter === "Wishlist" ? p.statuses.includes("Wishlist") : statusFilter === "Growing" ? p.statuses.includes("Growing Now") : p.statuses.includes("Previously Grown"));
+          const status =
+            statusFilter === "All" ||
+            (statusFilter === "Seeds"
+              ? p.statuses.includes("Have Seeds")
+              : statusFilter === "Plants"
+                ? p.statuses.includes("Have Plant") || p.statuses.includes("Growing Now")
+                : statusFilter === "Wishlist"
+                  ? p.statuses.includes("Wishlist")
+                  : statusFilter === "Growing"
+                    ? p.statuses.includes("Growing Now")
+                    : p.statuses.includes("Previously Grown"));
           return matches && categoryMatches && status;
         })
         .sort(
@@ -293,6 +303,26 @@ export default function PlantVault({
         {label:"Wishlist", value:plants.filter(p=>p.statuses.includes("Wishlist")).length},
       ]}/>
 
+      <div className="collection-tabs" role="group" aria-label="Show seeds or plants">
+        {[
+          { value: "All", label: "All" },
+          { value: "Seeds", label: "Seeds" },
+          { value: "Plants", label: "Plants" },
+        ].map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setStatusFilter(value)}
+            aria-pressed={statusFilter === value}
+            className={`collection-tab ${statusFilter === value ? "is-active" : ""}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <p className="seasonal-muted text-sm">
+        Seeds you own, or plants you have or are growing. Bulbs and corms are included under Plants.
+      </p>
       <div className="interior-toolbar vault-toolbar">
         <input
           aria-label="Search Plant Vault"
@@ -301,7 +331,7 @@ export default function PlantVault({
           placeholder="Search plants, varieties, flowers, seeds…"
           className="seasonal-input w-full rounded-xl border p-3"
         />
-        <label className="vault-status-filter">Collection<select aria-label="Collection status" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}><option value="All">Every status</option><option value="Growing">Growing now</option><option value="Seeds">Have seeds</option><option value="Wishlist">Wishlist</option><option value="Past">Previously grown</option></select></label>
+        <label className="vault-status-filter">Collection<select aria-label="Collection status" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}><option value="All">Every status</option><option value="Growing">Growing now</option><option value="Seeds">Have seeds</option><option value="Plants">Have plants</option><option value="Wishlist">Wishlist</option><option value="Past">Previously grown</option></select></label>
         <div className="collection-tabs">
           {["All", ...categories].map(
             (x) => (
