@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
+import InteriorHeader from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
 import PhoneReminders from "@/components/PhoneReminders";
@@ -79,7 +79,7 @@ export default function PlantVault({
   }
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [collection, setCollection] = useState("Vault");
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
@@ -162,6 +162,7 @@ export default function PlantVault({
       setPendingImport(null);
       setQuery("");
       setFilter("All");
+      setCollection("Vault");
       setTransferMessage(
         `Imported ${result.added} new plants. Matching entries were combined without duplicating them.`,
       );
@@ -203,19 +204,16 @@ export default function PlantVault({
             `${p.name} ${p.variety} ${p.category} ${p.statuses.join(" ")}`
               .toLowerCase()
               .includes(query.toLowerCase());
-          const categoryMatches = filter === "All" || p.category === filter;
-          const status =
-            statusFilter === "All" ||
-            (statusFilter === "Seeds"
-              ? p.statuses.includes("Have Seeds")
-              : statusFilter === "Plants"
-                ? p.statuses.includes("Have Plant") || p.statuses.includes("Growing Now")
-                : statusFilter === "Wishlist"
-                  ? p.statuses.includes("Wishlist")
-                  : statusFilter === "Growing"
-                    ? p.statuses.includes("Growing Now")
-                    : p.statuses.includes("Previously Grown"));
-          return matches && categoryMatches && status;
+          const categoryMatches =
+            filter === "All" ||
+            (filter === "Seeds" ? p.statuses.includes("Have Seeds") : p.category === filter);
+          const owned = p.statuses.some((status) =>
+            ["Have Seeds", "Have Plant", "Growing Now"].includes(status),
+          );
+          const collectionMatches = collection === "Wishlist"
+            ? p.statuses.includes("Wishlist")
+            : owned || !p.statuses.includes("Wishlist");
+          return matches && categoryMatches && collectionMatches;
         })
         .sort(
           (a, b) =>
@@ -232,7 +230,7 @@ export default function PlantVault({
                 numeric: true,
               }),
         ),
-    [plants, query, filter, statusFilter],
+    [plants, query, filter, collection],
   );
   return (
     <section className="interior-page vault-page atelier-welcoming-page">
@@ -296,33 +294,26 @@ export default function PlantVault({
       </div>
       </div>
       </InteriorHeader>
-      <InteriorStats items={[
-        {label:"In your vault", value:plants.length},
-        {label:"Growing now", value:plants.filter(p=>p.statuses.includes("Growing Now")).length},
-        {label:"Seed collection", value:plants.filter(p=>p.statuses.includes("Have Seeds")).length},
-        {label:"Wishlist", value:plants.filter(p=>p.statuses.includes("Wishlist")).length},
-      ]}/>
-
-      <div className="collection-tabs" role="group" aria-label="Show seeds or plants">
+      <div className="collection-tabs" role="group" aria-label="Plant Vault sections">
         {[
-          { value: "All", label: "All" },
-          { value: "Seeds", label: "Seeds" },
-          { value: "Plants", label: "Plants" },
+          { value: "Vault", label: "In My Vault" },
+          { value: "Wishlist", label: "Wishlist" },
         ].map(({ value, label }) => (
           <button
             key={value}
             type="button"
-            onClick={() => setStatusFilter(value)}
-            aria-pressed={statusFilter === value}
-            className={`collection-tab ${statusFilter === value ? "is-active" : ""}`}
+            onClick={() => {
+              setCollection(value);
+              setFilter("All");
+              setQuery("");
+            }}
+            aria-pressed={collection === value}
+            className={`collection-tab ${collection === value ? "is-active" : ""}`}
           >
             {label}
           </button>
         ))}
       </div>
-      <p className="seasonal-muted text-sm">
-        Seeds you own, or plants you have or are growing. Bulbs and corms are included under Plants.
-      </p>
       <div className="interior-toolbar vault-toolbar">
         <input
           aria-label="Search Plant Vault"
@@ -331,12 +322,12 @@ export default function PlantVault({
           placeholder="Search plants, varieties, flowers, seeds…"
           className="seasonal-input w-full rounded-xl border p-3"
         />
-        <label className="vault-status-filter">Collection<select aria-label="Collection status" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}><option value="All">Every status</option><option value="Growing">Growing now</option><option value="Seeds">Have seeds</option><option value="Plants">Have plants</option><option value="Wishlist">Wishlist</option><option value="Past">Previously grown</option></select></label>
-        <div className="collection-tabs">
-          {["All", ...categories].map(
+        <div className="collection-tabs" role="group" aria-label="Filter collection">
+          {["All", "Seeds", ...categories].map(
             (x) => (
               <button
                 key={x}
+                type="button"
                 onClick={() => setFilter(x)}
                 aria-pressed={filter === x}
                 className={`collection-tab ${filter === x ? "is-active" : ""}`}
@@ -358,7 +349,7 @@ export default function PlantVault({
           <div className="seasonal-card rounded-2xl border p-8 col-span-full">
             <p className="seasonal-heading text-xl font-bold">
               {plants.length
-                ? "Nothing matches this view yet."
+                ? collection === "Wishlist" ? "Your wishlist is ready for its first plant." : "Nothing matches this view yet."
                 : "Your vault is ready for its first plant."}
             </p>
             <p className="seasonal-muted mt-2">
@@ -608,7 +599,11 @@ export default function PlantVault({
                       type="checkbox"
                       name="status"
                       value={s}
-                      defaultChecked={editing?.statuses.includes(s)}
+                      defaultChecked={editing
+                        ? editing.statuses.includes(s)
+                        : s === (collection === "Wishlist"
+                          ? "Wishlist"
+                          : filter === "Seeds" ? "Have Seeds" : "Have Plant")}
                     />
                     {s}
                   </label>
