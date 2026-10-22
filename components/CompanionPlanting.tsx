@@ -7,7 +7,7 @@ function MintNote() {
   return <p className="companion-caution"><strong>Keep mint in its own pot.</strong> Its spreading roots can crowd neighboring plants. Place the pot on a hard surface to limit escape through drainage holes. <Sources sources={["mint"]} /></p>;
 }
 export function CompanionPlanting({ name }: { name: string }) {
-  const { profile, relationships, containment } = companionGuidance(name);
+  const { profile, relationships, notes, containment } = companionGuidance(name);
   return <section className="companion-guide" aria-label={`Companion planting for ${name}`}>
     <h3 className="seasonal-heading text-lg font-bold">Companion planting</h3>
     <p className="seasonal-muted text-sm">{profile ? `Guidance for ${profile.label.toLowerCase()}. Keep each variety’s full spacing and airflow.` : "We don’t have verified companion guidance for this plant yet. Match sun, water, and mature size when planning."}</p>
@@ -18,6 +18,7 @@ export function CompanionPlanting({ name }: { name: string }) {
         {items.length ? <ul>{items.map(r => <li key={r.id}><strong>{r.companion}</strong><span className="companion-basis">{r.basis}</span><p>{r.reason}</p><Sources sources={r.sources} /></li>)}</ul> : <p className="seasonal-muted text-sm">{kind === "benefit" ? "No specific pairing in our guide yet." : "No specific conflict in our guide. This does not confirm every pairing is suitable."}</p>}
       </div>;
     })}</div>}
+    {notes.length > 0 && <div className="companion-group mt-4" aria-label="Companion growing notes"><h4>Growing notes</h4><ul>{notes.map(note => <li key={note.id}><strong>{note.title}</strong><p>{note.reason}</p><Sources sources={note.sources} /></li>)}</ul></div>}
     <p className="companion-footnote">Timing, spacing, and growing conditions matter. Pairings can help, but results vary. <Sources sources={["illinois"]} /></p>
   </section>;
 }
