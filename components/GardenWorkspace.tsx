@@ -118,6 +118,7 @@ export default function GardenWorkspace({
   const [importCandidate, setImportCandidate] = useState<Space | null>(null);
   const [editor, setEditor] = useState<"new" | string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [plannerCrop, setPlannerCrop] = useState("");
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(
@@ -563,7 +564,7 @@ export default function GardenWorkspace({
               gardenName={garden?.name ?? "your garden"}
               spaces={activeSpaces}
               onOpenSpace={(spaceId) => {
-                setPlantSpacing(undefined);
+                setPlannerCrop(""); setPlantSpacing(undefined);
                 setOpenId(spaceId);
               }}
               onCreateSpaces={createLayoutSpaces}
@@ -746,7 +747,7 @@ export default function GardenWorkspace({
                                 type="button"
                                 disabled={!!summary.error}
                                 onClick={() => {
-                                  setPlantSpacing(undefined);
+                                  setPlannerCrop(""); setPlantSpacing(undefined);
                                   setOpenId(s.id);
                                 }}
                                 className="min-h-11 max-w-full rounded-lg text-left break-words hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)] disabled:cursor-not-allowed"
@@ -755,7 +756,7 @@ export default function GardenWorkspace({
                               </button>
                             </h3>
                           </div>
-                          <button type="button" disabled={busy || !!summary.error} onClick={() => { setPlantSpacing(12); setOpenId(s.id); }} className="seasonal-button rounded-lg whitespace-nowrap" style={{ minHeight: 30, padding: "5px 10px", fontSize: 12 }} aria-label={`Add plant to ${s.name}`}>+ Add plant</button>
+                          <button type="button" disabled={busy || !!summary.error} onClick={() => { setPlannerCrop(""); setPlantSpacing(12); setOpenId(s.id); }} className="seasonal-button rounded-lg whitespace-nowrap" style={{ minHeight: 30, padding: "5px 10px", fontSize: 12 }} aria-label={`Add plant to ${s.name}`}>+ Add plant</button>
                           {(summary.capacity ?? 0) >= 75 && (
                             <span className="rounded-full bg-[var(--highlight)] px-3 py-1 text-xs font-bold text-[var(--foreground)]">
                               Review spacing
@@ -882,7 +883,7 @@ export default function GardenWorkspace({
               space={editing}
               busy={busy}
               onClose={() => setEditor(null)}
-              onAddPlant={editing ? () => { setEditor(null); setPlantSpacing(12); setOpenId(editing.id); } : undefined}
+              onAddPlant={editing ? () => { setEditor(null); setPlannerCrop(""); setPlantSpacing(12); setOpenId(editing.id); } : undefined}
               onSave={(input) => saveSpace(input, editing)}
             />
           )}
@@ -894,6 +895,7 @@ export default function GardenWorkspace({
               gardenName={garden?.name ?? ""}
               busy={busy}
               initialSpacing={plantSpacing}
+              initialCrop={plannerCrop}
               onClose={() => setOpenId(null)}
               onEdit={() => {
                 setOpenId(null);
@@ -906,7 +908,8 @@ export default function GardenWorkspace({
             <PlantPlanner
               spaces={activeSpaces}
               onClose={() => setPlanner(false)}
-              onPlant={(space, spacing) => {
+              onPlant={(space, spacing, crop) => {
+                setPlannerCrop(crop);
                 setPlanner(false);
                 setPlantSpacing(spacing);
                 setOpenId(space.id);

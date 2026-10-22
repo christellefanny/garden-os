@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import type { VaultPlant } from "@/components/PlantVault";
 import { plantChoices } from "@/lib/plant-picker";
+import { CompanionPlanting, CompanionBedCheck } from "@/components/CompanionPlanting";
 import Dialog from "@/components/ui/Dialog";
 import { Field } from "@/components/SpaceEditor";
 import {
@@ -21,6 +22,7 @@ export default function SpacePanel({
   vault = [],
   busy,
   initialSpacing,
+  initialCrop,
   onClose,
   onEdit,
   onSave,
@@ -30,6 +32,7 @@ export default function SpacePanel({
   gardenName?: string;
   busy: boolean;
   initialSpacing?: number;
+  initialCrop?: string;
   onClose: () => void;
   onEdit: () => void;
   onSave: (details: SpaceDetails) => Promise<boolean>;
@@ -42,8 +45,9 @@ export default function SpacePanel({
   const [selection, setSelection] = useState("");
   const choices = plantChoices(vault, "All");
   const selected = plantChoices(vault, "All").find(p => p.id === selection);
-  const [plantName, setPlantName] = useState("");
+  const [plantName, setPlantName] = useState(initialCrop ?? "");
   const [plantSpacing, setPlantSpacing] = useState(String(initialSpacing ?? 12));
+  const [plantStatus, setPlantStatus] = useState<Plant["status"]>("Growing");
   const suggested = suggestedSpacing(plantName);
   const [message, setMessage] = useState("");
   const [panel,setPanel]=useState("plants");
@@ -160,6 +164,7 @@ export default function SpacePanel({
             onClick={() => {
               setPlantEditor("new");
               setPlantName("");
+              setPlantStatus("Growing");
               setSelection("");
               setPlantSpacing(String(initialSpacing ?? 12));
               setMessage("");
@@ -174,6 +179,7 @@ export default function SpacePanel({
             No plants recorded. Add what you’re growing or planning.
           </p>
         )}
+        <CompanionBedCheck plants={details.plants} />
         <ul className="mt-3 space-y-3">
           {details.plants.map((p) => (
             <li key={p.id} className="rounded-xl bg-black/5 p-4">
@@ -189,7 +195,7 @@ export default function SpacePanel({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => {setPlantEditor(p.id);setSelection("");setPlantName(p.name);setPlantSpacing(String(p.spacing));}}
+                  onClick={() => {setPlantEditor(p.id);setSelection("");setPlantName(p.name);setPlantStatus(p.status);setPlantSpacing(String(p.spacing));}}
                   className="seasonal-link min-h-11 font-bold underline"
                   aria-label={`Edit ${p.name}`}
                 >
@@ -205,6 +211,7 @@ export default function SpacePanel({
                   Remove
                 </button>
               </div>
+              <details className="mt-2"><summary className="seasonal-link cursor-pointer text-sm">Companion planting for {p.name}</summary><CompanionPlanting name={p.name} /></details>
               {removing === p.id && (
                 <div className="mt-2">
                   <p className="text-sm">
@@ -262,7 +269,7 @@ export default function SpacePanel({
                 <select aria-label="Choose a plant" value={selection} onChange={e => {
                   setSelection(e.target.value);
                   const choice = choices.find(p => p.id === e.target.value);
-                  if (choice) {setPlantName(choice.name);const spacing=suggestedSpacing(choice.name);if(spacing)setPlantSpacing(String(spacing));}
+                  if (choice) {setPlantName(choice.name);const spacing=suggestedSpacing(choice.name);if(spacing)setPlantSpacing(String(spacing));} else {setPlantName(editedPlant?.name ?? "");}
                 }} className="seasonal-input mt-1 w-full rounded-xl border p-3">
                   <option value="">Enter a custom plant below</option>
                   {selected && !choices.some(p => p.id === selected.id) && <option value={selected.id}>{selected.name} · selected</option>}
@@ -274,7 +281,7 @@ export default function SpacePanel({
                 <input type="hidden" name="name" value={selected.name} />
                 <Field key={selected.id} name="variety" label="Variety (optional)" value={selected.variety} maxLength={100} />
               </> : <>
-                <Field name="name" label="Plant name" value={editedPlant?.name} required maxLength={100} placeholder="Enter a plant not listed…" />
+                <label className="block text-sm font-bold">Plant name<input name="name" value={plantName} onChange={event => setPlantName(event.target.value)} required maxLength={100} placeholder="Enter a plant not listed…" className="seasonal-input mt-1 w-full rounded-xl border p-3" /></label>
                 <Field name="variety" label="Variety (optional)" value={editedPlant?.variety} maxLength={100} />
               </>}
               <div className="grid grid-cols-2 gap-3">
@@ -311,7 +318,8 @@ export default function SpacePanel({
                   <select
                     aria-label="Status"
                     name="status"
-                    defaultValue={editedPlant?.status ?? "Growing"}
+                    value={plantStatus}
+                    onChange={event => setPlantStatus(event.target.value as Plant["status"])}
                     className="seasonal-input mt-1 w-full rounded-xl border p-3"
                   >
                     <option>Growing</option>
@@ -320,6 +328,8 @@ export default function SpacePanel({
                   </select>
                 </label>
               </div>
+              <CompanionBedCheck plants={details.plants} candidate={plantName} excludeId={editedPlant?.id} candidateStatus={plantStatus} />
+              {plantName.trim() && <details><summary className="seasonal-link cursor-pointer text-sm">See companion guide for {plantName}</summary><CompanionPlanting name={plantName} /></details>}
               <div className="flex flex-wrap gap-3">
                 <button
                   className="seasonal-button rounded-xl px-4 py-3 font-bold text-white"

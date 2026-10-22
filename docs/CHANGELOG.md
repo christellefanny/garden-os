@@ -1,5 +1,14 @@
 # Changes
 
+## Companion planting
+
+- Added sourced companion guidance inside Plant Vault details and each growing-space plant’s expandable details.
+- Added advisory pair checks for Growing and Planned records, live add/edit previews, the spacing planner, and linked layout beds. Finished records are ignored; duplicate crop pairs are shown once.
+- The planner now carries the chosen crop into the add-plant form along with spacing. Guests receive the same growing-space checks without an account.
+- The initial curated guide includes research examples, succession timing, tomato/potato disease risk, basil/rosemary watering differences, and mint containment. Missing guidance is explicitly unknown; no universal compatibility score or unsupported antagonist chart is used.
+- Sources are linked beside each explanation. These checks do not change saved data or block planting.
+- Validation: 91 unit/database tests, production build, lint (one pre-existing FlowersPage image warning), and the fixture-backed `tests/companion-planting.browser.mjs` flow.
+
 ## Private garden foundation and journal design
 
 - Refined the seasonal dashboard with serif headings, consistent line icons, restrained botanical illustrations, calmer surfaces, and no emoji-heavy cards. Kept Garden OS branding, layout, and four seasonal palettes; Fall includes sweet potatoes and no pumpkins.

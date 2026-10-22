@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
 import { designPlants, groundCovers, surfaceAppearance, gardenFootprint, plantStampStyle, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
 import type {Bed} from "@/lib/garden-layout";
+import { CompanionBedCheck } from "@/components/CompanionPlanting";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
 
@@ -562,6 +563,7 @@ export default function BlankGardenLayout({
                           <p className="seasonal-muted text-sm">
                             Plants from {space.name}
                           </p>
+                          {!plantError && <CompanionBedCheck plants={plants} />}
                           {plantError ? (
                             <p role="alert">{plantError}</p>
                           ) : plants.length ? (
