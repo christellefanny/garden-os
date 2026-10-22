@@ -1,5 +1,11 @@
 # Changes
 
+## Companion guide supplement
+
+- Reviewed three supplied planting charts and added eight sourced pairings: broccoli/nasturtium, cabbage/onion, cabbage/marigold, Brussels sprouts/sage or thyme, squash/marigold, and corn/beans or squash with Three Sisters timing and variety conditions.
+- Added plant-detail notes for flowering herbs, insect habitat, and the limits of marigolds for nematode management. General habitat guidance does not create artificial crop-pair matches.
+- Recognizes maize, brinjal, coriander, and Brussels sprouts; distinguishes Calendula/pot marigold from Tagetes marigolds. Conflicting chart claims are not promoted into warnings.
+
 ## Companion planting
 
 - Added sourced companion guidance inside Plant Vault details and each growing-space plant’s expandable details.

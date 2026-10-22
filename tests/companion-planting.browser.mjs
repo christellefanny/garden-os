@@ -36,7 +36,7 @@ try {
     } catch {}
     await new Promise((r) => setTimeout(r, 100));
   }
-  const plants = ["Tomato", "Potato", "Basil"].map((name, i) => ({id: "crop-"+i, name, variety: "", category: "Vegetable", statuses: ["Growing Now"], source: "", year: "2026", notes: ""}));
+  const plants = ["Tomato", "Potato", "Basil", "Marigold", "Dill"].map((name, i) => ({id: "crop-"+i, name, variety: "", category: "Vegetable", statuses: ["Growing Now"], source: "", year: "2026", notes: ""}));
   const records = plants.slice(0,2).map(p => ({id:p.id, name:p.name, variety:"", quantity:1, spacing:24, planted:"", status:"Growing"}));
   const bed = {id:"companion-bed", garden_id:"garden-1", name:"Companion bed", type:"Raised Bed", length_feet:8, width_feet:4, notes:JSON.stringify({garden_os:1, notes:"", plants:records, entries:[]})};
   await fetch("http://127.0.0.1:54321/rest/v1/growing_spaces", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify([bed])});
@@ -64,6 +64,17 @@ try {
     assert.deepEqual(axe.violations,[],JSON.stringify(axe.violations));
     await page.screenshot({path:`/tmp/companion-${width}.png`});
   }
+  await page.getByRole("button",{name:"Close dialog",exact:true}).click();
+  await page.getByRole("button",{name:"Open Marigold",exact:true}).click();
+  await page.getByText("Nematode control needs a separate plan",{exact:true}).waitFor();
+  await page.getByLabel("Companion growing notes").scrollIntoViewIfNeeded();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false);
+  const notesAxe = await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa"]).analyze();
+  assert.deepEqual(notesAxe.violations,[],JSON.stringify(notesAxe.violations));
+  await page.screenshot({path:"/tmp/companion-supplement-mobile.png"});
+  await page.getByRole("button",{name:"Close dialog",exact:true}).click();
+  await page.getByRole("button",{name:"Open Dill",exact:true}).click();
+  await page.getByText("Let some plants flower",{exact:true}).waitFor();
   await page.getByRole("button",{name:"Close dialog",exact:true}).click();
   await page.setViewportSize({width:1440,height:1000});
   await page.getByRole("button",{name:"My Gardens",exact:true}).first().click();
@@ -103,12 +114,16 @@ try {
   await guest.addInitScript(bed => {
     localStorage.setItem("garden-os-guest-active","1");
     localStorage.setItem("garden-os-guest-warning-seen","1");
+    const details = JSON.parse(bed.notes);
+    details.plants.push({id:"cabbage",name:"Cabbage",variety:"",quantity:1,spacing:18,planted:"",status:"Planned"},{id:"marigold",name:"Marigold",variety:"",quantity:1,spacing:12,planted:"",status:"Planned"});
+    bed.notes = JSON.stringify(details);
     localStorage.setItem("garden-os-guest-data",JSON.stringify({gardens:[{id:"garden-1",name:"Guest garden",year:2026,location:null,hardiness_zone:null}],spaces:[bed]}));
   },bed);
   const gp = await guest.newPage();
   await gp.goto("http://127.0.0.1:3000/?view=my-gardens&garden=garden-1");
   await gp.getByRole("button",{name:"Companion bed",exact:true}).click();
   await gp.getByText("Use care: Tomato + Potato",{exact:true}).waitFor();
+  await gp.getByText("Useful pairing: Cabbage + Marigold",{exact:true}).waitFor();
   assert.equal(await gp.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false);
   assert.deepEqual(errors,[]);
   console.log("PASS: Vault guide, mobile/desktop accessibility, live bed preview, finished exclusions, advisory save, API persistence, planner crop handoff, reload, and guest access.");
