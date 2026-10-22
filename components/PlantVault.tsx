@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { CompanionPlanting } from "@/components/CompanionPlanting";
 import InteriorHeader from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
@@ -494,6 +495,7 @@ export default function PlantVault({
           {viewedPlant.notes && (
             <PacketNotes notes={viewedPlant.notes} className="mt-4 break-words text-sm leading-6" />
           )}
+          <CompanionPlanting name={viewedPlant.name} />
           <PlantReminders
             key={viewedPlant.id}
             plant={viewedPlant}

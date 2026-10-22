@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { CompanionPlanting, CompanionBedCheck } from "@/components/CompanionPlanting";
+import { readDetails } from "@/lib/garden";
 import Dialog from "@/components/ui/Dialog";
 import {
   cropOptions,
@@ -16,7 +18,7 @@ export default function PlantPlanner({
 }: {
   spaces: Space[];
   onClose: () => void;
-  onPlant: (space: Space, spacing: number) => void;
+  onPlant: (space: Space, spacing: number, crop: string) => void;
 }) {
   const [spaceId, setSpaceId] = useState("");
   const [shape, setShape] = useState("Rectangular bed");
@@ -160,10 +162,12 @@ export default function PlantPlanner({
         Crop presets are starting examples; spacing is editable. Hydroponic
         setups need their own checks.
       </p>
+      {crop && <CompanionPlanting name={crop} />}
+      {selected && <PlannerBedCheck space={selected} crop={crop} />}
       {selected && valid && (
         <button
           type="button"
-          onClick={() => onPlant(selected, Number(spacing))}
+          onClick={() => onPlant(selected, Number(spacing), crop)}
           className="seasonal-button mt-5 w-full rounded-xl p-3 font-bold text-white"
         >
           Add a plant to {selected.name}
@@ -198,4 +202,16 @@ function NumberField({
       />
     </label>
   );
+}
+
+function PlannerBedCheck({ space, crop }: { space: Space; crop: string }) {
+  let plants;
+  try {
+    plants = readDetails(space.notes).plants;
+  } catch {
+    plants = null;
+  }
+  return plants
+    ? <CompanionBedCheck plants={plants} candidate={crop} />
+    : <p role="status" className="seasonal-muted mt-4 text-sm">Companion checks are unavailable because this space’s saved plants could not be read.</p>;
 }

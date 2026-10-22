@@ -1960,3 +1960,20 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .atelier-welcome-note p{font-size:14px;line-height:1.8;color:#526148;margin:0;max-width:80ch;}
 .atelier-welcome-note p+p{margin-top:12px;}
 @media(max-width:700px){.atelier-welcome-note{grid-template-columns:1fr;gap:14px;padding:22px 20px;}.atelier-welcome-note h2{font-size:26px;}.atelier-welcome-note h2 br{display:none;}}
+
+/* Companion guidance stays within plant details and the selected growing space. */
+.companion-guide,.companion-bed-check{margin-top:1.25rem;padding:1rem;border:1px solid var(--border, #d7ddcf);border-radius:1rem;text-align:left;min-width:0}
+.companion-guide>p,.companion-bed-check>p{margin-top:.5rem}
+.companion-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:1rem;margin-top:1rem}
+.companion-group{padding:.85rem;border-radius:.75rem;background:color-mix(in srgb,var(--primary,#4d6346) 7%,transparent)}
+.companion-group h4{font-weight:700;margin-bottom:.6rem}
+.companion-group ul{display:grid;gap:.85rem;list-style:none;padding:0}
+.companion-group li{font-size:.875rem;overflow-wrap:anywhere}
+.companion-group li>strong{display:block}
+.companion-basis{display:inline-block;font-size:.7rem;letter-spacing:.03em;margin:.2rem 0;opacity:.8}
+.companion-sources{display:block;font-size:.7rem;margin-top:.3rem;line-height:1.5}
+.companion-sources a{text-decoration:underline;text-underline-offset:2px;display:inline-block;margin-right:.6rem;overflow-wrap:anywhere}
+.companion-caution,.companion-bed-check .companion-benefit{margin-top:.75rem;padding:.8rem;border-radius:.65rem;font-size:.875rem;overflow-wrap:anywhere}
+.companion-caution{border-left:3px solid #a66c26;background:color-mix(in srgb,#d6a04d 12%,transparent)}
+.companion-bed-check .companion-benefit{border-left:3px solid var(--primary,#4d6346);background:color-mix(in srgb,var(--primary,#4d6346) 7%,transparent)}
+.companion-footnote{font-size:.75rem;line-height:1.5;margin-top:.8rem;opacity:.85}
