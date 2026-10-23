@@ -15,6 +15,7 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const mapping = {
+  "@/lib/weekly-email-server": "dispatchWeeklyEmails",
   "@/lib/reminders-server":
     "adminDatabase, remindersReady, sendReminder, setupError",
   "@/lib/reminder-groups": "groupReminders",
@@ -121,6 +122,7 @@ async function runFixture({
     },
   };
   globalThis.__weeklyDispatchTest = {
+    dispatchWeeklyEmails: async () => ({ready:false,sent:0,failed:0,skipped:0}),
     adminDatabase: () => db,
     remindersReady: () => true,
     setupError: () => Response.json({ error: "setup" }, { status: 503 }),

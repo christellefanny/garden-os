@@ -1,3 +1,4 @@
+import { dispatchWeeklyEmails } from "@/lib/weekly-email-server";
 import { timingSafeEqual } from "node:crypto";
 import {
   adminDatabase,
@@ -22,7 +23,16 @@ export async function GET(request: Request) {
     !timingSafeEqual(Buffer.from(supplied), Buffer.from(`Bearer ${expected}`))
   )
     return Response.json({ error: "Unauthorized" }, { status: 401 });
-  if (!remindersReady()) return setupError();
+  let email;
+  try {
+    email = await dispatchWeeklyEmails();
+  } catch {
+    email = { ready: false, sent: 0, failed: 1, skipped: 0 };
+  }
+  if (!remindersReady())
+    return email.ready
+      ? Response.json({ ok: true, email, phoneReady: false })
+      : setupError();
   const db = adminDatabase(),
     day = localDay();
   const { data, error } = await db
@@ -130,7 +140,7 @@ export async function GET(request: Request) {
     }
   }
   return Response.json(
-    { ok: true, sent, failed, weeklySent, weeklyFailed },
+    { ok: true, sent, failed, weeklySent, weeklyFailed, email },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

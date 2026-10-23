@@ -1977,3 +1977,39 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .companion-caution{border-left:3px solid #a66c26;background:color-mix(in srgb,#d6a04d 12%,transparent)}
 .companion-bed-check .companion-benefit{border-left:3px solid var(--primary,#4d6346);background:color-mix(in srgb,var(--primary,#4d6346) 7%,transparent)}
 .companion-footnote{font-size:.75rem;line-height:1.5;margin-top:.8rem;opacity:.85}
+
+/* The illustrated calendar keeps the month spacious; tasks open below it. */
+.botanical-calendar {background:#fffdf8;border:1px solid #e5dfd3;border-radius:14px;overflow:hidden;margin:18px 0 30px;}
+.botanical-calendar-header {position:relative;min-height:210px;display:flex;align-items:center;background:#f8f3e8;overflow:hidden;}
+.botanical-calendar-copy {position:relative;z-index:1;padding:35px 240px 35px 35px;}
+.botanical-calendar-copy h2 {font-family:Georgia,serif;font-size:44px;line-height:1.15;font-weight:400;color:#344a37;margin:10px 0;}
+.botanical-calendar-copy>p:last-child {font-size:13px;color:#65705d;}
+.calendar-season-art {position:absolute;width:230px;height:230px;object-fit:contain;right:12px;bottom:-15px;mix-blend-mode:multiply;}
+.calendar-month-navigation {display:flex;align-items:center;justify-content:center;gap:24px;padding:12px;border-top:1px solid #e5dfd3;}
+.calendar-month-navigation .seasonal-outline {min-width:44px;min-height:40px;border-radius:8px;}
+.botanical-month-grid {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));}
+.calendar-weekday {text-align:center;padding:10px 0;font-size:12px;color:#63705c;background:#f3efe5;border-top:1px solid #e5dfd3;}
+.calendar-date,.calendar-empty-day {min-width:0;min-height:120px;border-top:1px solid #e5dfd3;border-right:1px solid #e5dfd3;}
+.calendar-date {display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:9px 6px;text-align:left;background:#fffdf8;color:#344a37;}
+.calendar-date:nth-child(7n) {border-right:0;}
+.calendar-date-number {font:18px Georgia,serif;align-self:flex-start;padding:2px 5px;}
+.calendar-date.is-today .calendar-date-number {background:var(--primary);color:#fff;border-radius:50%;min-width:27px;text-align:center;}
+.calendar-date[aria-pressed="true"] {background:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--primary);}
+.calendar-date:focus-visible {outline:3px solid var(--primary);outline-offset:-3px;}
+.calendar-date-tasks {display:flex;flex-direction:column;gap:5px;min-width:0;}
+.calendar-task-chip {display:block;font:11px/1.4 Arial,sans-serif;padding:5px;border-radius:4px;background:#eaf0e3;color:#3f5537;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.calendar-task-chip.is-personal {background:var(--primary-soft);color:var(--primary);}
+.calendar-task-more {font-size:11px;color:#5b6755;padding-left:4px;}
+.calendar-mobile-count {display:none;}
+.calendar-empty-day {background:#f8f5ee;}
+.calendar-task-detail {display:flow-root;}
+.calendar-plant-art {width:85px;height:85px;float:left;position:relative;margin:0 18px 12px 0;object-fit:contain;mix-blend-mode:multiply;overflow:hidden;flex-shrink:0;}
+.calendar-plant-art>div {width:100%;height:100%;background-repeat:no-repeat;}
+.calendar-email-card {margin:30px 0 20px;padding:24px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.calendar-email-card h2 {font:26px/1.2 Georgia,serif;margin:8px 0;}
+.calendar-email-card p {max-width:520px;font-size:13px;}
+@media(max-width:700px){.botanical-calendar-copy{padding:25px 145px 25px 18px}.botanical-calendar-copy h2{font-size:30px}.botanical-calendar-header{min-height:170px}.calendar-season-art{width:155px;height:165px;right:0}.calendar-date,.calendar-empty-day{min-height:78px}.calendar-date{padding:8px 3px}.calendar-date-tasks{display:none}.calendar-mobile-count{display:block;font-size:11px;color:#53634a}.calendar-weekday{font-size:11px}.calendar-email-card{padding:20px}.calendar-email-card h2{font-size:24px}.calendar-task-detail .flex.items-start{flex-wrap:wrap}.calendar-task-detail label{display:flex;align-items:center;gap:5px;flex-wrap:wrap}}
+@media(max-width:380px){.botanical-calendar-copy h2{font-size:25px}.botanical-calendar-copy{padding-right:105px}.calendar-season-art{width:125px;right:-8px}.botanical-calendar-copy>p:last-child{font-size:12px}.calendar-date-number{font-size:16px}.calendar-plant-art{width:64px;height:64px;margin-right:10px}}
+.calendar-task-source {font-size:11px;color:#65705d;margin-top:5px;}
+.agenda-heading {scroll-margin-top:24px;}
+.calendar-season-art {mask-image:radial-gradient(ellipse at center,#000 48%,transparent 76%);}
