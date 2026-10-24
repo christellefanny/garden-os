@@ -489,3 +489,146 @@ test("on-demand test is authenticated, sends only to the account email, and pres
     delete globalThis.__emailTest;
   }
 });
+
+test("subscription email omits the requested planning note and keeps useful plant steps with a branded contact footer", () => {
+  const planningNote =
+    "This is a planning-calendar step, not a forecast or observed plant stage.";
+  const input = {
+    ...brief,
+    savedTasks: [
+      {
+        title: "Review sowing window",
+        when: "October 24",
+        why: planningNote,
+        plants: ["Lettuce"],
+        steps: ["Check the seed packet and soil conditions."],
+        sources: [],
+      },
+    ],
+  };
+  const mail = renderWeeklyEmail(
+    input,
+    "https://garden.example",
+    "https://garden.example/unsubscribe?token=fixture",
+    "hello@garden.example",
+  );
+  for (const content of [mail.html, mail.text]) {
+    assert.ok(!content.includes(planningNote));
+    assert.ok(content.includes("Check the seed packet and soil conditions."));
+    assert.ok(content.includes("Happy growing,"));
+    assert.ok(content.includes("Plan · Grow · Record · Be Inspired"));
+    assert.ok(content.includes("hello@garden.example"));
+    assert.ok(content.includes("Manage email preferences"));
+    assert.ok(content.includes("Unsubscribe"));
+    assert.ok(content.includes("Growing indoors"));
+    assert.ok(content.includes("Check actual conditions."));
+  }
+  assert.ok(mail.html.includes('href="mailto:hello@garden.example"'));
+  assert.ok(mail.html.includes('href="https://garden.example"'));
+  assert.equal(mail.reply_to, "hello@garden.example");
+  assert.ok(mail.text.includes("Visit Garden Atelier: https://garden.example"));
+});
+test("contact footer omits missing or unsafe email addresses without inventing a support inbox", () => {
+  for (const contact of [
+    "",
+    "bad address",
+    "hello@example.test\r\nBcc: someone@example.test",
+    "<script>@example.test",
+  ]) {
+    const mail = renderWeeklyEmail(
+      brief,
+      "https://garden.example",
+      "https://garden.example/unsubscribe",
+      contact,
+    );
+    assert.equal(mail.reply_to, undefined);
+    assert.ok(!mail.html.includes("mailto:"));
+    assert.ok(mail.html.includes("Visit Garden Atelier"));
+    assert.ok(!mail.html.includes("onboarding@resend.dev"));
+  }
+});
+
+test("illustrated subscription email uses the approved logo, four seasonal artworks and restrained plant-specific images", () => {
+  const seasons = [
+    ["03", "lettuce"],
+    ["07", "tomato"],
+    ["10", "garlic"],
+    ["12", "kale"],
+  ];
+  for (const [month, art] of seasons) {
+    const mail = renderWeeklyEmail(
+      { ...brief, start: `2026-${month}-19`, end: `2026-${month}-25` },
+      "https://garden.example",
+      "https://garden.example/unsubscribe",
+      "mygardenatelier@gmail.com",
+    );
+    assert.ok(
+      mail.html.includes(
+        'src="https://garden.example/garden-atelier-logo.png"',
+      ),
+    );
+    assert.ok(
+      mail.html.includes(`alt="Seasonal botanical illustration of ${art}"`),
+    );
+    assert.ok(
+      mail.html.includes(`src="https://garden.example/email/${art}.jpg"`),
+    );
+    assert.equal(mail.reply_to, "mygardenatelier@gmail.com");
+  }
+  const actions = [
+    "Tomato",
+    "Lettuce",
+    "Dahlia",
+    "Zinnia",
+    "Peas",
+    "Tomato",
+  ].map((plant, i) => ({
+    title: "Tend " + plant,
+    when: "This week",
+    why: "",
+    plants: [plant],
+    steps: ["Inspect the plant."],
+    sources: [],
+    id: String(i),
+  }));
+  const mail = renderWeeklyEmail(
+    { ...brief, priorities: actions },
+    "https://garden.example",
+    "https://garden.example/unsubscribe",
+    "mygardenatelier@gmail.com",
+  );
+  const images = [...mail.html.matchAll(/src="([^"]+\/email\/[^"]+)"/g)].map(
+    (m) => m[1],
+  );
+  assert.ok(images.length <= 4);
+  assert.equal(new Set(images).size, images.length);
+  assert.ok(mail.html.includes("Inspect the plant."));
+  const hot = renderWeeklyEmail(
+    {
+      ...brief,
+      priorities: [{ ...actions[0], plants: ["Habanero hot pepper"] }],
+    },
+    "https://garden.example",
+    "https://garden.example/unsubscribe",
+  );
+  assert.ok(!hot.html.includes("/email/pepper.jpg"));
+});
+test("email JPEG exports exist and are actual raster images", async () => {
+  for (const name of [
+    "lettuce",
+    "tomato",
+    "garlic",
+    "kale",
+    "pepper",
+    "peas",
+    "dahlia",
+    "zinnia",
+  ]) {
+    const data = await readFile(
+      new URL(`../public/email/${name}.jpg`, import.meta.url),
+    );
+    assert.equal(data[0], 0xff);
+    assert.equal(data[1], 0xd8);
+    assert.ok(data.length > 1000);
+  }
+});
