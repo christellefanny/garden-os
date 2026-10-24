@@ -9,7 +9,14 @@ const fixture = spawn(process.execPath, ["tests/fixtures/supabase.mjs"], {
 });
 const server = spawn(
   process.execPath,
-  ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1"],
+  [
+    "node_modules/next/dist/bin/next",
+    "start",
+    "--hostname",
+    "127.0.0.1",
+    "--port",
+    "3037",
+  ],
   {
     env: {
       ...process.env,
@@ -86,12 +93,12 @@ const calendar = {
 try {
   for (let n = 0; n < 100; n++) {
     try {
-      if ((await fetch("http://127.0.0.1:3000")).ok) break;
+      if ((await fetch("http://127.0.0.1:3037")).ok) break;
     } catch {}
     await new Promise((r) => setTimeout(r, 200));
   }
   assert.equal(
-    (await fetch("http://127.0.0.1:3000/api/weekly-email")).status,
+    (await fetch("http://127.0.0.1:3037/api/weekly-email")).status,
     401,
   );
   browser = await chromium.launch({
@@ -125,7 +132,7 @@ try {
   const page = await context.newPage(),
     errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("http://127.0.0.1:3000");
+  await page.goto("http://127.0.0.1:3037");
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page
@@ -199,6 +206,39 @@ try {
     .getByRole("dialog")
     .getByRole("button", { name: "Close dialog", exact: true })
     .click();
+  const emailTestUrl = "**/api/weekly-email/test";
+  await page.route(emailTestUrl, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        message:
+          "Test email accepted by the mail service. Check your account inbox and spam folder. Your weekly schedule is unchanged.",
+      }),
+    }),
+  );
+  await page
+    .getByRole("button", { name: "Send test email", exact: true })
+    .click();
+  await page
+    .getByText("Test email accepted by the mail service.", { exact: false })
+    .waitFor();
+  await page.unroute(emailTestUrl);
+  await page.route(emailTestUrl, (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "Check your verified sending domain." }),
+    }),
+  );
+  await page
+    .getByRole("button", { name: "Send test email", exact: true })
+    .click();
+  await page
+    .getByText("Check your verified sending domain.", { exact: true })
+    .waitFor();
+  await page.unroute(emailTestUrl);
   let cloudSaved = false;
   for (let n = 0; n < 60; n++) {
     const state = await (
@@ -290,7 +330,7 @@ try {
     localStorage.setItem("garden-os-guest-active", "true");
     localStorage.setItem("garden-os-guest-warning-seen", "true");
   });
-  await guest.goto("http://127.0.0.1:3000");
+  await guest.goto("http://127.0.0.1:3037");
   await guest.locator(".modern-dashboard").waitFor();
   await guest
     .getByRole("button", { name: "Growing Calendar", exact: true })
@@ -298,6 +338,12 @@ try {
     .click();
   await guest.locator(".botanical-calendar").waitFor();
   assert.equal(await guest.locator(".calendar-task-chip").count(), 0);
+  assert.equal(
+    await guest
+      .getByRole("button", { name: "Send test email", exact: true })
+      .count(),
+    0,
+  );
   assert.ok(
     await guest
       .getByText("Weekly email is available with an account.", { exact: false })
