@@ -11,7 +11,7 @@ import {
   reminderSnapshot,
   type CalendarOptions,
 } from "@/lib/growing-calendar";
-import PlantPortrait from "@/components/PlantPortrait";
+import PlantPortrait from "@/components/VaultBotanicalPortrait";
 import { readVaultBackup, mergeVaultPlants } from "@/lib/vault-transfer";
 import { tidyPacketNotes } from "@/lib/packet-notes";
 
