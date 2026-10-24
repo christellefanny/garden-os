@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import InteriorHeader from "@/components/InteriorHeader";
-import PlantPortrait from "@/components/PlantPortrait";
+import PlantPortrait from "@/components/VaultBotanicalPortrait";
+import FlowerGardenPortrait from "@/components/FlowerGardenPortrait";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import type { VaultPlant } from "@/components/PlantVault";
 
@@ -111,7 +112,6 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       </div>
     </>}
     {section==="Cut Flowers"&&<>
-      <button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mb-4 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>
       <div className="seasonal-card grid overflow-hidden rounded-2xl border bg-[#faf8f1] lg:grid-cols-[42%_58%]">
         <div className="flex flex-col justify-center px-6 py-9 sm:px-10 lg:px-12 lg:py-14">
           <p className="eyebrow text-[#435640]">From garden to vase</p>
@@ -130,7 +130,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Each entry includes a representative hand-painted botanical illustration; flower colors and varieties may differ.</p>
       <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Cut Flower Encyclopedia">
         {cutFlowerEncyclopedia.map(g=><article key={g.name} className="overflow-hidden rounded-2xl border border-[#e8dfd4] bg-white p-3 shadow-[0_4px_16px_#50463308]">
-          <Image src={`/cut-flowers/${g.name.toLowerCase().replaceAll("'", "").replaceAll(" ", "-")}.webp`} alt={`Botanical watercolor illustration of ${g.name.toLowerCase()}`} width={640} height={640} sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 240px" className="aspect-square w-full rounded-xl bg-[#fbf6ec] object-contain" />
+          <FlowerGardenPortrait name={g.name} />
           <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
           <p className="seasonal-muted mt-2 text-xs font-semibold">{g.when}</p>
           <p className="mt-2 text-xs leading-5">{g.tip}</p>
