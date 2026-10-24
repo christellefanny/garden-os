@@ -5,6 +5,7 @@ import Image from "next/image";
 import InteriorHeader from "@/components/InteriorHeader";
 import PlantPortrait from "@/components/VaultBotanicalPortrait";
 import FlowerGardenPortrait from "@/components/FlowerGardenPortrait";
+import { SeasonalFlowerPlanning, FlowerSeedSaving, FlowerCareLibrary } from "@/components/FlowerGuideSections";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import type { VaultPlant } from "@/components/PlantVault";
 
@@ -206,25 +207,8 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
       <p className="seasonal-muted mt-2 text-sm">Your flowers from Plant Vault, in alphabetical order. Add, edit, or remove flowers in Plant Vault; this view stays in sync.</p>
       {flowers.length?<div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{flowers.map(p=><article key={p.id} className="seasonal-card rounded-2xl border p-4"><PlantPortrait name={p.name} variety={p.variety} photoUrl={p.photoUrl}/><h3 className="seasonal-heading mt-3 text-lg font-bold">{p.name}</h3>{p.variety&&<p className="seasonal-muted text-sm">{p.variety}</p>}{p.notes&&<p className="mt-2 text-sm leading-6">{p.notes}</p>}</article>)}</div>:<p className="seasonal-muted mt-5 text-sm">No flowers yet. Add your first flower in Plant Vault and select the Flower category.</p>}
     </>}
-    {section==="Seasonal planting"&&<>
-      <div className="seasonal-card mt-7 rounded-2xl border p-6">
-        <p className="eyebrow seasonal-muted">Right now · {season}</p>
-        <h2 className="seasonal-heading mt-2 text-2xl font-bold">{current.title}</h2>
-        <ul className="mt-4 grid gap-3">{current.tasks.map(t=><li key={t} className="text-sm leading-6">✿ {t}</li>)}</ul>
-      </div>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">What to plant each season</h2>
-      <p className="seasonal-muted mt-2 text-sm">General guidance for cold-winter gardens around northern Illinois. Always check your local frost dates and each variety’s requirements.</p>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">{planting.map(p=><article key={p.season} className="seasonal-card rounded-2xl border p-5"><p className="eyebrow seasonal-muted">{p.season}</p><h3 className="seasonal-heading mt-2 text-xl font-bold">{p.title}</h3><p className="mt-3 text-sm font-semibold">{p.flowers}</p><p className="mt-3 text-sm leading-6">{p.timing}</p></article>)}</div>
-    </>}
-    {section==="Seed saving"&&<>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">What seeds to save, and when</h2>
-      <p className="seasonal-muted mt-2 text-sm">Collect seed from healthy, fully mature, dry flower heads on a dry day. Store completely dry seeds in labeled envelopes in a cool, dark, dry place. Hybrids may not grow true to the parent.</p>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">{seedGuides.map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-3 text-xs font-semibold">WHEN TO COLLECT</p><p className="mt-1 text-sm leading-6">{g.when}</p><p className="seasonal-muted mt-3 text-xs font-semibold">HOW TO SAVE</p><p className="mt-1 text-sm leading-6">{g.how}</p></article>)}</div>
-    </>}
-    {section==="Flower care"&&<>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Flower care library</h2>
-      <p className="seasonal-muted mt-2 text-sm">Growing tips for flowers in your garden. Adjust watering, pruning, and winter protection to your specific variety and site.</p>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">{guides.map(g=><article key={g.name} className="seasonal-card rounded-2xl border p-5"><h3 className="seasonal-heading text-xl font-bold">{g.name}</h3><p className="seasonal-muted mt-2 text-xs font-semibold">{g.light} · {g.bloom}</p><p className="mt-3 text-sm leading-6">{g.care}</p></article>)}</div>
-    </>}
+    {section==="Seasonal planting"&&<SeasonalFlowerPlanning season={season} current={current} planting={planting} />}
+    {section==="Seed saving"&&<FlowerSeedSaving guides={seedGuides} />}
+    {section==="Flower care"&&<FlowerCareLibrary guides={guides} />}
   </section>;
 }
