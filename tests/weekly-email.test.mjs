@@ -376,3 +376,116 @@ test("unsubscribe confirmation is read-only and POST changes only the matching c
     delete globalThis.__emailTest;
   }
 });
+
+test("on-demand test is authenticated, sends only to the account email, and preserves the weekly schedule", async () => {
+  const db = database();
+  db.rpc = async (_name, { p_key, p_value, p_version }) => {
+    const existing = db.records.find(
+      (r) => r.key === p_key && r.user_id === owner,
+    );
+    if ((existing?.version || 0) !== p_version)
+      return { data: null, error: { code: "40001" } };
+    if (existing) {
+      existing.value = p_value;
+      existing.version++;
+      return { data: [{ version: existing.version }], error: null };
+    }
+    db.records.push({ user_id: owner, key: p_key, value: p_value, version: 1 });
+    return { data: [{ version: 1 }], error: null };
+  };
+  let signedIn = false,
+    ready = true,
+    confirmed = true,
+    reject = 0;
+  const sends = [];
+  globalThis.__emailTest = {
+    authenticated: async () =>
+      signedIn
+        ? {
+            db,
+            user: {
+              id: owner,
+              email: "owner@example.test",
+              email_confirmed_at: confirmed ? "confirmed" : null,
+            },
+          }
+        : null,
+    emailReady: () => ready,
+    emailOrigin: () => "https://garden.example",
+    emailSecret: () => "fixture",
+    emailPreferenceKey,
+    validEmailPreferences,
+    renderWeeklyEmail,
+    unsubscribeToken,
+    loadBriefContext: async (_db, id, gardenId) => {
+      assert.equal(id, owner);
+      assert.equal(gardenId, "g1");
+      return {};
+    },
+    generateWeeklyBrief: async () => brief,
+  };
+  const route = await compile("app/api/weekly-email/test/route.ts", {
+    "@/lib/reminders-server": "authenticated",
+    "@/lib/weekly-email-server": "emailReady,emailOrigin,emailSecret",
+    "@/lib/weekly-email":
+      "emailPreferenceKey,validEmailPreferences,renderWeeklyEmail,unsubscribeToken",
+    "@/lib/weekly-brief-server": "loadBriefContext,generateWeeklyBrief",
+  });
+  const originalFetch = globalThis.fetch,
+    oldEnv = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "production";
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url, "https://api.resend.com/emails");
+    sends.push(JSON.parse(options.body));
+    return reject
+      ? Response.json({ error: "rejected" }, { status: reject })
+      : Response.json({ id: "test-receipt" });
+  };
+  const request = () =>
+    new Request("https://garden.example/api/weekly-email/test", {
+      method: "POST",
+      body: JSON.stringify({ to: "attacker@example.test", day: 5 }),
+    });
+  const originalPref = structuredClone(db.records[0]);
+  try {
+    assert.equal((await route.POST(request())).status, 401);
+    signedIn = true;
+    ready = false;
+    assert.equal((await route.POST(request())).status, 503);
+    ready = true;
+    confirmed = false;
+    assert.equal((await route.POST(request())).status, 403);
+    confirmed = true;
+    process.env.VERCEL_ENV = "preview";
+    assert.equal((await route.POST(request())).status, 503);
+    process.env.VERCEL_ENV = "production";
+    db.records[0].value.enabled = false;
+    assert.equal((await route.POST(request())).status, 400);
+    db.records[0].value.enabled = true;
+    const responses = await Promise.all([
+      route.POST(request()),
+      route.POST(request()),
+    ]);
+    assert.deepEqual(responses.map((r) => r.status).sort(), [200, 429]);
+    assert.equal(sends.length, 1);
+    assert.deepEqual(sends[0].to, ["owner@example.test"]);
+    assert.ok(sends[0].subject.startsWith("[Test]"));
+    assert.ok(sends[0].headers["List-Unsubscribe"]);
+    assert.deepEqual(db.records[0], originalPref);
+    assert.ok(
+      !db.records.some((r) => r.key.startsWith("garden-os-weekly-delivery-")),
+    );
+    assert.equal((await route.POST(request())).status, 429);
+    db.records[1].value.attemptedAt = "2000-01-01";
+    reject = 403;
+    const failure = await route.POST(request());
+    assert.equal(failure.status, 502);
+    assert.match((await failure.json()).error, /verified sending domain/);
+    assert.deepEqual(db.records[0], originalPref);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (oldEnv === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = oldEnv;
+    delete globalThis.__emailTest;
+  }
+});

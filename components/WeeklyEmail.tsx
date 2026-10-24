@@ -35,27 +35,30 @@ export default function WeeklyEmail({
     [enabled, setEnabled] = useState(false),
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
-  async function request(method: "GET" | "POST") {
+  async function request(method: "GET" | "POST", test = false) {
     const { data } = await supabase.auth.getSession();
     if (!data.session)
       throw new Error("Sign in again to manage weekly emails.");
-    const response = await fetch("/api/weekly-email", {
-      method,
-      headers: {
-        Authorization: `Bearer ${data.session.access_token}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      test ? "/api/weekly-email/test" : "/api/weekly-email",
+      {
+        method,
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        ...(method === "POST" && !test
+          ? {
+              body: JSON.stringify({
+                enabled,
+                day,
+                gardenId: chosen,
+                version: settings?.version || 0,
+              }),
+            }
+          : {}),
       },
-      ...(method === "POST"
-        ? {
-            body: JSON.stringify({
-              enabled,
-              day,
-              gardenId: chosen,
-              version: settings?.version || 0,
-            }),
-          }
-        : {}),
-    });
+    );
     const value = await response.json();
     if (!response.ok)
       throw new Error(value.error || "Email preferences are unavailable.");
@@ -101,6 +104,22 @@ export default function WeeklyEmail({
       setBusy(false);
     }
   }
+  async function sendTest() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await request("POST", true);
+      setMessage(result.message);
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not send the test email.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section className="calendar-email-card seasonal-card">
       <div>
@@ -117,9 +136,24 @@ export default function WeeklyEmail({
           on this device.
         </p>
       ) : (
-        <button type="button" className="seasonal-button" onClick={load}>
-          Weekly email settings
-        </button>
+        <div className="interior-actions">
+          <button
+            type="button"
+            className="seasonal-button"
+            onClick={load}
+            disabled={busy}
+          >
+            Weekly email settings
+          </button>
+          <button
+            type="button"
+            className="seasonal-outline"
+            onClick={sendTest}
+            disabled={busy}
+          >
+            {busy ? "Please wait…" : "Send test email"}
+          </button>
+        </div>
       )}
       {!open && message && <p role="status">{message}</p>}
       {open && (
