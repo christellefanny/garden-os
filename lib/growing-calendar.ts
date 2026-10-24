@@ -1,5 +1,12 @@
+import { packetSeedTiming } from "./seed-timing.ts";
 import type { VaultPlant } from "../components/PlantVault";
-export type PlantReminder = { id: string; plantId: string; title: string; date: string; notes?: string };
+export type PlantReminder = {
+  id: string;
+  plantId: string;
+  title: string;
+  date: string;
+  notes?: string;
+};
 export type CalendarOptions = {
   reminders?: PlantReminder[];
   weekly?: import("./weekly-brief").WeeklyPreferences;
@@ -15,6 +22,7 @@ export type GrowingTask = {
   plant: string;
   detail: string;
   status?: "done" | "skipped";
+  plantIds?: string[];
 };
 export const calendarDefaults: CalendarOptions = {
   lastFrost: "05-15",
@@ -78,13 +86,30 @@ export function buildGrowingTasks(
       ...new Set(group.map((x) => x.variety).filter(Boolean)),
     ].join(", ");
     const add = (date: string, title: string, detail: string) => {
-      const id = `${year}|${key}|${title}|${date}`;
+      let id = `${year}|${key}|${title}|${date}`;
+      // Earlier versions added the seed-start offset instead of subtracting it.
+      // Retain explicit edits under that old ID while correcting unedited dates.
+      if (title === "Review seed-starting window" && !options.tasks[id]) {
+        const cool =
+          /lettuce|broccoli|cabbage|kale|spinach|arugula|radish|carrot|onion|leek|pansy|^potato$/.test(
+            n,
+          );
+        const plantDate = cool ? shiftDay(last, -21) : shiftDay(last, 10);
+        const days = /pepper|celery|onion|leek/.test(n)
+          ? 70
+          : /tomato|basil|zinnia|cosmos|marigold/.test(n)
+            ? 42
+            : 56;
+        const oldId = `${year}|${key}|${title}|${shiftDay(plantDate, days)}`;
+        if (options.tasks[oldId]) id = oldId;
+      }
       const change = options.tasks[id];
       result.push({
         id,
         date: change?.date || date,
         title,
         plant: name,
+        plantIds: group.map((p) => p.id),
         detail: detail + (varieties ? ` Varieties: ${varieties}.` : ""),
         status: change?.status,
       });
@@ -92,12 +117,19 @@ export function buildGrowingTasks(
     const on = (md: string, title: string, detail: string) =>
       add(`${year}-${md}`, title, detail);
     if (indoor) {
-      for (let m = 1; m <= 12; m++)
+      for (
+        let m = 1;
+        group.some((p) =>
+          p.statuses.some((s) => s === "Growing Now" || s === "Have Plant"),
+        ) && m <= 12;
+        m++
+      )
         on(
           `${String(m).padStart(2, "0")}-05`,
           "Check indoor growing conditions",
           "Check light, moisture and pests. For hydroponics, check water level and follow your nutrient label. Adjust to the plant's growth; do not fertilize automatically.",
         );
+      addCareChecks(group, year, add, true, last, first);
       on(
         "01-15",
         "Plan your next indoor sowing",
@@ -205,18 +237,23 @@ export function buildGrowingTasks(
         /bean|corn|radish|carrot|spinach|arugula|potato|wildflower|shade flower/.test(
           n,
         );
+      const packet = group
+        .filter((p) => p.statuses.includes("Have Seeds"))
+        .map((p) => packetSeedTiming(p, options.lastFrost, year))
+        .find(Boolean);
       const warmDate = shiftDay(last, 10),
         plantDate = cool ? shiftDay(last, -21) : warmDate;
       if (!direct)
         add(
-          shiftDay(
-            plantDate,
-            /pepper|celery|onion|leek/.test(n)
-              ? 70
-              : /tomato|basil|zinnia|cosmos|marigold/.test(n)
-                ? 42
-                : 56,
-          ),
+          packet?.date ||
+            shiftDay(
+              plantDate,
+              -(/pepper|celery|onion|leek/.test(n)
+                ? 70
+                : /tomato|basil|zinnia|cosmos|marigold/.test(n)
+                  ? 42
+                  : 56),
+            ),
           "Review seed-starting window",
           "Check the seed packet for timing, germination needs and light. This is an estimated planning date, not a weather forecast.",
         );
@@ -280,7 +317,12 @@ export function buildGrowingTasks(
         "Remove diseased material, save useful records and plan soil care. Keep habitat and healthy seed heads where appropriate.",
       );
     }
-    for (const md of ["06-05", "07-05", "08-05", "09-05"])
+    addCareChecks(group, year, add, false, last, first);
+    for (const md of group.some((p) =>
+      p.statuses.some((s) => s === "Growing Now" || s === "Have Plant"),
+    )
+      ? ["06-05", "07-05", "08-05", "09-05"]
+      : [])
       on(
         md,
         "Check soil moisture and pests",
@@ -295,10 +337,20 @@ export function buildGrowingTasks(
   for (const reminder of options.reminders || []) {
     const change = options.tasks[reminder.id];
     if (!(change?.date || reminder.date).startsWith(`${year}-`)) continue;
-    const plant = plants.find(p => p.id === reminder.plantId);
+    const plant = plants.find((p) => p.id === reminder.plantId);
     if (!plant && reminder.plantId) continue;
-    result.push({id: reminder.id, date: change?.date || reminder.date, title: reminder.title,
-      plant: plant ? [plant.name, plant.variety].filter(Boolean).join(" · ") : "Personal task", detail: reminder.notes || (plant ? "Your plant reminder." : "Your saved task."), status: change?.status});
+    result.push({
+      id: reminder.id,
+      date: change?.date || reminder.date,
+      title: reminder.title,
+      plantIds: plant ? [plant.id] : [],
+      plant: plant
+        ? [plant.name, plant.variety].filter(Boolean).join(" · ")
+        : "Personal task",
+      detail:
+        reminder.notes || (plant ? "Your plant reminder." : "Your saved task."),
+      status: change?.status,
+    });
   }
   return result.sort(
     (a, b) => a.date.localeCompare(b.date) || a.plant.localeCompare(b.plant),
@@ -307,22 +359,96 @@ export function buildGrowingTasks(
 
 export function loadCalendarOptions(userId: string): CalendarOptions {
   try {
-    const saved = JSON.parse(localStorage.getItem(`garden-os-calendar-${userId}`) || "null");
-    if (saved && /^\d{2}-\d{2}$/.test(saved.lastFrost) && /^\d{2}-\d{2}$/.test(saved.firstFrost) && saved.plants && saved.tasks)
-      return {...saved, reminders: Array.isArray(saved.reminders) ? saved.reminders : []};
+    const saved = JSON.parse(
+      localStorage.getItem(`garden-os-calendar-${userId}`) || "null",
+    );
+    if (
+      saved &&
+      /^\d{2}-\d{2}$/.test(saved.lastFrost) &&
+      /^\d{2}-\d{2}$/.test(saved.firstFrost) &&
+      saved.plants &&
+      saved.tasks
+    )
+      return {
+        ...saved,
+        reminders: Array.isArray(saved.reminders) ? saved.reminders : [],
+      };
   } catch {}
   return calendarDefaults;
 }
-export function reminderSnapshot(plants: VaultPlant[], options: CalendarOptions, today = localDay()) {
-  const year = Number(today.slice(0,4));
-  const years = new Set([year, year+1, ...(options.reminders || []).map(r => Number((options.tasks[r.id]?.date || r.date).slice(0,4)))]);
-  return [...years].flatMap(y => buildGrowingTasks(plants, y, options))
-    .filter(t => !t.status && t.date >= today)
-    .map(({id,date,title,plant}) => ({id,date,title,plant}));
+export function reminderSnapshot(
+  plants: VaultPlant[],
+  options: CalendarOptions,
+  today = localDay(),
+) {
+  const year = Number(today.slice(0, 4));
+  const years = new Set([
+    year,
+    year + 1,
+    ...(options.reminders || []).map((r) =>
+      Number((options.tasks[r.id]?.date || r.date).slice(0, 4)),
+    ),
+  ]);
+  return [...years]
+    .flatMap((y) => buildGrowingTasks(plants, y, options))
+    .filter((t) => !t.status && t.date >= today)
+    .map(({ id, date, title, plant }) => ({ id, date, title, plant }));
 }
 
 /** Include saved task years so overdue and far-future personal tasks remain accessible. */
-export function calendarTaskYears(options:CalendarOptions,today=localDay()){
-  const year=Number(today.slice(0,4));
-  return [...new Set([year,year+1,...(options.reminders??[]).map(r=>Number((options.tasks[r.id]?.date||r.date).slice(0,4)))])].filter(y=>Number.isInteger(y)&&y>=1&&y<=9999);
+export function calendarTaskYears(
+  options: CalendarOptions,
+  today = localDay(),
+) {
+  const year = Number(today.slice(0, 4));
+  return [
+    ...new Set([
+      year,
+      year + 1,
+      ...(options.reminders ?? []).map((r) =>
+        Number((options.tasks[r.id]?.date || r.date).slice(0, 4)),
+      ),
+    ]),
+  ].filter((y) => Number.isInteger(y) && y >= 1 && y <= 9999);
+}
+
+/** Gentle checks for recorded living plants, distributed through the week.
+ * Seeds and wishlists never imply an established crop. Outdoor checks use the
+ * gardener's frost anchors; they do not assume weather, maturity or soil moisture.
+ */
+function addCareChecks(
+  group: VaultPlant[],
+  year: number,
+  add: (date: string, title: string, detail: string) => void,
+  indoor: boolean,
+  last: string,
+  first: string,
+) {
+  const living = group.filter((p) =>
+    p.statuses.some((s) => s === "Growing Now" || s === "Have Plant"),
+  );
+  if (!living.length) return;
+  const name = group[0].name.toLowerCase();
+  const cool = /lettuce|kale|spinach|arugula|broccoli|cabbage|pea|pansy/.test(
+    name,
+  );
+  const hash = [...name].reduce((n, c) => n + c.charCodeAt(0), 0) % 7;
+  const start = indoor ? `${year}-01-01` : shiftDay(last, cool ? -35 : 10);
+  const end = indoor ? `${year}-12-31` : shiftDay(first, cool ? 7 : -7);
+  if (start > end) return;
+  let index = 0;
+  for (
+    let date = shiftDay(start, hash);
+    date <= end;
+    date = shiftDay(date, 7)
+  ) {
+    const pests = index++ % 2 === 1;
+    add(
+      date,
+      pests ? "Inspect leaves and growing tips" : "Check root-zone moisture",
+      pests
+        ? "For your recorded living plants, inspect leaf undersides and new growth. Identify damage or insects before treating; many visitors are beneficial. Skip if this crop is no longer growing."
+        : "Feel the soil below the surface. Water at the roots only if needed, adjusting for rainfall, pot size and the plant. This is a check, not an instruction to water automatically. Skip if the crop is no longer growing.",
+    );
+  }
 }

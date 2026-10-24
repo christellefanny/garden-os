@@ -56,7 +56,7 @@ test("garlic, bulbs and sweet potatoes have appropriate tasks", () => {
 });
 test("indoor plants do not receive outdoor transplant tasks", () => {
   const tasks = buildGrowingTasks(
-    [p("Lettuce", { notes: "Selected for indoor growing." })],
+    [p("Lettuce", { notes: "Selected for indoor growing.", statuses:["Growing Now"] })],
     2027,
   );
   assert.equal(
@@ -122,4 +122,33 @@ test('standalone tasks need no plant and keep notes, rescheduling and completion
  const options={...calendarDefaults,reminders:[{id:'custom|personal',plantId:'',title:'Order seed trays',date:'2026-10-15',notes:'Check the garage first'},{id:'custom|missing',plantId:'deleted',title:'Hidden plant reminder',date:'2026-10-15'}],tasks:{}};
  const tasks=buildGrowingTasks([],2026,options);assert.equal(tasks.length,1);assert.equal(tasks[0].plant,'Personal task');assert.equal(tasks[0].detail,'Check the garage first');
  const updated=buildGrowingTasks([],2027,{...options,tasks:{'custom|personal':{date:'2027-01-04',status:'done'}}});assert.equal(updated[0].status,'done');assert.equal(updated[0].date,'2027-01-04');
+});
+
+test('seed starting precedes transplanting and keeps edits saved under the former date ID',()=>{
+ const plants=[p('Pepper')];const tasks=buildGrowingTasks(plants,2027);
+ const sow=tasks.find(t=>t.title==='Review seed-starting window');
+ const transplant=tasks.find(t=>t.title==='Review transplanting window');
+ assert.equal(sow.date,shiftDay(transplant.date,-70));
+ const oldId=`2027|pepper|outdoor|Review seed-starting window|${shiftDay(transplant.date,70)}`;
+ const next=buildGrowingTasks(plants,2027,{...calendarDefaults,tasks:{[oldId]:{status:'done',date:'2027-03-01'}}});
+ assert.equal(next.find(t=>t.title===sow.title).date,'2027-03-01');
+ assert.equal(next.find(t=>t.title===sow.title).status,'done');
+});
+test('care checks use living plants, stable identities, frost anchors and indoor mode',()=>{
+ const seeds=buildGrowingTasks([p('Tomato')],2027);
+ assert.equal(seeds.filter(t=>/root-zone|growing tips/.test(t.title)).length,0);
+ const living=[p('Tomato',{statuses:['Growing Now']})];
+ const tasks=buildGrowingTasks(living,2027),care=tasks.filter(t=>/root-zone|growing tips/.test(t.title));
+ assert.ok(care.length>15);assert.ok(care.every(t=>t.date>='2027-05-25'&&t.date<='2027-10-08'));
+ assert.ok(care.every(t=>t.plantIds.includes('Tomato')));
+ assert.ok(care.some(t=>t.detail.includes('only if needed')));
+ const first=care[0];assert.equal(buildGrowingTasks(living,2027,{...calendarDefaults,tasks:{[first.id]:{status:'skipped'}}}).find(t=>t.id===first.id).status,'skipped');
+ const indoor=buildGrowingTasks([p('Lettuce',{statuses:['Growing Now'],notes:'selected for indoor growing'})],2027);
+ assert.ok(indoor.some(t=>t.date.startsWith('2027-12')&&/root-zone|growing tips/.test(t.title)));
+ assert.ok(!indoor.some(t=>/transplant/.test(t.title)));
+});
+test('calendar seed start and vault suggestion follow the same explicit packet window',()=>{
+ const plant=p('Pepper',{notes:'Sow indoors 6–8 weeks before last frost.'});
+ const task=buildGrowingTasks([plant],2027).find(t=>t.title==='Review seed-starting window');
+ assert.equal(task.date,'2027-03-27');
 });
