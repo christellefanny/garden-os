@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<rect width="64" height="64" rx="15" fill="#f8f4e9"/>
-<path d="M31 55 C30 40 28 30 31 15" stroke="#466543" stroke-width="2.5" fill="none"/>
-<path d="M31 42Q15 39 12 27Q26 25 31 42ZM31 33Q46 30 49 19Q35 18 31 33Z" fill="#78956c"/>
-<g transform="translate(23 18)"><g fill="#e8a6a0" stroke="#f3c8b6" stroke-width=".7"><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(0 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(36 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(72 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(108 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(144 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(180 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(216 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(252 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(288 9 9)"/><ellipse cx="9" cy="1" rx="4.5" ry="9" transform="rotate(324 9 9)"/></g><circle cx="9" cy="9" r="4" fill="#d79b51"/></g>
-<circle cx="18" cy="47" r="8" fill="#c9513b"/><path d="M12 40L18 42L24 40L21 45L18 43L15 45Z" fill="#557544"/>
-<path d="M47 36Q42 42 44 53Q51 49 53 41Z" fill="#70904a" stroke="#416644" stroke-width="1.5"/>
-</svg>

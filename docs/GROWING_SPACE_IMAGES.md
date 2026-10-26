@@ -1,7 +1,0 @@
-# Growing-space images
-
-Growing-space cards now use the space's own saved photo when supplied, otherwise a matching Plant Vault photo or verified artwork from a recorded plant. Matching uses the connected Vault ID first and an exact name/variety match second. It checks all current/planned plants, rather than only the first plant; historical plants are considered only when there are no current/planned ones. Broken photos fall back to another available source. Cultivar artwork restrictions remain shared with the Plant Vault, so an unrelated species or variety is never inserted to fill a gap.
-
-Edit space details → Growing-space photo URL (optional) accepts an existing http/https image URL. This is a URL field, not a photo-upload service. The value is saved with the space's existing structured notes in Supabase and is preserved when editing plants, logs, or dimensions. Leaving the field blank restores automatic plant imagery. Empty spaces or plants without verified artwork/photos retain the neutral bed graphic.
-
-No database migration or existing record overwrite. Native browser images are used for supplied photo URLs; the server is not made into an unrestricted image proxy. Tests cover exact identity/variety matching, second-plant selection, current/finished plants, valid URL handling, Vault-photo display, own-photo saving and the existing weekly briefing flow. Isolated fixtures only; no user records or notifications modified during verification.

@@ -1,3 +1,4 @@
+import { copyGuestPhotosToAccount } from './photo-local';
 import { supabase } from './supabase';
 import { readGuest, guestStateKeys, mergeGuestValue } from './guest';
 
@@ -53,6 +54,7 @@ async function saveGuestToAccount(userId: string, accessToken: string) {
       localStorage.setItem(pendingKey, JSON.stringify(pending));
     }
   }
+  await copyGuestPhotosToAccount(userId);
   // Guest originals remain as a recovery copy; never delete before cloud success.
   localStorage.removeItem('garden-os-guest-transfer-email');
   localStorage.removeItem('garden-os-guest-active');

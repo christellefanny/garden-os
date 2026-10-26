@@ -32,18 +32,23 @@ let gardens = [
 let spaces = [];
 let syncedState = [];
 let failNext = false;
+let photoBucket = false;
+const photoObjects = new Map();
+const photoUploads = new Set();
 function send(res, status, data) {
   res.writeHead(status, {
     "content-type": "application/json",
     "access-control-allow-origin": "*",
     "access-control-allow-headers": "*",
-    "access-control-allow-methods": "GET,POST,PATCH,DELETE,OPTIONS",
+    "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
   });
   res.end(JSON.stringify(data));
 }
 const server = http.createServer(async (req, res) => {
-  let body = "";
-  for await (const c of req) body += c;
+  const chunks=[];
+  for await (const c of req) chunks.push(c);
+  const bodyBuffer=Buffer.concat(chunks);
+  let body=bodyBuffer.toString();
   let payload = {};
   try {
     payload = JSON.parse(body || "{}");
@@ -61,6 +66,27 @@ const server = http.createServer(async (req, res) => {
   }
   if (u.pathname === "/control/state")
     return send(res, 200, { gardens, spaces, syncedState });
+  if(u.pathname.startsWith("/storage/v1/")){
+    const bucket="garden-atelier-private-photos", base="/storage/v1/";
+    if(u.pathname===base+"bucket/"+bucket)return photoBucket?send(res,200,{id:bucket,name:bucket,public:false}):send(res,404,{statusCode:"404",message:"Not found"});
+    if(u.pathname===base+"bucket"&&req.method==="POST"){photoBucket=true;return send(res,200,{name:bucket});}
+    if(u.pathname===base+"object/sign/"+bucket&&req.method==="POST")return send(res,200,payload.paths.map(path=>({path,signedURL:"/object/sign/"+bucket+"/"+path+"?token=fixture-download"})));
+    const uploadPrefix=base+"object/upload/sign/"+bucket+"/";
+    if(u.pathname.startsWith(uploadPrefix)){
+      const path=decodeURIComponent(u.pathname.slice(uploadPrefix.length));
+      if(req.method==="POST"){photoUploads.add(path);return send(res,200,{url:"/object/upload/sign/"+bucket+"/"+path+"?token=fixture-upload"});}
+      if(req.method==="PUT"&&u.searchParams.get("token")==="fixture-upload"&&photoUploads.has(path)){
+        const form=await new Response(bodyBuffer,{headers:{"Content-Type":req.headers["content-type"]}}).formData();
+        const file=form.get("");photoObjects.set(path,{bytes:Buffer.from(await file.arrayBuffer()),type:file.type});return send(res,200,{Key:bucket+"/"+path});
+      }
+    }
+    const downloadPrefix=base+"object/sign/"+bucket+"/";
+    if(u.pathname.startsWith(downloadPrefix)&&u.searchParams.get("token")==="fixture-download"){
+      const object=photoObjects.get(decodeURIComponent(u.pathname.slice(downloadPrefix.length)));
+      if(!object)return send(res,404,{});res.writeHead(200,{"Content-Type":object.type,"access-control-allow-origin":"*"});return res.end(object.bytes);
+    }
+    return send(res,403,{message:"Private photo"});
+  }
   if (u.pathname.startsWith("/auth/v1/token"))
     return send(res, 200, {
       access_token: token,
