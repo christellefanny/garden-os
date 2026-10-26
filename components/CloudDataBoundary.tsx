@@ -25,6 +25,7 @@ export const useCloudData = () => useContext(Context);
 const prefixes = [
   "garden-os-plant-vault-",
   "garden-os-calendar-",
+  "garden-os-journal-",
   "garden-os-layout-",
   "garden-os-custom-layouts-",
   "garden-os-original-layout-name-",

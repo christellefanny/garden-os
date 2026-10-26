@@ -64,3 +64,37 @@ export async function resolvePlantingLocation(input: ReturnType<typeof parsePlan
   if(!validClimate(result))throw new Error("The location data could not be verified. Please try again.");
   return result;
 }
+
+// A garden form only needs the zone; do not fetch fifteen years of weather here.
+export function parseGardenLocation(value: unknown): string {
+  if (typeof value !== 'string') throw new Error('Enter a U.S. ZIP code or city and state, such as Plainfield, IL.');
+  const location=value.trim();
+  if (/^\d{5}(?:-\d{4})?$/.test(location)) return location.slice(0,5);
+  if (location.length <= 120 && /^[\p{L}][\p{L}\s.'’,-]+,\s*[\p{L} .'-]{2,}$/u.test(location)) return location;
+  throw new Error('Use a five-digit U.S. ZIP code or city and state, such as Plainfield, IL. You can also enter your zone yourself.');
+}
+export async function resolveGardenZone(location: string, fetcher: typeof fetch = fetch): Promise<{zone:string;zip:string;place:string}> {
+  const input=parseGardenLocation(location);
+  let zip=/^\d{5}$/.test(input)?input:'',place=input;
+  if(!zip){
+    const query=new URLSearchParams({f:'json',SingleLine:input,countryCode:'USA',category:'City',outFields:'City,Region,RegionAbbr,Postal,Country',maxLocations:'3'});
+    const geo=await plantingJson('https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?'+query,fetcher);
+    const state=input.slice(input.lastIndexOf(',')+1).trim().toLowerCase();
+    const candidate=geo.candidates?.find((p:{score?:number;attributes?:{Country?:string;Region?:string;RegionAbbr?:string}})=>Number(p.score)>=95&&p.attributes?.Country==='USA'&&[p.attributes.Region,p.attributes.RegionAbbr].some(region=>region?.toLowerCase()===state));
+    if(!candidate)throw new Error('We couldn’t confidently match that city and state. Try your ZIP code, or enter the zone yourself.');
+    const {x,y}=candidate.location??{};
+    if(!Number.isFinite(x)||!Number.isFinite(y)||y<18||y>72||x< -180||x> -60)throw new Error('Automatic zone lookup currently supports U.S. locations. You can enter your zone yourself.');
+    place=[candidate.attributes.City,candidate.attributes.RegionAbbr||candidate.attributes.Region].filter(Boolean).join(', ');
+    zip=String(candidate.attributes.Postal||'').match(/^\d{5}\b/)?.[0]||'';
+    if(!zip){
+      const reverse=await plantingJson('https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?'+new URLSearchParams({f:'json',location:`${x},${y}`,featureTypes:'Postal',langCode:'en'}),fetcher);
+      if(reverse.address?.CountryCode!=='USA'||!/^\d{5}$/.test(reverse.address?.Postal||''))throw new Error('We couldn’t find a ZIP code for this city. Enter your ZIP code, or your zone manually.');
+      zip=reverse.address.Postal;
+    }
+  }
+  const data=await plantingJson(zoneService+'?'+new URLSearchParams({f:'json',where:`ZIP_CODE = '${zip}'`,outFields:'ZIP_CODE,Class',returnGeometry:'false'}),fetcher);
+  const attributes=data.features?.find((f:{attributes?:{ZIP_CODE?:string}})=>f.attributes?.ZIP_CODE===zip)?.attributes;
+  const zone=String(attributes?.Class||'').match(/^(\d{1,2}[ab])\b/)?.[1];
+  if(!zone||! /^(?:[1-9]|1[0-3])[ab]$/.test(zone))throw new Error('No verified USDA zone was found. Try another nearby ZIP code, or enter your zone yourself.');
+  return {zone,zip,place};
+}

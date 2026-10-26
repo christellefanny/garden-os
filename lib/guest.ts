@@ -47,6 +47,6 @@ export function mergeGuestValue(account: unknown, guest: unknown): unknown {
   return account;
 }
 export function guestStateKeys(storage: Storage): string[] {
-  const prefixes = ['plant-vault', 'calendar', 'layout', 'custom-layouts', 'original-layout-name', 'layout-selection', 'active-garden', 'last-page'];
+  const prefixes = ['plant-vault', 'calendar', 'journal', 'layout', 'custom-layouts', 'original-layout-name', 'layout-selection', 'active-garden', 'last-page'];
   return Object.keys(storage).filter(key => prefixes.some(p => key.startsWith(`garden-os-${p}-`) && (key.endsWith('-guest') || key.includes('-guest-'))) && !/cloud-base|conflict|backup|before-/.test(key));
 }

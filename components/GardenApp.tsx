@@ -14,7 +14,7 @@ import { type Garden, type Space } from "@/lib/garden";
 export default function GardenApp() {
   const [session, setSession] = useState<Session | null>(null);
   const [guest, setGuest] = useState<GuestData | null>(null);
-  const [accountForm, setAccountForm] = useState(false);
+  const [accountForm, setAccountForm] = useState<false | "signin" | "signup">(false);
   const [transferError, setTransferError] = useState("");
   const [transferAttempt, setTransferAttempt] = useState(0);
   const [guestWarning, setGuestWarning] = useState(false);
@@ -136,8 +136,8 @@ export default function GardenApp() {
   if (transferError && session) return <main className="seasonal-page min-h-screen p-8"><h1 className="editorial-title text-3xl">Your guest garden is still safe on this device.</h1><p role="alert" className="my-5">{transferError}</p><button className="seasonal-button rounded-xl p-3" onClick={() => { setTransferError(""); setTransferAttempt(n => n + 1); }}>Retry account save</button><button className="ml-5 underline" onClick={() => void signOut()}>Return to sign in</button></main>;
   if (!session && guest && !accountForm) return <>
     <section className="guest-storage-notice seasonal-card border-b px-5 py-3" aria-label="Guest storage">
-      <div className="flex flex-wrap items-center justify-between gap-3"><p className="font-semibold">Guest · Saved on this device</p><button className="seasonal-button rounded-xl px-4 py-2" onClick={() => setAccountForm(true)}>Save to an account</button></div>
-      {guestWarning && <div className="mt-4 max-w-2xl"><h2 className="font-bold">Keep your garden safe</h2><p className="my-3 text-sm leading-6">You’re using Garden OS as a guest. Your work is saved only in this browser. Clearing browser data, using private browsing, or changing devices could mean losing access to it. Create an account to back up and sync your garden.</p><button className="mr-5 underline" onClick={() => setAccountForm(true)}>Create an account</button><button className="underline" onClick={() => { try { localStorage.setItem("garden-os-guest-warning-seen", "true"); } catch {} setGuestWarning(false); }}>Continue as guest</button></div>}
+      <div className="flex flex-wrap items-center justify-between gap-3"><p className="font-semibold">Guest · Saved on this device</p><button className="seasonal-button rounded-xl px-4 py-2" onClick={() => setAccountForm("signup")}>Save to an account</button></div>
+      {guestWarning && <div className="mt-4 max-w-2xl"><h2 className="font-bold">Keep your garden safe</h2><p className="my-3 text-sm leading-6">You’re using Garden Atelier as a guest. Your work is saved only in this browser. Clearing browser data, using private browsing, or changing devices could mean losing access to it. Create an account to back up and sync your garden.</p><div className="flex flex-wrap items-center gap-x-5 gap-y-2"><button className="min-h-11 underline" onClick={() => setAccountForm("signup")}>Create an account</button><button className="min-h-11 underline" onClick={() => { try { localStorage.setItem("garden-os-guest-warning-seen", "true"); } catch {} setGuestWarning(false); }}>Continue as guest</button><button className="min-h-11 underline" onClick={() => setAccountForm("signin")}>Sign in</button></div></div>}
     </section>
     <CloudDataBoundary userId={GUEST_ID}><GardenWorkspace key="guest" initialGardens={guest.gardens} initialSpaces={guest.spaces} initialError="" userId={GUEST_ID} onSignOut={async () => { setGuest(null); try { localStorage.removeItem("garden-os-guest-active"); } catch {} }} /></CloudDataBoundary>
   </>;
@@ -172,11 +172,11 @@ export default function GardenApp() {
         )}
       </CloudDataBoundary>
     );
-  return <Welcome authError={authError} onGuest={startGuest} savingGuest={!!guest} />;
+  return <Welcome authError={authError} onGuest={startGuest} savingGuest={!!guest} initialMode={accountForm || "signin"} />;
 }
 
-function Welcome({ authError, onGuest, savingGuest }: { authError: string; onGuest: () => void; savingGuest: boolean }) {
-  const [mode, setMode] = useState<"signin" | "signup" | "reset">(savingGuest ? "signup" : "signin");
+function Welcome({ authError, onGuest, savingGuest, initialMode }: { authError: string; onGuest: () => void; savingGuest: boolean; initialMode: "signin" | "signup" }) {
+  const [mode, setMode] = useState<"signin" | "signup" | "reset">(initialMode);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {

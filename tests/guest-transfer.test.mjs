@@ -5,7 +5,7 @@ import ts from 'typescript';
 import { readGuest, guestStateKeys, mergeGuestValue } from '../lib/guest.ts';
 const source = await readFile(new URL('../lib/guest-transfer.ts', import.meta.url), 'utf8');
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const code = compiled.replace(/import[^;]+from[^;]+;/g, line => line.includes('supabase') ? 'const {supabase}=globalThis.__guestTransferTest;' : 'const {readGuest,guestStateKeys,mergeGuestValue}=globalThis.__guestTransferTest;');
+const code = compiled.replace(/import[^;]+from[^;]+;/g, line => line.includes('photo-local') ? 'const {copyGuestPhotosToAccount}=globalThis.__guestTransferTest;' : line.includes('supabase') ? 'const {supabase}=globalThis.__guestTransferTest;' : 'const {readGuest,guestStateKeys,mergeGuestValue}=globalThis.__guestTransferTest;');
 
 test('interrupted transfer retains guest data, retries without duplicates, merges account records and excludes other accounts', async () => {
   const values = {
@@ -24,7 +24,7 @@ test('interrupted transfer retains guest data, retries without duplicates, merge
   } });
   const tables = { gardens: new Map(), growing_spaces: new Map() };
   const records = [{ key: 'garden-os-plant-vault-account', value: [{ id: 'rose', name: 'Rose' }], version: 1 }];
-  let fail = true;
+  let fail = true, photoCopies = 0;
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url, options) => {
     assert.equal(options.headers.Authorization, 'Bearer test-token');
@@ -39,7 +39,7 @@ test('interrupted transfer retains guest data, retries without duplicates, merge
   };
   globalThis.__guestTransferTest = {
     supabase: { from(table) { return { async upsert(rows) { for (const row of rows) tables[table].set(row.id, row); return { error: null }; } }; } },
-    readGuest, guestStateKeys, mergeGuestValue,
+    readGuest, guestStateKeys, mergeGuestValue, copyGuestPhotosToAccount: async id => { assert.equal(id,"account"); photoCopies++; },
   };
   try {
     const { transferGuest } = await import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
@@ -47,7 +47,9 @@ test('interrupted transfer retains guest data, retries without duplicates, merge
     await assert.rejects(transferGuest('account', 'test-token'), /interrupted/);
     assert.equal(values['garden-os-guest-data'], original);
     assert.ok(values['garden-os-guest-transfer-email']);
+    assert.equal(photoCopies,0,'Photos only copy after garden/state transfer succeeds');
     await transferGuest('account', 'test-token');
+    assert.equal(photoCopies,1);
     assert.equal(tables.gardens.size, 1);
     assert.equal(tables.growing_spaces.size, 1);
     assert.equal(tables.gardens.get('garden').user_id, 'account');

@@ -3,6 +3,7 @@ import Image from "next/image";
 import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
+import { readJournal } from "@/lib/journal";
 import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
 import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
@@ -288,7 +289,9 @@ export function ModernDashboard({
       window.dispatchEvent(new Event("garden-os-data-change"));
     } catch {}
   }
-  const entries = journalRows(spaces);
+  let generalEntries: (import("@/lib/garden").Entry & { space: null })[] = [];
+  try { generalEntries = readJournal(userId).filter(entry => entry.format !== "story").map(entry => ({...entry, space: null})); } catch { /* The journal page reports unreadable storage without overwriting it. */ }
+  const entries = [...journalRows(spaces), ...generalEntries].sort((a,b) => b.date.localeCompare(a.date));
   const planted = spaces.flatMap((s) =>
     details(s)
       .plants.filter((p) => p.status === "Growing")
@@ -509,13 +512,13 @@ export function ModernDashboard({
               <button
                 className="modern-journal-row"
                 key={e.id}
-                onClick={() => onSpace(e.space.id)}
+                onClick={() => e.space ? onSpace(e.space.id) : navigate("Journal")}
               >
                 <LineIcon index={e.kind === "Harvest" ? 1 : 6} />
                 <time>{e.date}</time>
                 <span>
                   <strong>
-                    {e.kind} · {e.space.name}
+                    {e.kind} · {e.space?.name || "General garden note"}
                   </strong>
                   <small>{e.text}</small>
                 </span>

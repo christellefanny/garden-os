@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import Dialog from "@/components/ui/Dialog";
 import { useEffect, useMemo, useState } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
@@ -36,6 +38,8 @@ import {
   type Space,
   type SpaceDetails,
 } from "@/lib/garden";
+
+const GardenPictures = dynamic(() => import("@/components/PhotoJournal"), { loading: () => <p role="status">Opening garden pictures…</p> });
 
 function pageView(page: Destination) {
   return page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
@@ -122,6 +126,7 @@ export default function GardenWorkspace({
   const [plannerCrop, setPlannerCrop] = useState("");
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
+  const [picturesGardenId, setPicturesGardenId] = useState<string | null>(null);
   const [calendarOpen, setCalendarOpen] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -180,6 +185,7 @@ export default function GardenWorkspace({
     });
   }, [initialGardens, userId]);
   const garden = gardens.find((g) => g.id === gardenId);
+  const picturesGarden = gardens.find(g => g.id === picturesGardenId);
   const gardenSpaces = spaces.filter((s) => s.garden_id === gardenId);
   const summaries = useMemo(
     () => new Map(spaces.map((s) => [s.id, inspect(s)])),
@@ -623,14 +629,8 @@ export default function GardenWorkspace({
                       </button>
                     </>
                   )}
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={reload}
-                    className="seasonal-outline min-h-11 rounded-xl border px-4 text-sm font-bold"
-                  >
-                    {busy ? "Working…" : "Refresh"}
-                  </button>
+                  <button type="button" onClick={() => setPicturesGardenId(garden.id)} className="seasonal-button min-h-11 rounded-xl px-4 text-sm font-bold">Pictures</button>
+                  <details className="relative"><summary className="seasonal-link min-h-11 cursor-pointer px-2 py-3 text-sm">More</summary><button type="button" disabled={busy} onClick={reload} className="seasonal-outline min-h-11 rounded-xl border px-4 text-sm">{busy ? "Working…" : "Refresh garden"}</button></details>
                 </div>
               </div>}
 
@@ -919,6 +919,7 @@ export default function GardenWorkspace({
           )}
         </div>
       </div>
+      {picturesGarden && <Dialog title={`${picturesGarden.name} · ${picturesGarden.year} pictures`} onClose={() => setPicturesGardenId(null)}><GardenPictures key={`${userId}:${picturesGarden.id}`} userId={userId} gardenId={picturesGarden.id} gardenName={picturesGarden.name} embedded /></Dialog>}
       <AddTaskButton userId={userId} floating />
     </main>
   );
