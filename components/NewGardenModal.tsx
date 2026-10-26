@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import { saveGuestGarden } from "@/lib/guest";
 import { type Garden } from "@/lib/garden";
@@ -19,9 +19,34 @@ export default function NewGardenModal({
 }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [location,setLocation]=useState(garden?.location??"");
+  const [zone,setZone]=useState(garden?.hardiness_zone??"");
+  const [zoneMessage,setZoneMessage]=useState("");
+  const [lookingUp,setLookingUp]=useState(Boolean(garden?.location&&!garden?.hardiness_zone));
+  const locationChanged=useRef(false);
+  const manualZone=useRef(false);
+  const lookupVersion=useRef(0);
+  useEffect(()=>{
+    if(!location.trim()||manualZone.current||(!locationChanged.current&&garden?.hardiness_zone))return;
+    const controller=new AbortController(),version=++lookupVersion.current;
+    const timer=setTimeout(async()=>{
+      if(manualZone.current)return;
+      setLookingUp(true);setZoneMessage("Finding your USDA hardiness zone…");
+      try{
+        const response=await fetch("/api/garden-zone",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({location}),signal:controller.signal});
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||"Zone lookup is unavailable. You can enter your zone yourself.");
+        if(controller.signal.aborted||manualZone.current||lookupVersion.current!==version)return;
+        if(!/^(?:[1-9]|1[0-3])[ab]$/.test(result.zone))throw new Error("The zone could not be verified. You can enter it yourself.");
+        setZone(result.zone);setZoneMessage(`USDA Zone ${result.zone} · ZIP ${result.zip}. You can adjust it if needed.`);
+      }catch(error){if(!controller.signal.aborted&&!manualZone.current&&lookupVersion.current===version)setZoneMessage(error instanceof Error?error.message:"Lookup unavailable. You can enter your zone yourself.");}
+      finally{if(!controller.signal.aborted&&!manualZone.current&&lookupVersion.current===version)setLookingUp(false);}
+    },600);
+    return()=>{clearTimeout(timer);controller.abort();};
+  },[location,garden?.location,garden?.hardiness_zone]);
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || lookingUp) return;
     const f = new FormData(event.currentTarget),
       name = String(f.get("name") || "").trim(),
       year = Number(f.get("year"));
@@ -93,23 +118,21 @@ export default function NewGardenModal({
               className="seasonal-input mt-1 w-full rounded-xl border p-3"
             />
           </label>
-          <Field
-            label="Location"
-            name="location"
-            value={garden?.location ?? ""}
-            maxLength={200}
-          />
-          <Field
-            label="Hardiness Zone"
-            name="zone"
-            value={garden?.hardiness_zone ?? ""}
-            maxLength={20}
-          />
+          <label className="block text-sm font-bold">Location
+            <input name="location" value={location} maxLength={200} placeholder="ZIP code or City, State" autoComplete="address-level2" className="seasonal-input mt-1 w-full rounded-xl border p-3" onChange={event=>{
+              lookupVersion.current++;locationChanged.current=true;manualZone.current=false;const next=event.target.value;
+              setLocation(next);setZone("");setLookingUp(Boolean(next.trim()));setZoneMessage(next.trim()?"Finding your USDA hardiness zone…":"");
+            }}/>
+          </label>
+          <div><label className="block text-sm font-bold">Hardiness Zone
+            <input name="zone" value={zone} maxLength={20} aria-describedby="garden-zone-help" className="seasonal-input mt-1 w-full rounded-xl border p-3" placeholder="Filled in from your location" onChange={event=>{manualZone.current=true;lookupVersion.current++;setLookingUp(false);setZone(event.target.value);setZoneMessage("Using your entered zone.");}}/>
+          </label><p id="garden-zone-help" role="status" className="seasonal-muted mt-2 text-xs leading-5">{zoneMessage||"Enter a U.S. ZIP code or city and state to find your zone automatically, or enter it yourself."}</p></div>
           <button
             type="submit"
+            disabled={lookingUp}
             className="seasonal-button rounded-xl px-5 py-3 font-bold text-white sm:col-span-2"
           >
-            {busy ? "Saving…" : "Save Garden"}
+            {busy ? "Saving…" : lookingUp ? "Finding zone…" : "Save Garden"}
           </button>
         </fieldset>
         {onCancel && (
