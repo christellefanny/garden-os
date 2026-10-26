@@ -43,9 +43,13 @@ try {
     await page.getByRole("navigation").getByRole("button",{name,exact:true}).click();
     await quick.waitFor({state:"visible"});
   }
+  console.log("PASS: signed-in navigation, capture, calendar refresh and reload.");
+  await browser.close();
+  browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE, args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--single-process", "--no-zygote"] });
   const guest = await browser.newContext({viewport:{width:390,height:844}});
   const gp = await guest.newPage();
   await gp.goto("http://127.0.0.1:3043");
+
   await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
   await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
   await gp.getByRole("navigation").getByRole("button",{name:"Flower Garden",exact:true}).click();
