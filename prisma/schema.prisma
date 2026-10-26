@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Garden {
+  id            String         @id @default(uuid())
+  name          String
+  year          Int
+  location      String?
+  hardinessZone String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  growingSpaces GrowingSpace[]
+}
+
+model GrowingSpace {
+  id             String   @id @default(uuid())
+  gardenId       String
+  name           String
+  type           String
+  lengthFeet     Decimal?
+  widthFeet      Decimal?
+  depthFeet      Decimal?
+  diameterInches Decimal?
+  sunExposure    String?
+  irrigation     String?
+  soilType       String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  garden Garden @relation(fields: [gardenId], references: [id], onDelete: Cascade)
+
+  @@index([gardenId])
+}
