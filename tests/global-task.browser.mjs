@@ -1,7 +1,6 @@
 // Isolated browser QA. No real accounts, mail, or production data.
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
-import { mkdir } from "node:fs/promises";
 import assert from "node:assert/strict";
 import AxeBuilder from "@axe-core/playwright";
 
