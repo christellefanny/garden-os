@@ -2,7 +2,6 @@
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
-import AxeBuilder from "@axe-core/playwright";
 
 const fixture = spawn(process.execPath, ["tests/fixtures/supabase.mjs"], { stdio: "ignore" });
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3043"], { stdio: "ignore" });
