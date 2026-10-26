@@ -258,6 +258,11 @@ export function ModernDashboard({
   const { season } = useSeason(),
     today = localDay();
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
+  useEffect(() => {
+    const refresh = () => setOptions(loadCalendarOptions(userId));
+    window.addEventListener("garden-os-data-change", refresh);
+    return () => window.removeEventListener("garden-os-data-change", refresh);
+  }, [userId]);
   const candidates = [
     ...dailyRecommendations(spaces, details, season, today, options.firstFrost),
     ...calendarTaskYears(options,today).flatMap(year=>buildGrowingTasks(vault,year,options)),
@@ -577,6 +582,11 @@ export function TasksPage({
   const today = localDay(),
     { season } = useSeason();
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
+  useEffect(() => {
+    const refresh = () => setOptions(loadCalendarOptions(userId));
+    window.addEventListener("garden-os-data-change", refresh);
+    return () => window.removeEventListener("garden-os-data-change", refresh);
+  }, [userId]);
   const tasks = [
     ...dailyRecommendations(spaces, details, season, today, options.firstFrost),
     ...calendarTaskYears(options,today).flatMap(year=>buildGrowingTasks(vault,year,options)),
@@ -604,7 +614,7 @@ export function TasksPage({
       </InteriorHeader>
       <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
       <div className="interior-toolbar"><div className="collection-tabs">{[{id:"today",label:"Today"},{id:"week",label:"This week"},{id:"all",label:"Upcoming"}].map(item=><button className={`collection-tab ${range===item.id?"is-active":""}`} aria-pressed={range===item.id} key={item.id} onClick={()=>setRange(item.id)}>{item.label}</button>)}</div></div>
-      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
+      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant === "Personal task" ? t.title : t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
       {!tasks.some(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))&&<div className="interior-empty"><h2>A little breathing room.</h2><p>No upcoming steps in this view. Your calendar keeps the rest of the year within reach.</p><button className="seasonal-outline" onClick={onCalendar}>View calendar</button></div>}
     </section>
   );

@@ -2013,3 +2013,10 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .calendar-task-source {font-size:11px;color:#65705d;margin-top:5px;}
 .agenda-heading {scroll-margin-top:24px;}
 .calendar-season-art {mask-image:radial-gradient(ellipse at center,#000 48%,transparent 76%);}
+
+/* Keep quick capture available without covering the last page controls. */
+.conservatory-content {padding-bottom:calc(100px + env(safe-area-inset-bottom, 0px));}
+.floating-add-task {position:fixed;right:max(24px, env(safe-area-inset-right, 0px));bottom:calc(24px + env(safe-area-inset-bottom, 0px));z-index:35;min-height:52px;padding:14px 22px;border-radius:999px;box-shadow:0 5px 22px #273b302e;border:1px solid #ffffff50;font-weight:700;}
+.floating-task-status {position:fixed;right:24px;bottom:calc(88px + env(safe-area-inset-bottom, 0px));z-index:35;max-width:min(310px, calc(100vw - 32px));font-size:13px;line-height:1.5;color:var(--foreground);}
+.floating-task-status:not(:empty) {padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card, #fffdf8);box-shadow:0 4px 18px #273b301a;}
+@media(max-width:540px){.floating-add-task{right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));min-height:48px;padding:12px 18px;}.floating-task-status{right:16px;bottom:calc(76px + env(safe-area-inset-bottom, 0px));}}

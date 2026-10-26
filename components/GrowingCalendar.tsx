@@ -62,6 +62,11 @@ export default function GrowingCalendar({
     });
   }, []);
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
+  useEffect(() => {
+    const refresh = () => setOptions(loadCalendarOptions(userId));
+    window.addEventListener("garden-os-data-change", refresh);
+    return () => window.removeEventListener("garden-os-data-change", refresh);
+  }, [userId]);
   const [today] = useState(() => localDay());
   const currentYear = Number(today.slice(0, 4));
   const [year, setYear] = useState(currentYear),

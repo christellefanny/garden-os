@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
+import AddTaskButton from "@/components/AddTaskButton";
 import InteriorHeader from "@/components/InteriorHeader";
 import GardenCollection from "@/components/GardenCollection";
 import SpacePortrait from "@/components/SpacePortrait";
@@ -918,6 +919,7 @@ export default function GardenWorkspace({
           )}
         </div>
       </div>
+      <AddTaskButton userId={userId} floating />
     </main>
   );
 }
