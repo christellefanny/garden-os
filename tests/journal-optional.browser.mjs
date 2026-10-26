@@ -69,6 +69,14 @@ try {
   const gc=await browser.newContext({viewport:{width:390,height:844}}), gp=await gc.newPage();
   await gp.goto("http://127.0.0.1:3043");
   await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
+  await gp.getByRole("button",{name:"Sign in",exact:true}).click();
+  await gp.getByRole("button",{name:"Open my garden",exact:true}).waitFor();
+  await gp.getByRole("button",{name:"Back to my guest garden",exact:true}).click();
+  await gp.getByRole("button",{name:"Create an account",exact:true}).click();
+  await gp.getByRole("button",{name:"Create my account",exact:true}).waitFor();
+  await gp.getByRole("button",{name:"Back to my guest garden",exact:true}).click();
+  await gp.getByRole("button",{name:"Sign in",exact:true}).waitFor();
+  await gp.screenshot({path:"/workspace/scratch/guest-signin-mobile.png"});
   await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
   await gp.getByRole("navigation").getByRole("button",{name:"Garden Journal",exact:true}).click();
   await gp.getByRole("button",{name:"Add observation",exact:true}).click();
@@ -89,7 +97,7 @@ try {
   await gp.setViewportSize({width:320,height:700});
   assert.equal(await gp.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   assert.deepEqual(errors,[]);
-  console.log("PASS: guest observation and journal reload persistence without growing spaces, accessible mobile form, width320, no runtime errors.");
+  console.log("PASS: guest Sign in opens sign-in, Create an account opens sign-up, return to guest preserved; guest observation and journal reload persistence without growing spaces, accessible mobile form, width320, no runtime errors.");
 } finally {
   await browser?.close();
   server.kill();
