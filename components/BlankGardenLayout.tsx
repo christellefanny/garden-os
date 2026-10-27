@@ -7,6 +7,7 @@ import type {Bed} from "@/lib/garden-layout";
 import { CompanionBedCheck } from "@/components/CompanionPlanting";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
+import { validAnalysisImage } from "@/lib/photo-layout";
 
 type Item = LayoutItem;
 export type { Layout } from "@/lib/layout-design";
@@ -121,6 +122,7 @@ export default function BlankGardenLayout({
     latest: Item;
   } | null>(null);
   const layout = layouts.find((l) => l.id === layoutId);
+  const photoSource = layout?.source?.method === "photo" ? layout.source : undefined;
   const footprint=layout?gardenFootprint(layout.items):null;
   const item = layout?.items.find((i) => i.id === selected);
   const space = item ? spaces.find(s=>{if(item.spaceId)return s.id===item.spaceId;try{return JSON.parse(s.notes??"null")?.sourceLayoutId===item.id;}catch{return false;}}) : undefined;
@@ -392,6 +394,7 @@ export default function BlankGardenLayout({
             the position and size fields or arrow keys. This is a planning map,
             not measured to scale. Select a shape to rotate or delete it on the canvas. Drag plant illustrations within their bed. Illustrations may extend beyond thin borders to stay visible.
           </p>
+          {photoSource&&<details className="photo-saved-reference"><summary>Photo &amp; garden notes · approximate map</summary><p>Reviewed from a photo. Check real measurements and walking space before building or planting.</p>{photoSource.image&&validAnalysisImage(photoSource.image)&&<Image src={photoSource.image} width={600} height={400} unoptimized alt="Original photo reference for this garden layout"/>}{photoSource.widthFeet&&<p>Width reference: {photoSource.widthFeet} ft</p>}{photoSource.depthFeet&&<p>Depth reference: {photoSource.depthFeet} ft</p>}{photoSource.notes&&<p className="whitespace-pre-wrap">{photoSource.notes}</p>}</details>}
           <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");setShowItemActions(Boolean(e.target.value));}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
           <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div
@@ -401,6 +404,7 @@ export default function BlankGardenLayout({
               aria-label="Garden layout canvas"
               className="layout-design-canvas relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#f4f1e7]"
               style={{
+                ...(photoSource?.aspectRatio&&Number.isFinite(photoSource.aspectRatio)&&photoSource.aspectRatio>=.25&&photoSource.aspectRatio<=4?{aspectRatio:photoSource.aspectRatio}:{}),
                 backgroundColor: safeColor(layout.color,"#f4f1e7"),
                 ...(view === "plan" ? {backgroundImage:"linear-gradient(#d7d0bb60 1px,transparent 1px),linear-gradient(90deg,#d7d0bb60 1px,transparent 1px)",backgroundSize:"5% 5%"}:{}),
               }}

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import BlankGardenLayout, { loadCustomLayouts } from "@/components/BlankGardenLayout";
 import LegacyGardenLayout from "@/components/LegacyGardenLayout";
@@ -9,6 +10,8 @@ import Dialog from "@/components/ui/Dialog";
 import { layoutTemplates } from "@/lib/layout-design";
 import {initialLayout, type Bed } from "@/lib/garden-layout";
 import type { Space } from "@/lib/garden";
+import type { Layout } from "@/lib/layout-design";
+const PhotoGardenLayout = dynamic(() => import("@/components/PhotoGardenLayout"), { loading: () => <p role="status">Opening photo planner…</p> });
 
 export default function GardenLayout(props:{userId:string;gardenId:string;gardenName:string;initialBedId?:string;initialTemplateId?:string;spaces:Space[];onOpenSpace:(spaceId:string)=>void;onClose:()=>void;onCreateSpaces:(beds:Bed[],excludePeppers?:boolean)=>Promise<number|null>}) {
   const {userId,gardenId,initialBedId}=props;
@@ -27,6 +30,18 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
   });
   const [renaming,setRenaming]=useState(false),[name,setName]=useState(""),[error,setError]=useState("");
   const current=layouts.find(l=>l.id===selection);
+  function createFromPhoto(layout: Layout) {
+    // Read the latest storage copy: a concurrent tab must never lose a saved design.
+    const raw = localStorage.getItem(customKey);
+    if (raw && !Array.isArray(JSON.parse(raw))) throw Error("Your saved layouts could not be read. Your photo draft has been retained.");
+    const saved = loadCustomLayouts(customKey);
+    if (raw && saved.length !== JSON.parse(raw).length) throw Error("A saved layout needs attention before adding this one. Your photo draft has been retained.");
+    const next = [...saved, layout], serialized = JSON.stringify(next);
+    if (new TextEncoder().encode(serialized).length > 1400000) throw Error("Your layouts are too large to sync together. Uncheck Keep a small copy of this photo and try again.");
+    localStorage.setItem(customKey, serialized);
+    window.dispatchEvent(new Event("garden-os-data-change"));
+    setLayouts(next); select(layout.id);
+  }
   function select(id:string){setSelection(id);if(!id.startsWith("new"))try{localStorage.setItem(selectionKey,id);}catch{/* Selection works during this visit. */}}
   function rename(){if(!name.trim()){setError("Enter a layout name.");return;}const next=layouts.map(l=>l.id===selection?{...l,name:name.trim()}:l);try{localStorage.setItem(customKey,JSON.stringify(next));setLayouts(next);setRenaming(false);}catch{setError("Could not save the name in this browser.");}}
   if(selection==="original"&&hasLegacy)return <LegacyGardenLayout {...props} onNewLayout={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} onClose={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} />;
@@ -37,8 +52,9 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
       {layouts.map(l=><button type="button" key={l.id} aria-current={selection===l.id?"page":undefined} onClick={()=>select(l.id)}>{l.name}</button>)}
       {hasLegacy&&<button type="button" onClick={()=>select("original")}>Saved nine-bed plan</button>}
     </nav>
-    {selection==="gallery"?<>
+    {selection==="photo"?<PhotoGardenLayout userId={userId} onCancel={()=>select("gallery")} onCreate={createFromPhoto}/>:selection==="gallery"?<>
       <div className="layout-gallery-intro"><div><p className="modern-eyebrow">A starting point, never a rule</p><h2>What would you love to grow?</h2><p>Choose an illustrated idea to make your own. Each opens as a separate editable plan.</p></div><button type="button" className="seasonal-button" onClick={()=>select("new")}>Start from scratch →</button></div>
+      <article className="photo-layout-entry"><Image src="/layout-inspiration/courtyard-open-entry.webp" width={600} height={400} alt="Illustrated beds and pots surrounding a garden path" sizes="(max-width: 700px) 100vw, 260px"/><div><p className="modern-eyebrow">Your space, your starting point</p><h3>Create a garden from a photo</h3><p>Bring a picture of your garden. Review its beds, pots and paths, then make the plan your own.</p><button type="button" className="seasonal-button rounded-xl px-5 py-3" onClick={()=>select("photo")}>Upload a garden photo →</button></div></article>
       <div className="layout-template-grid">{layoutTemplates.map(template=><article className="layout-template-card" key={template.id}>
         <Image src={template.image} width={600} height={400} alt={`Illustrated inspiration for ${template.name.toLowerCase()}`} sizes="(max-width: 700px) 100vw, 33vw" />
         <div><p className="modern-eyebrow">{template.summary}</p><h3>{template.name}</h3><p>{template.description}</p><button type="button" className="seasonal-button" onClick={()=>select(`new:${template.id}`)}>Customize {template.name.toLowerCase()} →</button></div>
