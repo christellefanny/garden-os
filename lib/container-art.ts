@@ -11,7 +11,6 @@ export const containerStyles = [
   {id:"basket",name:"Hanging basket",detail:"Woven willow with a generous planting basket",src:"/container-art/basket.webp",w:20,h:24},
   {id:"barrel",name:"Oak half-barrel",detail:"A rustic timber tub with dark metal hoops",src:"/container-art/barrel.webp",w:26,h:23},
   {id:"tall-square",name:"Tall square planter",detail:"A modern charcoal planter for a doorway or patio",src:"/container-art/tall-square.webp",w:16,h:28},
-  {id:"wall",name:"Wall pocket planter",detail:"A glazed ceramic half-pot for a wall or fence",src:"/container-art/wall.webp",w:20,h:22},
 ] as const;
 export type ContainerStyleId = typeof containerStyles[number]["id"];
 export function containerArt(value: unknown) { return containerStyles.find(style=>style.id===value) ?? containerStyles[0]; }

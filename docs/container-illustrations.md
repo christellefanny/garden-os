@@ -1,6 +1,6 @@
 # Illustrated pots and planters
 
-Twelve original watercolor/gouache raster assets replace the generic circle in Garden View: classic terracotta, ivory porch planter, glazed blue pot, stone urn, cedar box, galvanized trough, fabric grow bag, sage window box, hanging basket, oak half-barrel, tall square planter and wall pocket. Plan View keeps schematic geometry for editing. Existing container records without a style use the terracotta illustration without rewriting stored data. Styles can be changed independently of names, dimensions, plants and growing-space links.
+Eleven selectable original watercolor/gouache raster assets replace the generic circle in Garden View: classic terracotta, ivory porch planter, glazed blue pot, stone urn, cedar box, galvanized trough, fabric grow bag, sage window box, hanging basket, oak half-barrel and tall square planter. Plan View keeps schematic geometry for editing. Existing container records without a style use the terracotta illustration without rewriting stored data. Styles can be changed independently of names, dimensions, plants and growing-space links.
 
 Plan & Design offers a collapsible inspiration gallery. Add container opens an illustrated chooser; the selected vessel supplies a starting shape. Photo review can select a vessel style before saving, and the detection schema accepts only approved style IDs. Unknown saved styles cannot load arbitrary image URLs. Existing courtyard template copies use varied vessels; existing saved layouts keep their objects and plant records. Decorative plants remain independently editable, visually raised toward the vessel rim.
 
@@ -27,3 +27,5 @@ Subjects:
 - barrel: a rustic oak half-barrel garden planter, warmly weathered individual wooden staves bound with two dark aged iron hoops, wide oval opening with dark garden soil
 - tall-square: a tall tapered square charcoal stone-composite porch planter, broad square opening with dark garden soil, elegant narrow base, softly weathered matt mineral texture
 - wall: a sage glazed ceramic wall pocket planter, half-round vessel with a flat rear edge, small mounting eye at top of the arched back, open soil-filled planting pocket and graceful tapered front
+
+The wall pocket illustration is retained as an unused source asset but is no longer offered in inspiration, container selection or photo analysis.
