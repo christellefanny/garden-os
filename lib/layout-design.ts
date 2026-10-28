@@ -1,11 +1,13 @@
 /** Visual planning objects. Decorations are illustrations, never garden plant records. */
 export type Decoration = { id: string; plantId: string; x: number; y: number };
 export type LayoutItem = {
-  id: string; name: string; kind: "Bed" | "Container" | "Path" | "Border";
+  id: string; name: string; kind: "Bed" | "Container" | "Path" | "Border" | "Wall";
   x: number; y: number; w: number; h: number; spaceId: string; color?: string;
   decorations?: Decoration[];
   groundCover?: GroundCoverId;
   containerStyle?: string;
+  wallStyle?: string;
+  wallRotation?: number;
 };
 export type PhotoLayoutSource = { method: "photo"; focus?: "mixed" | "beds" | "containers"; image?: string; aspectRatio?: number; widthFeet?: number; depthFeet?: number; notes: string; reviewedAt: string };
 export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId; source?: PhotoLayoutSource };
@@ -80,8 +82,8 @@ export const layoutTemplates: LayoutTemplate[] = [
 export function instantiateLayout(template:LayoutTemplate|undefined,name:string,uuid:()=>string=()=>crypto.randomUUID()):Layout {
   return {id:uuid(),name,items:template?.items.map(item=>({...item,id:uuid(),spaceId:"",decorations:item.decorations?.map(plant=>({...plant,id:uuid()}))}))??[]};
 }
-export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[]}>(item:T):T {
-  return {...item,x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
+export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[];kind?:LayoutItem["kind"];wallRotation?:number}>(item:T):T {
+  return {...item,...(item.kind==="Wall"?{wallRotation:((item.wallRotation??0)+90)%360}:{}),x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
 }
 export function safeDecorations(value:unknown):Decoration[] {
   if(!Array.isArray(value))return [];

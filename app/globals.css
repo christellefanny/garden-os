@@ -2113,3 +2113,5 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .photo-container-style img {height:100px;width:100%;object-fit:contain;margin:8px 0 14px;}
 @media(max-width:520px){.container-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.container-picker-grid img{height:115px;}.container-picker-grid strong{font-size:17px;}}
 .layout-object-container[data-illustrated=true] {border:0!important;background:transparent!important;}
+
+.layout-object-wall[data-illustrated="true"] {border:0!important;background:transparent!important;}

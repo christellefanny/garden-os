@@ -4,7 +4,7 @@ import { containerStyles } from "./container-art.ts";
 export const PHOTO_LAYOUT_MAX_ITEMS = 30;
 export const PHOTO_LAYOUT_IMAGE_LIMIT = 1400000;
 export const photoLayoutKinds = ["Bed", "Container", "Path", "Border"] as const;
-export type PhotoArea = Pick<LayoutItem, "name" | "kind" | "x" | "y" | "w" | "h" | "containerStyle">;
+export type PhotoArea = Pick<LayoutItem, "name" | "x" | "y" | "w" | "h" | "containerStyle"> & {kind: typeof photoLayoutKinds[number]};
 export type PhotoAnalysis = { summary: string; notes: string[]; areas: PhotoArea[] };
 
 /** Never trust model-generated coordinates, IDs, markup or record links. */
