@@ -6,6 +6,7 @@ export type PlantReminder = {
   title: string;
   date: string;
   notes?: string;
+  seedStartSeason?: string;
 };
 export type CalendarOptions = {
   reminders?: PlantReminder[];
