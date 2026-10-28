@@ -8,6 +8,7 @@ import { CompanionBedCheck } from "@/components/CompanionPlanting";
 import Dialog from "@/components/ui/Dialog";
 import { readDetails, type Space } from "@/lib/garden";
 import { validAnalysisImage } from "@/lib/photo-layout";
+import { containerArt, containerStyles, type ContainerStyleId } from "@/lib/container-art";
 
 type Item = LayoutItem;
 export type { Layout } from "@/lib/layout-design";
@@ -99,6 +100,7 @@ export default function BlankGardenLayout({
   const [undo, setUndo] = useState<Layout[] | null>(null);
   const [plantGroup,setPlantGroup]=useState("Vegetables");
   const [selectedPlant,setSelectedPlant]=useState("");
+  const [containerPicker,setContainerPicker]=useState(false);
   const [showItemActions,setShowItemActions]=useState(false);
   useEffect(()=>{
     function dismiss(event:globalThis.PointerEvent){
@@ -171,17 +173,20 @@ export default function BlankGardenLayout({
       ),
     );
   }
-  function add(kind: Item["kind"]) {
+  function add(kind: Item["kind"], containerStyle?: ContainerStyleId) {
     if (!layout) return;
+    if (kind === "Container" && !containerStyle) { setContainerPicker(true); return; }
+    const vessel = containerStyle ? containerArt(containerStyle) : undefined;
     const next: Item = {
       id: crypto.randomUUID(),
       name: `${kind} ${layout.items.filter((i) => i.kind === kind).length + 1}`,
       kind,
       x: 10,
       y: 10,
-      w: kind === "Path" ? 55 : 20,
-      h: kind === "Path" ? 8 : 20,
+      w: vessel?.w ?? (kind === "Path" ? 55 : 20),
+      h: vessel?.h ?? (kind === "Path" ? 8 : 20),
       spaceId: "",
+      ...(vessel ? {containerStyle:vessel.id,name:vessel.name} : {}),
     };
     persist(
       layouts.map((l) =>
@@ -191,6 +196,7 @@ export default function BlankGardenLayout({
     setSelected(next.id);
     setSelectedPlant("");
     setShowItemActions(true);
+    setContainerPicker(false);
   }
   function create() {
     const name = newName.trim();
@@ -293,6 +299,7 @@ export default function BlankGardenLayout({
   function finishPlant(cancel=false){const g=plantGesture.current;if(!g)return;plantGesture.current=null;const bed=layout?.items.find(i=>i.id===g.bedId);if(bed)replaceItem({...bed,decorations:safeDecorations(bed.decorations).map(d=>d.id===g.id?(cancel?g.original:g.latest):d)});}
   return (
     <section className="mt-8 layout-editor">
+      {containerPicker&&<Dialog title="Choose a pot or planter" onClose={()=>setContainerPicker(false)}><p className="seasonal-muted mb-4">A little character for your garden. Choose a vessel, then add vegetables, herbs or flowers.</p><div className="container-picker-grid">{containerStyles.map(style=><button type="button" key={style.id} onClick={()=>add("Container",style.id)} aria-label={`Add ${style.name}`}><Image src={style.src} alt="" width={240} height={240}/><strong>{style.name}</strong><span>{style.detail}</span></button>)}</div></Dialog>}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow seasonal-muted">Your garden, your design</p>
@@ -459,6 +466,7 @@ export default function BlankGardenLayout({
                         });
                       }
                     }}
+                    data-illustrated={target.kind==="Container"&&view==="garden"?"true":undefined}
                     className={`layout-object-shape layout-object-${target.kind.toLowerCase()} h-full w-full touch-none overflow-hidden border-2 p-1 text-center text-xs font-bold shadow-sm focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] ${selected === target.id ? "border-[var(--atelier-deep)] ring-2 ring-[var(--atelier-deep)]" : "border-white/70"}`}
                     style={{
                       backgroundColor: safeColor(target.color,colors[target.kind]),
@@ -466,11 +474,13 @@ export default function BlankGardenLayout({
                       color: colorText(safeColor(target.color,colors[target.kind])),
                       borderRadius:
                         target.kind === "Container" ? "50%" : "10px",
+                      ...(target.kind==="Container"&&view==="garden"?{background:"transparent",borderRadius:0,borderColor:"transparent",boxShadow:"none",overflow:"visible"}:{}),
                     }}
                   >
+                    {target.kind==="Container"&&view==="garden"&&<Image className="layout-container-illustration" src={containerArt(target.containerStyle).src} alt="" fill sizes="(max-width:700px) 130px, 240px" draggable={false}/>}
                   </button>
                   <span aria-hidden="true" className="layout-object-label" style={{top:target.y<8?"100%":0,transform:target.y<8?"translateY(5px)":"translateY(calc(-100% - 5px))",left:target.x>65?"auto":0,right:target.x>65?0:"auto"}}>{target.name}</span>
-                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);setShowItemActions(true);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className={`layout-plant-stamp${art.group==="Flowers"?" layout-plant-flower":""}`} style={plantStampStyle(target,plant)}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
+                  {view==="garden"&&safeDecorations(target.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <button type="button" key={plant.id} aria-label={`Move ${art.name} illustration in ${target.name}`} aria-pressed={selectedPlant===plant.id} onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);setShowItemActions(true);}} onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)} onKeyDown={event=>{if(!editing)return;const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,-5],ArrowDown:[0,5]}[event.key];if(d){event.preventDefault();replaceItem({...target,decorations:safeDecorations(target.decorations).map(p=>p.id===plant.id?{...p,x:clamp(p.x+d[0],12,88),y:clamp(p.y+d[1],12,88)}:p)});}if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();setSelected(target.id);setUndo(layouts);persist(layouts.map(l=>l.id===layoutId?{...l,items:l.items.map(i=>i.id===target.id?{...i,decorations:safeDecorations(i.decorations).filter(p=>p.id!==plant.id)}:i)}:l),true);setSelectedPlant("");}}} className={`layout-plant-stamp${art.group==="Flowers"?" layout-plant-flower":""}`} style={{...plantStampStyle(target,plant),...(target.kind==="Container"?{left:`${25+plant.x*.5}%`,top:`${20+(plant.y-50)*.1}%`}:{})}}><Image src={art.src} alt="" fill sizes="110px" draggable={false}/></button>;})}
                   {editing && selected === target.id && (
                     <button
                       type="button"
@@ -513,6 +523,7 @@ export default function BlankGardenLayout({
                   </label>
                   {item.kind==="Path"&&<fieldset className="layout-path-cover"><legend>Path ground cover</legend><div className="layout-ground-options"><button type="button" disabled={!editing} aria-pressed={!groundCovers.some(c=>c.id===item.groundCover)} onClick={()=>replaceItem({...item,groundCover:undefined})}>Plain path</button>{groundCovers.map(cover=><button type="button" key={cover.id} disabled={!editing} aria-pressed={item.groundCover===cover.id} onClick={()=>replaceItem({...item,groundCover:cover.id})}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></fieldset>}
                   <p className="seasonal-muted text-sm">{item.kind}</p>
+                  {item.kind==="Container"&&<fieldset className="container-style-options"><legend>Planter style</legend><p>Choose the vessel, then add vegetable or flower illustrations.</p><div>{containerStyles.map(style=><button type="button" key={style.id} disabled={!editing} aria-label={`Use ${style.name}`} aria-pressed={containerArt(item.containerStyle).id===style.id} onClick={()=>replaceItem({...item,containerStyle:style.id})}><Image src={style.src} alt="" width={100} height={100}/><span>{style.name}</span></button>)}</div></fieldset>}
                   <div className="grid grid-cols-2 gap-3">
                     {(
                       [

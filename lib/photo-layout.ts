@@ -1,9 +1,10 @@
 import type { Layout, LayoutItem } from "./layout-design.ts";
+import { containerStyles } from "./container-art.ts";
 
 export const PHOTO_LAYOUT_MAX_ITEMS = 30;
 export const PHOTO_LAYOUT_IMAGE_LIMIT = 1400000;
 export const photoLayoutKinds = ["Bed", "Container", "Path", "Border"] as const;
-export type PhotoArea = Pick<LayoutItem, "name" | "kind" | "x" | "y" | "w" | "h">;
+export type PhotoArea = Pick<LayoutItem, "name" | "kind" | "x" | "y" | "w" | "h" | "containerStyle">;
 export type PhotoAnalysis = { summary: string; notes: string[]; areas: PhotoArea[] };
 
 /** Never trust model-generated coordinates, IDs, markup or record links. */
@@ -13,7 +14,7 @@ export function parsePhotoAnalysis(value: unknown): PhotoAnalysis {
   if (typeof data.summary !== "string" || data.summary.length > 600 || !Array.isArray(data.notes) || data.notes.length > 8 || data.notes.some(n => typeof n !== "string" || n.length > 400) || !Array.isArray(data.areas) || data.areas.length > PHOTO_LAYOUT_MAX_ITEMS) throw Error("The photo returned an incomplete map. You can mark the areas yourself.");
   const areas = data.areas.map(area => {
     if (!area || typeof area.name !== "string" || !area.name.trim() || area.name.length > 80 || !photoLayoutKinds.includes(area.kind) || ![area.x, area.y, area.w, area.h].every(Number.isFinite) || area.x < 0 || area.y < 0 || area.w < 4 || area.h < 4 || area.x + area.w > 100.001 || area.y + area.h > 100.001) throw Error("The suggested areas did not fit the map. Mark the areas yourself or try another photo.");
-    return { name: area.name.trim(), kind: area.kind, x: area.x, y: area.y, w: Math.min(area.w, 100-area.x), h: Math.min(area.h, 100-area.y) };
+    return { name: area.name.trim(), kind: area.kind, x: area.x, y: area.y, w: Math.min(area.w, 100-area.x), h: Math.min(area.h, 100-area.y), ...(area.kind==="Container"&&containerStyles.some(style=>style.id===area.containerStyle)?{containerStyle:area.containerStyle}:{}) };
   });
   return { summary: data.summary, notes: [...data.notes], areas };
 }

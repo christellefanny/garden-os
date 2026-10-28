@@ -11,6 +11,7 @@ import { layoutTemplates } from "@/lib/layout-design";
 import {initialLayout, type Bed } from "@/lib/garden-layout";
 import type { Space } from "@/lib/garden";
 import type { Layout } from "@/lib/layout-design";
+import { containerStyles } from "@/lib/container-art";
 const PhotoGardenLayout = dynamic(() => import("@/components/PhotoGardenLayout"), { loading: () => <p role="status">Opening photo planner…</p> });
 
 export default function GardenLayout(props:{userId:string;gardenId:string;gardenName:string;initialBedId?:string;initialTemplateId?:string;spaces:Space[];onOpenSpace:(spaceId:string)=>void;onClose:()=>void;onCreateSpaces:(beds:Bed[],excludePeppers?:boolean)=>Promise<number|null>}) {
@@ -60,6 +61,7 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
         <div><p className="modern-eyebrow">{template.summary}</p><h3>{template.name}</h3><p>{template.description}</p><button type="button" className="seasonal-button" onClick={()=>select(`new:${template.id}`)}>Customize {template.name.toLowerCase()} →</button></div>
       </article>)}</div>
       <p className="layout-concept-note">Illustrated concepts, not measured planting plans. Customize the shapes and decorative plants for your space. Nothing is added to My Gardens until you choose to create growing spaces.</p>
+      <details className="container-inspiration"><summary>A vessel for every garden · explore 12 planter styles</summary><p>A few pots can become a whole garden. Explore ceramic, timber, metal and woven textures for patios, balconies and vegetable gardens. Choose Add container in the designer to use one.</p><div>{containerStyles.map(style=><figure key={style.id}><Image src={style.src} alt={`Watercolor illustration of ${style.name.toLowerCase()}`} width={280} height={280}/><figcaption><h3>{style.name}</h3><p>{style.detail}</p></figcaption></figure>)}</div></details>
     </>:<BlankGardenLayout key={selection.startsWith("new")?selection:current?.id??selection} userId={userId} gardenId={gardenId} spaces={props.spaces} onOpenSpace={props.onOpenSpace} onBack={()=>select("gallery")} initialItemId={initialBedId} selectedLayoutId={selection} onNewLayout={()=>select("gallery")} initialTemplateId={selection.startsWith("new:")?selection.slice(4):undefined} onSelectLayout={select} onLayoutsChange={setLayouts} onRename={()=>{setName(current?.name??"");setError("");setRenaming(true);}} onCreateSpaces={beds=>props.onCreateSpaces(beds,false)} />}
     {renaming&&<Dialog title="Rename layout" onClose={()=>setRenaming(false)}><form onSubmit={e=>{e.preventDefault();rename();}}><label>Layout name<input maxLength={100} required value={name} onChange={e=>setName(e.target.value)} className="seasonal-input mt-2 w-full rounded-xl border p-3"/></label>{error&&<p role="alert">{error}</p>}<button type="submit" className="seasonal-button mt-4 rounded-xl p-3">Save name</button></form></Dialog>}
   </section>;

@@ -1,13 +1,15 @@
 import { generateText, jsonSchema, Output } from "ai";
 import { authenticated } from "@/lib/reminders-server";
 import { parsePhotoAnalysis, photoQuota, validAnalysisImage, type PhotoAnalysis } from "@/lib/photo-layout";
+import { containerStyles } from "@/lib/container-art";
 
 export const maxDuration = 60;
 const json = (value: unknown, status = 200) => Response.json(value, { status, headers: { "Cache-Control": "private, no-store" } });
 const schema = jsonSchema<PhotoAnalysis>({
   type: "object", additionalProperties: false, required: ["summary", "notes", "areas"], properties: {
     summary: { type: "string", maxLength: 600 }, notes: { type: "array", maxItems: 8, items: { type: "string", maxLength: 400 } },
-    areas: { type: "array", maxItems: 30, items: { type: "object", additionalProperties: false, required: ["name", "kind", "x", "y", "w", "h"], properties: {
+    areas: { type: "array", maxItems: 30, items: { type: "object", additionalProperties: false, required: ["name", "kind", "x", "y", "w", "h", "containerStyle"], properties: {
+      containerStyle: {type:["string","null"],enum:[...containerStyles.map(style=>style.id),null],description:"Closest visible vessel style for Container; null for other area kinds or unclear material."},
       name: { type: "string", maxLength: 80 }, kind: { type: "string", enum: ["Bed", "Container", "Path", "Border"] },
       x: { type: "number", minimum: 0, maximum: 96 }, y: { type: "number", minimum: 0, maximum: 96 }, w: { type: "number", minimum: 4, maximum: 100 }, h: { type: "number", minimum: 4, maximum: 100 },
     } } },
