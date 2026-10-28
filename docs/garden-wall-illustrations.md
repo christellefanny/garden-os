@@ -1,5 +1,13 @@
 # Garden wall illustrations
 
+## curved-block
+
+Asset: public/wall-art/curved-block.webp
+
+Original isolated watercolor asset derived from the supplied backyard composite using the built-in image-generation tool. The source backyard photograph is not included in the application assets.
+
+Prompt: Use case: precise-object-edit and style-transfer. Edit target: supplied backyard composite. Extract ONLY the real curved gray concrete-block sitting wall in the foreground, remove every pot, plant, soil, furniture, cushion, house, fence, patio, grass, people and all background. Keep the wall's actual specific geometry: long shallow convex curved front of staggered weathered gray/taupe split-face rectangular concrete blocks, about three courses, broad continuous flat rectangular gray coping caps following curve, and slightly taller square capped end piers at both ends with short inward return walls behind. Preserve recognizable proportions, material, weathering and front viewpoint. Reconstruct only wall portions hidden by pots. Convert the isolated wall into sophisticated realistic hand painted watercolor/gouache artwork to match premium botanical garden layout assets, fine masonry texture and subtle natural depth, NOT simplified cartoon or vector. Entire wall visible with no cropping, wide horizontal composition, elevated frontal viewpoint revealing clear empty cap for arranging separate pots later. TRUE transparent background also through the space behind/inside wall; no white halo or backdrop, no ground shadow, no text. Do not add pots, flowers, plants, benches or new architecture.
+
 ## curved-stone
 
 Asset: public/wall-art/curved-stone.webp

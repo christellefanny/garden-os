@@ -9,8 +9,8 @@ test('wall rotation keeps finish and record links, rotates curved artwork fully 
  for(let turn=1;turn<=4;turn++){current=rotateItem(current);assert.equal(current.wallRotation,turn*90%360);assert.equal(current.wallStyle,'curved-stone');assert.equal(current.spaceId,'');assert.ok(current.x>=0&&current.x+current.w<=100&&current.y>=0&&current.y+current.h<=100);}
  assert.equal(current.w,original.w);assert.equal(current.h,original.h);assert.equal(rotateItem({...original,kind:'Bed'}).wallRotation,undefined);
 });
-test('four wall choices have original transparent raster assets and safe style fallbacks',async()=>{
- assert.equal(wallStyles.length,4);assert.equal(new Set(wallStyles.map(s=>s.src)).size,4);
+test('five wall choices have original transparent raster assets and safe style fallbacks',async()=>{
+ assert.equal(wallStyles.length,5);assert.equal(new Set(wallStyles.map(s=>s.src)).size,5);
  for(const style of wallStyles){const meta=await sharp(await readFile(new URL('../public'+style.src,import.meta.url))).metadata();assert.equal(meta.format,'webp');assert.ok(meta.hasAlpha);assert.ok(meta.width>=800);}
  assert.equal(wallArt('https://example.com/x.png').id,'retaining');
 });
