@@ -2,14 +2,14 @@ import {chromium} from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
-const fixture=spawn(process.execPath,['tests/fixtures/supabase.mjs'],{stdio:'ignore'}),server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3043'],{stdio:'ignore'});
+const fixture=spawn(process.execPath,['tests/fixtures/supabase.mjs'],{stdio:'ignore'}),server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3043'],{stdio:'inherit'});
 let browser;
 try{
  for(let i=0;i<160;i++){try{if((await fetch('http://127.0.0.1:3043')).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));}
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--single-process','--no-zygote']});
  const context=await browser.newContext({viewport:{width:1440,height:1000}});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:3043');await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('navigation').getByRole('button',{name:'Plan & Design',exact:true}).click();
- await page.getByText('A vessel for every garden · explore 12 planter styles',{exact:true}).click();assert.equal(await page.locator('.container-inspiration figure').count(),12);await page.locator('.container-inspiration').screenshot({path:'/workspace/scratch/container-inspiration-desktop.png'});
+ await page.getByText('Explore planter styles',{exact:true}).click();assert.equal(await page.locator('.container-inspiration figure').count(),12);await page.locator('.container-inspiration').screenshot({path:'/workspace/scratch/container-inspiration-desktop.png'});
  await page.getByRole('button',{name:'Start from scratch →',exact:true}).click();await page.getByRole('button',{name:'Create blank canvas',exact:true}).click();await page.getByRole('button',{name:'Add container',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Choose a pot or planter'});await dialog.waitFor();assert.equal(await dialog.locator('.container-picker-grid button').count(),12);await page.waitForFunction(()=>[...document.querySelectorAll('.container-picker-grid img')].every(i=>i.complete&&i.naturalWidth>0));
  const axe=await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(axe.violations.map(v=>v.id),[]);
