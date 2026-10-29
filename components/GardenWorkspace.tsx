@@ -436,6 +436,7 @@ export default function GardenWorkspace({
             onSearch={setSearch}
             navigate={navigate}
           />
+          {page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId={userId} gardenId="garden-inspiration" gardenName="Garden Inspiration" /></section>}
           {search && (
             <section className="modern-card search-results">
               <h2>Search results</h2>
