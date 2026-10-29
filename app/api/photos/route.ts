@@ -3,7 +3,7 @@ import { PHOTO_BUCKET, PHOTO_LIMIT, PHOTO_TYPES, ownedPhotoId, photoStateKey, va
 
 const json = (value: unknown, status = 200) => Response.json(value, { status, headers: { 'Cache-Control': 'private, no-store' } });
 async function ownerGarden(auth: NonNullable<Awaited<ReturnType<typeof authenticated>>>, gardenId?: string) {
-  if (!gardenId) return true;
+  if (!gardenId || gardenId === "garden-inspiration") return true;
   const { data, error } = await auth.db.from('gardens').select('id').eq('id', gardenId).eq('user_id', auth.user.id).maybeSingle();
   return !error && !!data;
 }
