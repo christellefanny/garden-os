@@ -24,15 +24,14 @@ function usePhotoUrl(blob: Blob) {
   }, [blob]);
   return url;
 }
-function PhotoCard({ picture, folders, selected, busy, categoryOptions, inspiration = false, onSelect, onSave, onDelete, onCopyToGarden }: { picture: Picture; folders: Folder[]; selected: boolean; busy: boolean; categoryOptions: string[]; inspiration?: boolean; onCopyToGarden?: () => void; onSelect: () => void; onSave: (info: PhotoInfo) => Promise<boolean>; onDelete: () => void }) {
+function PhotoCard({ picture, folders, selected, busy, categoryOptions, inspiration = false, onSelect, onSave, onDelete, onCopyToGarden, onView }: { picture: Picture; folders: Folder[]; selected: boolean; busy: boolean; categoryOptions: string[]; inspiration?: boolean; onCopyToGarden?: () => void; onView: () => void; onSelect: () => void; onSave: (info: PhotoInfo) => Promise<boolean>; onDelete: () => void }) {
   const url = usePhotoUrl(picture.blob);
   const [editing, setEditing] = useState(false);
-  const [viewing, setViewing] = useState(false);
   const [draft, setDraft] = useState(picture.info);
   const label = picture.info.name || "Garden photo";
   return <article className={inspiration ? "mb-5 inline-block w-full break-inside-avoid overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm" : "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]"}>
     <div className="relative bg-[var(--surface-alt)]">
-      <button type="button" className={inspiration ? "block w-full" : "block aspect-[4/3] w-full"} aria-label={`View ${label}`} onClick={() => setViewing(true)}>
+      <button type="button" className={inspiration ? "block w-full" : "block aspect-[4/3] w-full"} aria-label={`View ${label}`} onClick={onView}>
         {/* Blob URLs are local originals; retain the full picture without cropping. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {url && <img src={url} alt={picture.info.description || label} className={inspiration ? "h-auto w-full object-cover" : "h-full w-full object-contain"} loading="lazy" />}
@@ -60,12 +59,36 @@ function PhotoCard({ picture, folders, selected, busy, categoryOptions, inspirat
       </form></Dialog>}
       {selected && <button type="button" disabled={busy} className="mt-3 block min-h-10 text-xs text-red-800 underline" onClick={onDelete}>Delete picture</button>}
     </div>
-    {viewing && <Dialog title={label} onClose={() => setViewing(false)}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt={picture.info.description || label} className="max-h-[70vh] w-full object-contain" />
-      {picture.info.description && <p className="mt-3 whitespace-pre-wrap text-sm">{picture.info.description}</p>}
-    </Dialog>}
   </article>;
+}
+function GalleryViewer({ pictures, initialIndex, onClose }: { pictures: Picture[]; initialIndex: number; onClose: () => void }) {
+  const [index, setIndex] = useState(initialIndex);
+  const current = pictures[index];
+  const url = usePhotoUrl(current.blob);
+  const touchStart = useRef<{x:number;y:number}|null>(null);
+  const next = () => setIndex(i => Math.min(pictures.length - 1, i + 1));
+  const previous = () => setIndex(i => Math.max(0, i - 1));
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "ArrowRight") { event.preventDefault(); setIndex(i => Math.min(pictures.length - 1, i + 1)); }
+      if (event.key === "ArrowLeft") { event.preventDefault(); setIndex(i => Math.max(0, i - 1)); }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pictures.length]);
+  return <Dialog title={current.info.name || "Garden picture"} onClose={onClose}>
+    <div onTouchStart={e => { const t=e.touches[0]; touchStart.current={x:t.clientX,y:t.clientY}; }}
+      onTouchEnd={e => {const start=touchStart.current;touchStart.current=null;if(!start)return;const t=e.changedTouches[0];const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.3){if(dx<0)next();else previous();}}}>
+      <div className="relative flex items-center justify-center gap-2">
+        <button type="button" disabled={index===0} aria-label="Previous picture" onClick={previous} className="seasonal-outline shrink-0 rounded-full border px-3 py-3 disabled:opacity-30">←</button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt={current.info.description || current.info.name} className="min-w-0 max-h-[68vh] w-full object-contain" draggable={false} />
+        <button type="button" disabled={index===pictures.length-1} aria-label="Next picture" onClick={next} className="seasonal-outline shrink-0 rounded-full border px-3 py-3 disabled:opacity-30">→</button>
+      </div>
+      <p className="seasonal-muted mt-3 text-center text-xs">{index+1} of {pictures.length} pictures · Swipe left or right</p>
+      {current.info.description && <p className="mt-3 whitespace-pre-wrap text-sm">{current.info.description}</p>}
+    </div>
+  </Dialog>;
 }
 function BoardPreview({blob, name}: {blob: Blob; name: string}) { const url = usePhotoUrl(blob); return url ? <img src={url} alt={name} className="h-full w-full object-cover" /> : null; }
 function UploadPreview({ file }: { file: File }) {
@@ -102,6 +125,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [folderForm, setFolderForm] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [viewIndex, setViewIndex] = useState<number | null>(null);
   const [copyPicture, setCopyPicture] = useState<Picture | null>(null);
   const [targetGarden, setTargetGarden] = useState("");
   const [moveFolder, setMoveFolder] = useState("");
@@ -357,7 +381,8 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     {(!isInspiration || activeFolder !== "folders") && <>
     <div className="mb-5 flex flex-wrap items-center gap-4"><label className="text-sm">Category <select className="ml-2" value={filter} onChange={e => { setFilter(e.target.value); setSelected([]); }}>{["All", ...categoryOptions].map(c => <option key={c}>{c}</option>)}</select></label><label className="text-sm">Year <select className="ml-2" value={year} onChange={e => { setYear(e.target.value); setSelected([]); }}>{["All", ...years].map(y => <option key={y}>{y}</option>)}</select></label><span className="seasonal-muted text-xs">{visible.length} pictures</span><button type="button" disabled={saving || !visible.length} className="seasonal-outline min-h-10 text-sm underline" onClick={() => setSelected(selected.length === visible.length ? [] : visible.map(p => p.key))}>{selected.length === visible.length && visible.length ? "Clear selection" : "Select all"}</button></div>
     {!!selected.length && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4"><span className="text-sm">{selected.length} selected</span><label className="text-sm">Photo category <select disabled={saving} className="ml-2" value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}><option value="">Choose category</option>{categoryOptions.map(c => <option key={c}>{c}</option>)}</select></label><button disabled={saving || !bulkCategory} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const changes = pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, category: bulkCategory } })); if (await updatePictures(changes, `Category updated for ${changes.length} pictures.`)) setSelected([]); }}>Apply category</button><label className="text-sm">Move to <select disabled={saving} className="ml-2" value={moveFolder} onChange={e => setMoveFolder(e.target.value)}><option value="">{isInspiration ? "Choose board" : "Unfiled"}</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label><button disabled={saving || (isInspiration && !moveFolder)} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const moved = await updatePictures(pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, folderId: moveFolder } }))); if (moved) setSelected([]); }}>Move selected</button></div>}
-    {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">{isInspiration ? "Room for your garden inspiration" : "Room for your garden memories"}</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : isInspiration ? "Add pictures to this board and build your vision one idea at a time." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className={isInspiration ? "columns-1 gap-5 sm:columns-2 xl:columns-3" : "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"}>{visible.map(picture => <PhotoCard onCopyToGarden={isInspiration ? () => { setCopyPicture(picture); setTargetGarden(""); } : undefined} categoryOptions={categoryOptions} inspiration={isInspiration} key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving || !loaded} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
+    {viewIndex !== null && visible[viewIndex] && <GalleryViewer key={visible[viewIndex].key} pictures={visible} initialIndex={viewIndex} onClose={() => setViewIndex(null)} />}
+    {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">{isInspiration ? "Room for your garden inspiration" : "Room for your garden memories"}</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : isInspiration ? "Add pictures to this board and build your vision one idea at a time." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className={isInspiration ? "columns-1 gap-5 sm:columns-2 xl:columns-3" : "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"}>{visible.map(picture => <PhotoCard onView={() => setViewIndex(visible.findIndex(p => p.key === picture.key))} onCopyToGarden={isInspiration ? () => { setCopyPicture(picture); setTargetGarden(""); } : undefined} categoryOptions={categoryOptions} inspiration={isInspiration} key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving || !loaded} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
     </>}
   </section>;
 }
