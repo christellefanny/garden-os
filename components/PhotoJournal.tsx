@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { photoRequest, uploadCloudEntry, type PhotoInfo, type PhotoEntry, type PhotoFolder as Folder } from "@/lib/photo-cloud";
 import { localDay } from "@/lib/growing-calendar";
 
+type GardenOption = { id: string; name: string };
 type Picture = { key: string; entry: PhotoEntry; index: number; blob: Blob; info: PhotoInfo };
 const categories = ["My Garden", "Seedlings", "Harvests", "Flowers", "Plant Progress"];
 const inspirationCategories = ["Garden Layouts", "Flower Beds", "Vegetable Gardens", "Pots & Planters", "Paths & Walls", "Outdoor Living", "Colors & Plant Combinations", "Other Ideas"];
@@ -23,7 +24,7 @@ function usePhotoUrl(blob: Blob) {
   }, [blob]);
   return url;
 }
-function PhotoCard({ picture, folders, selected, busy, categoryOptions, onSelect, onSave, onDelete }: { picture: Picture; folders: Folder[]; selected: boolean; busy: boolean; categoryOptions: string[]; onSelect: () => void; onSave: (info: PhotoInfo) => Promise<boolean>; onDelete: () => void }) {
+function PhotoCard({ picture, folders, selected, busy, categoryOptions, onSelect, onSave, onDelete, onCopyToGarden }: { picture: Picture; folders: Folder[]; selected: boolean; busy: boolean; categoryOptions: string[]; onCopyToGarden?: () => void; onSelect: () => void; onSave: (info: PhotoInfo) => Promise<boolean>; onDelete: () => void }) {
   const url = usePhotoUrl(picture.blob);
   const [editing, setEditing] = useState(false);
   const [viewing, setViewing] = useState(false);
@@ -46,6 +47,7 @@ function PhotoCard({ picture, folders, selected, busy, categoryOptions, onSelect
       {picture.info.description && <p className="mt-3 whitespace-pre-wrap break-words text-sm">{picture.info.description}</p>}
       {(picture.entry.plant || picture.entry.bed) && <p className="seasonal-muted mt-2 text-xs">{[picture.entry.plant, picture.entry.bed].filter(Boolean).join(" · ")}</p>}
       {picture.info.folderId && <p className="seasonal-muted mt-2 text-xs">Folder: {folders.find(f => f.id === picture.info.folderId)?.name || "Unfiled"}</p>}
+      {onCopyToGarden && <button type="button" disabled={busy} className="seasonal-outline mt-3 min-h-10 rounded-lg border px-3 py-2 text-sm" onClick={onCopyToGarden}>Save to My Garden</button>}
       {editing && <Dialog title="Edit picture details" onClose={() => { if (!busy) setEditing(false); }}><form className="mt-4" onSubmit={async e => { e.preventDefault(); if (await onSave(draft)) setEditing(false); }}>
         <fieldset disabled={busy} className="grid gap-3 text-sm">
           <label className="grid gap-1">Photo name<input required maxLength={150} value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} /></label>
@@ -73,7 +75,7 @@ function UploadPreview({ file }: { file: File }) {
     <figcaption className="mt-2 truncate text-xs">{file.name}</figcaption>
   </figure>;
 }
-export default function PhotoJournal({ userId, embedded = false, showComposer = false, onCloseComposer, gardenId, gardenName }: { userId: string; embedded?: boolean; showComposer?: boolean; onCloseComposer?: () => void; gardenId?: string; gardenName?: string }) {
+export default function PhotoJournal({ userId, embedded = false, showComposer = false, onCloseComposer, gardenId, gardenName, gardens = [] }: { userId: string; embedded?: boolean; showComposer?: boolean; onCloseComposer?: () => void; gardenId?: string; gardenName?: string; gardens?: GardenOption[] }) {
   const signedIn = userId !== "guest";
   const isInspiration = gardenId === "garden-inspiration";
   const categoryOptions = isInspiration ? inspirationCategories : categories;
@@ -99,6 +101,8 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [folderForm, setFolderForm] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [copyPicture, setCopyPicture] = useState<Picture | null>(null);
+  const [targetGarden, setTargetGarden] = useState("");
   const [moveFolder, setMoveFolder] = useState("");
   const [bulkCategory, setBulkCategory] = useState("");
   useEffect(() => {
@@ -234,6 +238,37 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     } catch(err) { setError(err instanceof Error?err.message:"Could not delete picture. Please try again."); }
     finally { setSaving(false); }
   }
+  async function copyToGarden(e: React.FormEvent) {
+    e.preventDefault();
+    const target = gardens.find(g => g.id === targetGarden);
+    if (!copyPicture || !target || saving) return;
+    setSaving(true); setError(""); setNotice("");
+    try {
+      const info = copyPicture.info;
+      // Copy the image, never move it: the original stays in Garden Inspiration.
+      let entry: PhotoEntry = {
+        id: userId + ":" + crypto.randomUUID(),
+        gardenId: target.id, gardenName: target.name,
+        date: info.date, category: "My Garden", caption: info.description,
+        plant: "", bed: "", photos: [copyPicture.blob],
+        photoDetails: { "0": { ...info, category: "My Garden", folderId: "" } },
+      };
+      await transact("entries", "readwrite", store => store.put(entry));
+      if (signedIn) {
+        try {
+          entry = await uploadCloudEntry(supabase, entry);
+          await transact("entries", "readwrite", store => store.put(entry));
+          setCloudStatus("Inspiration picture copied and backed up to your account.");
+        } catch (err) {
+          setCloudStatus(err instanceof Error ? err.message : "Cloud backup pending. Your garden copy is saved on this device.");
+        }
+      }
+      setCopyPicture(null); setTargetGarden("");
+      setNotice(`Saved a copy of “${info.name}” to ${target.name}. The inspiration original is unchanged.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not copy the picture. Try again.");
+    } finally { setSaving(false); }
+  }
   async function createFolder(e: React.FormEvent) {
     e.preventDefault();
     const name = folderName.trim();
@@ -257,6 +292,13 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
     {notice && <p role="status" className="interior-notice">{notice}</p>}
     {(!embedded || gardenId) && <button type="button" className="seasonal-button mb-5 rounded-lg px-4 py-2" onClick={() => setFolderComposer(true)}>Add pictures</button>}
+    {copyPicture && <Dialog title="Save inspiration to My Garden" onClose={() => { if (!saving) setCopyPicture(null); }}>
+      <form className="mt-4 grid gap-4" onSubmit={e => void copyToGarden(e)}>
+        <p className="text-sm">Copy “{copyPicture.info.name}” into a garden’s picture gallery. The original will remain on your inspiration board.</p>
+        {gardens.length ? <label className="grid gap-2 text-sm">Choose garden<select required value={targetGarden} onChange={e => setTargetGarden(e.target.value)}><option value="">Select a garden</option>{gardens.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label> : <p role="status" className="text-sm">Create a garden under My Gardens before saving an inspiration to it.</p>}
+        <div className="flex flex-wrap gap-2"><button type="submit" disabled={saving || !targetGarden} className="seasonal-button rounded-lg px-4 py-2">{saving ? "Saving…" : "Save copy"}</button><button type="button" disabled={saving} className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setCopyPicture(null)}>Cancel</button></div>
+      </form>
+    </Dialog>}
     {(showComposer || folderComposer) && <Dialog title={uploadFolder ? `Add pictures to ${folders.find(folder => folder.id === uploadFolder)?.name || "folder"}` : "Add pictures"} onClose={() => { if (!saving) { setFolderComposer(false); onCloseComposer?.(); setPhotos([]); setError(""); } }}>
     {error && <p role="alert" className="mb-4 text-sm text-red-800">{error}</p>}
     <form onSubmit={e => { e.preventDefault(); void save(); }}>
@@ -287,7 +329,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     {activeFolder !== "folders" && <>
     <div className="mb-5 flex flex-wrap items-center gap-4"><label className="text-sm">Category <select className="ml-2" value={filter} onChange={e => { setFilter(e.target.value); setSelected([]); }}>{["All", ...categoryOptions].map(c => <option key={c}>{c}</option>)}</select></label><label className="text-sm">Year <select className="ml-2" value={year} onChange={e => { setYear(e.target.value); setSelected([]); }}>{["All", ...years].map(y => <option key={y}>{y}</option>)}</select></label><span className="seasonal-muted text-xs">{visible.length} pictures</span><button type="button" disabled={saving || !visible.length} className="seasonal-outline min-h-10 text-sm underline" onClick={() => setSelected(selected.length === visible.length ? [] : visible.map(p => p.key))}>{selected.length === visible.length && visible.length ? "Clear selection" : "Select all"}</button></div>
     {!!selected.length && <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4"><span className="text-sm">{selected.length} selected</span><label className="text-sm">Photo category <select disabled={saving} className="ml-2" value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}><option value="">Choose category</option>{categoryOptions.map(c => <option key={c}>{c}</option>)}</select></label><button disabled={saving || !bulkCategory} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const changes = pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, category: bulkCategory } })); if (await updatePictures(changes, `Category updated for ${changes.length} pictures.`)) setSelected([]); }}>Apply category</button><label className="text-sm">Move to <select disabled={saving} className="ml-2" value={moveFolder} onChange={e => setMoveFolder(e.target.value)}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label><button disabled={saving} type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={async () => { const moved = await updatePictures(pictures.filter(p => selected.includes(p.key)).map(picture => ({ picture, info: { ...picture.info, folderId: moveFolder } }))); if (moved) setSelected([]); }}>Move selected</button></div>}
-    {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">Room for your garden memories</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{visible.map(picture => <PhotoCard categoryOptions={categoryOptions} key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving || !loaded} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
+    {!loaded && !error ? <p className="seasonal-muted">Loading pictures…</p> : visible.length === 0 ? <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><p className="font-serif text-xl">Room for your garden memories</p><p className="seasonal-muted mt-2 text-sm">{pictures.length ? "No pictures match this folder or filter." : "Use Add pictures to start your gallery, then organize pictures into folders."}</p></div> : <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{visible.map(picture => <PhotoCard onCopyToGarden={isInspiration ? () => { setCopyPicture(picture); setTargetGarden(""); } : undefined} categoryOptions={categoryOptions} key={picture.key} picture={picture} folders={folders} selected={selected.includes(picture.key)} busy={saving || !loaded} onSelect={() => setSelected(current => current.includes(picture.key) ? current.filter(key => key !== picture.key) : [...current, picture.key])} onSave={info => updatePictures([{ picture, info }])} onDelete={() => void deletePicture(picture)} />)}</div>}
     </>}
   </section>;
 }
