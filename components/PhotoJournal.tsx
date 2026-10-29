@@ -293,10 +293,12 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     {signedIn&&(entries.some(e=>!e.cloudVersion)||folders.some(f=>!f.cloudVersion))&&<div className="interior-notice mb-5"><p className="mb-3 text-sm">Some existing pictures or folders are only on this device. Keep them here and back them up to your account.</p><button type="button" className="seasonal-button min-h-11 rounded-lg px-4" disabled={saving} onClick={()=>void backUpExisting()}>{saving?"Backing up…":"Back up existing pictures"}</button></div>}
     {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
     {notice && <p role="status" className="interior-notice">{notice}</p>}
-    {isInspiration ? <div className="mb-7 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-5">
-        <div><p className="seasonal-muted text-xs font-semibold uppercase tracking-[.2em]">A collection of possibilities</p><h2 className="mt-2 font-serif text-2xl sm:text-3xl">Ideas worth growing into.</h2><p className="seasonal-muted mt-2 max-w-xl text-sm leading-6">Give every idea a home. Create a board for the garden spaces, planting combinations, and little details you hope to bring to life.</p></div>
-        <button type="button" disabled={!loaded || saving} className="seasonal-button rounded-xl px-5 py-3" onClick={() => setFolderForm(true)}>+ Create a board</button>
+    {isInspiration ? <div className="relative mb-7 overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-[47%]" style={{ background: "linear-gradient(105deg, transparent 0%, color-mix(in srgb, var(--sidebar-start) 12%, transparent) 55%, color-mix(in srgb, var(--sidebar-start) 17%, transparent) 100%)" }} />
+      <div className="pointer-events-none absolute inset-y-0 right-[8%] hidden w-[47%] opacity-85 md:block" aria-hidden="true" style={{ backgroundImage: "url(/garden-inspiration-corner.svg)", backgroundRepeat: "no-repeat", backgroundSize: "contain", backgroundPosition: "center bottom", maskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)" }} />
+      <div className="relative flex min-h-52 flex-wrap items-center justify-between gap-5 p-5 sm:p-7 lg:p-9">
+        <div className="max-w-xl"><p className="seasonal-muted text-xs font-semibold uppercase tracking-[.2em]">A collection of possibilities</p><h2 className="mt-2 font-serif text-2xl sm:text-3xl">Ideas worth growing into.</h2><p className="seasonal-muted mt-2 text-sm leading-6">Give every idea a home. Create a board for the garden spaces, planting combinations, and little details you hope to bring to life.</p></div>
+        <button type="button" disabled={!loaded || saving} className="seasonal-button relative z-10 rounded-xl px-5 py-3" onClick={() => setFolderForm(true)}>+ Create a board</button>
       </div>
     </div> : <button type="button" className="seasonal-button mb-5 rounded-lg px-4 py-2" onClick={() => setFolderComposer(true)}>Add pictures</button>}
     {copyPicture && <Dialog title="Save inspiration to My Garden" onClose={() => { if (!saving) setCopyPicture(null); }}>
