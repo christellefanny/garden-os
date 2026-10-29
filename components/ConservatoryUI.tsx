@@ -35,6 +35,7 @@ export type Destination =
   | "Plant Vault"
   | "Flower Garden"
   | "Garden Layout"
+  | "Garden Inspiration"
   | "Growing Calendar"
   | "Tasks"
   | "Journal"
@@ -46,6 +47,7 @@ export const destinations: Destination[] = [
   "Plant Vault",
   "Flower Garden",
   "Garden Layout",
+  "Garden Inspiration",
   "Growing Calendar",
   "Tasks",
   "Journal",
@@ -58,6 +60,7 @@ const navigationIconPaths: Record<string, string> = {
   "Plant Vault": "M12 21V9M12 14C3 14 2 7 4 4c7 0 8 5 8 10M12 11c0-7 4-9 8-8 1 6-3 9-8 8",
   "Flower Garden": "M12 8C7 1 2 7 7 11c-7 3-2 10 3 6 0 7 8 7 7 0 6 3 10-4 3-7 3-6-4-10-8-2ZM14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0",
   "Garden Layout": "M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z",
+  "Garden Inspiration": "M3 4h18v16H3V4Zm3 12 4-5 3 3 3-5 4 7M7 8h.01",
   "Growing Calendar": "M3 6h18v15H3V6Zm4-3v6m10-6v6M3 11h18m-13 4h2m4 0h2m-8 3h2",
   "Tasks": "M9 5h12M9 12h12M9 19h12M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4",
   "Journal": "M4 3h15v18H4V3Zm4 0v18m3-13h5m-5 4h5m-5 4h3",
