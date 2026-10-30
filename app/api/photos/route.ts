@@ -38,13 +38,16 @@ export async function POST(request: Request) {
   const auth = await authenticated(request);
   if (!auth) return json({ error: 'Sign in to sync pictures.' }, 401);
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return json({ error: 'Photo cloud storage needs the server connection. Your device pictures remain safe.' }, 503);
+  let stage: 'request' | 'bucket-check' | 'bucket-create' | 'signed-upload' = 'request';
   try {
     const body = await input(request);
     if (!ownedPhotoId(body.id, auth.user.id) || (body.gardenId !== undefined && (typeof body.gardenId !== 'string' || !body.gardenId || body.gardenId.length > 100)) || !Array.isArray(body.files) || !body.files.length || body.files.length > 50 || body.files.some((f: { size: number; type: string }) => !f || !Number.isInteger(f.size) || f.size <= 0 || f.size > PHOTO_LIMIT || !PHOTO_TYPES.includes(f.type))) return json({ error: 'Choose up to 50 supported pictures, each under 20 MB.' }, 400);
     if (!await ownerGarden(auth, body.gardenId)) return json({ error: 'Garden unavailable.' }, 403);
     const storage = adminDatabase().storage;
+    stage = 'bucket-check';
     const existing = await storage.getBucket(PHOTO_BUCKET);
     if (existing.error) {
+      stage = 'bucket-create';
       const created = await storage.createBucket(PHOTO_BUCKET, { public: false, fileSizeLimit: PHOTO_LIMIT, allowedMimeTypes: PHOTO_TYPES });
       if (created.error) {
         const retry = await storage.getBucket(PHOTO_BUCKET);
@@ -53,6 +56,7 @@ export async function POST(request: Request) {
     } else if (existing.data.public) throw Error('Private bucket required.');
     const uploads = [];
     const batch = crypto.randomUUID();
+    stage = 'signed-upload';
     for (const index of body.files.keys()) {
       const path = `${auth.user.id}/${body.id.slice(auth.user.id.length + 1)}/${batch}/${index}`;
       const { data, error } = await storage.from(PHOTO_BUCKET).createSignedUploadUrl(path);
@@ -60,7 +64,14 @@ export async function POST(request: Request) {
       uploads.push({ path, token: data.token });
     }
     return json({ uploads });
-  } catch { return json({ error: 'Cloud upload could not start. Your originals remain on this device. Please try again.' }, 503); }
+  } catch (cause) {
+    // Only expose stable stage and safe storage error codes; never keys, tokens or file paths.
+    const error = cause as { code?: string; statusCode?: string | number };
+    const code = typeof error?.code === 'string' && /^[a-zA-Z0-9_-]{1,60}$/.test(error.code) ? error.code : undefined;
+    const statusCode = typeof error?.statusCode === 'number' ? error.statusCode : undefined;
+    console.error('Photo upload initialization failed', { stage: typeof stage === 'string' ? stage : 'request', code, statusCode });
+    return json({ error: `Could not initialize picture backup (${typeof stage === 'string' ? stage : 'request'}${code ? ': ' + code : ''}). Your originals are safe on this device.` }, 503);
+  }
 }
 export async function PUT(request: Request) {
   const auth = await authenticated(request);
