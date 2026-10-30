@@ -124,6 +124,8 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [loaded, setLoaded] = useState(false);
   const [folderForm, setFolderForm] = useState(false);
   const [folderName, setFolderName] = useState("");
+  const [renamingBoard, setRenamingBoard] = useState<Folder | null>(null);
+  const [newBoardName, setNewBoardName] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [viewIndex, setViewIndex] = useState<number | null>(null);
   const [copyPicture, setCopyPicture] = useState<Picture | null>(null);
@@ -295,6 +297,22 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
       setError(err instanceof Error ? err.message : "Could not copy the picture. Try again.");
     } finally { setSaving(false); }
   }
+  async function renameBoard(e: React.FormEvent) {
+    e.preventDefault();
+    if (!renamingBoard || saving) return;
+    const name = newBoardName.trim();
+    if (!name) return setError("Board name cannot be empty.");
+    if (folders.some(f => f.id !== renamingBoard.id && f.name.toLowerCase() === name.toLowerCase())) return setError("A board with that name already exists.");
+    setSaving(true); setError("");
+    try {
+      const updated = await saveFolderCloud({ ...renamingBoard, name });
+      await transact("folders", "readwrite", store => store.put(updated));
+      setFolders(current => current.map(f => f.id === updated.id ? updated : f));
+      setRenamingBoard(null);
+      setNotice(`Board renamed to “${name}”. All pictures remain in the board.`);
+    } catch (err) { setError(err instanceof Error ? err.message : "Could not rename the board."); }
+    finally { setSaving(false); }
+  }
   async function createFolder(e: React.FormEvent) {
     e.preventDefault();
     const name = folderName.trim();
@@ -346,6 +364,13 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
       </fieldset>
     </form></Dialog>}
     {isInspiration ? <>
+      {renamingBoard && <Dialog title="Rename inspiration board" onClose={() => { if (!saving) setRenamingBoard(null); }}>
+        <form className="grid gap-4" onSubmit={e => void renameBoard(e)}>
+          <label className="grid gap-2 text-sm">Board name<input autoFocus required maxLength={100} disabled={saving} value={newBoardName} onChange={e => setNewBoardName(e.target.value)} /></label>
+          <p className="seasonal-muted text-xs">Your pictures and board contents will stay unchanged.</p>
+          <div className="flex gap-3"><button disabled={saving || !newBoardName.trim()} className="seasonal-button rounded-lg px-4 py-2">Save name</button><button type="button" disabled={saving} className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setRenamingBoard(null)}>Cancel</button></div>
+        </form>
+      </Dialog>}
       {folderForm && <Dialog title="Create an inspiration board" onClose={() => { if (!saving) setFolderForm(false); }}><form onSubmit={createFolder} className="grid gap-4"><label className="grid gap-2 text-sm">Board name<input autoFocus required maxLength={100} disabled={saving} value={folderName} onChange={e => setFolderName(e.target.value)} placeholder="e.g. My Dream Backyard" /></label><p className="seasonal-muted text-xs">Name a collection for the ideas you want to keep together.</p><button disabled={saving} className="seasonal-button rounded-xl px-5 py-3">{saving ? "Creating…" : "Create board"}</button></form></Dialog>}
       {activeFolder === "folders" ? <>
         <div className="mb-5 flex items-center justify-between"><h3 className="font-serif text-2xl">Your inspiration boards</h3><span className="seasonal-muted text-sm">{folders.length} {folders.length === 1 ? "board" : "boards"}</span></div>
@@ -353,15 +378,15 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{folders.map(board => {
           const boardPictures = pictures.filter(p => p.info.folderId === board.id);
           const cover = boardPictures[0];
-          return <button type="button" key={board.id} className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md" onClick={() => { setActiveFolder(board.id); setUploadFolder(board.id); setSelected([]); setFilter("All"); setYear("All"); }}>
+          return <article key={board.id} className="group overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm transition hover:-translate-y-1 hover:shadow-md"><button type="button" className="block w-full text-left" onClick={() => { setActiveFolder(board.id); setUploadFolder(board.id); setSelected([]); setFilter("All"); setYear("All"); }}>
             <div className="grid h-48 grid-cols-3 gap-1 overflow-hidden bg-[var(--surface-alt)]">{boardPictures.slice(0,3).map(p => <BoardPreview key={p.key} blob={p.blob} name={p.info.name} />)}{!cover && <div className="col-span-3 flex items-center justify-center text-5xl opacity-50">✿</div>}</div>
             <div className="flex items-center justify-between gap-3 p-5"><div><h4 className="font-serif text-xl">{board.name}</h4><p className="seasonal-muted mt-1 text-sm">{boardPictures.length} {boardPictures.length === 1 ? "idea" : "ideas"}</p></div><span className="seasonal-muted text-xl">↗</span></div>
-          </button>;
+          </button><div className="border-t border-[var(--border)] px-5 pb-3 pt-2"><button type="button" disabled={saving} className="seasonal-link min-h-10 text-sm underline" onClick={() => { setRenamingBoard(board); setNewBoardName(board.name); setError(""); }}>Rename board</button></div></article>;
         })}</div>}
         {pictures.some(p => !p.info.folderId) && folders.length > 0 && <div className="mt-6 rounded-xl border border-[var(--border)] p-4 text-sm"><p>Some pictures were added before boards were available. Open a board and select <strong>Organize earlier pictures</strong> to place them.</p></div>}
       </> : <>
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><button className="seasonal-outline rounded-xl border px-4 py-2" onClick={() => { setActiveFolder("folders"); setSelected([]); }}>← All boards</button><button className="seasonal-button rounded-xl px-5 py-3" onClick={() => { setUploadFolder(activeFolder); setFolderComposer(true); }}>+ Add inspiration</button></div>
-        <h3 className="mb-4 font-serif text-3xl">{folders.find(f => f.id === activeFolder)?.name}</h3>
+        <div className="mb-4 flex flex-wrap items-center gap-3"><h3 className="font-serif text-3xl">{folders.find(f => f.id === activeFolder)?.name}</h3><button type="button" className="seasonal-outline rounded-lg border px-3 py-2 text-sm" onClick={() => {const board=folders.find(f => f.id === activeFolder);if(board){setRenamingBoard(board);setNewBoardName(board.name);setError("");}}}>Rename</button></div>
         {pictures.some(p => !p.info.folderId) && <button className="seasonal-outline mb-5 rounded-lg border px-4 py-2 text-sm" onClick={() => { setSelected(pictures.filter(p => !p.info.folderId).map(p => p.key)); setMoveFolder(activeFolder); }}>Organize earlier pictures</button>}
       </>}
     </> : <>
