@@ -49,12 +49,15 @@ export async function uploadCloudEntry(client: SupabaseClient, entry: PhotoEntry
     const result = await photoRequest(client, 'POST', { id: entry.id, gardenId: entry.gardenId, files: entry.photos.map(p => ({ size: p.size, type: p.type })) });
     cloudPaths = [];
     for (const [index, upload] of result.uploads!.entries()) {
-      const { error } = await client.storage.from(PHOTO_BUCKET).uploadToSignedUrl(upload.path, upload.token, entry.photos[index], { contentType: entry.photos[index].type, cacheControl: '3600' });
+      const original = entry.photos[index];
+      const file = new File([original], upload.path.split('/').pop() || `picture-${index + 1}.jpg`, { type: original.type });
+      const { error } = await client.storage.from(PHOTO_BUCKET).uploadToSignedUrl(upload.path, upload.token, file, { contentType: original.type, cacheControl: '3600' });
       if (error) {
         const safeCode = typeof error.name === 'string' && /^[a-zA-Z0-9_ -]{1,65}$/.test(error.name) ? error.name : 'StorageError';
         const status = 'statusCode' in error && (typeof error.statusCode === 'string' || typeof error.statusCode === 'number') ? String(error.statusCode) : '';
         const safeStatus = /^[0-9]{3}$/.test(status) ? ` HTTP ${status}` : '';
-        throw new Error(`Picture ${index + 1} of ${entry.photos.length} could not upload (${safeCode}${safeStatus}). Your originals remain on this device.`);
+        const detail = status === '415' ? ` Supabase rejected image type ${original.type}; check the bucket's Allowed MIME Types.` : '';
+        throw new Error(`Picture ${index + 1} of ${entry.photos.length} could not upload (${safeCode}${safeStatus}).${detail} Your originals remain on this device.`);
       }
       cloudPaths.push(upload.path);
     }
