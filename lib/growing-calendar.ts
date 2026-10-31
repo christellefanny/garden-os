@@ -14,7 +14,7 @@ export type CalendarOptions = {
   lastFrost: string;
   firstFrost: string;
   plants: Record<string, { included?: boolean; mode?: "indoor" | "outdoor" }>;
-  tasks: Record<string, { status?: "done" | "skipped"; date?: string }>;
+  tasks: Record<string, { status?: "done" | "skipped"; date?: string; hidden?: boolean }>;
 };
 export type GrowingTask = {
   id: string;
@@ -105,6 +105,7 @@ export function buildGrowingTasks(
         if (options.tasks[oldId]) id = oldId;
       }
       const change = options.tasks[id];
+      if (change?.hidden) return;
       result.push({
         id,
         date: change?.date || date,
@@ -337,6 +338,7 @@ export function buildGrowingTasks(
   }
   for (const reminder of options.reminders || []) {
     const change = options.tasks[reminder.id];
+    if (change?.hidden) continue;
     if (!(change?.date || reminder.date).startsWith(`${year}-`)) continue;
     const plant = plants.find((p) => p.id === reminder.plantId);
     if (!plant && reminder.plantId) continue;
