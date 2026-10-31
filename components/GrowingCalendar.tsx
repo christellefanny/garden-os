@@ -42,6 +42,8 @@ export default function GrowingCalendar({
     }
   });
   const [addingReminder, setAddingReminder] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [selectedPlantId, setSelectedPlantId] = useState(plants[0]?.id ?? "");
   const [controlsTarget, setControlsTarget] = useState<HTMLDivElement | null>(
     null,
@@ -97,6 +99,37 @@ export default function GrowingCalendar({
     selectedDay && view === "month"
       ? shown.filter((t) => t.date === selectedDay)
       : shown;
+  const selectableTasks = visibleTasks;
+  const selectedVisible = selectableTasks.filter(t => selectedTaskIds.includes(t.id));
+  const allSelected = selectableTasks.length > 0 && selectedVisible.length === selectableTasks.length;
+  function markSelectedDone() {
+    if (!selectedVisible.length) return;
+    const updated = { ...options.tasks };
+    for (const task of selectedVisible) updated[task.id] = { ...updated[task.id], status: "done" };
+    if (save({ ...options, tasks: updated })) {
+      setSelectedTaskIds([]);
+      setMessage(`${selectedVisible.length} tasks marked done.`);
+    }
+  }
+  function deleteSelectedTasks() {
+    if (!selectedVisible.length) return;
+    const ids = new Set(selectedVisible.map(t => t.id));
+    const updated = { ...options.tasks };
+    for (const task of selectedVisible) {
+      if (!task.id.startsWith("custom|")) updated[task.id] = { ...updated[task.id], hidden: true };
+      else delete updated[task.id];
+    }
+    const next = {
+      ...options,
+      tasks: updated,
+      reminders: (options.reminders || []).filter(r => !ids.has(r.id)),
+    };
+    if (save(next)) {
+      setSelectedTaskIds([]);
+      setConfirmBulkDelete(false);
+      setMessage(`${selectedVisible.length} tasks removed from your calendar.`);
+    }
+  }
   function save(next: CalendarOptions) {
     try {
       localStorage.setItem(
@@ -414,6 +447,27 @@ export default function GrowingCalendar({
           {message}
         </p>
       )}
+      {visibleTasks.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            <input type="checkbox" aria-label="Select all visible calendar tasks" checked={allSelected} onChange={e => setSelectedTaskIds(e.target.checked ? visibleTasks.map(t => t.id) : [])} />
+            Select all ({visibleTasks.length})
+          </label>
+          {selectedVisible.length > 0 && <>
+            <span className="seasonal-muted text-sm">{selectedVisible.length} selected</span>
+            <button type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={markSelectedDone}>Mark selected done</button>
+            <button type="button" className="seasonal-outline rounded-lg border px-4 py-2 text-sm" onClick={() => setConfirmBulkDelete(true)}>Delete selected</button>
+            <button type="button" className="seasonal-link text-sm underline" onClick={() => setSelectedTaskIds([])}>Clear selection</button>
+          </>}
+        </div>
+      )}
+      {confirmBulkDelete && <Dialog title="Delete selected calendar tasks?" onClose={() => setConfirmBulkDelete(false)}>
+        <p className="text-sm">Remove {selectedVisible.length} selected tasks? Saved reminders will be deleted. Planning suggestions will be hidden from your calendar. This cannot be undone from this dialog.</p>
+        <div className="mt-5 flex gap-3">
+          <button type="button" className="seasonal-button rounded-lg px-4 py-2" onClick={deleteSelectedTasks}>Delete {selectedVisible.length} tasks</button>
+          <button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setConfirmBulkDelete(false)}>Cancel</button>
+        </div>
+      </Dialog>}
       {!plants.length && (
         <p className="seasonal-card mt-5 rounded-xl border p-6">
           Add plants in Plant Vault first, then return here to build your
@@ -450,6 +504,7 @@ export default function GrowingCalendar({
                   key={t.id}
                   className="seasonal-outline calendar-task-detail rounded-xl border p-4"
                 >
+                  <label className="mb-3 flex items-center gap-2 text-sm font-semibold"><input type="checkbox" aria-label={`Select ${t.title} for ${t.plant}`} checked={selectedTaskIds.includes(t.id)} onChange={e => setSelectedTaskIds(current => e.target.checked ? [...current, t.id] : current.filter(id => id !== t.id))} /> Select task</label>
                   {plants.find((p) => p.id === t.plantIds?.[0]) && (
                     <CalendarPlantArt
                       plant={plants.find((p) => p.id === t.plantIds?.[0])!}
