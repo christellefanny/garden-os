@@ -14,7 +14,7 @@ export type CalendarOptions = {
   lastFrost: string;
   firstFrost: string;
   plants: Record<string, { included?: boolean; mode?: "indoor" | "outdoor" }>;
-  tasks: Record<string, { status?: "done" | "skipped"; date?: string; hidden?: boolean }>;
+  tasks: Record<string, { status?: "done" | "skipped"; date?: string; hidden?: boolean; title?: string; detail?: string }>;
 };
 export type GrowingTask = {
   id: string;
@@ -109,10 +109,10 @@ export function buildGrowingTasks(
       result.push({
         id,
         date: change?.date || date,
-        title,
+        title: change?.title ?? title,
         plant: name,
         plantIds: group.map((p) => p.id),
-        detail: detail + (varieties ? ` Varieties: ${varieties}.` : ""),
+        detail: change?.detail ?? (detail + (varieties ? ` Varieties: ${varieties}.` : "")),
         status: change?.status,
       });
     };
@@ -345,13 +345,12 @@ export function buildGrowingTasks(
     result.push({
       id: reminder.id,
       date: change?.date || reminder.date,
-      title: reminder.title,
+      title: change?.title ?? reminder.title,
       plantIds: plant ? [plant.id] : [],
       plant: plant
         ? [plant.name, plant.variety].filter(Boolean).join(" · ")
         : "Personal task",
-      detail:
-        reminder.notes || (plant ? "Your plant reminder." : "Your saved task."),
+      detail: change?.detail ?? (reminder.notes || (plant ? "Your plant reminder." : "Your saved task.")),
       status: change?.status,
     });
   }
