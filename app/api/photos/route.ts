@@ -51,7 +51,8 @@ export async function POST(request: Request) {
     const batch = crypto.randomUUID();
     stage = 'signed-upload';
     for (const index of body.files.keys()) {
-      const path = `${auth.user.id}/${body.id.slice(auth.user.id.length + 1)}/${batch}/${index}`;
+      const extension: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/avif': 'avif' };
+      const path = `${auth.user.id}/${body.id.slice(auth.user.id.length + 1)}/${batch}/${index}.${extension[body.files[index].type]}`;
       const { data, error } = await storage.from(PHOTO_BUCKET).createSignedUploadUrl(path);
       if (error || !data) throw error || Error('Upload unavailable.');
       uploads.push({ path, token: data.token });
