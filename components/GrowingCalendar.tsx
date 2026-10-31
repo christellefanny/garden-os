@@ -44,6 +44,10 @@ export default function GrowingCalendar({
   const [addingReminder, setAddingReminder] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDetail, setEditDetail] = useState("");
+  const [editDate, setEditDate] = useState("");
   const [selectedPlantId, setSelectedPlantId] = useState(plants[0]?.id ?? "");
   const [controlsTarget, setControlsTarget] = useState<HTMLDivElement | null>(
     null,
@@ -144,6 +148,18 @@ export default function GrowingCalendar({
         "Could not save calendar changes in this browser. Try exporting your vault to keep a backup.",
       );
       return false;
+    }
+  }
+  function editTaskSave(event: React.FormEvent) {
+    event.preventDefault();
+    if (!editingTaskId || !editTitle.trim() || !editDate) return;
+    const updated = {
+      ...options.tasks,
+      [editingTaskId]: { ...options.tasks[editingTaskId], title: editTitle.trim(), detail: editDetail.trim(), date: editDate },
+    };
+    if (save({ ...options, tasks: updated })) {
+      setEditingTaskId(null);
+      setMessage("Task updated.");
     }
   }
   function taskChange(id: string, value: CalendarOptions["tasks"][string]) {
@@ -461,6 +477,15 @@ export default function GrowingCalendar({
           </>}
         </div>
       )}
+      {editingTaskId && <Dialog title="Edit calendar task" onClose={() => setEditingTaskId(null)}>
+        <form className="mt-3 grid gap-4" onSubmit={editTaskSave}>
+          <label className="grid gap-2 text-sm font-semibold">Task name<input className="seasonal-input rounded-lg border p-3" required maxLength={180} value={editTitle} onChange={e => setEditTitle(e.target.value)} /></label>
+          <label className="grid gap-2 text-sm font-semibold">Description<textarea className="seasonal-input rounded-lg border p-3" rows={4} maxLength={5000} value={editDetail} onChange={e => setEditDetail(e.target.value)} /></label>
+          <label className="grid gap-2 text-sm font-semibold">Date<input className="seasonal-input rounded-lg border p-3" type="date" required value={editDate} onChange={e => setEditDate(e.target.value)} /></label>
+          <p className="seasonal-muted text-xs">Changes to suggested tasks apply only to this task, not your other plant recommendations.</p>
+          <div className="flex gap-3"><button className="seasonal-button rounded-lg px-4 py-2" type="submit">Save changes</button><button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setEditingTaskId(null)}>Cancel</button></div>
+        </form>
+      </Dialog>}
       {confirmBulkDelete && <Dialog title="Delete selected calendar tasks?" onClose={() => setConfirmBulkDelete(false)}>
         <p className="text-sm">Remove {selectedVisible.length} selected tasks? Saved reminders will be deleted. Planning suggestions will be hidden from your calendar. This cannot be undone from this dialog.</p>
         <div className="mt-5 flex gap-3">
@@ -505,6 +530,7 @@ export default function GrowingCalendar({
                   className="seasonal-outline calendar-task-detail rounded-xl border p-4"
                 >
                   <label className="mb-3 flex items-center gap-2 text-sm font-semibold"><input type="checkbox" aria-label={`Select ${t.title} for ${t.plant}`} checked={selectedTaskIds.includes(t.id)} onChange={e => setSelectedTaskIds(current => e.target.checked ? [...current, t.id] : current.filter(id => id !== t.id))} /> Select task</label>
+                  <div className="mb-3 flex justify-end"><button type="button" className="seasonal-link rounded-lg px-2 py-1 text-sm font-semibold underline" onClick={() => { setEditingTaskId(t.id); setEditTitle(t.title); setEditDetail(t.detail); setEditDate(t.date); }}>Edit task</button></div>
                   {plants.find((p) => p.id === t.plantIds?.[0]) && (
                     <CalendarPlantArt
                       plant={plants.find((p) => p.id === t.plantIds?.[0])!}
