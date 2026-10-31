@@ -104,6 +104,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const isInspiration = gardenId === "garden-inspiration";
   const categoryOptions = isInspiration ? inspirationCategories : categories;
   const [cloudStatus, setCloudStatus] = useState(signedIn ? "Checking photo backup…" : "");
+  const automaticBackupAttempt = useRef("");
   const [entries, setEntries] = useState<PhotoEntry[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [category, setCategory] = useState(gardenId === "garden-inspiration" ? "Garden Layouts" : "My Garden");
@@ -199,6 +200,20 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     }catch(err){setError(err instanceof Error?err.message:"Backup interrupted. Your device pictures are safe.");}
     finally{setSaving(false);}
   }
+  // Signed-in uploads already sync immediately. Also recover existing device-only
+  // pictures and boards on page load, without asking for a manual backup click.
+  // Attempt each pending set once per page visit so a server outage does not
+  // cause repeated uploads or a retry loop. The manual backup remains available.
+  useEffect(() => {
+    if (!signedIn || !loaded || saving) return;
+    const pending = [...folders.filter(f => !f.cloudVersion).map(f => f.id), ...entries.filter(e => !e.cloudVersion).map(e => e.id)].sort();
+    if (!pending.length) return;
+    const signature = pending.join("|");
+    if (automaticBackupAttempt.current === signature) return;
+    automaticBackupAttempt.current = signature;
+    setCloudStatus("Backing up pictures and boards automatically…");
+    void backUpExisting();
+  }, [signedIn, loaded, saving, entries, folders]);
   const pictures: Picture[] = entries.flatMap(entry => entry.photos.map((blob, index) => ({ key: `${entry.id}/${index}`, entry, index, blob, info: pictureInfo(entry, index) })));
   const visible = pictures.filter(p => (!isInspiration || activeFolder !== "folders") && (filter === "All" || p.info.category === filter) && (year === "All" || p.info.date.startsWith(year)) && (activeFolder === "all" || p.info.folderId === (activeFolder === "unfiled" ? "" : activeFolder))).sort((a, b) => b.info.date.localeCompare(a.info.date));
   const years = [...new Set(pictures.map(p => p.info.date.slice(0, 4)))].sort().reverse();
