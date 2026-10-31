@@ -17,7 +17,7 @@ export function photoStateKey(userId: string, kind: 'entry' | 'folder', id: stri
   return `garden-os-photo-${kind}-${userId}-${id.slice(userId.length + 1)}`;
 }
 export function ownedPhotoPath(path: unknown, userId: string): path is string {
-  return typeof path === 'string' && path.startsWith(userId + '/') && path.length < 250 && /^[a-z0-9/-]+$/i.test(path) && !path.includes('..');
+  return typeof path === 'string' && path.startsWith(userId + '/') && path.length < 250 && /^[a-z0-9/-]+(?:\.(?:jpg|png|webp|gif|avif))?$/i.test(path) && !path.includes('..');
 }
 function short(value: unknown, max: number): value is string { return typeof value === 'string' && value.length <= max; }
 export function validCloudPhoto(value: unknown, userId: string): value is CloudPhoto | CloudFolder {
