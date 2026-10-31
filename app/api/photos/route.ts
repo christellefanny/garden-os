@@ -38,22 +38,15 @@ export async function POST(request: Request) {
   const auth = await authenticated(request);
   if (!auth) return json({ error: 'Sign in to sync pictures.' }, 401);
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return json({ error: 'Photo cloud storage needs the server connection. Your device pictures remain safe.' }, 503);
-  let stage: 'request' | 'bucket-check' | 'bucket-create' | 'signed-upload' = 'request';
+  let stage: 'request' | 'signed-upload' = 'request';
   try {
     const body = await input(request);
     if (!ownedPhotoId(body.id, auth.user.id) || (body.gardenId !== undefined && (typeof body.gardenId !== 'string' || !body.gardenId || body.gardenId.length > 100)) || !Array.isArray(body.files) || !body.files.length || body.files.length > 50 || body.files.some((f: { size: number; type: string }) => !f || !Number.isInteger(f.size) || f.size <= 0 || f.size > PHOTO_LIMIT || !PHOTO_TYPES.includes(f.type))) return json({ error: 'Choose up to 50 supported pictures, each under 20 MB.' }, 400);
     if (!await ownerGarden(auth, body.gardenId)) return json({ error: 'Garden unavailable.' }, 403);
     const storage = adminDatabase().storage;
-    stage = 'bucket-check';
-    const existing = await storage.getBucket(PHOTO_BUCKET);
-    if (existing.error) {
-      stage = 'bucket-create';
-      const created = await storage.createBucket(PHOTO_BUCKET, { public: false, fileSizeLimit: PHOTO_LIMIT, allowedMimeTypes: PHOTO_TYPES });
-      if (created.error) {
-        const retry = await storage.getBucket(PHOTO_BUCKET);
-        if (retry.error || retry.data.public) throw created.error;
-      }
-    } else if (existing.data.public) throw Error('Private bucket required.');
+    // Bucket is provisioned in Supabase ahead of time. Do not attempt to
+    // create it on requests: bucket lookup permissions may differ from
+    // object-upload permissions, and AccessDenied is not "bucket missing".
     const uploads = [];
     const batch = crypto.randomUUID();
     stage = 'signed-upload';
