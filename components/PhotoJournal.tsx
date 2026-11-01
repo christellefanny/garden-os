@@ -99,7 +99,7 @@ function UploadPreview({ file }: { file: File }) {
     <figcaption className="mt-2 truncate text-xs">{file.name}</figcaption>
   </figure>;
 }
-export default function PhotoJournal({ userId, embedded = false, showComposer = false, onCloseComposer, gardenId, gardenName, gardens = [] }: { userId: string; embedded?: boolean; showComposer?: boolean; onCloseComposer?: () => void; gardenId?: string; gardenName?: string; gardens?: GardenOption[] }) {
+export default function PhotoJournal({ userId, embedded = false, showComposer = false, onCloseComposer, gardenId, gardenName, spaceId, gardens = [] }: { userId: string; embedded?: boolean; showComposer?: boolean; onCloseComposer?: () => void; gardenId?: string; gardenName?: string; spaceId?: string; gardens?: GardenOption[] }) {
   const signedIn = userId !== "guest";
   const isInspiration = gardenId === "garden-inspiration";
   const categoryOptions = isInspiration ? inspirationCategories : categories;
@@ -135,7 +135,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const [bulkCategory, setBulkCategory] = useState("");
   useEffect(() => {
     let active = true;
-    const inAlbum = (item: {id:string;gardenId?:string}) => item.id.startsWith(userId + ":") && (!gardenId || item.gardenId === gardenId);
+    const inAlbum = (item: {id:string;gardenId?:string;spaceId?:string}) => item.id.startsWith(userId + ":") && (!gardenId || item.gardenId === gardenId) && (!spaceId || item.spaceId === spaceId);
     const refresh = async () => {
       try {
         const [localEntries, localFolders] = await Promise.all([transact<PhotoEntry[]>("entries", "readonly", store => store.getAll()), transact<Folder[]>("folders", "readonly", store => store.getAll())]);
@@ -178,7 +178,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     };
     void refresh();
     return () => {active=false;};
-  }, [userId, gardenId, signedIn]);
+  }, [userId, gardenId, spaceId, signedIn]);
   async function saveFolderCloud(folder:Folder):Promise<Folder>{
     if(!signedIn)return folder;
     const {cloudVersion,...value}=folder;
@@ -223,7 +223,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     if (photos.some(file => !file.type.startsWith("image/"))) return setError("Please choose image files only.");
     setSaving(true); setError(""); setNotice("");
     try {
-      let entry: PhotoEntry = { id: userId + ":" + crypto.randomUUID(), ...(gardenId ? { gardenId, gardenName } : {}), date, category, caption, plant, bed, photos: [...photos], photoDetails: Object.fromEntries(photos.map((file, index) => [String(index), { name: file.name.replace(/\.[^.]+$/, "") || `Garden photo ${index + 1}`, description: caption, date, category, folderId: uploadFolder }])) };
+      let entry: PhotoEntry = { id: userId + ":" + crypto.randomUUID(), ...(gardenId ? { gardenId, gardenName } : {}), ...(spaceId ? { spaceId } : {}), date, category, caption, plant, bed, photos: [...photos], photoDetails: Object.fromEntries(photos.map((file, index) => [String(index), { name: file.name.replace(/\.[^.]+$/, "") || `Garden photo ${index + 1}`, description: caption, date, category, folderId: uploadFolder }])) };
       await transact("entries", "readwrite", store => store.put(entry));
       if(signedIn){
         try{entry=await uploadCloudEntry(supabase,entry);await transact("entries","readwrite",store=>store.put(entry));setCloudStatus("Pictures backed up to your account.");}
