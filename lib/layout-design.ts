@@ -1,12 +1,16 @@
 /** Visual planning objects. Decorations are illustrations, never garden plant records. */
 export type Decoration = { id: string; plantId: string; x: number; y: number };
 export type LayoutItem = {
-  id: string; name: string; kind: "Bed" | "Container" | "Path" | "Border";
+  id: string; name: string; kind: "Bed" | "Container" | "Path" | "Border" | "Wall";
   x: number; y: number; w: number; h: number; spaceId: string; color?: string;
   decorations?: Decoration[];
   groundCover?: GroundCoverId;
+  containerStyle?: string;
+  wallStyle?: string;
+  wallRotation?: number;
 };
-export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId };
+export type PhotoLayoutSource = { method: "photo"; focus?: "mixed" | "beds" | "containers"; image?: string; aspectRatio?: number; widthFeet?: number; depthFeet?: number; notes: string; reviewedAt: string };
+export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId; source?: PhotoLayoutSource };
 export type GroundCoverId = "mulch" | "gravel" | "stone";
 export const groundCovers = [
   {id:"mulch",name:"Bark mulch",src:"/layout-inspiration/ground-mulch-watercolor.webp",color:"#d9c8ac"},
@@ -67,7 +71,7 @@ export const layoutTemplates: LayoutTemplate[] = [
   ]},
   {id:"courtyard",name:"Compact courtyard garden",description:"Two long beds and five pots frame a clear walkway with an open front entrance. Make the most of a smaller garden without crowding it.",image:"/layout-inspiration/courtyard-open-entry.webp",summary:"2 beds · 5 pots · Open entrance",items:[
     {name:"Courtyard path",kind:"Path",x:46,y:8,w:8,h:92},bed("Climbing crops",12,20,29,60,"tomato","peas","beans","cucumber"),bed("Everyday harvests",59,20,29,60,"lettuce","radish","pepper","spinach"),
-    ...[15,42,69].flatMap((x,i)=>[8,84].map((y,j)=>({name:`Patio pot ${i*2+j+1}`,kind:"Container" as const,x,y,w:12,h:12,decorations:stamps(j?"alyssum":"lettuce")}))).filter(item=>!(item.x===42&&item.y===84)).map((item,i)=>({...item,name:`Patio pot ${i+1}`})),
+    ...[15,42,69].flatMap((x,i)=>[8,84].map((y,j)=>({name:`Patio pot ${i*2+j+1}`,kind:"Container" as const,x,y,w:12,h:12,decorations:stamps(j?"alyssum":"lettuce")}))).filter(item=>!(item.x===42&&item.y===84)).map((item,i)=>({...item,name:`Patio pot ${i+1}`,containerStyle:["terracotta","ivory","glazed","urn","grow-bag"][i]})),
   ]},
   {id:"cutting",name:"A garden for bouquets",description:"Four flower beds gathered around simple paths. Mix colors and textures, then make the arrangement your own.",image:"/layout-inspiration/cutting.webp",summary:"4 beds · Cutting flowers · Cross paths",items:[
     {name:"Flower garden path",kind:"Path",x:46,y:6,w:8,h:88},{name:"Cross path",kind:"Path",x:8,y:46,w:84,h:8},
@@ -78,8 +82,8 @@ export const layoutTemplates: LayoutTemplate[] = [
 export function instantiateLayout(template:LayoutTemplate|undefined,name:string,uuid:()=>string=()=>crypto.randomUUID()):Layout {
   return {id:uuid(),name,items:template?.items.map(item=>({...item,id:uuid(),spaceId:"",decorations:item.decorations?.map(plant=>({...plant,id:uuid()}))}))??[]};
 }
-export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[]}>(item:T):T {
-  return {...item,x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
+export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[];kind?:LayoutItem["kind"];wallRotation?:number}>(item:T):T {
+  return {...item,...(item.kind==="Wall"?{wallRotation:((item.wallRotation??0)+90)%360}:{}),x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
 }
 export function safeDecorations(value:unknown):Decoration[] {
   if(!Array.isArray(value))return [];
