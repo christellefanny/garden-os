@@ -4,7 +4,7 @@ export const PHOTO_BUCKET = 'garden-atelier-private-photos';
 export const PHOTO_LIMIT = 20 * 1024 * 1024;
 export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 export type PhotoInfo = { name: string; description: string; date: string; category: string; folderId: string };
-export type PhotoEntry = { id: string; gardenId?: string; gardenName?: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo>; cloudPaths?: string[]; cloudVersion?: number };
+export type PhotoEntry = { id: string; gardenId?: string; gardenName?: string; spaceId?: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo>; cloudPaths?: string[]; cloudVersion?: number };
 export type PhotoFolder = { id: string; name: string; gardenId?: string; cloudVersion?: number };
 export type CloudPhoto = Omit<PhotoEntry, 'photos' | 'cloudVersion'> & { kind: 'entry'; deleted?: boolean };
 export type CloudFolder = Omit<PhotoFolder, 'cloudVersion'> & { kind: 'folder' };
@@ -24,6 +24,7 @@ export function validCloudPhoto(value: unknown, userId: string): value is CloudP
   if (!value || typeof value !== 'object') return false;
   const v = value as Omit<CloudPhoto, 'kind'> & Omit<CloudFolder, 'kind'> & { kind: unknown };
   if (!ownedPhotoId(v.id, userId) || (v.gardenId !== undefined && (!short(v.gardenId, 100) || !v.gardenId))) return false;
+  if (v.spaceId !== undefined && (!short(v.spaceId, 100) || !v.spaceId)) return false;
   if (v.kind === 'folder') return short(v.name, 100) && !!v.name.trim();
   if (v.kind !== 'entry') return false;
   if (v.deleted === true) return true;
@@ -63,7 +64,7 @@ export async function uploadCloudEntry(client: SupabaseClient, entry: PhotoEntry
     }
   }
   const { cloudVersion } = entry;
-  const metadata = { id: entry.id, gardenId: entry.gardenId, gardenName: entry.gardenName, date: entry.date, category: entry.category, caption: entry.caption, plant: entry.plant, bed: entry.bed, photoDetails: entry.photoDetails };
+  const metadata = { id: entry.id, gardenId: entry.gardenId, gardenName: entry.gardenName, spaceId: entry.spaceId, date: entry.date, category: entry.category, caption: entry.caption, plant: entry.plant, bed: entry.bed, photoDetails: entry.photoDetails };
   const { record } = await photoRequest(client, 'PUT', { version: cloudVersion ?? 0, value: { ...metadata, kind: 'entry', cloudPaths } });
   return { ...entry, cloudPaths, cloudVersion: record!.version };
 }

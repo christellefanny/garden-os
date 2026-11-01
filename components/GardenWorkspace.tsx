@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
 import AddTaskButton from "@/components/AddTaskButton";
+import { transact } from "@/lib/photo-local";
+import { uploadCloudEntry, type PhotoEntry } from "@/lib/photo-cloud";
 import InteriorHeader from "@/components/InteriorHeader";
 import GardenCollection from "@/components/GardenCollection";
 import SpacePortrait from "@/components/SpacePortrait";
@@ -127,6 +129,7 @@ export default function GardenWorkspace({
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
   const [picturesGardenId, setPicturesGardenId] = useState<string | null>(null);
+  const [picturesSpaceId, setPicturesSpaceId] = useState<string | null>(null);
   const [calendarOpen, setCalendarOpen] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -265,17 +268,40 @@ export default function GardenWorkspace({
   async function saveSpace(
     input: SpaceInput,
     existing?: Space,
+    photoFiles: File[] = [],
   ): Promise<boolean> {
     if (busy || !garden || !loaded) return false;
     setBusy(true);
     setNotice("");
     setError("");
+    async function saveProgressPhotos(spaceId: string) {
+      if (!photoFiles.length) return;
+      const date = new Date().toISOString().slice(0, 10);
+      const entry: PhotoEntry = {
+        id: userId + ":" + crypto.randomUUID(), gardenId, gardenName: garden?.name || "",
+        spaceId, date, category: "Plant Progress", caption: "", plant: "", bed: input.name,
+        photos: photoFiles, photoDetails: Object.fromEntries(photoFiles.map((file, index) => [String(index), {
+          name: file.name.slice(0, 150), description: "", date, category: "Plant Progress", folderId: "",
+        }])),
+      };
+      // Persist originals before attempting remote upload.
+      await transact("entries", "readwrite", store => store.put(entry));
+      if (userId !== GUEST_ID) {
+        try {
+          const synced = await uploadCloudEntry(supabase, entry);
+          await transact("entries", "readwrite", store => store.put(synced));
+        } catch {
+          setNotice("Growing space saved. Pictures are safe on this device and will sync when you open its gallery.");
+        }
+      }
+    }
     try {
       if (userId === GUEST_ID) {
         const saved = { ...input, id: existing?.id ?? crypto.randomUUID(), garden_id: gardenId, updated_at: new Date().toISOString() } as Space;
         saveGuestSpaces([saved]);
         setSpaces(readGuest().spaces);
-        setNotice("Changes saved on this device.");
+        await saveProgressPhotos(saved.id);
+        setNotice("Changes and selected pictures saved on this device.");
         return true;
       }
       const query = existing
@@ -300,6 +326,7 @@ export default function GardenWorkspace({
           : [...current, data as Space],
       );
       setNotice("Changes saved.");
+      if (photoFiles.length) await saveProgressPhotos((data as Space).id);
       return true;
     } catch (error) {
       setError(
