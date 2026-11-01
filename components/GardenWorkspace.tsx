@@ -278,7 +278,7 @@ export default function GardenWorkspace({
       if (!photoFiles.length) return;
       const date = new Date().toISOString().slice(0, 10);
       const entry: PhotoEntry = {
-        id: userId + ":" + crypto.randomUUID(), gardenId, gardenName: garden.name,
+        id: userId + ":" + crypto.randomUUID(), gardenId, gardenName: garden?.name || "",
         spaceId, date, category: "Plant Progress", caption: "", plant: "", bed: input.name,
         photos: photoFiles, photoDetails: Object.fromEntries(photoFiles.map((file, index) => [String(index), {
           name: file.name.slice(0, 150), description: "", date, category: "Plant Progress", folderId: "",
