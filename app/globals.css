@@ -2115,3 +2115,82 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .layout-object-container[data-illustrated=true] {border:0!important;background:transparent!important;}
 
 .layout-object-wall[data-illustrated="true"] {border:0!important;background:transparent!important;}
+
+.modern-sidebar .sidebar-garden-child {padding-left:20px;margin:0 0 5px 15px;border-left:1px solid #ffffff70;}
+.modern-sidebar .sidebar-garden-child button {font-size:12px;min-height:44px;padding:8px 12px;}
+.flower-garden-entry {display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px;border:1px solid var(--border);border-radius:20px;background:var(--surface);margin-bottom:24px;}
+.flower-garden-entry h2 {font:28px/1.2 Georgia,serif;margin:8px 0;}
+.flower-garden-entry p {font-size:13px;line-height:1.7;}
+.flower-garden-entry button,.learning-actions button,.learning-start button {min-height:44px;border:1px solid var(--border);padding:11px 16px;border-radius:10px;}
+.learning-hero {display:grid;grid-template-columns:1.15fr 1fr;border:1px solid var(--border);border-radius:22px;overflow:hidden;background:var(--surface);margin:24px 0;}
+.learning-hero>div {padding:clamp(22px,4vw,40px);align-self:center;}
+.learning-hero h2 {font:clamp(28px,3vw,40px)/1.15 Georgia,serif;margin:14px 0;}
+.learning-hero p,.learning-article p,.learning-article li {font-size:14px;line-height:1.85;}
+.learning-hero>img {width:100%;height:100%;min-height:270px;object-fit:cover;}
+.learning-actions {display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0;}
+.learning-note {background:var(--surface-alt);padding:20px;border-radius:14px;margin:22px 0;font-size:13px;line-height:1.8;}
+.learning-note p {margin:8px 0;}
+.learning-note a,.learning-sources a {text-decoration:underline;text-underline-offset:3px;}
+.learning-toolbar {display:flex;gap:20px;align-items:end;flex-wrap:wrap;margin:26px 0 16px;}
+.learning-toolbar label,.learning-start label {display:grid;gap:8px;font-size:13px;flex:1;min-width:180px;}
+.learning-page input:not([type=checkbox]),.learning-page select {width:100%;min-width:0;border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);color:var(--foreground);font:inherit;}
+.learning-flower-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:22px 0;align-items:start;}
+.learning-flower {min-width:0;overflow:hidden;border:1px solid var(--border);border-radius:18px;background:var(--surface);}
+.learning-flower>div[role=img],.learning-flower>img {max-width:240px;margin:12px auto 0;}
+.learning-flower-copy {padding:22px;}
+.learning-flower h2,.learning-guide-card h2,.learning-start h2,.learning-article h2 {font:26px/1.25 Georgia,serif;margin:8px 0 12px;}
+.learning-flower p,.learning-flower dd {font-size:13px;line-height:1.8;margin:8px 0;}
+.learning-flower dl {display:grid;grid-template-columns:auto 1fr;gap:6px 15px;margin:16px 0;}
+.learning-flower dt {font-size:12px;font-weight:600;padding-top:8px;}
+.learning-flower details {border-top:1px solid var(--border);padding-top:14px;}
+.learning-flower summary {cursor:pointer;min-height:44px;font-weight:600;font-size:13px;padding:10px 0;}
+.learning-profile-detail h3,.learning-article h3 {font:20px/1.3 Georgia,serif;margin:22px 0 8px;}
+.learning-sources {border-top:1px solid var(--border);padding-top:12px;margin-top:22px;font-size:12px;line-height:1.8;}
+.learning-sources ul {list-style:disc;padding-left:18px;}
+.learning-start {padding:24px;border:1px solid var(--border);border-radius:18px;background:var(--surface);margin:24px 0;}
+.learning-start form {display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:end;}
+.learning-next {margin-top:20px;font-size:14px;line-height:1.8;}
+.learning-guide-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:26px 0;}
+.learning-guide-card {text-align:left;min-width:0;border:1px solid var(--border);border-radius:16px;background:var(--surface);padding:24px;}
+.learning-guide-card[aria-pressed=true] {border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary);}
+.learning-guide-card p {font-size:13px;line-height:1.8;margin-bottom:16px;}
+.learning-article {background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:clamp(20px,4vw,36px);margin:26px 0;max-width:850px;}
+.learning-article ol {list-style:decimal;padding-left:22px;}
+.learning-article li {padding:8px 0 8px 5px;}
+.learning-check {display:flex;align-items:center;gap:12px;min-height:44px;font-size:14px;}
+.learning-check input {width:20px;height:20px;flex-shrink:0;}
+.learning-reviewed {margin:30px 0;font-size:12px;line-height:1.8;color:var(--muted);}
+@media(max-width:700px){.learning-hero{grid-template-columns:1fr;}.learning-hero>img{height:220px;min-height:0;}.learning-flower-grid,.learning-guide-grid,.learning-start form{grid-template-columns:1fr;}.flower-garden-entry{align-items:start;flex-direction:column;}.learning-toolbar label{min-width:100%;}.learning-guide-card{padding:20px;}}
+
+.item-pictures-heading {display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+.item-pictures-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;flex-shrink:0;}
+.modern-task-row .item-pictures-button {font-size:12px;}
+.layout-cover-picker {padding:20px;margin-top:20px;border:1px dashed var(--border);border-radius:16px;background:var(--surface);}
+.layout-cover-preview {width:100%;max-width:400px;height:180px;object-fit:cover;border-radius:12px;margin:14px 0;}
+.layout-cover-actions {display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin:20px 0;}
+.saved-layouts-with-covers {margin:24px 0 36px;}
+.layout-cover-empty {display:grid;place-items:center;min-height:160px;background:var(--surface-alt);color:var(--muted);font-family:Georgia,serif;}
+@media(max-width:600px){.tasks-page .modern-task-row{flex-wrap:wrap;}.tasks-page .modern-task-row>div{flex-basis:calc(100% - 42px);}.tasks-page .modern-task-row .item-pictures-button{margin-left:33px;}.item-pictures-heading>.item-pictures-button{width:100%;}.layout-cover-picker{padding:14px;}}
+
+/* A quiet home for personal garden inspiration. All gallery pictures are user uploads. */
+.vision-hero {display:grid;grid-template-columns:1.1fr 1fr;overflow:hidden;border:1px solid var(--border);border-radius:24px;background:#fbf5e8;min-height:320px;}
+.vision-hero-copy {padding:clamp(24px,3vw,34px);align-self:center;}
+.vision-hero h1 {font-family:Georgia,serif;font-size:clamp(32px,3vw,42px);line-height:1.12;margin:12px 0 16px;max-width:410px;}
+.vision-hero-copy>p:not(.modern-eyebrow) {font-size:14px;line-height:1.8;max-width:420px;margin-bottom:20px;}
+.vision-hero-art {position:relative;min-height:280px;}
+.vision-hero-art img {height:100%;width:100%;object-fit:cover;object-position:center;}
+.vision-hero-art span {position:absolute;bottom:16px;right:16px;padding:9px 13px;border-radius:8px;background:#fffaf0ed;color:#334c38;font-family:Georgia,serif;font-style:italic;font-size:14px;}
+.vision-intro {display:flex;align-items:center;justify-content:space-between;gap:30px;margin:35px 0 22px;}
+.vision-intro h2 {font:30px/1.3 Georgia,serif;margin-top:7px;}
+.vision-intro>p {max-width:440px;font-size:14px;line-height:1.8;color:var(--muted);}
+.vision-search {display:grid;gap:8px;max-width:480px;margin:20px 0 26px;font-size:13px;font-weight:600;}
+.vision-search input {border:1px solid var(--border);border-radius:12px;padding:13px 15px;background:var(--surface);font-size:14px;font-weight:400;}
+.vision-search input:focus {outline:2px solid var(--primary);outline-offset:2px;}
+.vision-gallery [aria-label="Inspiration collections"]>div {padding:10px;border-radius:15px;background:var(--surface);}
+.vision-gallery [aria-label="Inspiration collections"]>div>button:first-child {gap:9px;}
+.vision-gallery [aria-label="Inspiration collections"] svg {display:none;}
+.vision-collection-cover {width:100%;height:100px;object-fit:cover;border-radius:9px;}
+.vision-collection-placeholder {display:grid;place-items:center;width:100%;height:70px;border-radius:9px;background:var(--surface-alt);font:30px Georgia,serif;color:var(--primary);}
+.vision-gallery [aria-label="Inspiration collections"] button>span:not(.vision-collection-placeholder) {margin-left:5px;}
+.vision-gallery article {border-radius:16px;box-shadow:0 5px 18px #37452d05;}
+@media(max-width:700px) {.vision-hero {grid-template-columns:1fr;}.vision-hero-art {height:210px;min-height:0;}.vision-intro {align-items:flex-start;flex-direction:column;gap:8px;}.vision-hero h1{max-width:none;}.vision-hero-copy{padding:26px;}.vision-hero-art img{object-position:center 52%;}}

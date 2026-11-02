@@ -4,11 +4,12 @@ import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
 import { readJournal } from "@/lib/journal";
+import ItemPicturesButton from "@/components/ItemPicturesButton";
 import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
 import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { seasonContent, parseThemeSelection, seasons } from "@/lib/seasons";
 import {
@@ -34,9 +35,12 @@ export type Destination =
   | "My Gardens"
   | "Plant Vault"
   | "Flower Garden"
+  | "Flower Library"
+  | "Beginner’s Guide"
   | "Garden Layout"
   | "Growing Calendar"
   | "Tasks"
+  | "Vision Board"
   | "Journal"
   | "Settings"
   | "Help";
@@ -45,10 +49,13 @@ export const destinations: Destination[] = [
   "My Gardens",
   "Plant Vault",
   "Flower Garden",
+  "Flower Library",
+  "Beginner’s Guide",
   "Garden Layout",
   "Growing Calendar",
   "Tasks",
   "Journal",
+  "Vision Board",
   "Settings",
   "Help",
 ];
@@ -61,6 +68,9 @@ const navigationIconPaths: Record<string, string> = {
   "Growing Calendar": "M3 6h18v15H3V6Zm4-3v6m10-6v6M3 11h18m-13 4h2m4 0h2m-8 3h2",
   "Tasks": "M9 5h12M9 12h12M9 19h12M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4",
   "Journal": "M4 3h15v18H4V3Zm4 0v18m3-13h5m-5 4h5m-5 4h3",
+  "Vision Board": "M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z",
+  "Flower Library": "M3 4h7l2 2 2-2h7v16h-7l-2 2-2-2H3V4Zm9 2v16",
+  "Beginner’s Guide": "M4 3h16v18H4V3Zm4 5h8m-8 4h8m-8 4h5",
   "Photo Journal": "M3 6h5l2-3h4l2 3h5v15H3V6Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   "Settings": "M10 3h4l1 3 3 1 3 3v4l-3 1-1 3-3 3h-4l-1-3-3-1-3-3v-4l3-1 1-3 3-3Zm6 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   "Help": "M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5m0 3v1M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
@@ -111,15 +121,18 @@ export function ConservatoryNavigation({
         <span className="garden-atelier-brand-tagline">PLAN · GROW · HARVEST · ENJOY</span>
       </button>
       <nav aria-label="Garden Atelier navigation">
-        {destinations.filter((name) => !guest || name !== "Plant Vault").map((name) => (
+        {destinations.filter((name) => name !== "Flower Garden" && (!guest || name !== "Plant Vault")).map((name) => (
+          <Fragment key={name}>
           <button
             key={name}
             aria-current={page === name ? "page" : undefined}
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />
-            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Garden Journal"} as Record<string,string>)[name] || name}</span>
+            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Garden Journal","Flower Library":"The Flower Library"} as Record<string,string>)[name] || name}</span>
           </button>
+          {name === "My Gardens" && <div className="sidebar-garden-child" role="group" aria-label="My Gardens sections"><button type="button" aria-current={page === "Flower Garden" ? "page" : undefined} onClick={()=>navigate("Flower Garden")}><LineIcon name="Flower Garden"/><span>Flower Garden</span></button></div>}
+          </Fragment>
         ))}
       </nav>
       <div className="sidebar-botany" aria-hidden="true">
@@ -613,11 +626,12 @@ export function TasksPage({
     <section className="interior-page tasks-page atelier-welcoming-page">
       <InteriorHeader illustration="tasks" title="Tasks" eyebrow="Little by little, a garden grows" description="A few thoughtful steps for today and the days ahead. Make a little time for the garden, and enjoy watching it grow.">
         <AddTaskButton userId={userId} onSaved={setOptions}/>
+        <ItemPicturesButton userId={userId} collection="tasks" title="Task pictures"/>
         <button className="seasonal-outline" onClick={onCalendar}>Open Growing Calendar</button>
       </InteriorHeader>
       <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
       <div className="interior-toolbar"><div className="collection-tabs">{[{id:"today",label:"Today"},{id:"week",label:"This week"},{id:"all",label:"Upcoming"}].map(item=><button className={`collection-tab ${range===item.id?"is-active":""}`} aria-pressed={range===item.id} key={item.id} onClick={()=>setRange(item.id)}>{item.label}</button>)}</div></div>
-      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant === "Personal task" ? t.title : t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
+      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant === "Personal task" ? t.title : t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><ItemPicturesButton userId={userId} collection="tasks" contextId={t.id} title={t.plant === "Personal task" ? t.title : `${t.plant} · ${t.title}`} label="Pictures"/><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
       {!tasks.some(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))&&<div className="interior-empty"><h2>A little breathing room.</h2><p>No upcoming steps in this view. Your calendar keeps the rest of the year within reach.</p><button className="seasonal-outline" onClick={onCalendar}>View calendar</button></div>}
     </section>
   );

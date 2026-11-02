@@ -10,7 +10,7 @@ export type LayoutItem = {
   wallRotation?: number;
 };
 export type PhotoLayoutSource = { method: "photo"; focus?: "mixed" | "beds" | "containers"; image?: string; aspectRatio?: number; widthFeet?: number; depthFeet?: number; notes: string; reviewedAt: string };
-export type Layout = { id: string; name: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId; source?: PhotoLayoutSource };
+export type Layout = { id: string; name: string; coverImage?: string; items: LayoutItem[]; color?: string; groundCover?: GroundCoverId; source?: PhotoLayoutSource };
 export type GroundCoverId = "mulch" | "gravel" | "stone";
 export const groundCovers = [
   {id:"mulch",name:"Bark mulch",src:"/layout-inspiration/ground-mulch-watercolor.webp",color:"#d9c8ac"},

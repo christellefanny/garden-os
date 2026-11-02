@@ -3,9 +3,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const PHOTO_BUCKET = 'garden-atelier-private-photos';
 export const PHOTO_LIMIT = 20 * 1024 * 1024;
 export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+export type PhotoCollection = "inspiration" | "tasks" | "bouquets";
 export type PhotoInfo = { name: string; description: string; date: string; category: string; folderId: string };
-export type PhotoEntry = { id: string; gardenId?: string; gardenName?: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo>; cloudPaths?: string[]; cloudVersion?: number };
-export type PhotoFolder = { id: string; name: string; gardenId?: string; cloudVersion?: number };
+export type PhotoEntry = { collection?: PhotoCollection; contextId?: string; id: string; gardenId?: string; gardenName?: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo>; cloudPaths?: string[]; cloudVersion?: number };
+export type PhotoFolder = { collection?: PhotoCollection; contextId?: string; id: string; name: string; gardenId?: string; cloudVersion?: number };
 export type CloudPhoto = Omit<PhotoEntry, 'photos' | 'cloudVersion'> & { kind: 'entry'; deleted?: boolean };
 export type CloudFolder = Omit<PhotoFolder, 'cloudVersion'> & { kind: 'folder' };
 export type PhotoRecord = { key: string; version: number; value: CloudPhoto | CloudFolder; urls?: string[] };
@@ -23,6 +24,9 @@ function short(value: unknown, max: number): value is string { return typeof val
 export function validCloudPhoto(value: unknown, userId: string): value is CloudPhoto | CloudFolder {
   if (!value || typeof value !== 'object') return false;
   const v = value as Omit<CloudPhoto, 'kind'> & Omit<CloudFolder, 'kind'> & { kind: unknown };
+  if (v.collection !== undefined && !["inspiration", "tasks", "bouquets"].includes(v.collection)) return false;
+  if (v.collection !== undefined && v.gardenId !== undefined) return false;
+  if (v.contextId !== undefined && (v.collection !== "tasks" || !short(v.contextId, 300) || !v.contextId.trim())) return false;
   if (!ownedPhotoId(v.id, userId) || (v.gardenId !== undefined && (!short(v.gardenId, 100) || !v.gardenId))) return false;
   if (v.kind === 'folder') return short(v.name, 100) && !!v.name.trim();
   if (v.kind !== 'entry') return false;
@@ -55,7 +59,12 @@ export async function uploadCloudEntry(client: SupabaseClient, entry: PhotoEntry
     }
   }
   const { cloudVersion } = entry;
-  const metadata = { id: entry.id, gardenId: entry.gardenId, gardenName: entry.gardenName, date: entry.date, category: entry.category, caption: entry.caption, plant: entry.plant, bed: entry.bed, photoDetails: entry.photoDetails };
+  const metadata = { collection: entry.collection, contextId: entry.contextId, id: entry.id, gardenId: entry.gardenId, gardenName: entry.gardenName, date: entry.date, category: entry.category, caption: entry.caption, plant: entry.plant, bed: entry.bed, photoDetails: entry.photoDetails };
   const { record } = await photoRequest(client, 'PUT', { version: cloudVersion ?? 0, value: { ...metadata, kind: 'entry', cloudPaths } });
   return { ...entry, cloudPaths, cloudVersion: record!.version };
+}
+
+/** Keep inspiration separate from dated garden progress, including older untagged records. */
+export function inPhotoCollection(item: {id:string;gardenId?:string;collection?:string;contextId?:string}, userId:string, collection?:PhotoCollection, gardenId?:string, contextId?:string) {
+  return item.id.startsWith(userId+":") && item.collection===collection && (!gardenId || item.gardenId===gardenId) && (contextId === undefined || item.contextId === contextId);
 }

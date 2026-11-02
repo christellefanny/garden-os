@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
+import LayoutCoverPicker from "@/components/LayoutCoverPicker";
+import { validLayoutCover } from "@/lib/layout-cover";
 import { designPlants, groundCovers, surfaceAppearance, gardenFootprint, plantStampStyle, instantiateLayout, layoutTemplates, rotateItem, safeDecorations, type LayoutItem, type Layout, type Decoration } from "@/lib/layout-design";
 import type {Bed} from "@/lib/garden-layout";
 import { CompanionBedCheck } from "@/components/CompanionPlanting";
@@ -100,6 +102,8 @@ export default function BlankGardenLayout({
   const [creating, setCreating] = useState(() => selectedLayoutId.startsWith("new") || loadCustomLayouts(storageKey).length === 0);
   const template = layoutTemplates.find(t=>t.id===initialTemplateId);
   const [newName, setNewName] = useState(template?.name ?? "My garden layout");
+  const [coverImage,setCoverImage] = useState<string|undefined>();
+  const [coverBusy,setCoverBusy] = useState(false);
   const [undo, setUndo] = useState<Layout[] | null>(null);
   const [plantGroup,setPlantGroup]=useState("Vegetables");
   const [selectedPlant,setSelectedPlant]=useState("");
@@ -207,13 +211,22 @@ export default function BlankGardenLayout({
     setWallPicker(false);
   }
   function create() {
+    if(coverBusy)return;
     const name = newName.trim();
     if (!name) {
       setMessage("Enter a layout name.");
       return;
     }
-    const next = instantiateLayout(template,name);
-    persist([...layouts, next]);
+    const next = {...instantiateLayout(template,name), ...(validLayoutCover(coverImage) ? {coverImage} : {})};
+    const saved=loadCustomLayouts(storageKey);
+    try {
+      const raw=JSON.parse(localStorage.getItem(storageKey)||"[]");
+      if(!Array.isArray(raw)||raw.length!==saved.length)throw Error("An existing layout could not be read. Your saved designs have not been changed.");
+      const serialized=JSON.stringify([...saved,next]);
+      if(new TextEncoder().encode(serialized).length>1400000)throw Error("Your layouts are too large to sync together. Remove the cover picture or a layout you no longer need.");
+      localStorage.setItem(storageKey,serialized);
+    } catch(err){setMessage(err instanceof Error?err.message:"Could not save this layout. Please try again.");return;}
+    persist([...saved, next]);
     onSelectLayout(next.id);
     setSelected(next.items.find(i=>i.kind==="Bed")?.id??"");
     setCreating(false);
@@ -353,7 +366,7 @@ export default function BlankGardenLayout({
       {creating && (
         <Dialog
           title={template ? `Customize ${template.name.toLowerCase()}` : "Create a blank layout"}
-          onClose={() => setCreating(false)}
+          onClose={() => { if(!coverBusy)setCreating(false); }}
         >
           <form
             onSubmit={(event) => {
@@ -371,11 +384,14 @@ export default function BlankGardenLayout({
                 className="seasonal-input mt-2 w-full rounded-xl border p-3"
               />
             </label>
+            <LayoutCoverPicker value={coverImage} onChange={setCoverImage} onBusyChange={setCoverBusy}/>
+            {message&&<p role="status" className="mt-3 text-sm">{message}</p>}
             <p className="seasonal-muted mt-3 text-sm">
               {template ? "Create your own editable copy. The inspiration stays unchanged." : "Start with an empty canvas and build your own arrangement."} Your plan stays on this device and syncs when an account is connected.
             </p>
             <button
               type="submit"
+              disabled={coverBusy}
               className="seasonal-button mt-5 min-h-11 rounded-xl px-4 py-3 font-bold text-white"
             >
               {template ? "Create my editable copy" : "Create blank canvas"}

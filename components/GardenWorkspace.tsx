@@ -39,10 +39,14 @@ import {
   type SpaceDetails,
 } from "@/lib/garden";
 
+const GardenLearning = dynamic(() => import("@/components/GardenLearning"), { loading: () => <p role="status">Opening garden guides…</p> });
+
+const GardenVisionBoard = dynamic(() => import("@/components/GardenVisionBoard"), { loading: () => <p role="status">Opening your garden vision…</p> });
+
 const GardenPictures = dynamic(() => import("@/components/PhotoJournal"), { loading: () => <p role="status">Opening garden pictures…</p> });
 
 function pageView(page: Destination) {
-  return page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
+  return page === "Beginner’s Guide" ? "beginners-guide" : page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
 }
 
 function readPageFromUrl(guest = false): Destination {
@@ -497,6 +501,7 @@ export default function GardenWorkspace({
               }}
             />
           )}
+          {page === "Vision Board" && <GardenVisionBoard userId={userId} />}
           {page === "Tasks" && (
             <TasksPage
               spaces={activeSpaces}
@@ -589,9 +594,11 @@ export default function GardenWorkspace({
           {!guestMode && vaultOpen && (
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
-          {page === "Flower Garden" && <FlowersPage plants={vault} />}
+          {(page === "Flower Library" || page === "Beginner’s Guide") && <GardenLearning kind={page === "Flower Library" ? "flowers" : "beginner"} onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")}/>}
+          {page === "Flower Garden" && <FlowersPage plants={vault} userId={userId} />}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">
+              {!gardenPageId&&<article className="flower-garden-entry"><div><p className="modern-eyebrow">Your flowers, together</p><h2>Flower Garden</h2><p>Your flowers, Flower Collection, seasonal planting, flower care, seed saving and bouquet ideas.</p></div><button type="button" className="seasonal-button" onClick={()=>navigate("Flower Garden")}>Open Flower Garden →</button></article>}
               {gardenPageId && <button type="button" onClick={() => navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← All gardens</button>}
               {gardenPageId && !garden ? <InteriorHeader title="Garden unavailable" eyebrow="Your garden" description="Return to All gardens to choose another garden." /> : <GardenCollection
                 gardens={(gardenPageId && garden ? [garden] : gardens).map((g) => {
