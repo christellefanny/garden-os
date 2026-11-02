@@ -42,7 +42,7 @@ const navigationIconPaths: Record<string, string> = {
   "Tasks": "M9 5h12M9 12h12M9 19h12M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4",
   "Journal": "M4 3h15v18H4V3Zm4 0v18m3-13h5m-5 4h5m-5 4h3",
   "Vision Board": "M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z",
-  "Flower Library": "M3 4h7l2 2 2-2h7v16h-7l-2 2-2-2H3V4Zm9 2v16",
+  "Flower Corner": "M3 4h7l2 2 2-2h7v16h-7l-2 2-2-2H3V4Zm9 2v16",
   "Beginner’s Guide": "M4 3h16v18H4V3Zm4 5h8m-8 4h8m-8 4h5",
   "Photo Journal": "M3 6h5l2-3h4l2 3h5v15H3V6Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   "Settings": "M10 3h4l1 3 3 1 3 3v4l-3 1-1 3-3 3h-4l-1-3-3-1-3-3v-4l3-1 1-3 3-3Zm6 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0",

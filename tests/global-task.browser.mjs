@@ -38,7 +38,7 @@ try {
   await page.getByLabel("Task",{exact:true}).fill("Water the seedlings");
   await page.getByRole("button",{name:"Save task",exact:true}).click();
   await page.getByText("Water the seedlings",{exact:false}).first().waitFor({state:"attached"});
-  for (const name of ["Home","My Gardens","Plant Vault","Beginner’s Guide","Flower Library","Plan & Design","Tasks","Garden Journal","Settings","Help"]) {
+  for (const name of ["Home","My Gardens","Plant Vault","Beginner’s Guide","Flower Corner","Plan & Design","Tasks","Garden Journal","Settings","Help"]) {
     await page.getByRole("navigation").getByRole("button",{name,exact:true}).click();
     await quick.waitFor({state:"visible"});
   }

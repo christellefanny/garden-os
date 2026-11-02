@@ -39,6 +39,8 @@ import {
   type SpaceDetails,
 } from "@/lib/garden";
 
+const FlowerCorner = dynamic(() => import("@/components/FlowerCorner"), { loading: () => <p role="status">Opening Flower Corner…</p> });
+
 const GardenLearning = dynamic(() => import("@/components/GardenLearning"), { loading: () => <p role="status">Opening garden guides…</p> });
 
 const GardenVisionBoard = dynamic(() => import("@/components/GardenVisionBoard"), { loading: () => <p role="status">Opening your garden vision…</p> });
@@ -51,7 +53,8 @@ function pageView(page: Destination) {
 
 function readPageFromUrl(guest = false): Destination {
   if (typeof window === "undefined") return "Dashboard";
-  const view = new URLSearchParams(window.location.search).get("view");
+  const requestedView = new URLSearchParams(window.location.search).get("view");
+  const view = requestedView === "flower-library" ? "flower-corner" : requestedView;
   return destinations.find((destination) => pageView(destination) === view && (!guest || destination !== "Plant Vault")) ?? "Dashboard";
 }
 
@@ -594,7 +597,8 @@ export default function GardenWorkspace({
           {!guestMode && vaultOpen && (
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
-          {(page === "Flower Library" || page === "Beginner’s Guide") && <GardenLearning key={`${userId}:${page}`} userId={userId} kind={page === "Flower Library" ? "flowers" : "beginner"} onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")}/>}
+          {page === "Flower Corner" && <FlowerCorner/>}
+          {page === "Beginner’s Guide" && <GardenLearning key={`${userId}:${page}`} userId={userId} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")}/>}
           {page === "Flower Garden" && <><button type="button" onClick={()=>navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button><FlowersPage plants={vault} userId={userId} /></>}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">

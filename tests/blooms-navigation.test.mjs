@@ -22,7 +22,7 @@ const Collection=component('GardenCollection');
 for(const guest of [false,true])test(`navigation order and active parent for ${guest?'guest':'account'}`,()=>{
  const nav=navigationDestinations(guest);
  assert.equal(nav[nav.indexOf('My Gardens')+1],'Beginner’s Guide');
- assert.equal(nav[nav.indexOf('Tasks')-1],'Flower Library');
+ assert.equal(nav[nav.indexOf('Tasks')-1],'Flower Corner');
  assert.equal(nav.includes('Plant Vault'),!guest);
  assert.ok(!nav.includes('Flower Garden'));
  const html=renderToStaticMarkup(React.createElement(Navigation,{guest,page:'Flower Garden',navigate:()=>{},onSignOut:()=>{}}));

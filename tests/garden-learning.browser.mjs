@@ -20,7 +20,7 @@ try {
   await page.setViewportSize({width,height:844});
   const labels=await nav.getByRole('button').allTextContents();
   assert.equal(labels[labels.indexOf('My Gardens')+1],'Beginner’s Guide');
-  assert.equal(labels[labels.indexOf('Tasks')-1],'Flower Library');
+  assert.equal(labels[labels.indexOf('Tasks')-1],'Flower Corner');
   assert.ok(!labels.includes('Flower Garden')&&!labels.includes('Blooms'));
   await nav.getByRole('button',{name:'My Gardens',exact:true}).click();
   await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();
@@ -35,14 +35,14 @@ try {
   await page.getByRole('heading',{name:'My Gardens',exact:true}).waitFor();
  }
  await page.setViewportSize({width:1440,height:1000});
- await nav.getByRole('button',{name:'Flower Library',exact:true}).click();
- await page.getByRole('searchbox',{name:'Find a flower'}).fill('dahlia');
- assert.equal(await page.locator('.learning-flower').count(),1);
- await page.getByRole('button',{name:/Read .* planting and care guide/}).click();
+ await nav.getByRole('button',{name:'Flower Corner',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Search the Library'}).fill('dahlia');
+ assert.equal(await page.locator('.corner-library-card').count(),1);
+ await page.getByRole('button',{name:/Read .* growing guide/}).click();
  const dialog=page.getByRole('dialog');await dialog.waitFor();await dialog.getByRole('heading',{name:'Dahlias',exact:true}).waitFor();
  assert.ok(await dialog.getByRole('link',{name:/NC State/}).isVisible());
  await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
- assert.ok(await page.getByRole('button',{name:/Read .* planting and care guide/}).evaluate(el=>el===document.activeElement));
+ assert.ok(await page.getByRole('button',{name:/Read .* growing guide/}).evaluate(el=>el===document.activeElement));
  await nav.getByRole('button',{name:'Beginner’s Guide',exact:true}).click();
  // Help me start must show the full helper title on initial and repeated use.
  for(const reducedMotion of ['no-preference','reduce']){
@@ -77,8 +77,8 @@ try {
   assert.deepEqual(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),[]);
   await page.screenshot({path:`docs/previews/learning/beginner-${width}.png`});
  }
- await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await nav.getByRole('button',{name:'Flower Library',exact:true}).click();
- await page.getByRole('searchbox',{name:'Find a flower'}).fill('dahlia');await page.getByRole('button',{name:/Read .* planting and care guide/}).click();await dialog.waitFor();
+ await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await nav.getByRole('button',{name:'Flower Corner',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Search the Library'}).fill('dahlia');await page.getByRole('button',{name:/Read .* growing guide/}).click();await dialog.waitFor();
  await page.screenshot({path:'docs/previews/learning/flower-mobile.png'});
  assert.ok(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth));
  assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);

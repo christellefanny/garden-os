@@ -1,7 +1,7 @@
 // Stable route identities: retain Flower Garden for existing bookmarks and stored state.
 export const destinations = [
   "Dashboard", "My Gardens", "Beginner’s Guide", "Plant Vault", "Flower Garden",
-  "Garden Layout", "Growing Calendar", "Flower Library", "Tasks", "Journal",
+  "Garden Layout", "Growing Calendar", "Flower Corner", "Tasks", "Journal",
   "Vision Board", "Settings", "Help",
 ] as const;
 export type Destination = typeof destinations[number];
