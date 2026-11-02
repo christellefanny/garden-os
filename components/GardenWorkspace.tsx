@@ -553,7 +553,7 @@ export default function GardenWorkspace({
                 </section>
                 <section className="settings-card"><p className="modern-eyebrow">Your growing world</p><h2>Garden account</h2><p>{gardens.length} {gardens.length===1?"garden":"gardens"} · {spaces.length} {spaces.length===1?"growing space":"growing spaces"}</p><p>Manage locations, gardening years, bed dimensions and growing spaces in My Gardens.</p><div className="interior-actions"><button className="seasonal-button" onClick={()=>navigate("My Gardens")}>Manage gardens</button><button className="seasonal-outline" onClick={()=>void onSignOut()}>{guestMode ? "Leave guest garden" : "Sign out"}</button></div></section>
                 <section className="settings-card appearance-card"><p className="modern-eyebrow">The rhythm of the year</p><h2>Seasonal appearance</h2><p>Choose Automatic or your favorite season in the top navigation. The conservatory stays familiar as its accents change.</p><div className="season-swatches" aria-hidden="true"><span>Spring</span><span>Summer</span><span>Fall</span><span>Winter</span></div></section>
-                <section className="settings-card"><p className="modern-eyebrow">A gentle nudge</p><h2>Phone reminders</h2><p>Manage delivery, send a test, or turn notifications off from Growing Calendar → Add reminder.</p><button className="seasonal-outline" onClick={()=>navigate("Growing Calendar")}>Notification settings</button></section>
+                <section className="settings-card"><p className="modern-eyebrow">A gentle nudge</p><h2>Care reminders & weekly emails</h2><p>Open Growing Calendar for weekly email settings. Use Add reminder there to manage phone notifications and individual reminders.</p><button className="seasonal-outline" onClick={()=>navigate("Growing Calendar")}>Notification settings</button></section>
               </div>
             </section>
           )}
@@ -818,7 +818,7 @@ export default function GardenWorkspace({
                           <>
                             <div className="mt-5 flex items-center justify-between text-sm">
                               <span className="seasonal-muted">
-                                Estimated capacity
+                                Estimated space used
                               </span>
                               <b>
                                 {summary.capacity === null
@@ -828,7 +828,7 @@ export default function GardenWorkspace({
                             </div>
                             <div
                               role="progressbar"
-                              aria-label={`${s.name} estimated capacity`}
+                              aria-label={`${s.name} estimated space used`}
                               aria-valuemin={0}
                               aria-valuemax={100}
                               aria-valuenow={Math.min(
@@ -838,7 +838,7 @@ export default function GardenWorkspace({
                               aria-valuetext={
                                 summary.capacity === null
                                   ? "Dimensions needed"
-                                  : `${summary.capacity}% estimated capacity`
+                                  : `${summary.capacity}% estimated space used`
                               }
                               className="mt-2 h-2 overflow-hidden rounded-full bg-black/10"
                             >
@@ -849,6 +849,13 @@ export default function GardenWorkspace({
                                 }}
                               />
                             </div>
+                            <p className="seasonal-muted mt-2 text-xs leading-5">
+                              {summary.capacity === null
+                                ? "Add dimensions to estimate how much planting space is available."
+                                : summary.capacity > 100
+                                  ? "Planned plants exceed this space. Open the growing space to review quantities and spacing."
+                                  : `${Math.max(0, Math.round(100 - summary.capacity))}% estimated space remaining. Plant quantities and spacing determine usage.`}
+                            </p>
                           </>
                         )}
                       </article>

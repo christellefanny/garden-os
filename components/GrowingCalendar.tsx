@@ -178,7 +178,7 @@ export default function GrowingCalendar({
         illustration="calendar"
         title="Growing Calendar"
         eyebrow={`${location || "Your growing year"} · ${year}`}
-        description="Good things take their own time. Find your rhythm for sowing, tending, and gathering throughout the year."
+        description="See care reminders and upcoming sowing, planting, and harvest tasks. Choose the plants and planning dates that fit your garden."
       >
         <button
           type="button"
@@ -192,9 +192,14 @@ export default function GrowingCalendar({
           onClick={() => setPlanningOpen(true)}
           className="seasonal-outline"
         >
-          Planning settings
+          Plants & planting dates
         </button>
       </InteriorHeader>
+      <WeeklyEmail
+        guest={userId === "guest"}
+        gardens={gardens}
+        gardenId={garden?.id || ""}
+      />
       <InteriorStats
         items={[
           { label: "Plants in your plan", value: active },
@@ -277,6 +282,7 @@ export default function GrowingCalendar({
           title="Choose plants and adjust planning dates"
           onClose={() => setPlanningOpen(false)}
         >
+          <p className="seasonal-muted mt-3 text-sm">Location is optional. Set your own frost dates below to adjust planting recommendations. These dates are planning estimates, not a local weather forecast.</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="text-sm font-bold">
               Spring frost planning date
@@ -622,11 +628,7 @@ export default function GrowingCalendar({
           </details>
         ))}
       </div>
-      <WeeklyEmail
-        guest={userId === "guest"}
-        gardens={gardens}
-        gardenId={garden?.id || ""}
-      />
+
       <WeeklyBriefing
         guest={userId === "guest"}
         garden={garden}

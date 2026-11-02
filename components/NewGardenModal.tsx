@@ -118,13 +118,14 @@ export default function NewGardenModal({
               className="seasonal-input mt-1 w-full rounded-xl border p-3"
             />
           </label>
-          <label className="block text-sm font-bold">Location
-            <input name="location" value={location} maxLength={200} placeholder="ZIP code or City, State" autoComplete="address-level2" className="seasonal-input mt-1 w-full rounded-xl border p-3" onChange={event=>{
+          <div><label className="block text-sm font-bold">Location (optional)
+            <input name="location" aria-describedby="garden-location-help" value={location} maxLength={200} placeholder="ZIP code or City, State" autoComplete="address-level2" className="seasonal-input mt-1 w-full rounded-xl border p-3" onChange={event=>{
               lookupVersion.current++;locationChanged.current=true;manualZone.current=false;const next=event.target.value;
               setLocation(next);setZone("");setLookingUp(Boolean(next.trim()));setZoneMessage(next.trim()?"Finding your USDA hardiness zone…":"");
             }}/>
           </label>
-          <div><label className="block text-sm font-bold">Hardiness Zone
+          <p id="garden-location-help" className="seasonal-muted text-xs leading-5">You can leave location blank. Add it to look up your U.S. hardiness zone, or enter your zone yourself. Adjust planting dates separately in Growing Calendar.</p></div>
+          <div><label className="block text-sm font-bold">Hardiness Zone (optional)
             <input name="zone" value={zone} maxLength={20} aria-describedby="garden-zone-help" className="seasonal-input mt-1 w-full rounded-xl border p-3" placeholder="Filled in from your location" onChange={event=>{manualZone.current=true;lookupVersion.current++;setLookingUp(false);setZone(event.target.value);setZoneMessage("Using your entered zone.");}}/>
           </label><p id="garden-zone-help" role="status" className="seasonal-muted mt-2 text-xs leading-5">{zoneMessage||"Enter a U.S. ZIP code or city and state to find your zone automatically, or enter it yourself."}</p></div>
           <button
