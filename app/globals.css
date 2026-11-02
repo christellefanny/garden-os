@@ -2194,3 +2194,11 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .vision-gallery [aria-label="Inspiration collections"] button>span:not(.vision-collection-placeholder) {margin-left:5px;}
 .vision-gallery article {border-radius:16px;box-shadow:0 5px 18px #37452d05;}
 @media(max-width:700px) {.vision-hero {grid-template-columns:1fr;}.vision-hero-art {height:210px;min-height:0;}.vision-intro {align-items:flex-start;flex-direction:column;gap:8px;}.vision-hero h1{max-width:none;}.vision-hero-copy{padding:26px;}.vision-hero-art img{object-position:center 52%;}}
+
+/* Learning details stay in the shared accessible, scrollable popup. */
+.learning-profile-button {min-height:44px;width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-top:8px;text-align:left;font-size:13px;font-weight:600;}
+.learning-modal-article {margin:0;padding:0;border:0;border-radius:0;max-width:none;}
+.learning-modal-profile p {font-size:14px;line-height:1.85;margin:8px 0;}
+.learning-guide-step {font-weight:600;color:var(--muted);}
+.learning-save-error {padding:12px;border:1px solid #9c573a;border-radius:10px;background:var(--surface-alt);}
+.learning-check:has(input:disabled) {opacity:.65;}
