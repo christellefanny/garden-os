@@ -22,7 +22,7 @@ try {
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
-  await page.getByRole("navigation").getByRole("button", { name: "Flower Garden", exact: true }).click();
+  await page.getByRole('navigation').getByRole('button',{name:'My Gardens',exact:true}).click(); await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();
   const vaultBefore = await page.evaluate(() => localStorage.getItem("garden-os-plant-vault-a0a0a0a0-0000-4000-8000-000000000001"));
   await mkdir("docs/previews/flower-guides", { recursive: true });
   const cases = [["Seasonal planting", ".flower-seasonal-planning", 4, "seasonal"], ["Seed saving", ".flower-seed-saving", 6, "saving"], ["Flower care", ".flower-care-library", 12, "care"]];
@@ -61,7 +61,7 @@ try {
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${label} overflow at ${width}`);
       if (width === 1440 || width === 390) await page.screenshot({ path: `docs/previews/flower-guides/${file}-${width}.webp`, fullPage: true });
     }
-    await page.getByRole("button", { name: /Back to Flower Garden/ }).click();
+    await page.getByRole("button", { name: /Back to Blooms/ }).click();
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
   assert.equal(await page.evaluate(() => localStorage.getItem("garden-os-plant-vault-a0a0a0a0-0000-4000-8000-000000000001")), vaultBefore);

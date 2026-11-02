@@ -93,8 +93,8 @@ export default function FlowersPage({plants,userId}:{plants:VaultPlant[];userId:
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
   return <section className="interior-page">
-    <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
-    {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
+    <InteriorHeader title="Blooms" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
+    {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Blooms</button>}
     {section==="Overview"&&<>
       <div
         className="relative mt-7 flex min-h-[350px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b] bg-cover bg-center sm:min-h-[400px]"
@@ -104,7 +104,7 @@ export default function FlowersPage({plants,userId}:{plants:VaultPlant[];userId:
         }}
       >
         <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
-          <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to your flower garden</p>
+          <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to Blooms</p>
           <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight sm:text-5xl" style={{ color: "#fff8eb" }}>Grow something beautiful.</h2>
           <p className="mt-5 max-w-xl text-sm leading-7 text-white sm:text-base">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
         </div>

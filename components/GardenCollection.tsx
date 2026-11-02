@@ -7,12 +7,13 @@ function artwork(name: string) {
   return /flower|cut|bloom/i.test(name) ? "flower" : /herb/i.test(name) ? "herb" : /front|yard|landscape/i.test(name) ? "front" : "vegetable";
 }
 
-export default function GardenCollection({ gardens, detail, disabled, onOpen, onNew }: {
+export default function GardenCollection({ gardens, detail, disabled, onOpen, onNew, onBlooms }: {
   gardens: GardenOverview[];
   detail: boolean;
   disabled: boolean;
   onOpen: (id: string) => void;
   onNew: () => void;
+  onBlooms: () => void;
 }) {
   const current = detail ? gardens[0]?.garden : undefined;
   const spaces = gardens.reduce((sum, item) => sum + item.spaces, 0);
@@ -34,6 +35,7 @@ export default function GardenCollection({ gardens, detail, disabled, onOpen, on
         <Image src={`/conservatory/garden-${current ? artwork(current.name) : "herb"}.webp`} alt="" width={720} height={480} sizes="(max-width: 600px) 100vw, 400px" />
       </div>
     </header>
+    {!detail && <article className="flower-garden-entry" aria-labelledby="blooms-entry-title"><div><p className="modern-eyebrow">Your flowers, together</p><h2 id="blooms-entry-title">Blooms</h2><p>Your flowers, Flower Collection, seasonal planting, flower care, seed saving and bouquet ideas.</p></div><button type="button" className="seasonal-button" onClick={onBlooms}>Open Blooms →</button></article>}
     {!detail && <section aria-label="Your gardens" className="garden-collection-section">
       <div className="garden-collection-section-title"><h2>Your growing world</h2><p>Choose a garden to explore</p></div>
       <div className="garden-collection-grid">

@@ -9,7 +9,7 @@ import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
 import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { seasonContent, parseThemeSelection, seasons } from "@/lib/seasons";
 import {
@@ -30,35 +30,8 @@ import {
 import { dailyRecommendations } from "@/lib/connected-garden";
 import { loadCustomLayouts } from "@/components/BlankGardenLayout";
 import { initialLayout, nineBedLayout } from "@/lib/garden-layout";
-export type Destination =
-  | "Dashboard"
-  | "My Gardens"
-  | "Plant Vault"
-  | "Flower Garden"
-  | "Flower Library"
-  | "Beginner’s Guide"
-  | "Garden Layout"
-  | "Growing Calendar"
-  | "Tasks"
-  | "Vision Board"
-  | "Journal"
-  | "Settings"
-  | "Help";
-export const destinations: Destination[] = [
-  "Dashboard",
-  "My Gardens",
-  "Plant Vault",
-  "Flower Garden",
-  "Flower Library",
-  "Beginner’s Guide",
-  "Garden Layout",
-  "Growing Calendar",
-  "Tasks",
-  "Journal",
-  "Vision Board",
-  "Settings",
-  "Help",
-];
+import { navigationDestinations, type Destination } from "@/lib/navigation";
+export { destinations, type Destination } from "@/lib/navigation";
 const navigationIconPaths: Record<string, string> = {
   "Dashboard": "M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7",
   "My Gardens": "M12 22V3M12 8C8 8 5 6 5 3c4 0 7 2 7 5Zm0-2c0-3 3-4 6-4 0 3-2 5-6 5M12 11l-5 2m5-2 5 3M10 16a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M21 17a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M4.5 13.5l2 1 2-1m7 1 2 1 2-1",
@@ -121,18 +94,15 @@ export function ConservatoryNavigation({
         <span className="garden-atelier-brand-tagline">PLAN · GROW · HARVEST · ENJOY</span>
       </button>
       <nav aria-label="Garden Atelier navigation">
-        {destinations.filter((name) => name !== "Flower Garden" && (!guest || name !== "Plant Vault")).map((name) => (
-          <Fragment key={name}>
+        {navigationDestinations(guest).map((name) => (
           <button
             key={name}
-            aria-current={page === name ? "page" : undefined}
+            aria-current={page === name || (page === "Flower Garden" && name === "My Gardens") ? "page" : undefined}
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />
-            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Garden Journal","Flower Library":"The Flower Library"} as Record<string,string>)[name] || name}</span>
+            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Garden Journal"} as Record<string,string>)[name] || name}</span>
           </button>
-          {name === "My Gardens" && <div className="sidebar-garden-child" role="group" aria-label="My Gardens sections"><button type="button" aria-current={page === "Flower Garden" ? "page" : undefined} onClick={()=>navigate("Flower Garden")}><LineIcon name="Flower Garden"/><span>Flower Garden</span></button></div>}
-          </Fragment>
         ))}
       </nav>
       <div className="sidebar-botany" aria-hidden="true">

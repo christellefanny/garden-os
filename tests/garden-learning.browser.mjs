@@ -15,7 +15,27 @@ try {
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()!=='GET'&&/rest\/v1|api\/state/.test(r.url()))writes.push(r.url());});
  await page.goto(origin);await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('button',{name:'Continue as guest',exact:true}).click();
  const nav=page.getByRole('navigation',{name:'Garden Atelier navigation'});
- await nav.getByRole('button',{name:'The Flower Library',exact:true}).click();
+ // Blooms lives inside My Gardens, not the sidebar; exercise return/cancel and narrow layouts.
+ for(const width of [1440,390,320]){
+  await page.setViewportSize({width,height:844});
+  const labels=await nav.getByRole('button').allTextContents();
+  assert.equal(labels[labels.indexOf('My Gardens')+1],'Beginner’s Guide');
+  assert.equal(labels[labels.indexOf('Tasks')-1],'Flower Library');
+  assert.ok(!labels.includes('Flower Garden')&&!labels.includes('Blooms'));
+  await nav.getByRole('button',{name:'My Gardens',exact:true}).click();
+  await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();
+  await page.getByRole('heading',{name:'Blooms',exact:true}).waitFor();
+  assert.ok(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth));
+  await page.getByRole('button',{name:'← Back to My Gardens',exact:true}).click();
+  await page.getByRole('button',{name:'+ New Garden',exact:true}).click();
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  assert.equal(await page.getByRole('dialog').count(),0);
+  await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();
+  await page.goBack();
+  await page.getByRole('heading',{name:'My Gardens',exact:true}).waitFor();
+ }
+ await page.setViewportSize({width:1440,height:1000});
+ await nav.getByRole('button',{name:'Flower Library',exact:true}).click();
  await page.getByRole('searchbox',{name:'Find a flower'}).fill('dahlia');
  assert.equal(await page.locator('.learning-flower').count(),1);
  await page.getByRole('button',{name:/Read .* planting and care guide/}).click();
@@ -57,7 +77,7 @@ try {
   assert.deepEqual(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),[]);
   await page.screenshot({path:`docs/previews/learning/beginner-${width}.png`});
  }
- await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await nav.getByRole('button',{name:'The Flower Library',exact:true}).click();
+ await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await nav.getByRole('button',{name:'Flower Library',exact:true}).click();
  await page.getByRole('searchbox',{name:'Find a flower'}).fill('dahlia');await page.getByRole('button',{name:/Read .* planting and care guide/}).click();await dialog.waitFor();
  await page.screenshot({path:'docs/previews/learning/flower-mobile.png'});
  assert.ok(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth));

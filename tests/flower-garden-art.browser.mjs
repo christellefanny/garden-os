@@ -25,7 +25,7 @@ try {
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
-  await page.getByRole("navigation").getByRole("button", { name: "Flower Garden", exact: true }).click();
+  await page.getByRole('navigation').getByRole('button',{name:'My Gardens',exact:true}).click(); await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();
   await page.getByRole("button", { name: /My flowers.*4 flowers/ }).click();
   assert.equal(await page.locator("article").count(), 4);
   assert.equal(await page.getByRole("img", { name: /^Botanical illustration of / }).count(), 3);
@@ -36,7 +36,7 @@ try {
   }
   await mkdir("docs/previews/flower-garden-botanical", { recursive: true });
   await page.screenshot({ path: "docs/previews/flower-garden-botanical/my-flowers-desktop.webp", fullPage: true });
-  await page.getByRole("button", { name: /Back to Flower Garden/ }).click();
+  await page.getByRole("button", { name: /Back to Blooms/ }).click();
   await page.getByRole("button", { name: /^Cut Flowers/ }).click();
   const gallery = page.locator('[aria-label="Cut Flower Encyclopedia"]');
   assert.equal(await gallery.locator("article").count(), 30);
@@ -50,7 +50,7 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     await page.screenshot({ path: `docs/previews/flower-garden-botanical/cut-flowers-${width}.webp` });
   }
-  await page.getByRole("button", { name: /Back to Flower Garden/ }).click();
+  await page.getByRole("button", { name: /Back to Blooms/ }).click();
   await page.getByRole("button", { name: /My flowers.*4 flowers/ }).click();
   assert.equal(await page.locator("article").count(), 4);
   assert.deepEqual(errors, []);
