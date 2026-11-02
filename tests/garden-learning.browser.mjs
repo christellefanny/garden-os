@@ -24,6 +24,23 @@ try {
  await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
  assert.ok(await page.getByRole('button',{name:/Read .* planting and care guide/}).evaluate(el=>el===document.activeElement));
  await nav.getByRole('button',{name:'Beginner’s Guide',exact:true}).click();
+ // Help me start must reveal the first question on initial and repeated use.
+ for(const reducedMotion of ['no-preference','reduce']){
+  await page.emulateMedia({reducedMotion});
+  for(const width of [1440,390,320]){
+   await page.setViewportSize({width,height:844});
+   for(let attempt=0;attempt<2;attempt++){
+    await page.getByRole('button',{name:/Step 6 Build a watering/}).scrollIntoViewIfNeeded();
+    await page.getByRole('button',{name:'Help me start',exact:true}).click();
+    const first=page.getByRole('combobox',{name:'Where will you grow?',exact:true});
+    await first.waitFor();
+    await page.waitForFunction(()=>{const e=document.querySelector('.learning-first-question');const r=e?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;});
+    assert.ok(await first.evaluate(e=>e===document.activeElement));
+    assert.equal(await page.locator('#learning-start').count(),1);
+   }
+  }
+ }
+ await page.setViewportSize({width:1440,height:1000});
  await page.getByRole('button',{name:/Step 1 Choose a space/}).click();await dialog.waitFor();
  await dialog.getByRole('checkbox',{name:'Record sunlight',exact:true}).check();
  await dialog.getByRole('button',{name:'Next guide →',exact:true}).click();await dialog.getByRole('heading',{name:'Understand zones, frost and planting time',exact:true}).waitFor();
