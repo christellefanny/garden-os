@@ -2203,4 +2203,4 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .learning-save-error {padding:12px;border:1px solid #9c573a;border-radius:10px;background:var(--surface-alt);}
 .learning-check:has(input:disabled) {opacity:.65;}
 
-.learning-first-question {scroll-margin-block-start:24px;}
+.learning-start {scroll-margin-block-start:16px;}

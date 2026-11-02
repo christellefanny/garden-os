@@ -24,7 +24,7 @@ try {
  await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
  assert.ok(await page.getByRole('button',{name:/Read .* planting and care guide/}).evaluate(el=>el===document.activeElement));
  await nav.getByRole('button',{name:'Beginner’s Guide',exact:true}).click();
- // Help me start must reveal the first question on initial and repeated use.
+ // Help me start must show the full helper title on initial and repeated use.
  for(const reducedMotion of ['no-preference','reduce']){
   await page.emulateMedia({reducedMotion});
   for(const width of [1440,390,320]){
@@ -34,7 +34,7 @@ try {
     await page.getByRole('button',{name:'Help me start',exact:true}).click();
     const first=page.getByRole('combobox',{name:'Where will you grow?',exact:true});
     await first.waitFor();
-    await page.waitForFunction(()=>{const e=document.querySelector('.learning-first-question');const r=e?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;});
+    await page.waitForFunction(()=>{const e=document.querySelector('#learning-start h2');const r=e?.getBoundingClientRect();return r&&r.top>=0&&r.bottom<=innerHeight;});
     assert.ok(await first.evaluate(e=>e===document.activeElement));
     assert.equal(await page.locator('#learning-start').count(),1);
    }
