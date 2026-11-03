@@ -5,6 +5,7 @@ import ts from "typescript";
 import {
   emailPreferenceKey,
   validEmailPreferences,
+  validDeliveryEmail,
   unsubscribeToken,
   readUnsubscribeToken,
   renderWeeklyEmail,
@@ -184,6 +185,7 @@ test("email dispatch uses Auth email, explicit consent, weekly claims and provid
     generateWeeklyBrief: async () => brief,
     emailPreferenceKey,
     validEmailPreferences,
+    validDeliveryEmail,
     unsubscribeToken,
     renderWeeklyEmail,
     localDay: () => "2026-10-19",
@@ -227,6 +229,10 @@ test("email dispatch uses Auth email, explicit consent, weekly claims and provid
     assert.deepEqual(sends[0].to, ["owner@example.test"]);
     assert.ok(sends[0].headers["List-Unsubscribe"]);
     assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 0);
+    db.records.splice(1);
+    db.records[0].value.email = "garden-inbox@example.test";
+    assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 1);
+    assert.deepEqual(sends.at(-1).to, ["garden-inbox@example.test"]);
     db.records.splice(1);
     reject = true;
     assert.equal((await emailDispatch.dispatchWeeklyEmails()).failed, 1);
@@ -291,11 +297,12 @@ test("email settings require authentication, prevent other-garden subscriptions 
     emailReady: () => ready,
     emailPreferenceKey,
     validEmailPreferences,
+    validDeliveryEmail,
   };
   const route = await compile("app/api/weekly-email/route.ts", {
     "@/lib/reminders-server": "authenticated",
     "@/lib/weekly-email-server": "emailReady",
-    "@/lib/weekly-email": "emailPreferenceKey,validEmailPreferences",
+    "@/lib/weekly-email": "emailPreferenceKey,validEmailPreferences,validDeliveryEmail",
   });
   const request = (values = {}) =>
     new Request("http://fixture/api/weekly-email", {
@@ -325,6 +332,11 @@ test("email settings require authentication, prevent other-garden subscriptions 
       200,
     );
     assert.ok(!JSON.stringify(saves).includes("attacker"));
+    assert.equal((await route.POST(request({ gardenId: "g1", email: " garden@example.test " }))).status, 200);
+    assert.equal(saves.at(-1)[1].p_value.email, "garden@example.test");
+    const savedCount = saves.length;
+    assert.equal((await route.POST(request({ email: "invalid" }))).status, 400);
+    assert.equal(saves.length, savedCount);
     assert.equal((await route.POST(request({ day: 9 }))).status, 400);
   } finally {
     delete globalThis.__emailTest;
@@ -415,6 +427,7 @@ test("on-demand test is authenticated, sends only to the account email, and pres
     emailSecret: () => "fixture",
     emailPreferenceKey,
     validEmailPreferences,
+    validDeliveryEmail,
     renderWeeklyEmail,
     unsubscribeToken,
     loadBriefContext: async (_db, id, gardenId) => {
@@ -630,5 +643,12 @@ test("email JPEG exports exist and are actual raster images", async () => {
     assert.equal(data[0], 0xff);
     assert.equal(data[1], 0xd8);
     assert.ok(data.length > 1000);
+  }
+});
+
+test("delivery email validation accepts saved addresses and rejects invalid recipients", () => {
+  assert.equal(validEmailPreferences({ ...preference, email: "garden@example.com" }), true);
+  for (const email of ["", "bad", "a@example.com,b@example.com", "a@example.com\nBcc: b@example.com"]) {
+    assert.equal(validDeliveryEmail(email), false);
   }
 });

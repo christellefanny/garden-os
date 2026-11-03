@@ -4,15 +4,13 @@ import { GUEST_ID, readGuest } from "@/lib/guest";
 import { buildWeeklyBrief } from "@/lib/weekly-brief";
 import { loadCalendarOptions, localDay } from "@/lib/growing-calendar";
 import { supabase } from "@/lib/supabase";
-import { useCloudData } from "@/components/CloudDataBoundary";
 import type { CalendarOptions } from "@/lib/growing-calendar";
 import type { Garden } from "@/lib/garden";
 import type {
   BriefAction,
   WeeklyBrief,
-  WeeklyPreferences,
 } from "@/lib/weekly-brief";
-import Dialog from "@/components/ui/Dialog";
+import WeeklyEmail from "@/components/WeeklyEmail";
 async function requestBrief(
   gardenId: string,
   signal?: AbortSignal,
@@ -71,15 +69,6 @@ async function requestBrief(
   if (!r.ok) throw new Error(value.error || "Could not prepare your briefing.");
   return value;
 }
-const days = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
 export default function WeeklyBriefing({
   garden,
   guest = false,
@@ -93,15 +82,9 @@ export default function WeeklyBriefing({
   options: CalendarOptions;
   onSave: (next: CalendarOptions) => boolean;
 }) {
-  const sync = useCloudData();
   const [brief, setBrief] = useState<WeeklyBrief | null>(null),
     [busy, setBusy] = useState(false),
-    [message, setMessage] = useState(""),
-    [settings, setSettings] = useState(false);
-  const [draft, setDraft] = useState<WeeklyPreferences>(
-    () =>
-      options.weekly || { enabled: false, day: 1, gardenId: garden?.id || "" },
-  );
+    [message, setMessage] = useState("");
   const chosenGarden = options.weekly?.gardenId || garden?.id || "";
   const generate = useCallback(async () => {
     setBusy(true);
@@ -129,36 +112,6 @@ export default function WeeklyBriefing({
       });
     return () => controller.abort();
   }, [chosenGarden, guest]);
-  function save() {
-    if (
-      !gardens.some((g) => g.id === draft.gardenId) ||
-      !Number.isInteger(draft.day) ||
-      draft.day < 0 ||
-      draft.day > 6
-    ) {
-      setMessage("Choose a garden and delivery day.");
-      return;
-    }
-    if (
-      (draft.latitude === undefined) !== (draft.longitude === undefined) ||
-      (draft.latitude !== undefined &&
-        (!Number.isFinite(draft.latitude) || Math.abs(draft.latitude) > 90)) ||
-      (draft.longitude !== undefined &&
-        (!Number.isFinite(draft.longitude) || Math.abs(draft.longitude) > 180))
-    ) {
-      setMessage(
-        "Enter both valid latitude and longitude, or leave both blank.",
-      );
-      return;
-    }
-    if (onSave({ ...options, weekly: draft })) {
-      setSettings(false);
-      setBrief(null);
-      setMessage(
-        "Weekly preferences saved. Phone delivery requires notifications enabled on this device and completed cloud synchronization.",
-      );
-    }
-  }
   function actions(title: string, list: BriefAction[]) {
     return (
       list.length > 0 && (
@@ -242,7 +195,7 @@ export default function WeeklyBriefing({
             reviewed Extension guidance.
           </p>
         </div>
-        <div className="interior-actions">
+        <div className="interior-actions weekly-briefing-actions">
           <button
             className="seasonal-button"
             onClick={generate}
@@ -254,29 +207,9 @@ export default function WeeklyBriefing({
                 ? "Refresh briefing"
                 : "Read this week’s briefing"}
           </button>
-          <button
-            className="seasonal-outline"
-            onClick={() => {
-              setDraft(
-                options.weekly || {
-                  enabled: false,
-                  day: 1,
-                  gardenId: garden?.id || "",
-                },
-              );
-              setSettings(true);
-            }}
-          >
-            Weekly settings
-          </button>
+          <WeeklyEmail compact guest={guest} gardens={gardens} gardenId={garden?.id || ""} />
         </div>
       </div>
-      <p className="weekly-delivery">
-        {options.weekly?.enabled
-          ? `${days[options.weekly.day]} morning briefing · phone notifications must be enabled`
-          : "Weekly phone briefing is off. You can read it anytime."}{" "}
-        · {sync.status}
-      </p>
       {message && <p role="status">{message}</p>}
       {brief && (
         <article aria-label="Weekly garden briefing">
@@ -399,115 +332,6 @@ export default function WeeklyBriefing({
             </p>
           </details>
         </article>
-      )}
-      {settings && (
-        <Dialog
-          title="Weekly garden briefing"
-          onClose={() => setSettings(false)}
-        >
-          <div className="weekly-settings">
-            <label>
-              <input
-                type="checkbox"
-                checked={draft.enabled}
-                onChange={(e) =>
-                  setDraft({ ...draft, enabled: e.target.checked })
-                }
-              />{" "}
-              Send a weekly phone briefing
-            </label>
-            <label>
-              Garden
-              <select
-                className="seasonal-input"
-                aria-label="Weekly briefing garden"
-                value={draft.gardenId}
-                onChange={(e) =>
-                  setDraft({ ...draft, gardenId: e.target.value })
-                }
-              >
-                {gardens.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Delivery day
-              <select
-                className="seasonal-input"
-                aria-label="Delivery day"
-                value={draft.day}
-                onChange={(e) =>
-                  setDraft({ ...draft, day: Number(e.target.value) })
-                }
-              >
-                {days.map((day, i) => (
-                  <option key={day} value={i}>
-                    {day}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <p>
-              Delivered by the daily morning job, approximately 8–10 a.m.
-              Central on the free plan. The notification opens this week’s full
-              briefing. Enable phone notifications under Add reminder.
-            </p>
-            <fieldset>
-              <legend>Weather coordinates (optional)</legend>
-              <p>
-                Use these if the garden’s City, State location cannot be
-                resolved. U.S. forecast coverage only.
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {(["latitude", "longitude"] as const).map((key) => (
-                  <label key={key}>
-                    {key === "latitude" ? "Latitude" : "Longitude"}
-                    <input
-                      className="seasonal-input"
-                      type="number"
-                      step="any"
-                      min={key === "latitude" ? -90 : -180}
-                      max={key === "latitude" ? 90 : 180}
-                      value={draft[key] ?? ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          [key]:
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value),
-                        })
-                      }
-                    />
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-            <label>
-              Planning notes
-              <textarea
-                className="seasonal-input"
-                maxLength={2000}
-                value={draft.planningNotes || ""}
-                onChange={(e) =>
-                  setDraft({ ...draft, planningNotes: e.target.value })
-                }
-              />
-            </label>
-            <p>
-              Use calendar inclusion settings and “Not Growing Again” in the
-              vault to exclude varieties from next-season recommendations.
-              Record planting and finished crops in their growing spaces.
-            </p>
-            <button className="seasonal-button" onClick={save}>
-              Save weekly settings
-            </button>
-            {message && <p role="status">{message}</p>}
-          </div>
-        </Dialog>
       )}
     </section>
   );

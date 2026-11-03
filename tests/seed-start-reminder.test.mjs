@@ -18,13 +18,17 @@ test("outdoor-relative instructions use a stated planting estimate",()=>{
  const snow=seed("Start indoors 5–7 weeks before last frost for early harvest","Cauliflower");
  assert.equal(seedStartSuggestion(snow,calendarDefaults,"2026-10-21").date,"2027-04-03");
 });
-test("direct-sow seeds, bulbs, unknown timings and existing plants get no indoor date",()=>{
+test("direct-sow seeds and unknown timings get no invented indoor date",()=>{
  for(const p of [
  seed("Direct sow in spring","Pea"),
  seed("Sow after frost","Winter squash"),
  seed("Details not supplied","Spinach"),
- {...seed("Start indoors 6 weeks before last frost"),statuses:["Have Plant"]},
- {...seed("Start indoors 6 weeks before last frost"),statuses:["Have Seeds","Not Growing Again"]},
  seed("Start indoors 0 weeks before last frost"),
  ]) assert.equal(seedStartSuggestion(p,calendarDefaults,"2026-10-21"),null);
+});
+
+test("supported crops get dates without packet notes or Have Seeds status",()=>{
+ const cabbage={...seed("", "Cabbage"),statuses:["Previously Grown","Not Growing Again"]};
+ assert.equal(seedStartSuggestion(cabbage,calendarDefaults,"2026-10-22").date,"2027-03-13");
+ assert.equal(seedStartSuggestion({...seed("Start indoors 6 weeks before last frost"),statuses:["Have Plant"]},calendarDefaults,"2026-10-22").date,"2027-04-03");
 });

@@ -146,14 +146,12 @@ try {
   await page.locator(".botanical-calendar").waitFor();
   await page.getByLabel("Calendar month", { exact: true }).fill("2027-03");
   const day = page.locator('[data-date="2027-03-18"]');
-  await day.click();
-  assert.equal(await day.locator(".calendar-task-chip").count(), 2);
-  assert.equal(await day.locator(".calendar-task-more").innerText(), "+1 more");
-  assert.equal(await page.locator(".calendar-task-detail").count(), 3);
-  assert.ok(
-    (await page.locator(".calendar-task-detail .calendar-plant-art").count()) >=
-      2,
-  );
+  await day.getByRole("button").first().click();
+  assert.equal(await day.locator(".calendar-task-chip").count(), 1);
+  assert.equal(await day.locator(".calendar-task-more").innerText(), "3 tasks");
+  assert.equal(await page.getByRole("dialog").locator("article").count(), 3);
+  await page.getByRole("heading", { name: "Today & this week", exact: true }).waitFor();
+  await page.getByRole("dialog").getByRole("button", { name: "Close dialog", exact: true }).click();
   await mkdir("docs/previews/botanical-calendar", { recursive: true });
   for (const [season, month, src] of [
     ["spring", "2027-03", "spring-lettuce.webp"],
@@ -173,24 +171,29 @@ try {
       .screenshot({ path: `docs/previews/botanical-calendar/${season}.webp` });
   }
   await page.getByLabel("Calendar month", { exact: true }).fill("2027-03");
-  await day.click();
+  await day.getByRole("button").first().click();
   await page.screenshot({
     path: "docs/previews/botanical-calendar/desktop.webp",
     fullPage: true,
   });
-  await page
-    .locator(".calendar-task-detail")
-    .filter({ hasText: "Only water if" })
-    .getByRole("button", { name: "Mark done", exact: true })
-    .click();
+  await page.getByRole("dialog").getByRole("button", { name: "Check seedling moisture", exact: true }).click();
+  const taskDialog = page.getByRole("dialog");
+  await taskDialog.getByText("Only water if the root zone needs it.", { exact: true }).waitFor();
+  await taskDialog.getByLabel("Your time estimate in minutes (optional)").fill("5");
+  await taskDialog.getByLabel("Deadline (optional)").fill("2027-03-20");
+  await taskDialog.getByRole("button", { name: "Save timing", exact: true }).click();
+  await taskDialog.getByText("About 5 minutes (your estimate)", { exact: true }).waitFor();
+  await taskDialog.getByRole("button", { name: "Mark done", exact: true }).click();
+  await taskDialog.getByRole("button", { name: "Close dialog", exact: true }).click();
   assert.equal(
     await page
-      .locator('[data-date="2027-03-18"] .calendar-mobile-count')
+      .locator('[data-date="2027-03-18"] .calendar-task-more')
       .textContent(),
     "2 tasks",
   );
+  await page.getByRole("dialog").getByRole("button", { name: "Close dialog", exact: true }).click();
   await page
-    .getByRole("button", { name: "Weekly email settings", exact: true })
+    .getByRole("button", { name: "Subscribe by email", exact: true })
     .click();
   await page
     .getByText("Email delivery isn’t connected yet.", { exact: false })
@@ -206,39 +209,8 @@ try {
     .getByRole("dialog")
     .getByRole("button", { name: "Close dialog", exact: true })
     .click();
-  const emailTestUrl = "**/api/weekly-email/test";
-  await page.route(emailTestUrl, (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        ok: true,
-        message:
-          "Test email accepted by the mail service. Check your account inbox and spam folder. Your weekly schedule is unchanged.",
-      }),
-    }),
-  );
-  await page
-    .getByRole("button", { name: "Send test email", exact: true })
-    .click();
-  await page
-    .getByText("Test email accepted by the mail service.", { exact: false })
-    .waitFor();
-  await page.unroute(emailTestUrl);
-  await page.route(emailTestUrl, (route) =>
-    route.fulfill({
-      status: 502,
-      contentType: "application/json",
-      body: JSON.stringify({ error: "Check your verified sending domain." }),
-    }),
-  );
-  await page
-    .getByRole("button", { name: "Send test email", exact: true })
-    .click();
-  await page
-    .getByText("Check your verified sending domain.", { exact: true })
-    .waitFor();
-  await page.unroute(emailTestUrl);
+  assert.equal(await page.getByRole("button", { name: "Send test email", exact: true }).count(), 0);
+  assert.equal(await page.getByText("Other briefing options", { exact: true }).count(), 0);
   let cloudSaved = false;
   for (let n = 0; n < 60; n++) {
     const state = await (
@@ -263,14 +235,15 @@ try {
     .first()
     .click();
   await page.getByLabel("Calendar month", { exact: true }).fill("2027-03");
-  await page.locator('[data-date="2027-03-18"]').click();
+  await page.locator('[data-date="2027-03-18"]').getByRole("button").first().click();
   assert.equal(
     await page
-      .locator(".calendar-task-detail")
+      .getByRole("dialog").locator("article")
       .filter({ hasText: "Completed" })
       .count(),
     1,
   );
+  await page.getByRole("dialog").getByRole("button", { name: "Close dialog", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator(".botanical-calendar").scrollIntoViewIfNeeded();
   await page.screenshot({
@@ -292,6 +265,7 @@ try {
       true,
     );
   }
+  await page.getByRole("dialog").getByRole("button", { name: "Close dialog", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   const axe = await new AxeBuilder({ page })
     .include(".conservatory-calendar")

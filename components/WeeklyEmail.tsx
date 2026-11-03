@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Garden } from "@/lib/garden";
 import Dialog from "@/components/ui/Dialog";
@@ -14,6 +14,7 @@ const days = [
 ];
 type Settings = {
   ready: boolean;
+  testSender?: boolean;
   email: string;
   confirmed: boolean;
   version: number;
@@ -23,34 +24,62 @@ export default function WeeklyEmail({
   guest,
   gardens,
   gardenId,
+  compact = false,
 }: {
   guest: boolean;
   gardens: Garden[];
   gardenId: string;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [busy, setBusy] = useState(false),
+    [previewing, setPreviewing] = useState(false),
+    [previewMessage, setPreviewMessage] = useState(""),
+    [previewError, setPreviewError] = useState(false),
     [message, setMessage] = useState("");
   const [settings, setSettings] = useState<Settings | null>(null),
     [enabled, setEnabled] = useState(false),
+    [email, setEmail] = useState(""),
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
-  async function request(method: "GET" | "POST", test = false) {
+  useEffect(() => {
+    // Guest/account workspaces mount separately; guest state starts empty.
+    if (guest) return;
+    let active = true;
+    async function refreshStatus() {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) return;
+        const response = await fetch("/api/weekly-email", {
+          headers: { Authorization: `Bearer ${data.session.access_token}` },
+        });
+        if (!response.ok) throw new Error();
+        const value = await response.json() as Settings;
+        if (active) setSettings(value);
+      } catch {
+        if (active) setMessage("Could not check your subscription. Open email settings to retry.");
+      }
+    }
+    void refreshStatus();
+    return () => { active = false; };
+  }, [guest]);
+  async function request(method: "GET" | "POST") {
     const { data } = await supabase.auth.getSession();
     if (!data.session)
       throw new Error("Sign in again to manage weekly emails.");
     const response = await fetch(
-      test ? "/api/weekly-email/test" : "/api/weekly-email",
+      "/api/weekly-email",
       {
         method,
         headers: {
           Authorization: `Bearer ${data.session.access_token}`,
           "Content-Type": "application/json",
         },
-        ...(method === "POST" && !test
+        ...(method === "POST"
           ? {
               body: JSON.stringify({
                 enabled,
+                email: email.trim(),
                 day,
                 gardenId: chosen,
                 version: settings?.version || 0,
@@ -66,12 +95,14 @@ export default function WeeklyEmail({
   }
   async function load() {
     setOpen(true);
+    setPreviewMessage("");
     setSettings(null);
     setMessage("");
     setBusy(true);
     try {
       const value = (await request("GET")) as Settings;
       setSettings(value);
+      setEmail(value.preferences?.enabled ? value.email || "" : "");
       setEnabled(value.preferences?.enabled || false);
       setDay(value.preferences?.day ?? 1);
       setChosen(
@@ -85,15 +116,44 @@ export default function WeeklyEmail({
       setBusy(false);
     }
   }
+  async function sendPreview() {
+    if (previewing) return;
+    setPreviewing(true);
+    setPreviewError(false);
+    setPreviewMessage("Preparing your weekly garden email…");
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) throw new Error("Sign in again to send a preview.");
+      const response = await fetch("/api/weekly-email/test", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${data.session.access_token}` },
+        signal: AbortSignal.timeout(65000),
+      });
+      const value = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(value?.error || "The preview request failed. Please try again later.");
+      if (!value?.ok || !value.recipient) throw new Error("The mail service did not confirm acceptance. Check your inbox before retrying.");
+      setPreviewMessage(`Preview accepted for ${value.recipient}. Check your inbox and spam folder. Inbox delivery is not yet confirmed. Your weekly schedule is unchanged.`);
+    } catch (error) {
+      setPreviewError(true);
+      setPreviewMessage(error instanceof Error && error.name === "TimeoutError"
+        ? "The request timed out. Delivery is uncertain—check your inbox before trying again."
+        : error instanceof Error ? error.message : "Could not send the preview.");
+    } finally { setPreviewing(false); }
+  }
+  const unsaved = !!settings && (email.trim() !== settings.email || enabled !== (settings.preferences?.enabled || false) || day !== (settings.preferences?.day ?? 1) || chosen !== (settings.preferences?.gardenId || gardenId || gardens[0]?.id || ""));
   async function save() {
     setBusy(true);
     setMessage("");
     try {
-      await request("POST");
+      const saved = await request("POST");
+      setSettings((previous) => previous ? {
+        ...previous, email: email.trim(), version: saved.version,
+        preferences: saved.preferences,
+      } : previous);
       setOpen(false);
       setMessage(
         enabled
-          ? "Weekly garden emails are enabled for your account email."
+          ? `Subscription saved for ${email.trim()}.`
           : "Weekly garden emails are off.",
       );
     } catch (e) {
@@ -104,32 +164,16 @@ export default function WeeklyEmail({
       setBusy(false);
     }
   }
-  async function sendTest() {
-    setBusy(true);
-    setMessage("");
-    try {
-      const result = await request("POST", true);
-      setMessage(result.message);
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Could not send the test email.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
-    <section className="calendar-email-card seasonal-card">
-      <div>
+    <section className={compact ? "email-subscription" : "calendar-email-card seasonal-card"}>
+      {!compact && <div>
         <p className="modern-eyebrow">A little care, delivered</p>
         <h2>Your garden week, in your inbox</h2>
         <p>
           Plant priorities, seasonal reminders, and a gentle nudge to step
           outside.
         </p>
-      </div>
+      </div>}
       {guest ? (
         <p className="seasonal-muted">
           Weekly email is available with an account. Your guest calendar stays
@@ -143,31 +187,44 @@ export default function WeeklyEmail({
             onClick={load}
             disabled={busy}
           >
-            Weekly email settings
+            {settings?.preferences?.enabled ? "Manage subscription" : "Subscribe by email"}
           </button>
-          <button
-            type="button"
-            className="seasonal-outline"
-            onClick={sendTest}
-            disabled={busy}
-          >
-            {busy ? "Please wait…" : "Send test email"}
-          </button>
+
         </div>
+      )}
+      {compact && <p className="seasonal-muted mt-2 max-w-sm text-sm">Receive your weekly garden tasks, plant care instructions, and upcoming work by email.</p>}
+      {!guest && settings && (
+        <p className="seasonal-muted mt-2 max-w-sm text-sm" role="status">
+          {settings.preferences?.enabled
+            ? `Subscribed · ${days[settings.preferences.day]}s · ${settings.email}`
+            : "Weekly emails are off."}
+          {settings.preferences?.enabled && !settings.ready && " Delivery is unavailable while email setup is incomplete."}
+          {settings.testSender && " Email delivery is currently limited to the test account while we finish setup."}
+        </p>
       )}
       {!open && message && <p role="status">{message}</p>}
       {open && (
-        <Dialog title="Weekly garden emails" onClose={() => setOpen(false)}>
-          <div className="weekly-settings">
+        <Dialog title="Email subscription" onClose={() => setOpen(false)}>
+          <form className="weekly-settings" onSubmit={(event) => { event.preventDefault(); void save(); }}>
             {busy && !settings && (
               <p role="status">Loading email preferences…</p>
             )}
             {settings && (
               <>
-                <p>
-                  Deliver to{" "}
-                  <strong>{settings.email || "your account email"}</strong>
-                </p>
+                <label>
+                  Deliver to
+                  <input
+                    className="seasonal-input"
+                    type="email"
+                    autoComplete="off"
+                    required
+                    maxLength={254}
+                    value={email}
+                    placeholder="you@example.com"
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+                </label>
+                <p>This address is for garden emails. Your sign-in email stays the same.</p>
                 {!settings.ready && (
                   <p className="interior-notice">
                     Email delivery isn’t connected yet. Your calendar and weekly
@@ -222,17 +279,27 @@ export default function WeeklyEmail({
                   emails here or use the unsubscribe link in any email.
                 </p>
                 <button
-                  type="button"
+                  type="submit"
                   className="seasonal-button"
-                  onClick={save}
-                  disabled={busy || (enabled && (!settings.ready || !chosen))}
+                  disabled={busy || previewing || (enabled && (!settings.ready || !chosen))}
                 >
-                  {busy ? "Saving…" : "Save email preferences"}
+                  {busy ? "Saving…" : "Save subscription"}
                 </button>
+                <div>
+                  <button type="button" className="seasonal-button secondary"
+                    onClick={sendPreview}
+                    disabled={busy || previewing || unsaved || !settings.ready || !settings.confirmed || !settings.preferences?.enabled}>
+                    {previewing ? "Sending preview…" : "Send me a preview"}
+                  </button>
+                  <p>Send one weekly garden email to {settings.email || "your saved address"}. This does not change your delivery schedule.</p>
+                  {unsaved && <p>Save your changes, then reopen this window to send a preview.</p>}
+                  {!settings.preferences?.enabled && <p>Enable and save your subscription before sending a preview.</p>}
+                  {previewMessage && <p role={previewError ? "alert" : "status"} aria-live="polite">{previewMessage}</p>}
+                </div>
               </>
             )}
             {message && <p role="status">{message}</p>}
-          </div>
+          </form>
         </Dialog>
       )}
     </section>

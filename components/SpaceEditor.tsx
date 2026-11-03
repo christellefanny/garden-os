@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { validPhotoUrl } from "@/lib/space-portrait";
 import Dialog from "@/components/ui/Dialog";
 import {
   readDetails,
@@ -18,11 +17,13 @@ export default function SpaceEditor({
   onSave,
   onClose,
   onAddPlant,
+  onAddPhotos,
 }: {
   space?: Space;
   title?: string;
   busy: boolean;
-  onSave: (input: SpaceInput) => Promise<boolean>;
+  onSave: (input: SpaceInput, photos?: File[]) => Promise<boolean>;
+  onAddPhotos?: () => void;
   onClose: () => void;
   onAddPlant?: () => void;
 }) {
@@ -32,6 +33,7 @@ export default function SpaceEditor({
   const growBag = type === "Grow Bag" || type === "Growing Bag";
   const round = type === "Container";
   const [error, setError] = useState("");
+  const [chosenPhotos, setChosenPhotos] = useState<File[]>([]);
   const [diameterUnit, setDiameterUnit] = useState<"inches" | "feet">("inches");
   const [depthUnit, setDepthUnit] = useState<"inches" | "feet">("feet");
   const details = space
@@ -64,8 +66,6 @@ export default function SpaceEditor({
     }
     const gallons = dimension("gallons");
     if (growBag && (!gallons || !Number.isFinite(gallons) || gallons <= 0 || gallons > 10000)) { setError("Enter grow bag capacity in gallons."); return; }
-    const photoUrl=String(form.get("photoUrl")||"").trim();
-    if(photoUrl && !validPhotoUrl(photoUrl)){setError("Use a valid http or https image URL, or leave the photo blank.");return;}
     setError("");
     const saved = await onSave({
       name,
@@ -79,11 +79,11 @@ export default function SpaceEditor({
       soil_type: String(form.get("soil") || "").trim() || null,
       notes: JSON.stringify({
         ...details,
-        photoUrl: photoUrl || undefined,
+
         growBagGallons: growBag ? gallons ?? undefined : undefined,
         notes: String(form.get("notes") || "").trim(),
       }),
-    });
+    }, chosenPhotos);
     if (saved) {
       if (addingPlant.current) onAddPlant?.();
       else onClose();
@@ -202,8 +202,13 @@ export default function SpaceEditor({
             value={space?.soil_type ?? ""}
             maxLength={200}
           />
-          <Field label="Growing-space photo URL (optional)" name="photoUrl" type="url" value={details.photoUrl || ""} maxLength={4096} placeholder="https://…" />
-          <p className="seasonal-muted text-xs leading-5">A photo of this bed or container takes priority. Leave blank to use a matching photo or illustration from your plants.</p>
+          <div className="space-y-2">
+            <label className="block text-sm font-bold">Upload photos (optional)
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" multiple className="seasonal-input mt-2 block w-full rounded-xl border p-3" onChange={e => setChosenPhotos(Array.from(e.target.files || []))} />
+            </label>
+            <p className="seasonal-muted text-xs">{chosenPhotos.length ? `${chosenPhotos.length} picture(s) selected. Photos will be saved with this space.` : "Choose photos from your phone or computer. Add more over time in this space’s Pictures gallery."}</p>
+            {space && onAddPhotos && <button type="button" className="seasonal-outline rounded-lg border px-4 py-2 text-sm" onClick={onAddPhotos}>View progression pictures</button>}
+          </div>
           <label className="block text-sm font-bold">
             Notes
             <textarea

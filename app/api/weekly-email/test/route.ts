@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         from: process.env.GARDEN_EMAIL_FROM,
-        to: [auth.user.email],
+        to: [pref.email || auth.user.email],
         ...mail,
         subject: `[Test] ${mail.subject}`,
         headers: {
@@ -145,8 +145,10 @@ export async function POST(request: Request) {
     return Response.json(
       {
         ok: true,
+        recipient: pref.email || auth.user.email,
+        messageId: receipt.id,
         message:
-          "Test email accepted by the mail service. Check your account inbox and spam folder. Your weekly schedule is unchanged.",
+          "Test email accepted by the mail service. Check your delivery inbox and spam folder. Your weekly schedule is unchanged.",
       },
       { headers },
     );

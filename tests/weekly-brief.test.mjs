@@ -266,3 +266,14 @@ test("rain before the cold advances the harvest deadline and excluded overrides 
   assert.match(b.priorities[0].when, /Before 2026-10-15 rain/);
   assert.ok(!JSON.stringify(b.wait).includes("Giant Marconi"));
 });
+
+test('weekly email tasks retain user timing and omit completed reminders', () => {
+  const id = 'custom|timing';
+  const options = { ...calendar, reminders: [{ id, plantId: 'tomato', title: 'Check supports', date: '2026-10-13', notes: 'Inspect ties.' }], tasks: { [id]: { minutes: 12, dueDate: '2026-10-14' } } };
+  const brief = buildWeeklyBrief({ ...input, calendar: options });
+  const serialized = JSON.stringify(brief);
+  assert.match(serialized, /About 12 minutes/);
+  assert.match(serialized, /Deadline: 2026-10-14/);
+  const completed = buildWeeklyBrief({ ...input, calendar: { ...options, tasks: { [id]: { ...options.tasks[id], status: 'done' } } } });
+  assert.doesNotMatch(JSON.stringify(completed), /Check supports/);
+});

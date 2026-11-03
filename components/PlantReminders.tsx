@@ -6,19 +6,19 @@ import {seedStartSuggestion} from "@/lib/seed-start-reminder";
 export default function PlantReminders({plant,options,onSave}: {plant:VaultPlant;options:CalendarOptions;onSave:(next:CalendarOptions)=>boolean}) {
   const reminders=(options.reminders || []).filter(r=>r.plantId===plant.id);
   const candidate=seedStartSuggestion(plant,options);
-  const suggestion=candidate && !reminders.some(r=>r.title===candidate.title && r.date===candidate.date) ? candidate : null;
+  const suggestion=candidate && !reminders.some(r=>r.seedStartSeason===candidate.date.slice(0,4) || (r.title===candidate.title && r.date===candidate.date)) ? candidate : null;
   const [draftTitle,setTitle]=useState<string | null>(null),[draftDate,setDate]=useState<string | null>(null),[message,setMessage]=useState("");
-  const title=draftTitle ?? suggestion?.title ?? "", date=draftDate ?? suggestion?.date ?? "";
+  const title=draftTitle ?? suggestion?.title ?? "", date=draftDate || suggestion?.date || "";
   function add() {
     if(!title.trim() || !date || date<localDay()) {setMessage("Enter a reminder and choose today or a future date.");return;}
-    if(onSave({...options,reminders:[...(options.reminders||[]),{id:`custom|${crypto.randomUUID()}`,plantId:plant.id,title:title.trim(),date}]})) {
-      setTitle("");setDate("");setMessage("Reminder saved. Phone delivery requires reminders enabled on this device.");
+    if(onSave({...options,reminders:[...(options.reminders||[]),{id:`custom|${crypto.randomUUID()}`,plantId:plant.id,title:title.trim(),date,...(suggestion && title.trim()===suggestion.title ? {seedStartSeason:suggestion.date.slice(0,4)} : {})}]})) {
+      setTitle(null);setDate(null);setMessage("Reminder saved. Phone delivery requires reminders enabled on this device.");
     }
   }
   return <section className="seasonal-outline mt-5 rounded-2xl border p-4">
     <h4 className="seasonal-heading font-bold">Plant reminders</h4>
     <p className="seasonal-muted mt-2 text-xs">Choose a date for the morning phone digest. Enable phone reminders in Growing Calendar once per device to receive it. Saved in this browser.</p>
-    {suggestion && draftTitle===null && draftDate===null && <p className="seasonal-muted mt-3 text-sm">{suggestion.explanation}</p>}
+    {suggestion && <div className="seasonal-muted mt-3 text-sm"><p>Suggested seed-starting reminder. Edit it or click Add reminder to save.</p><details className="mt-1"><summary className="cursor-pointer">How this date is chosen</summary><p className="mt-1">{suggestion.explanation}</p></details></div>}
     <label className="mt-3 block text-sm font-bold">Remind me to<input value={title} onChange={e=>setTitle(e.target.value)} maxLength={200} placeholder="Check germination, repot, plant bulbs…" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
     <label className="mt-3 block text-sm font-bold">Reminder date<input type="date" min={localDay()} value={date} onChange={e=>setDate(e.target.value)} className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
     <button type="button" onClick={add} className="seasonal-button mt-3 rounded-xl px-4 py-3 font-bold text-white">Add reminder</button>

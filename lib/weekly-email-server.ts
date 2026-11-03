@@ -27,7 +27,7 @@ export function emailOrigin() {
     throw new Error("Email links require HTTPS.");
   return origin.origin;
 }
-/** Called only by the authenticated daily cron. Uses account emails from Auth,
+/** Called only by the authenticated daily cron. Uses saved delivery addresses (falling back to Auth for existing subscriptions),
  * never a recipient supplied by a browser. Independent of phone subscriptions.
  */
 export async function dispatchWeeklyEmails(now = new Date()) {
@@ -110,7 +110,7 @@ export async function dispatchWeeklyEmails(now = new Date()) {
         },
         body: JSON.stringify({
           from: process.env.GARDEN_EMAIL_FROM,
-          to: [account.user.email],
+          to: [pref.email || account.user.email],
           ...mail,
           headers: {
             "List-Unsubscribe": `<${unsubscribe}>`,

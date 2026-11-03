@@ -5,8 +5,8 @@ export const PHOTO_LIMIT = 20 * 1024 * 1024;
 export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 export type PhotoCollection = "inspiration" | "tasks" | "bouquets";
 export type PhotoInfo = { name: string; description: string; date: string; category: string; folderId: string };
-export type PhotoEntry = { collection?: PhotoCollection; contextId?: string; id: string; gardenId?: string; gardenName?: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo>; cloudPaths?: string[]; cloudVersion?: number };
-export type PhotoFolder = { collection?: PhotoCollection; contextId?: string; id: string; name: string; gardenId?: string; cloudVersion?: number };
+export type PhotoEntry = { collection?: PhotoCollection; contextId?: string; id: string; gardenId?: string; gardenName?: string; spaceId?: string; date: string; category: string; caption: string; plant: string; bed: string; photos: Blob[]; photoDetails?: Record<string, PhotoInfo>; cloudPaths?: string[]; cloudVersion?: number };
+export type PhotoFolder = { collection?: PhotoCollection; contextId?: string; id: string; name: string; gardenId?: string; spaceId?: string; cloudVersion?: number };
 export type CloudPhoto = Omit<PhotoEntry, 'photos' | 'cloudVersion'> & { kind: 'entry'; deleted?: boolean };
 export type CloudFolder = Omit<PhotoFolder, 'cloudVersion'> & { kind: 'folder' };
 export type PhotoRecord = { key: string; version: number; value: CloudPhoto | CloudFolder; urls?: string[] };
@@ -18,7 +18,7 @@ export function photoStateKey(userId: string, kind: 'entry' | 'folder', id: stri
   return `garden-os-photo-${kind}-${userId}-${id.slice(userId.length + 1)}`;
 }
 export function ownedPhotoPath(path: unknown, userId: string): path is string {
-  return typeof path === 'string' && path.startsWith(userId + '/') && path.length < 250 && /^[a-z0-9/-]+$/i.test(path) && !path.includes('..');
+  return typeof path === 'string' && path.startsWith(userId + '/') && path.length < 250 && /^[a-z0-9/-]+(?:\.(?:jpg|png|webp|gif|avif))?$/i.test(path) && !path.includes('..');
 }
 function short(value: unknown, max: number): value is string { return typeof value === 'string' && value.length <= max; }
 export function validCloudPhoto(value: unknown, userId: string): value is CloudPhoto | CloudFolder {
@@ -28,6 +28,7 @@ export function validCloudPhoto(value: unknown, userId: string): value is CloudP
   if (v.collection !== undefined && v.gardenId !== undefined) return false;
   if (v.contextId !== undefined && (v.collection !== "tasks" || !short(v.contextId, 300) || !v.contextId.trim())) return false;
   if (!ownedPhotoId(v.id, userId) || (v.gardenId !== undefined && (!short(v.gardenId, 100) || !v.gardenId))) return false;
+  if (v.spaceId !== undefined && (!short(v.spaceId, 100) || !v.spaceId)) return false;
   if (v.kind === 'folder') return short(v.name, 100) && !!v.name.trim();
   if (v.kind !== 'entry') return false;
   if (v.deleted === true) return true;
@@ -53,18 +54,29 @@ export async function uploadCloudEntry(client: SupabaseClient, entry: PhotoEntry
     const result = await photoRequest(client, 'POST', { id: entry.id, gardenId: entry.gardenId, files: entry.photos.map(p => ({ size: p.size, type: p.type })) });
     cloudPaths = [];
     for (const [index, upload] of result.uploads!.entries()) {
-      const { error } = await client.storage.from(PHOTO_BUCKET).uploadToSignedUrl(upload.path, upload.token, entry.photos[index], { contentType: entry.photos[index].type, cacheControl: '3600' });
-      if (error) throw new Error('Upload interrupted. Your originals remain on this device; try backing them up again.');
+      const original = entry.photos[index];
+      const file = new File([original], upload.path.split('/').pop() || `picture-${index + 1}.jpg`, { type: original.type });
+      const { error } = await client.storage.from(PHOTO_BUCKET).uploadToSignedUrl(upload.path, upload.token, file, { contentType: original.type, cacheControl: '3600' });
+      if (error) {
+        const safeCode = typeof error.name === 'string' && /^[a-zA-Z0-9_ -]{1,65}$/.test(error.name) ? error.name : 'StorageError';
+        const status = 'statusCode' in error && (typeof error.statusCode === 'string' || typeof error.statusCode === 'number') ? String(error.statusCode) : '';
+        const safeStatus = /^[0-9]{3}$/.test(status) ? ` HTTP ${status}` : '';
+        const detail = status === '415' ? ` Supabase rejected image type ${original.type}; check the bucket's Allowed MIME Types.` : '';
+        throw new Error(`Picture ${index + 1} of ${entry.photos.length} could not upload (${safeCode}${safeStatus}).${detail} Your originals remain on this device.`);
+      }
       cloudPaths.push(upload.path);
     }
   }
   const { cloudVersion } = entry;
-  const metadata = { collection: entry.collection, contextId: entry.contextId, id: entry.id, gardenId: entry.gardenId, gardenName: entry.gardenName, date: entry.date, category: entry.category, caption: entry.caption, plant: entry.plant, bed: entry.bed, photoDetails: entry.photoDetails };
+  const metadata = { collection: entry.collection, contextId: entry.contextId, id: entry.id, gardenId: entry.gardenId, gardenName: entry.gardenName, spaceId: entry.spaceId, date: entry.date, category: entry.category, caption: entry.caption, plant: entry.plant, bed: entry.bed, photoDetails: entry.photoDetails };
   const { record } = await photoRequest(client, 'PUT', { version: cloudVersion ?? 0, value: { ...metadata, kind: 'entry', cloudPaths } });
   return { ...entry, cloudPaths, cloudVersion: record!.version };
 }
 
 /** Keep inspiration separate from dated garden progress, including older untagged records. */
-export function inPhotoCollection(item: {id:string;gardenId?:string;collection?:string;contextId?:string}, userId:string, collection?:PhotoCollection, gardenId?:string, contextId?:string) {
-  return item.id.startsWith(userId+":") && item.collection===collection && (!gardenId || item.gardenId===gardenId) && (contextId === undefined || item.contextId === contextId);
+export function inPhotoCollection(item: {id:string;gardenId?:string;spaceId?:string;collection?:string;contextId?:string}, userId:string, collection?:PhotoCollection, gardenId?:string, contextId?:string, spaceId?:string) {
+  // Main previously stored inspiration under a synthetic garden ID. Read those
+  // records only in inspiration, never in the all-gardens progress album.
+  const itemCollection = item.collection ?? (item.gardenId === "garden-inspiration" ? "inspiration" : undefined);
+  return item.id.startsWith(userId+":") && itemCollection===collection && (!gardenId || item.gardenId===gardenId) && (contextId === undefined || item.contextId === contextId) && (!spaceId || item.spaceId === spaceId);
 }

@@ -6,6 +6,7 @@ export type PlantReminder = {
   title: string;
   date: string;
   notes?: string;
+  seedStartSeason?: string;
 };
 export type CalendarOptions = {
   reminders?: PlantReminder[];
@@ -13,7 +14,7 @@ export type CalendarOptions = {
   lastFrost: string;
   firstFrost: string;
   plants: Record<string, { included?: boolean; mode?: "indoor" | "outdoor" }>;
-  tasks: Record<string, { status?: "done" | "skipped"; date?: string }>;
+  tasks: Record<string, { status?: "done" | "skipped"; date?: string; hidden?: boolean; title?: string; detail?: string; minutes?: number; dueDate?: string }>;
 };
 export type GrowingTask = {
   id: string;
@@ -104,13 +105,14 @@ export function buildGrowingTasks(
         if (options.tasks[oldId]) id = oldId;
       }
       const change = options.tasks[id];
+      if (change?.hidden) return;
       result.push({
         id,
         date: change?.date || date,
-        title,
+        title: change?.title ?? title,
         plant: name,
         plantIds: group.map((p) => p.id),
-        detail: detail + (varieties ? ` Varieties: ${varieties}.` : ""),
+        detail: change?.detail ?? (detail + (varieties ? ` Varieties: ${varieties}.` : "")),
         status: change?.status,
       });
     };
@@ -336,19 +338,19 @@ export function buildGrowingTasks(
   }
   for (const reminder of options.reminders || []) {
     const change = options.tasks[reminder.id];
+    if (change?.hidden) continue;
     if (!(change?.date || reminder.date).startsWith(`${year}-`)) continue;
     const plant = plants.find((p) => p.id === reminder.plantId);
     if (!plant && reminder.plantId) continue;
     result.push({
       id: reminder.id,
       date: change?.date || reminder.date,
-      title: reminder.title,
+      title: change?.title ?? reminder.title,
       plantIds: plant ? [plant.id] : [],
       plant: plant
         ? [plant.name, plant.variety].filter(Boolean).join(" · ")
         : "Personal task",
-      detail:
-        reminder.notes || (plant ? "Your plant reminder." : "Your saved task."),
+      detail: change?.detail ?? (reminder.notes || (plant ? "Your plant reminder." : "Your saved task.")),
       status: change?.status,
     });
   }
