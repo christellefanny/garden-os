@@ -16,7 +16,7 @@ function GuidanceSource({ href, title }: { href: string; title: string }) {
 
 export function CornerPlanting({ season = "spring" }: { season?: string }) {
   const selected = Object.hasOwn(cornerSeasons, season) ? season : "spring";
-  return <><EditorialNote/><SeasonalFlowerPlanning season={selected} current={cornerSeasons[selected]} planting={cornerPlanting}/><GuidanceSource href="https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/starting-seeds-indoors" title="University of Minnesota Extension · Starting seeds indoors"/></>;
+  return <><SeasonalFlowerPlanning season={selected} current={cornerSeasons[selected]} planting={cornerPlanting}/><GuidanceSource href="https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/starting-seeds-indoors" title="University of Minnesota Extension · Starting seeds indoors"/></>;
 }
 
 export function CornerCare() {
@@ -24,7 +24,7 @@ export function CornerCare() {
 }
 
 export function CornerSeedSaving() {
-  return <><EditorialNote/><FlowerSeedSaving guides={cornerSeedGuides}/><aside className="learning-note"><strong>Plan next season, not an exact copy.</strong><p>Saved seed from hybrids and cross-pollinated plants may differ from the parent. Record the plant name and collection year; keep seed dry and check each species’ storage and germination needs before sowing. Named cultivars may need division or other vegetative propagation to stay true to type.</p></aside><GuidanceSource href="https://yardandgarden.extension.iastate.edu/how-to/how-harvest-and-store-seeds" title="Iowa State University Extension · How to harvest and store seeds"/><p className="learning-sources"><a href="https://extension.illinois.edu/blogs/flowers-fruits-and-frass/2023-09-01-cherish-favorite-flowers-and-challenge-your-green-thumb" target="_blank" rel="noopener noreferrer">University of Illinois Extension · Saving favorite flower seeds ↗</a></p></>;
+  return <><FlowerSeedSaving guides={cornerSeedGuides}/><aside className="learning-note"><strong>Plan next season, not an exact copy.</strong><p>Saved seed from hybrids and cross-pollinated plants may differ from the parent. Record the plant name and collection year; keep seed dry and check each species’ storage and germination needs before sowing. Named cultivars may need division or other vegetative propagation to stay true to type.</p></aside><GuidanceSource href="https://yardandgarden.extension.iastate.edu/how-to/how-harvest-and-store-seeds" title="Iowa State University Extension · How to harvest and store seeds"/><p className="learning-sources"><a href="https://extension.illinois.edu/blogs/flowers-fruits-and-frass/2023-09-01-cherish-favorite-flowers-and-challenge-your-green-thumb" target="_blank" rel="noopener noreferrer">University of Illinois Extension · Saving favorite flower seeds ↗</a></p></>;
 }
 
 type BouquetStyle = "pastel" | "bright" | "romantic" | "garden";
@@ -36,7 +36,7 @@ function BouquetArtwork({style="garden",label}:{style?:BouquetStyle;label:string
 }
 
 export function CornerCutFlowers() {
-  return <><aside className="learning-note" data-testid="cut-flower-guidance-note"><strong>A little guidance for your cutting garden</strong><p>These illustrated notes are adapted from Blooms. Adjust planting and harvest timing to your local frost dates, soil conditions and cultivar. For each plant’s detailed guidance and sources, open its Library profile.</p></aside>
+  return <>
       <div className="seasonal-card grid overflow-hidden rounded-2xl border bg-[#faf8f1] lg:grid-cols-[42%_58%]">
         <div className="flex flex-col justify-center px-6 py-9 sm:px-10 lg:px-12 lg:py-14">
           <p className="eyebrow text-[#435640]">From garden to vase</p>

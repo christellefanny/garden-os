@@ -1,3 +1,4 @@
+import { additionalShadeProfiles } from './flower-corner-shade.ts';
 import { additionalPerennialProfiles } from './flower-corner-perennials.ts';
 import { additionalAnnualProfiles } from './flower-corner-annuals.ts';
 import { additionalSpecialtyProfiles } from './flower-corner-specialty.ts';
@@ -294,4 +295,4 @@ const harvestSources: Record<string,FlowerCornerSource> = {
  lisianthus:{title:"Ball Seed · Lisianthus cut-flower guide",url:"https://www.ballseed.com/CutFlowers/documents/Lisianthus-Cut-Flower-Guide-English-.pdf"},
  zinnias:{title:"Washington State Extension · Zinnias",url:"https://s3.wp.wsu.edu/uploads/sites/2083/2021/06/06-27-Zinnia-Barany_compressed.pdf"},
 };
-export const flowerCornerProfiles: FlowerCornerProfile[] = [...originalProfiles.map(profile=>({...profile,sources:[...profile.sources,...careSources,...(harvestSources[profile.id]?[harvestSources[profile.id]]:[])]})),...additionalAnnualProfiles,...additionalSpecialtyProfiles,...additionalSeasonalProfiles,...additionalPerennialProfiles];
+export const flowerCornerProfiles: FlowerCornerProfile[] = [...originalProfiles.map(profile=>({...profile,sources:[...profile.sources,...careSources,...(harvestSources[profile.id]?[harvestSources[profile.id]]:[])]})),...additionalAnnualProfiles,...additionalSpecialtyProfiles,...additionalSeasonalProfiles,...additionalPerennialProfiles,...additionalShadeProfiles];

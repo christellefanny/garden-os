@@ -25,7 +25,7 @@ export default async function FlowerCornerGuidePage({ params, searchParams }: Pr
   const { returnTo } = await searchParams;
   return <SeasonProvider initialSeason={getSeason(new Date())}>
     <main className="seasonal-page corner-public-page">
-      <header className="corner-public-header"><Link href="/">Garden Atelier</Link><span>Public growing guides · No account needed</span></header>
+      <header className="corner-public-header"><Link href="/">Garden Atelier</Link><span>Planting · Care · Inspiration</span></header>
       <FlowerCornerGuide profile={profile} returnTo={safeFlowerCornerReturn(returnTo)} />
     </main>
   </SeasonProvider>;

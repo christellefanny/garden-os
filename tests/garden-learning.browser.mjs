@@ -36,13 +36,18 @@ try {
  }
  await page.setViewportSize({width:1440,height:1000});
  await nav.getByRole('button',{name:'Flower Corner',exact:true}).click();
+ await page.getByRole('button',{name:/^Filters/}).click();
  await page.getByRole('searchbox',{name:'Search the Library'}).fill('dahlia');
  assert.equal(await page.locator('.corner-library-card').count(),1);
- await page.getByRole('button',{name:/Read .* growing guide/}).click();
- const dialog=page.getByRole('dialog');await dialog.waitFor();await dialog.getByRole('heading',{name:'Dahlias',exact:true}).waitFor();
- assert.ok(await dialog.getByRole('link',{name:/NC State/}).isVisible());
- await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
- assert.ok(await page.getByRole('button',{name:/Read .* growing guide/}).evaluate(el=>el===document.activeElement));
+ const namedLink=page.getByRole('link',{name:'Dahlias (opens in a new tab)',exact:true});
+ const guideOpened=page.context().waitForEvent('page');await namedLink.click();const guide=await guideOpened;
+ await guide.getByRole('heading',{name:'Dahlias',exact:true}).waitFor();
+ assert.ok(await guide.getByRole('link',{name:/NC State/}).isVisible());
+ const sources=guide.getByRole('button',{name:'About this guide & its sources',exact:true});await sources.click();
+ await guide.getByRole('dialog').getByRole('heading',{name:'About this growing guide',exact:true}).waitFor();
+ await guide.keyboard.press('Escape');await guide.close();
+ assert.equal(await page.getByRole('searchbox',{name:'Search the Library'}).inputValue(),'dahlia');
+ const dialog=page.getByRole('dialog');
  await nav.getByRole('button',{name:'Beginner’s Guide',exact:true}).click();
  // Help me start must show the full helper title on initial and repeated use.
  for(const reducedMotion of ['no-preference','reduce']){
@@ -78,9 +83,12 @@ try {
   await page.screenshot({path:`docs/previews/learning/beginner-${width}.png`});
  }
  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await nav.getByRole('button',{name:'Flower Corner',exact:true}).click();
- await page.getByRole('searchbox',{name:'Search the Library'}).fill('dahlia');await page.getByRole('button',{name:/Read .* growing guide/}).click();await dialog.waitFor();
- await page.screenshot({path:'docs/previews/learning/flower-mobile.png'});
- assert.ok(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth));
+ const filters=page.getByRole('button',{name:/^Filters/});if(await filters.getAttribute('aria-expanded')!=='true')await filters.click();
+ await page.getByRole('searchbox',{name:'Search the Library'}).fill('dahlia');
+ const mobileGuideOpened=page.context().waitForEvent('page');await page.getByRole('link',{name:'Dahlias (opens in a new tab)',exact:true}).click();const mobileGuide=await mobileGuideOpened;
+ await mobileGuide.setViewportSize({width:320,height:844});await mobileGuide.getByRole('heading',{name:'Dahlias',exact:true}).waitFor();
+ await mobileGuide.screenshot({path:'docs/previews/learning/flower-mobile.png'});
+ assert.ok(await mobileGuide.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await mobileGuide.close();
  assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
  console.log('PASS learning dialogs, close/Escape/focus restore, next guide, checklist reload persistence, 390/320px mobile, dialog WCAG AA, zero guest cloud writes.');
 } catch(error){console.error(log.slice(-5000));throw error;} finally {await browser?.close();server.kill();fixture.kill();}

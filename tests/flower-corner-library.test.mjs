@@ -5,10 +5,11 @@ import {flowerCornerProfiles,flowerCornerReviewed} from '../lib/flower-corner-li
 import {flowerProfiles} from '../lib/garden-learning.ts';
 import {getFlowerGardenArt} from '../lib/flower-garden-art.ts';
 import {getVaultBotanicalArt} from '../lib/vault-botanical-art.ts';
+import {flowerCornerArt} from '../lib/flower-corner-art.ts';
 
 const byId = id => flowerCornerProfiles.find(profile => profile.id === id);
-test('Flower Corner retains every original learning flower and adds two foliage profiles',()=>{
-  assert.equal(flowerCornerProfiles.length,45);
+test('Flower Corner retains every original learning flower and expands foliage and shade coverage',()=>{
+  assert.equal(flowerCornerProfiles.length,55);
   assert.equal(new Set(flowerCornerProfiles.map(p=>p.id)).size,flowerCornerProfiles.length);
   for(const old of flowerProfiles) assert.ok(byId(old.id),old.id);
   assert.equal(byId('heuchera').kind,'foliage');
@@ -31,9 +32,10 @@ test('each public profile has substantive growing fields and institutional evide
     }
   }
 });
-test('every library portrait reuses an existing approved artwork file',()=>{
+test('every library portrait has a real artwork file',()=>{
   for(const profile of flowerCornerProfiles){
-    if(!profile.artName){assert.equal(profile.id,'daffodils'); continue;}
+    if(flowerCornerArt[profile.id]){assert.ok(existsSync(new URL("../public"+flowerCornerArt[profile.id].src,import.meta.url)));continue;}
+    assert.ok(profile.artName,profile.id);
     const art=getFlowerGardenArt(profile.artName)||getVaultBotanicalArt(profile.artName,profile.artVariety);
     assert.ok(art,profile.artName);
     assert.ok(existsSync(`public${art.src}`),profile.artName);

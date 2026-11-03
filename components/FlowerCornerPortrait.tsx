@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { flowerCornerArt } from "@/lib/flower-corner-art";
 import { getFlowerGardenArt } from "@/lib/flower-garden-art";
 import { getVaultBotanicalArt } from "@/lib/vault-botanical-art";
 import type { FlowerCornerProfile } from "@/lib/flower-corner-library";
@@ -11,12 +12,13 @@ import type { FlowerCornerProfile } from "@/lib/flower-corner-library";
 export default function FlowerCornerPortrait({ profile }: { profile: FlowerCornerProfile }) {
   const [failed, setFailed] = useState(false);
   const name = profile.artName || profile.name;
+  const original = flowerCornerArt[profile.id];
   const flower = getFlowerGardenArt(name);
   const vault = getVaultBotanicalArt(name, profile.artVariety || "");
   const art = flower ? { ...flower, columns: 4 } : vault;
   const label = `${profile.artVariety ? `${profile.artVariety} ` : ""}${name}`;
   return <div className="corner-original-portrait" style={{ width: "100%", maxWidth: 300, marginInline: "auto" }}>
-    {art && !failed ? <>
+    {original && !failed ? <figure><Image src={original.src} alt={original.alt} width={original.width} height={original.height} sizes="300px" quality={90} className="aspect-square h-auto w-full rounded-xl bg-white object-contain" onError={()=>setFailed(true)}/></figure> : art && !failed ? <>
       <div role="img" aria-label={`Watercolor illustration of ${label}`}
         className="relative aspect-square overflow-hidden rounded-xl bg-white"
         style={{ clipPath: "inset(5.5% round 12px)" }}>
@@ -26,7 +28,6 @@ export default function FlowerCornerPortrait({ profile }: { profile: FlowerCorne
           onError={() => setFailed(true)} />
       </div>
       {profile.artVariety && <p className="seasonal-muted text-xs">Illustration of {profile.artVariety}; other varieties may differ.</p>}
-      {profile.name === "Violas" && <p className="seasonal-muted text-xs">Related pansy illustration; not an exact species image.</p>}
     </> : <div className="seasonal-muted flex aspect-square items-center justify-center rounded-xl bg-white text-sm">{failed ? "Illustration unavailable" : "No verified illustration yet"}</div>}
   </div>;
 }

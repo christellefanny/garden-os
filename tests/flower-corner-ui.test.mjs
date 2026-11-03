@@ -16,13 +16,13 @@ test('Flower Corner preserves nav position and legacy Library bookmarks',()=>{
 test('public library consolidates sourced profiles and linked care techniques',()=>{
  const ui=read('components/FlowerCorner.tsx');
  for(const name of ['Library','When & How to Plant','Cut Flowers & Bouquets','Seed Saving & Next Season'])assert.ok(ui.includes(name));
- assert.match(ui,/Search the Library/);assert.match(ui,/Plant type/);assert.match(ui,/Sunlight/);assert.match(ui,/aria-haspopup="dialog"/);
- assert.match(ui,/<Dialog title="Care techniques"/);assert.match(ui,/guideUrl\(p.id\)/);assert.doesNotMatch(ui,/not full seed-starting profiles yet|corner-inspiration-grid|CornerCare/);
+ assert.match(ui,/Search the Library/);assert.match(ui,/Plant kind/);assert.match(ui,/Life cycle/);assert.match(ui,/Sunlight/);assert.match(ui,/aria-haspopup="dialog"/);
+ assert.match(ui,/<Dialog title="Care techniques"/);assert.match(ui,/guideUrl\(profile.id\)/);assert.doesNotMatch(ui,/not full seed-starting profiles yet|corner-inspiration-grid|CornerCare/);
  assert.match(ui,/Care techniques/);assert.match(ui,/profileExtraFacts/);assert.match(ui,/legacyCare/);
  assert.match(ui,/FlowerCornerPortrait/);
 });
 
-async function loadUI({selected=null,techniques=false}={}){
+async function loadUI({section='Library',techniques=false,filters=null,filtersOpen=false}={}){
  const React=await import('react');
  const {renderToStaticMarkup}=await import('react-dom/server');
  const {createRequire}=await import('node:module');
@@ -30,32 +30,38 @@ async function loadUI({selected=null,techniques=false}={}){
  const ts=await import('typescript');
  const profiles=await import('../lib/flower-corner-library.ts');
  const editorial=await import('../lib/flower-corner-editorial.ts');
- const art=await import('../lib/flower-garden-art.ts');
+ const classification=await import('../lib/flower-corner-classification.ts');
+ const navigation=await import('../lib/flower-corner-navigation.ts');
  const require=createRequire(import.meta.url),exports={};
+ let stateIndex=0;
+ const state=[section,filters??navigation.defaultFlowerCornerFilters,filtersOpen,'/flower-corner',techniques];
  const js=ts.default.transpileModule(read('components/FlowerCorner.tsx'),{compilerOptions:{jsx:ts.default.JsxEmit.ReactJSX,module:ts.default.ModuleKind.CommonJS,target:ts.default.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
  vm.default.runInNewContext(js,{exports,URLSearchParams,require:id=>{
-  if(id==='react')return {...React,useState:initial=>[initial===null?selected:initial===false?techniques:initial,()=>{}]};
+  if(id==='react')return {...React,useState:()=>[state[stateIndex++],()=>{}]};
   if(id==='@/components/ui/Dialog')return function MockDialog({title,children}){return React.createElement('section',{'role':'dialog','aria-label':title},children);};
+  if(id==='next/link')return function MockLink({href,children,...props}){return React.createElement('a',{href,...props},children);};
   if(id==='next/image')return function MockImage({src,alt}){return React.createElement('img',{src,alt});};
   if(id==='@/lib/flower-corner-library')return profiles;
   if(id==='@/lib/flower-corner-editorial')return editorial;
-  if(id==='@/lib/flower-garden-art')return art;
+  if(id==='@/lib/flower-corner-classification')return classification;
+  if(id==='@/lib/flower-corner-navigation')return navigation;
   if(id==='@/components/seasonal/SeasonProvider')return {useSeason:()=>({season:'spring'})};
-  if(id==='@/components/FlowerCornerEditorial')return {};
+  if(id==='@/components/FlowerCornerEditorial')return {CornerPlanting:()=>null,CornerCutFlowers:()=>null,CornerSeedSaving:()=>null};
+  if(id==='@/components/IllustratedCareTechniques')return function MockIllustratedCareTechniques(){return React.createElement('section',{'data-testid':'illustrated-care-techniques'},'Illustrated care techniques');};
   if(id.startsWith('@/components/'))return ()=>null;
   return require(id);
  }});
- return {React,renderToStaticMarkup,exports,profiles,editorial};
+ return {React,renderToStaticMarkup,exports,profiles,editorial,classification,navigation};
 }
-test('public Flower Corner renders every profile as a complete guide without personal controls',async()=>{
+test('public Flower Corner renders every profile without personal controls',async()=>{
  const {React,renderToStaticMarkup,exports,profiles}=await loadUI();
  const html=renderToStaticMarkup(React.createElement(exports.default));
  assert.equal((html.match(/class="corner-library-card"/g)||[]).length,profiles.flowerCornerProfiles.length);
  assert.ok(profiles.flowerCornerProfiles.some(p=>p.kind==='foliage'));
  assert.doesNotMatch(html,/>Flower Care<|additional cutting-flower inspiration entries/);
  for(const p of profiles.flowerCornerProfiles)assert.ok(html.includes(p.name.replaceAll('&','&amp;').replaceAll("'",'&#x27;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')),p.name);
- assert.match(html,/Flower Corner sections/);assert.match(html,/No account needed/);
- assert.doesNotMatch(html,/Your bouquet ideas|Add pictures|My flowers|Continue as guest|Sign in/);
+ assert.match(html,/Flower Corner sections/);assert.match(html,/Outdoor guidance for U.S. home gardens/);
+ assert.doesNotMatch(html,/Your bouquet ideas|Add pictures|My flowers|Continue as guest|Sign in|No account needed/);
 });
 
 test('all former care reminders resolve to Library profiles without losing flowering/care text',async()=>{
@@ -77,28 +83,73 @@ test('expanded profile care fields are surfaced in the shared fact rendering',as
  }
 });
 
-test('each Library picture, name and read action links to the same real guide page',async()=>{
+test('only picture and plant name open each Library profile in a safely isolated new tab',async()=>{
  const {React,renderToStaticMarkup,exports,profiles}=await loadUI();
  const html=renderToStaticMarkup(React.createElement(exports.default));
  for(const p of profiles.flowerCornerProfiles){
-  assert.equal(html.split('href="/flower-corner/'+p.id+'?returnTo=%2Fflower-corner"').length-1,3,p.id);
+  assert.equal(html.split('href="/flower-corner/'+p.id+'?returnTo=%2Fflower-corner"').length-1,2,p.id);
  }
+ assert.equal((html.match(/target="_blank" rel="noopener noreferrer"/g)||[]).length,profiles.flowerCornerProfiles.length*2);
+ assert.equal((html.match(/opens in a new tab/g)||[]).length,profiles.flowerCornerProfiles.length*2);
  assert.equal((html.match(/role="dialog"/g)||[]).length,0);
- assert.match(read('components/FlowerCorner.tsx'),/history.replaceState/);
+ assert.doesNotMatch(html,/Read .* growing guide|· Growing guide|>Flower<|corner-guide-link/);
+ assert.match(read('components/FlowerCorner.tsx'),/history.replaceState\(window.history.state/);
  assert.match(read('components/FlowerCorner.tsx'),/popstate/);
 });
-test('Library supplementary care techniques still open an accessible popup',async()=>{
+test('Library supplementary care techniques use the shared illustrated popup',async()=>{
  const {React,renderToStaticMarkup,exports}=await loadUI({techniques:true});
  const html=renderToStaticMarkup(React.createElement(exports.default));
  assert.equal((html.match(/role="dialog"/g)||[]).length,1);
- assert.match(html,/aria-label="Care techniques"/);assert.match(html,/Three different cuts/);
- assert.match(html,/extension.illinois.edu\/flowers\/caring-annuals/);
+ assert.match(html,/aria-label="Care techniques"/);assert.match(html,/data-testid="illustrated-care-techniques"/);
+ assert.match(read('components/FlowerCorner.tsx'),/<IllustratedCareTechniques\s*\/>/);
+ assert.doesNotMatch(read('components/FlowerCorner.tsx'),/flower-guides\/care.webp|<Facts title="Know the difference"/);
 });
 
-test('Cut Flowers condenses overlapping introductory notes into one',()=>{
- const ui=read('components/FlowerCorner.tsx'),editorial=read('components/FlowerCornerEditorial.tsx');
- assert.match(ui,/section!=="Cut Flowers & Bouquets"&&<aside/);
- const cut=editorial.slice(editorial.indexOf('export function CornerCutFlowers()'));
- assert.match(cut,/cut-flower-guidance-note/);assert.doesNotMatch(cut,/<EditorialNote\//);
- assert.match(cut,/local frost dates, soil conditions and cultivar/);assert.match(cut,/adapted from Blooms/);
+test('a single permanent hero note replaces repeated hub and editorial guidance notices',async()=>{
+ for(const section of ['Library','When & How to Plant','Cut Flowers & Bouquets','Seed Saving & Next Season']){
+  const {React,renderToStaticMarkup,exports}=await loadUI({section});
+  const html=renderToStaticMarkup(React.createElement(exports.default));
+  assert.equal((html.match(/Outdoor guidance for U.S. home gardens/g)||[]).length,1);
+  assert.doesNotMatch(html,/A guide, not a universal planting date|Open to everyone/);
+ }
+ const editorial=read('components/FlowerCornerEditorial.tsx');
+ for(const [start,end] of [['CornerPlanting','CornerCare'],['CornerSeedSaving','type BouquetStyle'],['CornerCutFlowers',null]]){
+  const source=editorial.slice(editorial.indexOf(`export function ${start}`),end?(end.startsWith('type ')?editorial.indexOf(end):editorial.indexOf(`export function ${end}`)):undefined);
+  assert.doesNotMatch(source,/<EditorialNote\s*\/|A little guidance for your cutting garden|cut-flower-guidance-note/);
+ }
+ assert.match(editorial,/Grow your own bouquets/);assert.match(editorial,/Plan next season, not an exact copy/);
+});
+
+test('search, kind, life cycle and sunlight combine with AND matching',async()=>{
+ const {exports,profiles,classification,navigation}=await loadUI();
+ const plants=profiles.flowerCornerProfiles,defaults=navigation.defaultFlowerCornerFilters;
+ const select=filters=>plants.filter(p=>exports.matchesLibraryFilters(p,{...defaults,...filters}));
+ assert.equal(select({}).length,plants.length);
+ for(const life of ['annual','biennial','perennial']){
+  const result=select({life});assert.ok(result.length>0,life);
+  for(const profile of result)assert.ok(classification.getPlantLifecycles(profile).includes(life),profile.id);
+ }
+ const selected=select({query:'hosta',kind:'foliage',life:'perennial',light:'shade'});
+ assert.equal(selected.length,1);assert.equal(selected[0].id,'hosta');
+ assert.equal(select({query:'hosta',kind:'flower',life:'perennial',light:'shade'}).length,0);
+ assert.equal(select({query:'hosta',kind:'foliage',life:'annual',light:'shade'}).length,0);
+ assert.equal(select({query:'hosta',kind:'foliage',life:'perennial',light:'sun'}).length,0);
+ for(const kind of ['flower','foliage'])for(const life of ['annual','biennial','perennial'])for(const light of ['sun','shade']){
+  const intersections=select({kind}).filter(p=>select({life}).includes(p)&&select({light}).includes(p));
+  assert.deepEqual(select({kind,life,light}).map(p=>p.id),intersections.map(p=>p.id));
+ }
+ assert.equal(select({query:'  HOSTA  '}).length,1);
+});
+
+test('Filters control exposes a grouped panel, active count, reset and clear empty state',async()=>{
+ const defaults={query:'',kind:'all',life:'all',light:'all'};
+ const {React,renderToStaticMarkup,exports}=await loadUI({filtersOpen:true,filters:{...defaults,query:'not-a-real-plant',kind:'foliage',life:'biennial',light:'shade'}});
+ const html=renderToStaticMarkup(React.createElement(exports.default));
+ assert.match(html,/aria-label="Filter the Library"/);assert.match(html,/aria-expanded="true" aria-controls=/);
+ assert.match(html,/Filters<span> · 4 active/);assert.match(html,/Reset filters/);
+ for(const label of ['Search the Library','Plant kind','Life cycle','Sunlight'])assert.ok(html.includes(label));
+ assert.match(html,/role="status" aria-live="polite" aria-atomic="true"/);
+ assert.match(html,/0 plants match your filters/);assert.match(html,/No plants match all your filters/);assert.match(html,/Clear all filters/);
+ const closed=await loadUI();const closedHtml=closed.renderToStaticMarkup(closed.React.createElement(closed.exports.default));
+ assert.match(closedHtml,/aria-expanded="false"/);assert.match(closedHtml,/hidden=""/);assert.doesNotMatch(closedHtml,/Reset filters|Clear all filters/);
 });

@@ -1,3 +1,38 @@
+export type FlowerCornerFilters = {
+  query: string;
+  kind: 'all' | 'flower' | 'foliage';
+  life: 'all' | 'annual' | 'biennial' | 'perennial';
+  light: 'all' | 'sun' | 'shade';
+};
+
+export const defaultFlowerCornerFilters: FlowerCornerFilters = {
+  query: '', kind: 'all', life: 'all', light: 'all',
+};
+
+/** Ignore unknown values so old or edited bookmarks remain usable. */
+export function readFlowerCornerFilters(params: URLSearchParams): FlowerCornerFilters {
+  const kind = params.get('kind');
+  const life = params.get('life');
+  const light = params.get('light');
+  return {
+    query: (params.get('q') || '').slice(0, 200),
+    kind: kind === 'flower' || kind === 'foliage' ? kind : 'all',
+    life: life === 'annual' || life === 'biennial' || life === 'perennial' ? life : 'all',
+    light: light === 'sun' || light === 'shade' ? light : 'all',
+  };
+}
+
+export function flowerCornerLibraryUrl(path: string, filters: FlowerCornerFilters): string {
+  const pathname = path === '/' ? '/' : '/flower-corner';
+  const params = new URLSearchParams();
+  if (pathname === '/') params.set('view', 'flower-corner');
+  if (filters.query) params.set('q', filters.query.slice(0, 200));
+  if (filters.kind !== 'all') params.set('kind', filters.kind);
+  if (filters.life !== 'all') params.set('life', filters.life);
+  if (filters.light !== 'all') params.set('light', filters.light);
+  return `${pathname}${params.size ? `?${params}` : ''}`;
+}
+
 /** Only public Library destinations can be used as a guide's return link. */
 export function safeFlowerCornerReturn(value: unknown): string {
   const fallback = '/flower-corner';
@@ -7,13 +42,5 @@ export function safeFlowerCornerReturn(value: unknown): string {
   if (url.origin !== 'https://garden.invalid') return fallback;
   const workspace = url.pathname === '/' && url.searchParams.get('view') === 'flower-corner';
   if (url.pathname !== '/flower-corner' && !workspace) return fallback;
-  const clean = new URLSearchParams();
-  if (workspace) clean.set('view', 'flower-corner');
-  const query = url.searchParams.get('q');
-  if (query) clean.set('q', query.slice(0, 200));
-  const kind = url.searchParams.get('kind');
-  if (kind && ['all', 'flower', 'foliage'].includes(kind)) clean.set('kind', kind);
-  const light = url.searchParams.get('light');
-  if (light && ['all', 'sun', 'shade'].includes(light)) clean.set('light', light);
-  return `${url.pathname}${clean.size ? `?${clean}` : ''}`;
+  return flowerCornerLibraryUrl(url.pathname, readFlowerCornerFilters(url.searchParams));
 }
