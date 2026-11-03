@@ -30,6 +30,7 @@ export default function BotanicalCalendar({
   tasks,
   selectedDay,
   onSelect,
+  onTask,
   onMonth,
 }: {
   month: string;
@@ -37,6 +38,7 @@ export default function BotanicalCalendar({
   tasks: GrowingTask[];
   selectedDay: string | null;
   onSelect: (date: string) => void;
+  onTask: (id: string) => void;
   onMonth: (month: string) => void;
 }) {
   const [year, number] = month.split("-").map(Number);
@@ -142,32 +144,25 @@ export default function BotanicalCalendar({
             },
           );
           return (
-            <button
-              type="button"
+            <div
               className={`calendar-date${date === today ? " is-today" : ""}`}
               key={date}
-              aria-pressed={selectedDay === date}
               data-date={date}
-              aria-current={date === today ? "date" : undefined}
-              onClick={() => onSelect(date)}
+              data-selected={selectedDay === date}
+              onClick={event => { if (event.target === event.currentTarget) onSelect(date); }}
             >
+              <button type="button" className="min-h-11 w-full text-left" aria-pressed={selectedDay === date} aria-current={date === today ? "date" : undefined} onClick={() => onSelect(date)}>
               <span className="sr-only">
                 {label}: {items.length} {items.length === 1 ? "task" : "tasks"}
                 .{" "}
               </span>
               <span className="calendar-date-number">{i + 1}</span>
+              {!!items.length && <span className="calendar-task-more block">{items.length} {items.length === 1 ? "task" : "tasks"}</span>}
+              </button>
               <span className="calendar-date-tasks">
-                {!!items.length && <>
-                  <span className="calendar-task-more">{items.length} {items.length === 1 ? "task" : "tasks"}</span>
-                  <span className="calendar-task-chip">{items[0].title}</span>
-                </>}
+                {!!items.length && <button type="button" className="calendar-task-chip min-h-11 w-full text-left" aria-label={`${items[0].title} for ${items[0].plant}`} onClick={() => onTask(items[0].id)}>{items[0].title}</button>}
               </span>
-              {!!items.length && (
-                <span className="calendar-mobile-count">
-                  {items.length} {items.length === 1 ? "task" : "tasks"}
-                </span>
-              )}
-            </button>
+            </div>
           );
         })}
         {Array.from({ length: (7 - ((offset + length) % 7)) % 7 }, (_, i) => (

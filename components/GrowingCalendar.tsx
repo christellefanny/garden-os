@@ -55,7 +55,7 @@ export default function GrowingCalendar({
     null,
   );
   const headingRef = useRef<HTMLElement>(null);
-  const agendaRef = useRef<HTMLDivElement>(null);
+  const [dayOpen, setDayOpen] = useState(false);
   const [planningOpen, setPlanningOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<string | null>(() =>
     localDay(),
@@ -400,6 +400,7 @@ export default function GrowingCalendar({
         <button
           aria-pressed={view === "week"}
           onClick={() => {
+            setDayOpen(true);
             setView("week");
             setSelectedDay(null);
             setYear(currentYear);
@@ -446,18 +447,14 @@ export default function GrowingCalendar({
           selectedDay={selectedDay}
           onSelect={(date) => {
             setSelectedDay(date);
-            if (window.matchMedia("(max-width:700px)").matches)
-              requestAnimationFrame(() =>
-                agendaRef.current?.scrollIntoView({
-                  block: "start",
-                  behavior: window.matchMedia(
-                    "(prefers-reduced-motion: reduce)",
-                  ).matches
-                    ? "auto"
-                    : "smooth",
-                }),
-              );
+            setSelectedTaskIds([]);
+            const dayTasks = tasks.filter(task => task.date === date);
+            if (dayTasks.length === 1) {
+              setDayOpen(false);
+              setDetailId(dayTasks[0].id);
+            } else setDayOpen(true);
           }}
+          onTask={(id) => { setDayOpen(false); setDetailId(id); }}
           onMonth={(value) => {
             setMonth(value);
             setYear(Number(value.slice(0, 4)));
@@ -466,48 +463,6 @@ export default function GrowingCalendar({
         />
       )}
 
-      <div
-        className="section-heading agenda-heading"
-        ref={agendaRef}
-        aria-live="polite"
-      >
-        <h2>
-          {selectedDay
-            ? new Date(`${selectedDay}T12:00:00Z`).toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                timeZone: "UTC",
-              })
-            : view === "week"
-              ? "This week’s agenda"
-              : "The month ahead"}
-        </h2>
-        <p>
-          {selectedDay
-            ? "Your plants and reminders for this day."
-            : "Grouped by what needs doing, with each plant underneath."}
-        </p>
-      </div>
-      {message && (
-        <p role="status" className="mt-3 text-sm">
-          {message}
-        </p>
-      )}
-      {visibleTasks.length > 0 && (
-        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
-          <label className="flex items-center gap-2 text-sm font-semibold">
-            <input type="checkbox" aria-label="Select all visible calendar tasks" checked={allSelected} onChange={e => setSelectedTaskIds(e.target.checked ? visibleTasks.map(t => t.id) : [])} />
-            Select all ({visibleTasks.length})
-          </label>
-          {selectedVisible.length > 0 && <>
-            <span className="seasonal-muted text-sm">{selectedVisible.length} selected</span>
-            <button type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={markSelectedDone}>Mark selected done</button>
-            <button type="button" className="seasonal-outline rounded-lg border px-4 py-2 text-sm" onClick={() => setConfirmBulkDelete(true)}>Delete selected</button>
-            <button type="button" className="seasonal-link text-sm underline" onClick={() => setSelectedTaskIds([])}>Clear selection</button>
-          </>}
-        </div>
-      )}
       {editingTaskId && <Dialog title="Edit calendar task" onClose={() => setEditingTaskId(null)}>
         <form className="mt-3 grid gap-4" onSubmit={editTaskSave}>
           <label className="grid gap-2 text-sm font-semibold">Task name<input className="seasonal-input rounded-lg border p-3" required maxLength={180} value={editTitle} onChange={e => setEditTitle(e.target.value)} /></label>
@@ -530,17 +485,31 @@ export default function GrowingCalendar({
           calendar.
         </p>
       )}
-      {!visibleTasks.length && (
-        <p className="seasonal-card mt-5 rounded-xl border p-6">
-          A little breathing room. No tasks for this{" "}
-          {selectedDay ? "day" : "view"}. Your saved reminders and plant
-          suggestions appear on their dates.
-        </p>
+      {dayOpen && !detailTask && !editingTaskId && !confirmBulkDelete && <Dialog title={selectedDay
+        ? new Date(`${selectedDay}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })
+        : "This week’s tasks"} onClose={() => { setDayOpen(false); if (view === "week") { setView("month"); setYear(Number(month.slice(0, 4))); } }}>
+        <p className="seasonal-muted mb-4 text-sm">Choose a task for its instructions, timing and completion controls.</p>
+      {visibleTasks.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            <input type="checkbox" aria-label="Select all visible calendar tasks" checked={allSelected} onChange={e => setSelectedTaskIds(e.target.checked ? visibleTasks.map(t => t.id) : [])} />
+            Select all ({visibleTasks.length})
+          </label>
+          {selectedVisible.length > 0 && <>
+            <span className="seasonal-muted text-sm">{selectedVisible.length} selected</span>
+            <button type="button" className="seasonal-button rounded-lg px-4 py-2 text-sm" onClick={markSelectedDone}>Mark selected done</button>
+            <button type="button" className="seasonal-outline rounded-lg border px-4 py-2 text-sm" onClick={() => setConfirmBulkDelete(true)}>Delete selected</button>
+            <button type="button" className="seasonal-link text-sm underline" onClick={() => setSelectedTaskIds([])}>Clear selection</button>
+          </>}
+        </div>
       )}
-      <div className="calendar-agenda">
+
+        {!visibleTasks.length && <p className="py-5">Nothing scheduled for this day. Enjoy a little breathing room.</p>}
         <CalendarTaskCards options={options} key={`${selectedDay || view}-${month}`} tasks={visibleTasks} onOpen={setDetailId} selected={selectedTaskIds} onSelect={(id, checked) => setSelectedTaskIds(current => checked ? [...new Set([...current, id])] : current.filter(value => value !== id))} />
-      </div>
+        {message && <p role="status" className="mt-3 text-sm">{message}</p>}
+      </Dialog>}
       {detailTask && timing && <Dialog title={detailTask.title} onClose={() => setDetailId(null)}>
+        {dayOpen && <button type="button" className="seasonal-link mb-3 min-h-11" onClick={() => setDetailId(null)}>← Back to tasks</button>}
         <p className="text-lg font-semibold">{detailTask.plant}</p>
         <p className="seasonal-muted mt-2 text-sm">{detailTask.id.startsWith("custom|") ? "You saved this reminder." : "Suggested from your saved plants and calendar planning dates. Check plant stage and local conditions before acting."}</p>
         <dl className="my-5 grid gap-4 sm:grid-cols-2">

@@ -1994,7 +1994,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .calendar-date:nth-child(7n) {border-right:0;}
 .calendar-date-number {font:18px Georgia,serif;align-self:flex-start;padding:2px 5px;}
 .calendar-date.is-today .calendar-date-number {background:var(--primary);color:#fff;border-radius:50%;min-width:27px;text-align:center;}
-.calendar-date[aria-pressed="true"] {background:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--primary);}
+.calendar-date[data-selected="true"] {background:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--primary);}
 .calendar-date:focus-visible {outline:3px solid var(--primary);outline-offset:-3px;}
 .calendar-date-tasks {display:flex;flex-direction:column;gap:5px;min-width:0;}
 .calendar-task-chip {display:block;font:11px/1.4 Arial,sans-serif;padding:5px;border-radius:4px;background:#eaf0e3;color:#3f5537;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
