@@ -598,7 +598,7 @@ export default function GardenWorkspace({
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
           {page === "Flower Corner" && <FlowerCorner/>}
-          {page === "Beginner’s Guide" && <GardenLearning key={`${userId}:${page}`} userId={userId} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")}/>}
+          {page === "Beginner’s Guide" && <GardenLearning key={`${userId}:${page}`} userId={userId} garden={garden} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")}/>}
           {page === "Flower Garden" && <><button type="button" onClick={()=>navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button><FlowersPage plants={vault} userId={userId} /></>}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">

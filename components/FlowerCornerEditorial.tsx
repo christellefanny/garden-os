@@ -36,7 +36,7 @@ function BouquetArtwork({style="garden",label}:{style?:BouquetStyle;label:string
 }
 
 export function CornerCutFlowers() {
-  return <><EditorialNote/>
+  return <><aside className="learning-note" data-testid="cut-flower-guidance-note"><strong>A little guidance for your cutting garden</strong><p>These illustrated notes are adapted from Blooms. Adjust planting and harvest timing to your local frost dates, soil conditions and cultivar. For each plant’s detailed guidance and sources, open its Library profile.</p></aside>
       <div className="seasonal-card grid overflow-hidden rounded-2xl border bg-[#faf8f1] lg:grid-cols-[42%_58%]">
         <div className="flex flex-col justify-center px-6 py-9 sm:px-10 lg:px-12 lg:py-14">
           <p className="eyebrow text-[#435640]">From garden to vase</p>

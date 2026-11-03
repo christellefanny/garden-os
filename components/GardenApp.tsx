@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -226,7 +227,7 @@ function Welcome({ authError, onGuest, savingGuest, initialMode }: { authError: 
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <GardenHeader gardenYear={new Date().getFullYear()} />
-        <a href="/flower-corner" className="seasonal-outline mt-5 inline-flex min-h-11 items-center rounded-xl border px-4 py-3 font-semibold">Explore Flower Corner — no account needed →</a>
+        <Link href="/flower-corner" className="seasonal-outline mt-5 inline-flex min-h-11 items-center rounded-xl border px-4 py-3 font-semibold">Explore Flower Corner — no account needed →</Link>
         <section className="mt-10 grid items-center gap-10 py-5 lg:grid-cols-[1.2fr_1fr] lg:py-12">
           <div>
             <p className="eyebrow seasonal-muted">A garden worth remembering</p>

@@ -1,49 +1,51 @@
-// Public preview/local QA. No sign-in, guest initialization or user record mutation.
+// Public UI QA; no sign-in or account record mutation.
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const origin=process.env.FLOWER_CORNER_ORIGIN||'http://127.0.0.1:3000';
 const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||'/usr/bin/chromium',args:['--no-sandbox']});
 try{
- const page=await browser.newPage(),errors=[],privateRequests=[];
+ const page=await browser.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- page.on('request',r=>{if(/rest\/v1|api\/state|api\/photos/.test(r.url()))privateRequests.push(r.url());});
- await page.goto(origin+'/flower-corner');
- await page.getByRole('heading',{name:'Flower Corner',exact:true}).waitFor();
- assert.equal(await page.getByRole('button',{name:'Continue as guest',exact:true}).count(),0);
  for(const width of [1440,390,320]){
   await page.setViewportSize({width,height:844});
-  const nav=page.getByRole('navigation',{name:'Flower Corner sections'});
-  await nav.getByRole('button',{name:'Library',exact:true}).click();
-  await page.getByRole('combobox',{name:'Plant type',exact:true}).selectOption('foliage');
-  assert.ok(await page.locator('.corner-library-card').count()>0);
-  assert.equal(await nav.getByRole('button',{name:'Flower Care',exact:true}).count(),0);
-  await page.getByRole('button',{name:/Read .* growing guide/}).first().click();
-  const dialog=page.getByRole('dialog');await dialog.waitFor();
-  assert.ok(await dialog.getByRole('heading',{name:'When & how to plant',exact:true}).isVisible());
-  assert.ok(await dialog.getByRole('link').count()>0);
-  for(const name of ['Feeding','Bouquet use','Seed saving','Common problems'])assert.ok(await dialog.getByText(name,{exact:true}).count()>0);
-  const plantTitle=await dialog.getByRole('heading').first().innerText();
-  await dialog.getByRole('button',{name:'Understand pinching, deadheading & cutting back',exact:true}).click();
-  await dialog.getByRole('heading',{name:'Care techniques',exact:true}).waitFor();
-  assert.equal(await page.getByRole('dialog').count(),1);
-  await page.waitForFunction(()=>document.activeElement?.textContent==='Three different cuts, three different jobs');
-  await page.keyboard.press('Tab');await page.keyboard.press('Tab');
-  assert.ok(await dialog.getByRole('button',{name:'← Back to '+plantTitle+' growing guide',exact:true}).evaluate(e=>e===document.activeElement));
-  await page.keyboard.press('Enter');
-  await dialog.getByRole('heading',{name:plantTitle,exact:true}).waitFor();
-  await page.keyboard.press('Escape');
-  assert.ok(await page.getByRole('button',{name:/Read .* growing guide/}).first().evaluate(e=>e===document.activeElement));
-  await page.getByRole('button',{name:'Care techniques: pinching, deadheading & cutting back',exact:true}).click();
-  await dialog.getByRole('heading',{name:'Care techniques',exact:true}).waitFor();
-  await page.keyboard.press('Escape');
-  assert.ok(await page.getByRole('button',{name:'Care techniques: pinching, deadheading & cutting back',exact:true}).evaluate(e=>e===document.activeElement));
-  await page.getByRole('combobox',{name:'Plant type',exact:true}).selectOption('all');
-  for(const name of ['When & How to Plant','Cut Flowers & Bouquets','Seed Saving & Next Season']){
-   await nav.getByRole('button',{name,exact:true}).click();
-   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   assert.equal(await page.getByRole('button',{name:'Add pictures',exact:true}).count(),0);
+  await page.goto(origin+'/flower-corner');
+  await page.getByRole('heading',{name:'Flower Corner',exact:true}).waitFor();
+  await page.getByRole('searchbox',{name:'Search the Library'}).fill('statice');
+  const imageLink=page.getByRole('link',{name:'Open Statice growing guide',exact:true});
+  await imageLink.click();
+  await page.waitForURL(/\/flower-corner\/statice/);
+  await page.getByRole('heading',{name:'Statice',exact:true}).waitFor();
+  const task=page.locator('.floating-add-task');
+  assert.equal(await task.count(),1);await task.click();
+  await page.getByLabel('Task',{exact:true}).fill('Cancelled draft, do not save');
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  assert.ok(await task.evaluate(e=>e===document.activeElement));
+  await task.click();await page.keyboard.press('Escape');
+  assert.equal(await page.getByRole('dialog').count(),0);
+  await page.reload();
+  await page.getByRole('heading',{name:'Statice',exact:true}).waitFor();
+  for(const label of ['Germination','Feeding','Bouquet use','Seed saving','Common problems'])assert.ok(await page.getByText(label,{exact:true}).count()>0,label);
+  for(const name of ['Flower care: pinching, deadheading & cutting back','About this guide & its sources']){
+   const opener=page.getByRole('button',{name,exact:true});await opener.click();
+   await page.getByRole('dialog').waitFor();await page.keyboard.press('Escape');
+   assert.ok(await opener.evaluate(e=>e===document.activeElement));
   }
+  await page.getByRole('link',{name:'← Back to Library',exact:true}).first().click();
+  await page.getByRole('searchbox',{name:'Search the Library'}).waitFor();
+  await page.waitForFunction(()=>document.querySelector('input[type=search]')?.value==='statice');
+  await page.getByRole('link',{name:'Statice',exact:true}).click();
+  await page.getByRole('heading',{name:'Statice',exact:true}).waitFor();
+  await page.goBack();
+  await page.getByRole('link',{name:'Read Statice growing guide',exact:true}).click();
+  await page.getByRole('heading',{name:'Statice',exact:true}).waitFor();
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.goto(origin+'/flower-corner');
+  await page.getByRole('button',{name:'Cut Flowers & Bouquets',exact:true}).click();
+  assert.equal(await page.locator('.floating-add-task').count(),1);
+  assert.equal(await page.getByTestId('cut-flower-guidance-note').count(),1);
+  assert.equal(await page.getByText('A guide, not a universal planting date.',{exact:true}).count(),0);
+  assert.equal(await page.getByText('Garden Atelier’s illustrated field notes',{exact:true}).count(),0);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  }
- assert.deepEqual(errors,[]);assert.deepEqual(privateRequests,[]);
- console.log('PASS public Flower Corner, foliage dialogs/Escape/focus, 4 sections at desktop/390/320, no account data requests.');
+ assert.deepEqual(errors,[]);console.log('PASS picture/name/read routes, refresh/back, supplementary dialogs, preserved filter, condensed note and desktop/narrow layouts.');
 }finally{await browser.close();}

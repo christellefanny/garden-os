@@ -17,9 +17,9 @@ test('public library consolidates sourced profiles and linked care techniques',(
  const ui=read('components/FlowerCorner.tsx');
  for(const name of ['Library','When & How to Plant','Cut Flowers & Bouquets','Seed Saving & Next Season'])assert.ok(ui.includes(name));
  assert.match(ui,/Search the Library/);assert.match(ui,/Plant type/);assert.match(ui,/Sunlight/);assert.match(ui,/aria-haspopup="dialog"/);
- assert.match(ui,/<Dialog title=\{techniques/);assert.match(ui,/selected.sources.map/);assert.doesNotMatch(ui,/not full seed-starting profiles yet|corner-inspiration-grid|CornerCare/);
+ assert.match(ui,/<Dialog title="Care techniques"/);assert.match(ui,/guideUrl\(p.id\)/);assert.doesNotMatch(ui,/not full seed-starting profiles yet|corner-inspiration-grid|CornerCare/);
  assert.match(ui,/Care techniques/);assert.match(ui,/profileExtraFacts/);assert.match(ui,/legacyCare/);
- assert.match(ui,/getFlowerGardenArt/);assert.match(ui,/VaultBotanicalPortrait/);
+ assert.match(ui,/FlowerCornerPortrait/);
 });
 
 async function loadUI({selected=null,techniques=false}={}){
@@ -33,7 +33,7 @@ async function loadUI({selected=null,techniques=false}={}){
  const art=await import('../lib/flower-garden-art.ts');
  const require=createRequire(import.meta.url),exports={};
  const js=ts.default.transpileModule(read('components/FlowerCorner.tsx'),{compilerOptions:{jsx:ts.default.JsxEmit.ReactJSX,module:ts.default.ModuleKind.CommonJS,target:ts.default.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
- vm.default.runInNewContext(js,{exports,require:id=>{
+ vm.default.runInNewContext(js,{exports,URLSearchParams,require:id=>{
   if(id==='react')return {...React,useState:initial=>[initial===null?selected:initial===false?techniques:initial,()=>{}]};
   if(id==='@/components/ui/Dialog')return function MockDialog({title,children}){return React.createElement('section',{'role':'dialog','aria-label':title},children);};
   if(id==='next/image')return function MockImage({src,alt}){return React.createElement('img',{src,alt});};
@@ -77,22 +77,28 @@ test('expanded profile care fields are surfaced in the shared fact rendering',as
  }
 });
 
-test('profile popup renders expanded care content and linked techniques without nested dialogs',async()=>{
- const {flowerCornerProfiles}=await import('../lib/flower-corner-library.ts');
- const selected=flowerCornerProfiles.find(p=>p.kind==='flower');
- const {React,renderToStaticMarkup,exports}=await loadUI({selected});
+test('each Library picture, name and read action links to the same real guide page',async()=>{
+ const {React,renderToStaticMarkup,exports,profiles}=await loadUI();
  const html=renderToStaticMarkup(React.createElement(exports.default));
- assert.equal((html.match(/role="dialog"/g)||[]).length,1);
- for(const label of ['Feeding','Bouquet use','Seed saving','Common problems','Pinching','Deadheading','Cutting back'])assert.ok(html.includes(label),label);
- assert.match(html,/Understand pinching, deadheading/);
+ for(const p of profiles.flowerCornerProfiles){
+  assert.equal(html.split('href="/flower-corner/'+p.id+'?returnTo=%2Fflower-corner"').length-1,3,p.id);
+ }
+ assert.equal((html.match(/role="dialog"/g)||[]).length,0);
+ assert.match(read('components/FlowerCorner.tsx'),/history.replaceState/);
+ assert.match(read('components/FlowerCorner.tsx'),/popstate/);
 });
-test('care technique popup preserves a route back to the selected plant and source attribution',async()=>{
- const {flowerCornerProfiles}=await import('../lib/flower-corner-library.ts');
- const selected=flowerCornerProfiles[0];
- const {React,renderToStaticMarkup,exports}=await loadUI({selected,techniques:true});
+test('Library supplementary care techniques still open an accessible popup',async()=>{
+ const {React,renderToStaticMarkup,exports}=await loadUI({techniques:true});
  const html=renderToStaticMarkup(React.createElement(exports.default));
  assert.equal((html.match(/role="dialog"/g)||[]).length,1);
  assert.match(html,/aria-label="Care techniques"/);assert.match(html,/Three different cuts/);
  assert.match(html,/extension.illinois.edu\/flowers\/caring-annuals/);
- assert.ok(html.includes('Back to '+selected.name+' growing guide'));
+});
+
+test('Cut Flowers condenses overlapping introductory notes into one',()=>{
+ const ui=read('components/FlowerCorner.tsx'),editorial=read('components/FlowerCornerEditorial.tsx');
+ assert.match(ui,/section!=="Cut Flowers & Bouquets"&&<aside/);
+ const cut=editorial.slice(editorial.indexOf('export function CornerCutFlowers()'));
+ assert.match(cut,/cut-flower-guidance-note/);assert.doesNotMatch(cut,/<EditorialNote\//);
+ assert.match(cut,/local frost dates, soil conditions and cultivar/);assert.match(cut,/adapted from Blooms/);
 });
