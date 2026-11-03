@@ -14,7 +14,7 @@ export type CalendarOptions = {
   lastFrost: string;
   firstFrost: string;
   plants: Record<string, { included?: boolean; mode?: "indoor" | "outdoor" }>;
-  tasks: Record<string, { status?: "done" | "skipped"; date?: string; hidden?: boolean; title?: string; detail?: string }>;
+  tasks: Record<string, { status?: "done" | "skipped"; date?: string; hidden?: boolean; title?: string; detail?: string; minutes?: number; dueDate?: string }>;
 };
 export type GrowingTask = {
   id: string;

@@ -157,19 +157,10 @@ export default function BotanicalCalendar({
               </span>
               <span className="calendar-date-number">{i + 1}</span>
               <span className="calendar-date-tasks">
-                {items.slice(0, 2).map((t) => (
-                  <span
-                    className={`calendar-task-chip ${t.id.startsWith("custom|") ? "is-personal" : ""}`}
-                    key={t.id}
-                  >
-                    {t.plant} · {t.title}
-                  </span>
-                ))}
-                {items.length > 2 && (
-                  <span className="calendar-task-more">
-                    +{items.length - 2} more
-                  </span>
-                )}
+                {!!items.length && <>
+                  <span className="calendar-task-more">{items.length} {items.length === 1 ? "task" : "tasks"}</span>
+                  <span className="calendar-task-chip">{items[0].title}</span>
+                </>}
               </span>
               {!!items.length && (
                 <span className="calendar-mobile-count">

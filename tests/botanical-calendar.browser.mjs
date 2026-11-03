@@ -147,13 +147,10 @@ try {
   await page.getByLabel("Calendar month", { exact: true }).fill("2027-03");
   const day = page.locator('[data-date="2027-03-18"]');
   await day.click();
-  assert.equal(await day.locator(".calendar-task-chip").count(), 2);
-  assert.equal(await day.locator(".calendar-task-more").innerText(), "+1 more");
-  assert.equal(await page.locator(".calendar-task-detail").count(), 3);
-  assert.ok(
-    (await page.locator(".calendar-task-detail .calendar-plant-art").count()) >=
-      2,
-  );
+  assert.equal(await day.locator(".calendar-task-chip").count(), 1);
+  assert.equal(await day.locator(".calendar-task-more").innerText(), "3 tasks");
+  assert.equal(await page.locator(".calendar-agenda article").count(), 3);
+  await page.getByRole("heading", { name: "Today & this week", exact: true }).waitFor();
   await mkdir("docs/previews/botanical-calendar", { recursive: true });
   for (const [season, month, src] of [
     ["spring", "2027-03", "spring-lettuce.webp"],
@@ -178,17 +175,22 @@ try {
     path: "docs/previews/botanical-calendar/desktop.webp",
     fullPage: true,
   });
-  await page
-    .locator(".calendar-task-detail")
-    .filter({ hasText: "Only water if" })
-    .getByRole("button", { name: "Mark done", exact: true })
-    .click();
+  await page.locator(".calendar-agenda").getByRole("button", { name: "Check seedling moisture", exact: true }).click();
+  const taskDialog = page.getByRole("dialog");
+  await taskDialog.getByText("Only water if the root zone needs it.", { exact: true }).waitFor();
+  await taskDialog.getByLabel("Your time estimate in minutes (optional)").fill("5");
+  await taskDialog.getByLabel("Deadline (optional)").fill("2027-03-20");
+  await taskDialog.getByRole("button", { name: "Save timing", exact: true }).click();
+  await taskDialog.getByText("About 5 minutes (your estimate)", { exact: true }).waitFor();
+  await taskDialog.getByRole("button", { name: "Mark done", exact: true }).click();
+  await taskDialog.getByRole("button", { name: "Close dialog", exact: true }).click();
   assert.equal(
     await page
       .locator('[data-date="2027-03-18"] .calendar-mobile-count')
       .textContent(),
     "2 tasks",
   );
+  await page.locator("summary").filter({ hasText: /^Weekly email settings$/ }).click();
   await page
     .getByRole("button", { name: "Weekly email settings", exact: true })
     .click();
@@ -266,7 +268,7 @@ try {
   await page.locator('[data-date="2027-03-18"]').click();
   assert.equal(
     await page
-      .locator(".calendar-task-detail")
+      .locator(".calendar-agenda article")
       .filter({ hasText: "Completed" })
       .count(),
     1,
