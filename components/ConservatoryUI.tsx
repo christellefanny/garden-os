@@ -4,6 +4,7 @@ import SeasonIcon from "@/components/seasonal/SeasonIcon";
 import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import GuestPlantingNow from "@/components/GuestPlantingNow";
 import { readJournal } from "@/lib/journal";
+import ItemPicturesButton from "@/components/ItemPicturesButton";
 import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
 import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
@@ -29,31 +30,8 @@ import {
 import { dailyRecommendations } from "@/lib/connected-garden";
 import { loadCustomLayouts } from "@/components/BlankGardenLayout";
 import { initialLayout, nineBedLayout } from "@/lib/garden-layout";
-export type Destination =
-  | "Dashboard"
-  | "My Gardens"
-  | "Plant Vault"
-  | "Flower Garden"
-  | "Garden Layout"
-  | "Garden Inspiration"
-  | "Growing Calendar"
-  | "Tasks"
-  | "Journal"
-  | "Settings"
-  | "Help";
-export const destinations: Destination[] = [
-  "Dashboard",
-  "My Gardens",
-  "Plant Vault",
-  "Flower Garden",
-  "Garden Layout",
-  "Garden Inspiration",
-  "Growing Calendar",
-  "Tasks",
-  "Journal",
-  "Settings",
-  "Help",
-];
+import { navigationDestinations, type Destination } from "@/lib/navigation";
+export { destinations, type Destination } from "@/lib/navigation";
 const navigationIconPaths: Record<string, string> = {
   "Dashboard": "M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7",
   "My Gardens": "M12 22V3M12 8C8 8 5 6 5 3c4 0 7 2 7 5Zm0-2c0-3 3-4 6-4 0 3-2 5-6 5M12 11l-5 2m5-2 5 3M10 16a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M21 17a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M4.5 13.5l2 1 2-1m7 1 2 1 2-1",
@@ -64,6 +42,9 @@ const navigationIconPaths: Record<string, string> = {
   "Growing Calendar": "M3 6h18v15H3V6Zm4-3v6m10-6v6M3 11h18m-13 4h2m4 0h2m-8 3h2",
   "Tasks": "M9 5h12M9 12h12M9 19h12M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4",
   "Journal": "M4 3h15v18H4V3Zm4 0v18m3-13h5m-5 4h5m-5 4h3",
+  "Vision Board": "M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z",
+  "Flower Corner": "M3 4h7l2 2 2-2h7v16h-7l-2 2-2-2H3V4Zm9 2v16",
+  "Beginner’s Guide": "M4 3h16v18H4V3Zm4 5h8m-8 4h8m-8 4h5",
   "Photo Journal": "M3 6h5l2-3h4l2 3h5v15H3V6Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   "Settings": "M10 3h4l1 3 3 1 3 3v4l-3 1-1 3-3 3h-4l-1-3-3-1-3-3v-4l3-1 1-3 3-3Zm6 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   "Help": "M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5m0 3v1M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
@@ -114,10 +95,10 @@ export function ConservatoryNavigation({
         <span className="garden-atelier-brand-tagline">PLAN · GROW · HARVEST · ENJOY</span>
       </button>
       <nav aria-label="Garden Atelier navigation">
-        {destinations.filter((name) => !guest || name !== "Plant Vault").map((name) => (
+        {navigationDestinations(guest).map((name) => (
           <button
             key={name}
-            aria-current={page === name ? "page" : undefined}
+            aria-current={page === name || (page === "Flower Garden" && name === "My Gardens") ? "page" : undefined}
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />
@@ -616,11 +597,12 @@ export function TasksPage({
     <section className="interior-page tasks-page atelier-welcoming-page">
       <InteriorHeader illustration="tasks" title="Tasks" eyebrow="Little by little, a garden grows" description="A few thoughtful steps for today and the days ahead. Make a little time for the garden, and enjoy watching it grow.">
         <AddTaskButton userId={userId} onSaved={setOptions}/>
+        <ItemPicturesButton userId={userId} collection="tasks" title="Task pictures"/>
         <button className="seasonal-outline" onClick={onCalendar}>Open Growing Calendar</button>
       </InteriorHeader>
       <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
       <div className="interior-toolbar"><div className="collection-tabs">{[{id:"today",label:"Today"},{id:"week",label:"This week"},{id:"all",label:"Upcoming"}].map(item=><button className={`collection-tab ${range===item.id?"is-active":""}`} aria-pressed={range===item.id} key={item.id} onClick={()=>setRange(item.id)}>{item.label}</button>)}</div></div>
-      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant === "Personal task" ? t.title : t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
+      <div className="task-categories">{groupReminders(tasks.filter(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))).map(group=><details className="agenda-category" open key={group.title}><summary className="agenda-category-title">{group.title}<span>{group.tasks.length} {group.tasks.length===1?"step":"steps"} · {group.tasks[0]?.date}</span></summary>{group.tasks.map(t=><div className="modern-task-row" key={t.id}><button className="task-ring" aria-label={`Complete ${t.title} for ${t.plant}`} onClick={()=>complete(t.id)}/><div><strong>{t.plant === "Personal task" ? t.title : t.plant}</strong><small>{options.reminders?.some(r=>r.id===t.id)?"Saved reminder":"Planning recommendation"} · {t.detail}</small></div><ItemPicturesButton userId={userId} collection="tasks" contextId={t.id} title={t.plant === "Personal task" ? t.title : `${t.plant} · ${t.title}`} label="Pictures"/><time dateTime={t.date}>{t.date < today ? `Overdue · ${t.date}` : t.date}</time></div>)}</details>)}</div>
       {!tasks.some(t=>range==="all"||t.date<=(range==="today"?today:shiftDay(today,7)))&&<div className="interior-empty"><h2>A little breathing room.</h2><p>No upcoming steps in this view. Your calendar keeps the rest of the year within reach.</p><button className="seasonal-outline" onClick={onCalendar}>View calendar</button></div>}
     </section>
   );

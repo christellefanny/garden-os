@@ -1,0 +1,9 @@
+# Pictures on tasks, bouquets and layouts
+
+Approved placements: Tasks header beside Add task, individual task rows, opposite More Bouquet Ideas, and the layout creation dialog beneath the layout name.
+
+Tasks and bouquets reuse the private photo journal with separate collection markers. A task's stable ID is saved as `contextId`; its gallery filters that ID, while the Tasks header shows all task pictures, including pictures of completed tasks. Untagged garden progress, inspiration, task and bouquet collections do not mix. Account ownership validation, private upload paths, optimistic versions, guest IndexedDB saving and account backup stay in the shared photo pipeline. Task deletion tombstones retain their collection and context markers. Existing records are not migrated.
+
+Layouts have an optional `coverImage`, a JPEG re-encoded locally below 100 KB with photo metadata stripped. Cover selection never calls the photo analysis endpoint and does not modify layout geometry or create growing spaces. It appears on saved layout cards and may be changed or removed later. The existing layout synchronization carries it with the design. Reads exclude external and executable cover sources; creation and editing enforce the existing 1.4 MB layout sync budget and reject malformed stored layout lists rather than replacing them. Updating a cover refreshes the editor's storage snapshot so later shape edits retain it.
+
+Validation: unit coverage includes collection/task/account isolation, metadata guards, tombstone validation and embedded cover limits. Full unit suite and production build are run with fixture public Supabase settings. Browser and real-account upload verification remain pending; the managed local preview launcher is incompatible with this checkout's Next CLI, and the GitHub push for hosted preview is blocked pending explicit authorization. No production data, secrets or deployment settings were changed.

@@ -1,0 +1,108 @@
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px clamp(16px, 4vw, 40px) 60px;
+}
+
+.backNav { margin-bottom: 24px; }
+.backNav a { text-decoration: none; font-size: 13px; }
+
+.article {
+  --lesson-accent: #365646;
+  --lesson-wash: #edf2e7;
+  color: #28382e;
+  max-width: none;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.article[data-topic="timing"] { --lesson-accent: #675270; --lesson-wash: #f2ecf4; }
+.article[data-topic="soil"] { --lesson-accent: #825537; --lesson-wash: #f5eadf; }
+.article[data-topic="essentials"] { --lesson-accent: #5d6540; --lesson-wash: #eff0e2; }
+.article[data-topic="planting"] { --lesson-accent: #44664d; --lesson-wash: #eaf1e6; }
+.article[data-topic="care"] { --lesson-accent: #80544b; --lesson-wash: #f6eae5; }
+.article a:focus-visible, .article button:focus-visible, .article input:focus-visible {
+  outline: 3px solid var(--lesson-accent);
+  outline-offset: 4px;
+}
+.article button, .article a { touch-action: manipulation; }
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr;
+  align-items: center;
+  gap: clamp(12px, 3vw, 36px);
+  padding: clamp(22px, 4vw, 44px);
+  border: 1px solid #dedfce;
+  border-radius: 28px;
+  background: linear-gradient(125deg, #fffdf8 25%, var(--lesson-wash));
+  overflow: hidden;
+}
+.heroCopy { min-width: 0; position: relative; z-index: 1; }
+.eyebrow { margin: 0 0 14px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--lesson-accent); font-weight: 700; }
+.stepBadge { display: inline-flex; align-items: center; min-height: 30px; padding: 4px 11px; border: 1px solid currentColor; border-radius: 30px; color: var(--lesson-accent); font-size: 12px; margin: 0 0 16px; }
+.title { font: 400 clamp(32px, 4.1vw, 48px)/1.08 Georgia, serif; letter-spacing: -.025em; margin: 0 0 20px; color: #263e30; text-wrap: balance; }
+.intro { font-size: 15px; line-height: 1.8; margin: 0; max-width: 45ch; }
+.art { margin: 0; min-width: 0; width: min(100%, 480px); justify-self: center; }
+.article[data-topic="space"] .art, .article[data-topic="soil"] .art { max-width: 360px; }
+.art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: multiply;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}
+
+.path { margin: 24px 0 40px; padding: 18px 0; border-block: 1px solid #d9dfd0; }
+.pathLabel { margin: 0 0 12px; color: #53614d; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.path ol { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; list-style: none; margin: 0; padding: 0; }
+.path a { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 7px 9px; border: 1px solid transparent; border-radius: 9px; text-decoration: none; font-size: 12px; color: #52604c; }
+.path a:hover { background: #f3f4ea; }
+.path a[aria-current="step"] { background: var(--lesson-wash); border-color: var(--lesson-accent); color: var(--lesson-accent); font-weight: 700; }
+.pathNumber { display: grid; place-items: center; flex: 0 0 23px; height: 23px; border: 1px solid #b5c0ad; border-radius: 50%; font-size: 11px; }
+.path a[aria-current="step"] .pathNumber { background: var(--lesson-accent); border-color: var(--lesson-accent); color: #fff; }
+
+.sectionTitle { font: 400 clamp(25px, 3vw, 32px)/1.2 Georgia, serif; color: #2e4435; margin: 0 0 20px; }
+.steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; list-style: none; padding: 0; margin: 0 0 30px; }
+.stepCard { min-width: 0; padding: clamp(20px, 3vw, 28px); border: 1px solid #dce1d3; border-radius: 18px; background: #fffdf7; }
+.cardTop { display: flex; align-items: flex-start; gap: 13px; margin-bottom: 14px; }
+.cardNumber { flex: 0 0 35px; font: italic 28px/1 Georgia, serif; color: var(--lesson-accent); padding-top: 3px; }
+.stepCard h3 { font: 400 23px/1.2 Georgia, serif; margin: 0; color: #2f4635; text-wrap: balance; }
+.stepCard p { margin: 0; font-size: 14px; line-height: 1.85; }
+
+.review { display: grid; grid-template-columns: .85fr 1.15fr; gap: 22px; align-items: start; margin: 32px 0; }
+.mistake { border-left: 3px solid #a5774e; background: #f8efe1; border-radius: 0 18px 18px 0; padding: 26px; }
+.mistake h2, .checklistPanel h2 { font: 400 26px/1.25 Georgia, serif; margin: 0 0 12px; }
+.mistake p { margin: 0; font-size: 14px; line-height: 1.85; }
+.checklistPanel { border-radius: 18px; background: var(--lesson-wash); border: 1px solid #d7dfce; padding: 26px; }
+.checklistPanel p { font-size: 12px; line-height: 1.7; margin: 0 0 16px; }
+.checklistPanel :global(.learning-check) { display: flex; align-items: flex-start; gap: 12px; padding: 13px 0; margin: 0; font-size: 14px; line-height: 1.6; border-bottom: 1px solid #d0d9c8; min-height: 48px; }
+.checklistPanel :global(.learning-check):last-child { border-bottom: 0; }
+.checklistPanel input { accent-color: var(--lesson-accent); margin-top: 3px; flex: 0 0 19px; width: 19px; height: 19px; }
+.article > :global(.learning-note) { padding: 28px; border: 1px solid #dce1d3; border-radius: 18px; background: #fffdf7; }
+.article > :global(.learning-note) h2 { font: 400 28px/1.2 Georgia, serif; margin: 0 0 12px; }
+.article > :global(.learning-note) p { font-size: 14px; line-height: 1.8; }
+.article > :global(.learning-sources) { border-top: 1px solid #d9dfd0; margin-top: 32px; padding-top: 22px; }
+.article > :global(.learning-sources) li { line-height: 1.65; margin: 7px 0; }
+.article > nav[aria-label="Guide next steps"] { padding-top: 8px; }
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; gap: 20px; }
+  .intro { max-width: none; }
+  .art { width: min(100%, 430px); justify-self: center; }
+  .article[data-topic="space"] .art, .article[data-topic="soil"] .art { max-width: 280px; }
+  .path ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .path a { justify-content: center; }
+  .steps, .review { grid-template-columns: 1fr; }
+  .review { gap: 18px; }
+}
+@media (max-width: 380px) {
+  .hero { padding: 21px 18px; border-radius: 20px; }
+  .title { font-size: 32px; }
+  .path ol { gap: 5px; }
+  .path a { flex-direction: column; gap: 5px; padding: 8px 4px; font-size: 11px; }
+  .stepCard, .mistake, .checklistPanel { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .article *, .article *::before, .article *::after { scroll-behavior: auto; transition: none; }
+}

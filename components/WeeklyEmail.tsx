@@ -43,7 +43,8 @@ export default function WeeklyEmail({
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
   useEffect(() => {
-    if (guest) { setSettings(null); return; }
+    // Guest/account workspaces mount separately; guest state starts empty.
+    if (guest) return;
     let active = true;
     async function refreshStatus() {
       try {

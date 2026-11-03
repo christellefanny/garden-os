@@ -1,0 +1,144 @@
+{
+  "created": "2026-11-03",
+  "method": "Built-in image generation, one generation per taxon",
+  "pixelEdits": "None. Original generated PNG files copied byte-for-byte.",
+  "scope": "Representative botanical artwork, not a diagnostic identification key or a named cultivar guarantee.",
+  "assets": [
+    {
+      "id": "daffodils",
+      "file": "daffodils.png",
+      "taxon": "Narcissus species and garden hybrids",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of trumpet daffodils, with yellow six-part flowers, trumpet coronas and basal strap-shaped leaves.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier flower reference library. Create one square high-native-resolution image, preferably 2048 × 2048 pixels, not a multi-plant sheet. Subject: a representative spring-flowering trumpet daffodil, Narcissus species / garden hybrids, not a named cultivar. Show a small graceful clump of three golden-yellow flowers and one enclosed flower bud on separate smooth leafless scapes, with long narrow strap-shaped blue-green leaves rising only from the base. Each open flower has exactly six perianth segments around one pronounced flared trumpet corona. Include one front-facing flower and one turned partly sideways so the trumpet structure is clear. Botanical accuracy is vital: no branching flower stems, no stem-attached broad leaves, no lily stamens. Style: finely detailed traditional botanical watercolor, luminous washed petals, crisp delicate edges, natural green veins, softly layered pigment, elegant vintage seed-catalog quality. Match the existing garden library's fresh full-color watercolor specimen portraits, without antique paper stains. Plain clean white background, no shadows, no frame, no lettering, no labels or watermark. Entire above-ground clump centered and comfortably inside the square with 8% clear margin, airy balanced silhouette, cut/base ends discreetly visible. Do not show a pot or roots. Representative illustration rather than an identification guarantee."
+    },
+    {
+      "id": "china-asters",
+      "file": "china-asters.png",
+      "taxon": "Callistephus chinensis",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of annual China asters (Callistephus chinensis), with large layered pink and lavender flowerheads and toothed leaves.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: A representative annual China aster (Callistephus chinensis) branching specimen with THREE large double flower heads in lavender, rose-pink, and soft pink. Show dense layered narrow spoon-shaped rays with small yellow central disks only partly exposed; rounded fully double heads, not a loose spray of small daisies. Include two round unopened buds and toothed ovate lower leaves becoming narrower upwards, alternate leaves on sturdy branched green stems. Clearly larger fewer heads than a perennial aster spray. Do NOT use the fine feathery foliage of cosmos, fern foliage, lobed chrysanthemum leaves, or New England aster small daisy habit."
+    },
+    {
+      "id": "perennial-asters",
+      "file": "perennial-asters.png",
+      "taxon": "Symphyotrichum novae-angliae",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of a New England aster (Symphyotrichum novae-angliae), one example of perennial asters, with small violet daisies on branching stems.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: A representative New England perennial aster (Symphyotrichum novae-angliae), illustrative example for the broader perennial aster group. Airy branched leafy stems with numerous SMALL single daisy heads in violet and lavender, each with many narrow slender ray florets circling a clear yellow or golden central disk. Flowers are much smaller relative to plant and more numerous than double China asters. Show alternate narrow lance-shaped sessile leaves clasping stems, slightly hairy stems, buds in branched sprays. Do NOT show large double ball flowers, broad serrated annual China aster leaves, or feathery cosmos foliage."
+    },
+    {
+      "id": "pansies",
+      "file": "pansies.png",
+      "taxon": "Viola × wittrockiana",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of large-flowered garden pansies (Viola × wittrockiana hybrids), with broad overlapping petals and dark face markings.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Representative large-flowered garden pansy hybrids (Viola x wittrockiana) as a low compact leafy clump with five large face-on flowers, rich purple and gold and one white-purple flower. Each flower has exactly FIVE BROAD overlapping rounded petals: two upper, two lateral, one broad lower petal, dark face-like blotches and fine nectar guide veins around tiny yellow center. Flowers very large relative to leaves and low plant habit. Ovate to rounded green scalloped leaves attached to short branching stems; slender individual flower stalks. No elongated spikes, no daisy centers, no extra flower petals. Distinct from horned violas by broad large overlapping flower faces and compact habit."
+    },
+    {
+      "id": "violas",
+      "file": "violas.png",
+      "taxon": "Viola cornuta",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of a horned violet (Viola cornuta), with small violet flowers, narrow petals and a visible backward-pointing nectar spur.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Representative horned violet (Viola cornuta), NOT large-flowered pansy, NOT Viola tricolor. Show a loose low spreading clump of small lavender-violet flowers held on fine slender stalks above ovate-to-lanceolate finely scalloped green leaves. Five narrower petals per bloom: two fairly narrow upper petals, two lateral petals, a broader lower petal with darker violet nectar-guide lines and pale yellow-white throat. Small flowers well spaced and noticeably smaller relative to foliage than pansies; no oversized dark pansy-face blotches. Include one clearly SIDE-ON flower near the edge showing the slender curved backward-projecting nectar spur behind the corolla, the diagnostic horn. No large rounded overlapping pansy petals, no four-upright-one-down Johnny-jump-up composition."
+    },
+    {
+      "id": "japanese-painted-fern",
+      "file": "japanese-painted-fern.png",
+      "taxon": "Athyrium niponicum var. pictum",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of Japanese painted fern (Athyrium niponicum var. pictum), with silver-green divided fronds and burgundy stems.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Japanese painted fern, Athyrium niponicum var. pictum, one graceful arching clump of finely divided triangular fern fronds, soft metallic silver-gray surfaces tinged sage green and dark burgundy-purple rachises. Feathered finely cut bipinnate-pinnatifid fronds with small tapering lobed pinnules, distinctly more delicate than autumn fern. One young furled crozier near the crown; fronds radiate naturally from a basal crown, silver coloration is plant pigment not glitter. No flowers, no broad leaves, no neon purple, no bare vase bouquet."
+    },
+    {
+      "id": "autumn-fern",
+      "file": "autumn-fern.png",
+      "taxon": "Dryopteris erythrosora",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of autumn fern (Dryopteris erythrosora), with copper-colored new fronds among mature green fronds.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Autumn fern, Dryopteris erythrosora. A natural compact arching clump of lush mature green broad triangular bipinnate fern fronds and TWO young coppery bronze/russet unfurling fronds. Accurately show pinnae along each rachis with smaller serrated pinnules, all connected, not simple grass leaves. The copper color is the young new growth among older green growth, not every frond autumn-red. Warm copper and fresh green without silver variegation. Show a young crozier near the basal crown. No flowers, no broad simple leaves, no painted-fern silvery purple pattern."
+    },
+    {
+      "id": "brunnera",
+      "file": "brunnera.png",
+      "taxon": "Brunnera macrophylla",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of a silver-variegated Brunnera macrophylla, with heart-shaped veined leaves and tiny blue flower sprays; no named cultivar is depicted.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Brunnera macrophylla, representative silver-variegated garden form without named cultivar claim. A basal mound of LARGE heart-shaped leaves with pointed tips, a clear heart-shaped notch at the leaf base, silvery surfaces, branching dark-green veins and narrow green margins, each on its own slender long petiole. Above the foliage: fine airy branching sprays of many TINY clear-blue five-lobed flowers with very small white eyes, like forget-me-nots, no yellow daisy disks. Scale matters: tiny blue blossoms versus broad bold heart leaves. Leaves textured matte, not glossy. No spotted lungwort foliage, no tall delphinium flower spikes."
+    },
+    {
+      "id": "pulmonaria",
+      "file": "pulmonaria.png",
+      "taxon": "Pulmonaria saccharata",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of lungwort (Pulmonaria saccharata), with silver-spotted elongated leaves and pink-to-violet-blue flowers.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Pulmonaria saccharata, lungwort. A low basal clump of elongate oval-to-lanceolate softly hairy green leaves patterned with irregular silver-white SPOTS, not a uniform silver surface and not heart-shaped Brunnera leaves. Slender branching flowering stems carry loose clusters of small funnel/bell-like blossoms, some pink buds and young pink flowers, others violet-blue, each open funnel ending in FIVE rounded lobes. Show long tapered green leaves, short spring flowering stems, clear pink-to-blue mixed flower color. No flat daisy flowers, no huge pansy faces, no yellow disks."
+    },
+    {
+      "id": "bergenia",
+      "file": "bergenia.png",
+      "taxon": "Bergenia cordifolia",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of heartleaf bergenia (Bergenia cordifolia), with broad leathery leaves and pink flower clusters on reddish stems.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Bergenia cordifolia, heartleaf bergenia. A low substantial rosette of thick rounded oval/heart-shaped leathery glossy green leaves, shallow softly scalloped margins, a few slight reddish edges. Several sturdy reddish upright stems rise above the broad foliage with tight branching clusters of many small rosy-pink bell-like FIVE-petaled flowers. Leaves broad paddle-like and heavy, not deeply lobed, not thin violet leaves. Pink flowers in clusters near tops, no long tapering spikes, no silver variegation, no giant single blooms."
+    },
+    {
+      "id": "ligularia",
+      "file": "ligularia.png",
+      "taxon": "Ligularia dentata",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of Ligularia dentata, with large rounded leaves and open clusters of yellow-orange daisies rather than flower spikes.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Ligularia dentata, representative leopard plant. A bold mound of large rounded kidney/heart-shaped leaves with shallow pointed teeth along margins, deep green tops and some burgundy undersides and long reddish petioles. Several upright branching reddish stems bear loose broad FLAT-TOPPED clusters of golden orange-yellow daisy heads, each head with a golden-brown disk and a modest ring of long strap-like rays. Flower clusters are corymb-like and open, NOT tall spikes, NOT torch-shaped racemes and NOT Ligularia 'The Rocket'. Clearly show the broad big round leaves as the dominant identifying foliage. No palmate deeply divided leaves, no generic sunflower leaves."
+    },
+    {
+      "id": "tiarella",
+      "file": "tiarella.png",
+      "taxon": "Tiarella cordifolia",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of foamflower (Tiarella cordifolia), with lobed green leaves and delicate white flower racemes.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Tiarella cordifolia, foamflower. A low compact basal rosette of matte green heart-based leaves with THREE to FIVE shallow maple-like lobes and toothed edges, subtle burgundy coloring near central veins, no silver variegation. Above them several thin upright reddish-green nearly leafless stems carrying airy narrow RACEMES of numerous tiny starry white flowers and pale pink buds. Five slender petals and delicate projecting stamens make soft frothy foam, each tiny flower on a short pedicel. Keep racemes delicate and translucent with small blossoms, not solid fluffy astilbe plumes, not big daisy heads, not bells."
+    },
+    {
+      "id": "bleeding-heart",
+      "file": "bleeding-heart.png",
+      "taxon": "Lamprocapnos spectabilis",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of bleeding heart (Lamprocapnos spectabilis), with hanging pink-and-white heart flowers along arching stems and divided leaves.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Lamprocapnos spectabilis, traditional pink-and-white bleeding heart. Three graceful arching reddish racemes carrying pendulous rosy-pink heart-shaped flowers spaced singly along underside of the arch, all hanging DOWN. Each flower has two plump outer pink petals forming symmetrical heart lobes and a protruding narrow white inner petal drop at the bottom, accurately recognizable bleeding-heart form. Distinct lobed compound blue-green foliage below: leaves divided into multiple lobed leaflets, no simple heart leaves. Include a few smaller unopened pink buds at the tips of arches. No petal disks, no floating unattached flowers, no upside-down heart flowers."
+    },
+    {
+      "id": "hellebores",
+      "file": "hellebores.png",
+      "taxon": "Helleborus × hybridus",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of hybrid Lenten roses (Helleborus × hybridus), with nodding pale pink and cream flowers and divided leathery foliage.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Representative single-flowered Helleborus x hybridus, hybrid Lenten rose. A modest clump with FIVE cup-shaped cream, muted dusty-rose and pale blush blossoms, most nodding slightly downward or sideways, with exactly five broad rounded overlapping petal-like SEPALS around a cluster of pale yellow stamens and small green nectar structures. Some delicate maroon spotting permitted on pale sepals, no named cultivar claim. Dark green leathery basal leaves PALMATELY divided into seven to nine long toothed lance-shaped leaflets radiating from a shared point, not simple rose leaves. Sturdy green to burgundy branched flower stalks. No rose-shaped layered doubles, no thorns, no random fern foliage."
+    },
+    {
+      "id": "coleus",
+      "file": "coleus.png",
+      "taxon": "Coleus scutellarioides",
+      "nativeWidth": 1254,
+      "nativeHeight": 1254,
+      "alt": "Representative watercolor of coleus (Coleus scutellarioides), with opposite burgundy leaves edged in lime green; no named cultivar is depicted.",
+      "prompt": "Use case: scientific-educational. Asset type: individual botanical watercolor portrait for the Garden Atelier reference library. Create ONE square high-native-resolution image preferably 2048 x 2048, not a contact sheet. Style: finely detailed traditional botanical watercolor, luminous color washes, crisp delicate edges, natural veins, softly layered pigment, elegant vintage seed-catalog quality. Match fresh full-color botanical watercolor portraits on plain clean white background, no shadows, no frame, no lettering, no watermark, no pot, no roots. Center one balanced airy botanical specimen clump within the square with 8% clear margin, full plant above-ground visible and discreet basal/cut ends. Illustration representative of the stated taxon, no named cultivar claim. Botanical accuracy more important than ornament. Subject and anatomy: Coleus scutellarioides foliage portrait, representative ornamental garden selection, no named cultivar. Compact naturally branching upright plant with opposite pairs of large pointed ovate leaves, visibly scalloped serrated margins, rich velvety burgundy-red centers and narrow fresh lime-green edges, branching veins. The opposite leaves alternate direction at successive nodes on slightly square green-purple stems; show coherent attachment of every leaf. A few small growing tips, no flower spikes, no giant flowers, no palm leaves, no silver spots. Vivid sophisticated burgundy and lime watercolor specimen, with leaves of different sizes and natural overlaps."
+    }
+  ]
+}
+

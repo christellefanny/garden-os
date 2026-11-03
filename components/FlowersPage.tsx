@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import ItemPicturesButton from "@/components/ItemPicturesButton";
 import InteriorHeader from "@/components/InteriorHeader";
 import PlantPortrait from "@/components/VaultBotanicalPortrait";
 import FlowerGardenPortrait from "@/components/FlowerGardenPortrait";
@@ -86,14 +87,14 @@ function BouquetArtwork({style="garden",label}:{style?:BouquetStyle;label:string
 }
 
 type FlowerSection = "Overview" | "My flowers" | "Seasonal planting" | "Seed saving" | "Flower care" | "Cut Flowers";
-export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
+export default function FlowersPage({plants,userId}:{plants:VaultPlant[];userId:string}) {
   const [section,setSection]=useState<FlowerSection>("Overview");
   const {season}=useSeason();
   const current=seasonal[season] || seasonal.fall;
   const flowers=useMemo(()=>plants.filter(p=>p.category==="Flower").sort((a,b)=>a.name.localeCompare(b.name)),[plants]);
   return <section className="interior-page">
-    <InteriorHeader title="Flower Garden" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
-    {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Flower Garden</button>}
+    <InteriorHeader title="Blooms" eyebrow="Bloom & flourish" description={section==="Overview"?"A home for your flowers, planting plans, and seasonal inspiration.":section} />
+    {section!=="Overview"&&<button type="button" onClick={()=>setSection("Overview")} className="seasonal-outline mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold">← Back to Blooms</button>}
     {section==="Overview"&&<>
       <div
         className="relative mt-7 flex min-h-[350px] items-center overflow-hidden rounded-2xl border border-[#8c988a] bg-[#344b3b] bg-cover bg-center sm:min-h-[400px]"
@@ -103,7 +104,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
         }}
       >
         <div className="relative z-10 max-w-[690px] px-7 py-12 sm:px-12 sm:py-14">
-          <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to your flower garden</p>
+          <p className="eyebrow font-semibold tracking-[0.16em] text-white">Welcome to Blooms</p>
           <h2 className="seasonal-heading mt-4 text-4xl font-bold leading-tight sm:text-5xl" style={{ color: "#fff8eb" }}>Grow something beautiful.</h2>
           <p className="mt-5 max-w-xl text-sm leading-7 text-white sm:text-base">Explore your collection, discover what to plant throughout the year, save seeds for next season, and learn how to care for every bloom. Choose a section below to open it.</p>
         </div>
@@ -127,9 +128,9 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
           />
         </div>
       </div>
-      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Cut Flower Encyclopedia <span className="seasonal-muted text-base">(30 flowers)</span></h2>
+      <h2 className="seasonal-heading mt-8 text-2xl font-bold">Flower Collection <span className="seasonal-muted text-base">(30 flowers)</span></h2>
       <p className="seasonal-muted mt-2 text-sm">Browse beautiful cutting flowers and explore what might grow in your garden. These are inspiration entries, not plants added to your Plant Vault. Each entry includes a representative hand-painted botanical illustration; flower colors and varieties may differ.</p>
-      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Cut Flower Encyclopedia">
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Flower Collection">
         {cutFlowerEncyclopedia.map(g=><article key={g.name} className="overflow-hidden rounded-2xl border border-[#e8dfd4] bg-white p-3 shadow-[0_4px_16px_#50463308]">
           <FlowerGardenPortrait name={g.name} />
           <div className="mt-3 flex flex-wrap items-center gap-2"><h3 className="seasonal-heading text-base font-bold">{g.name}</h3><span className="rounded-full border border-[#a5b6a0] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Browse</span></div>
@@ -184,7 +185,7 @@ export default function FlowersPage({plants}:{plants:VaultPlant[]}) {
           </article>
         </div>
         <div className="mt-5 rounded-2xl border border-[#e6d7cb] bg-white p-5">
-          <div><h3 className="font-serif text-2xl text-[#304332]">More Bouquet Ideas</h3><p className="mt-1 text-sm text-[#59645a]">Three illustrated combinations to inspire your next arrangement.</p></div>
+          <div className="item-pictures-heading"><div><h3 className="font-serif text-2xl text-[#304332]">More Bouquet Ideas</h3><p className="mt-1 text-sm text-[#59645a]">Three illustrated combinations to inspire your next arrangement.</p></div><ItemPicturesButton userId={userId} collection="bouquets" title="Your bouquet ideas"/></div>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {([
               {title:"Soft Pastel",detail:"Blush dahlias, cosmos, snapdragons and airy fillers",style:"pastel"},

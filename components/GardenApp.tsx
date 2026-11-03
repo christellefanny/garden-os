@@ -227,35 +227,38 @@ function Welcome({ authError, onGuest, savingGuest, initialMode }: { authError: 
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <GardenHeader gardenYear={new Date().getFullYear()} />
         <section className="mt-10 grid items-center gap-10 py-5 lg:grid-cols-[1.2fr_1fr] lg:py-12">
-          <div>
-            <p className="eyebrow seasonal-muted">A garden worth remembering</p>
-            <div className="relative mt-5">
-              <h2 className="editorial-title seasonal-heading max-w-xl text-5xl leading-[1.08] sm:text-6xl">
-                More growing.
-                <br />
-                Less guessing.
-              </h2>
-            </div>
-            <p className="seasonal-muted mt-6 max-w-lg text-lg leading-8">
-              A thoughtful home for your beds, plants, and little discoveries.
-              Plan with confidence. Keep a record. Enjoy what grows.
-            </p>
-            <div className="seasonal-hero relative mt-8 max-w-xl overflow-hidden rounded-3xl p-6 text-white">
-              <p className="eyebrow text-white/80">Made for every season</p>
-              <p className="editorial-title relative mt-3 max-w-xs text-3xl leading-tight">
-                Your garden changes.
-                <br />
-                Your companion grows with it.
+          <div className="landing-garden-hero">
+            <div className="landing-garden-art" aria-hidden="true" />
+            <div className="landing-garden-copy">
+              <p className="eyebrow seasonal-muted">A garden worth remembering</p>
+              <div className="relative mt-5">
+                <h2 className="editorial-title seasonal-heading max-w-xl text-5xl leading-[1.08] sm:text-6xl">
+                  More growing.
+                  <br />
+                  Less guessing.
+                </h2>
+              </div>
+              <p className="seasonal-muted mt-6 max-w-lg text-lg leading-8">
+                A thoughtful home for your beds, plants, and little discoveries.
+                Plan with confidence. Keep a record. Enjoy what grows.
               </p>
-              <div className="relative mt-5 flex flex-wrap gap-5 text-xs text-white/85">
-                <span className="flex items-center gap-2">
-                  <GardenIcon kind="bed" />
-                  Plan your spaces
-                </span>
-                <span className="flex items-center gap-2">
-                  <GardenIcon kind="log" />
-                  Remember the season
-                </span>
+              <div className="landing-garden-season mt-8">
+                <p className="eyebrow seasonal-muted">Made for every season</p>
+                <p className="editorial-title seasonal-heading relative mt-3 max-w-xs text-3xl leading-tight">
+                  Your garden changes.
+                  <br />
+                  Your companion grows with it.
+                </p>
+                <div className="seasonal-heading relative mt-5 flex flex-wrap gap-5 text-xs">
+                  <span className="flex items-center gap-2">
+                    <GardenIcon kind="bed" />
+                    Plan your spaces
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <GardenIcon kind="log" />
+                    Remember the season
+                  </span>
+                </div>
               </div>
             </div>
           </div>

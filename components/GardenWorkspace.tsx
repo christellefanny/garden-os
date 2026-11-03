@@ -41,15 +41,22 @@ import {
   type SpaceDetails,
 } from "@/lib/garden";
 
+const FlowerCorner = dynamic(() => import("@/components/FlowerCorner"), { loading: () => <p role="status">Opening Flower Corner…</p> });
+
+const GardenLearning = dynamic(() => import("@/components/GardenLearning"), { loading: () => <p role="status">Opening garden guides…</p> });
+
+const GardenVisionBoard = dynamic(() => import("@/components/GardenVisionBoard"), { loading: () => <p role="status">Opening your garden vision…</p> });
+
 const GardenPictures = dynamic(() => import("@/components/PhotoJournal"), { loading: () => <p role="status">Opening garden pictures…</p> });
 
 function pageView(page: Destination) {
-  return page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
+  return page === "Beginner’s Guide" ? "beginners-guide" : page === "Growing Calendar" ? "calendar" : page.toLowerCase().replaceAll(" ", "-");
 }
 
 function readPageFromUrl(guest = false): Destination {
   if (typeof window === "undefined") return "Dashboard";
-  const view = new URLSearchParams(window.location.search).get("view");
+  const requestedView = new URLSearchParams(window.location.search).get("view");
+  const view = requestedView === "flower-library" ? "flower-corner" : requestedView;
   return destinations.find((destination) => pageView(destination) === view && (!guest || destination !== "Plant Vault")) ?? "Dashboard";
 }
 
@@ -463,7 +470,7 @@ export default function GardenWorkspace({
             onSearch={setSearch}
             navigate={navigate}
           />
-          {page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId={userId} gardenId="garden-inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} /></section>}
+          {page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} /></section>}
           {search && (
             <section className="modern-card search-results">
               <h2>Search results</h2>
@@ -525,6 +532,7 @@ export default function GardenWorkspace({
               }}
             />
           )}
+          {page === "Vision Board" && <GardenVisionBoard userId={userId} />}
           {page === "Tasks" && (
             <TasksPage
               spaces={activeSpaces}
@@ -617,7 +625,9 @@ export default function GardenWorkspace({
           {!guestMode && vaultOpen && (
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
-          {page === "Flower Garden" && <FlowersPage plants={vault} />}
+          {page === "Flower Corner" && <FlowerCorner/>}
+          {page === "Beginner’s Guide" && <GardenLearning key={`${userId}:${page}`} userId={userId} garden={garden} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")} onExplorePlants={()=>{setVaultQuery("");navigate("Plant Vault");}}/>}
+          {page === "Flower Garden" && <><button type="button" onClick={()=>navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button><FlowersPage plants={vault} userId={userId} /></>}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page">
               {gardenPageId && <button type="button" onClick={() => navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← All gardens</button>}
@@ -628,6 +638,7 @@ export default function GardenWorkspace({
                 })}
                 detail={Boolean(gardenPageId)}
                 disabled={busy || !loaded}
+                onBlooms={() => navigate("Flower Garden")}
                 onOpen={openGarden}
                 onNew={() => setGardenForm("new")}
               />}
