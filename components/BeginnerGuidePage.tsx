@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import BeginnerGuideArticle from '@/components/BeginnerGuideArticle';
 import type { GardenGuide } from '@/lib/garden-learning';
 import { supabase } from '@/lib/supabase';
+import styles from '@/components/BeginnerGuidePage.module.css';
 
 /** Reading is public. Resolve identity before exposing any writable checklist. */
 export default function BeginnerGuidePage({ guide }: { guide: GardenGuide }) {
@@ -31,8 +32,8 @@ export default function BeginnerGuidePage({ guide }: { guide: GardenGuide }) {
       try { localStorage.setItem('garden-os-guest-active', 'true'); } catch { /* The workspace reports inaccessible storage itself. */ }
     }
   }
-  return <div className="learning-page mx-auto w-full max-w-5xl px-4 py-6 sm:px-8">
-    <nav aria-label="Beginner guide navigation" className="mx-auto max-w-[850px]">
+  return <div className={styles.page}>
+    <nav aria-label="Beginner guide navigation" className={styles.backNav}>
       <Link className="seasonal-outline inline-flex min-h-11 items-center rounded-xl border px-4 py-3" href="/?view=beginners-guide" onClick={returnToWorkspace}>← Back to Beginner’s Guide</Link>
     </nav>
     <BeginnerGuideArticle guide={guide} userId={userId} mode="page" onWorkspaceNavigate={returnToWorkspace} identityMessage={identityError ? 'Could not check your checklist account. Refresh to try again; saved progress is unchanged. You can keep reading.' : undefined} />

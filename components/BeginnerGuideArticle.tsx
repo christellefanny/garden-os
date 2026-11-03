@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import LearningSources from '@/components/LearningSources';
 import { useLearningProgress } from '@/components/useLearningProgress';
 import { beginnerGuides, type GardenGuide } from '@/lib/garden-learning';
+import { beginnerGuidePresentation } from '@/lib/beginner-guide-presentation';
+import styles from '@/components/BeginnerGuidePage.module.css';
 
 function GuideChecklist({ guide, userId }: { guide: GardenGuide; userId: string }) {
   const { checks, error, setCheck, disabled } = useLearningProgress(userId);
@@ -37,20 +40,44 @@ export default function BeginnerGuideArticle({ guide, userId, mode, identityMess
   const finalGuide = index === beginnerGuides.length - 1;
   const nextLabel = finalGuide ? 'Return to the first guide' : 'Next guide →';
   const page = mode === 'page';
+  const presentation = beginnerGuidePresentation[guide.id];
   const SectionHeading = page ? 'h2' : 'h3';
   const linkStyle = 'inline-flex min-h-11 items-center rounded-xl border px-4 py-3';
-  return <article className={`learning-article ${page ? 'mx-auto w-full' : 'learning-modal-article'}`} aria-labelledby={page ? 'beginner-guide-title' : 'learning-guide-heading'}>
-    <p className="modern-eyebrow">Your beginner’s guide</p>
-    {page && <h1 id="beginner-guide-title" className="seasonal-heading my-4 text-3xl leading-tight sm:text-4xl">{guide.title}</h1>}
-    <p id="learning-guide-heading" tabIndex={-1} className="learning-guide-step">Step {index + 1} of {beginnerGuides.length}</p>
-    <p>{guide.intro}</p>
-    <ol>{guide.steps.map(step => <li key={step}>{step}</li>)}</ol>
-    <div className="learning-note"><SectionHeading>A common mistake</SectionHeading><p>{guide.mistake}</p></div>
-    <SectionHeading>Before moving on</SectionHeading>
-    {userId ? <GuideChecklist key={userId} guide={guide} userId={userId} /> : <>
-      <p role="status" className="seasonal-muted text-sm">{identityMessage || 'Checking which checklist to use… You can keep reading.'}</p>
-      {guide.checklist.map(item => <label className="learning-check" key={item}><input type="checkbox" checked={false} disabled readOnly />{item}</label>)}
+  const intro = <p className={page ? styles.intro : undefined}>{guide.intro}</p>;
+  return <article className={page ? styles.article : 'learning-article learning-modal-article'} data-topic={page ? guide.id : undefined} aria-labelledby={page ? 'beginner-guide-title' : 'learning-guide-heading'}>
+    {page ? <>
+      <header className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>Your beginner’s guide · {presentation.label}</p>
+          <p id="learning-guide-heading" tabIndex={-1} className={styles.stepBadge}>Step {index + 1} of {beginnerGuides.length}</p>
+          <h1 id="beginner-guide-title" className={styles.title}>{guide.title}</h1>
+          {intro}
+        </div>
+        <figure className={styles.art}><Image src={presentation.image.src} alt={presentation.image.alt} width={presentation.image.width} height={presentation.image.height} sizes="(max-width: 760px) 90vw, 480px" quality={90} loading="eager" /></figure>
+      </header>
+      <nav className={styles.path} aria-label="Six-step learning path">
+        <p className={styles.pathLabel}>Your learning path</p>
+        <ol role="list">{beginnerGuides.map((item, itemIndex) => <li key={item.id}><Link href={`/beginners-guide/${item.id}`} aria-current={item.id === guide.id ? 'step' : undefined} aria-label={`Step ${itemIndex + 1}: ${item.title}`}><span className={styles.pathNumber} aria-hidden="true">{itemIndex + 1}</span>{beginnerGuidePresentation[item.id].label}</Link></li>)}</ol>
+      </nav>
+    </> : <>
+      <p className="modern-eyebrow">Your beginner’s guide</p>
+      <p id="learning-guide-heading" tabIndex={-1} className="learning-guide-step">Step {index + 1} of {beginnerGuides.length}</p>
+      {intro}
     </>}
+    {page && <h2 className={styles.sectionTitle}>Put it into practice</h2>}
+    <ol className={page ? styles.steps : undefined} role={page ? 'list' : undefined}>{guide.steps.map((step, stepIndex) => <li className={page ? styles.stepCard : undefined} key={step}>
+      {page ? <><div className={styles.cardTop}><span className={styles.cardNumber} aria-hidden="true">{String(stepIndex + 1).padStart(2, '0')}</span><h3>{presentation.stepTitles[stepIndex]}</h3></div><p>{step}</p></> : step}
+    </li>)}</ol>
+    <div className={page ? styles.review : undefined}>
+      <div className={page ? styles.mistake : 'learning-note'}><SectionHeading>A common mistake</SectionHeading><p>{guide.mistake}</p></div>
+      <section className={page ? styles.checklistPanel : undefined} aria-labelledby="beginner-checklist-heading">
+        <SectionHeading id="beginner-checklist-heading">Before moving on</SectionHeading>
+        {userId ? <GuideChecklist key={userId} guide={guide} userId={userId} /> : <>
+          <p role="status" className="seasonal-muted text-sm">{identityMessage || 'Checking which checklist to use… You can keep reading.'}</p>
+          {guide.checklist.map(item => <label className="learning-check" key={item}><input type="checkbox" checked={false} disabled readOnly />{item}</label>)}
+        </>}
+      </section>
+    </div>
     {guide.id === 'space' && <section className="learning-note" aria-labelledby="beginner-design-heading">
       <SectionHeading id="beginner-design-heading">Design your space</SectionHeading>
       <p>Ready to start your garden? Use what you’ve learned about your space, sunlight and access to water to sketch a simple layout.</p>

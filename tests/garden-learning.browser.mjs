@@ -94,6 +94,20 @@ try {
   assert.equal(new URL(tab.url()).pathname,`/beginners-guide/${entry.id}`);assert.equal(page.url(),overviewUrl);
   assert.equal(await page.getByRole('dialog').count(),0);
   await tab.reload();await tab.getByRole('heading',{name:entry.title,exact:true}).waitFor();
+  const article=tab.locator(`article[data-topic="${entry.id}"]`);
+  const learningPath=tab.getByRole('navigation',{name:'Six-step learning path',exact:true});
+  assert.equal(await learningPath.getByRole('link').count(),6);
+  assert.equal(await learningPath.locator('[aria-current="step"]').getAttribute('href'),`/beginners-guide/${entry.id}`);
+  assert.equal(await article.getByRole('heading',{level:3}).count(),entry.steps.length);
+  await tab.waitForFunction(()=>{const img=document.querySelector('article[data-topic] img');return img?.complete&&img.naturalWidth>0;});
+  for(const width of [1440,390,320]){
+   await tab.setViewportSize({width,height:1000});
+   assert.ok(await tab.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${entry.id} page overflow ${width}`);
+   assert.ok(await article.locator('img').evaluate(el=>el.getBoundingClientRect().width>150),`${entry.id} visible hero artwork`);
+   assert.ok(await learningPath.getByRole('link').evaluateAll(elements=>elements.every(el=>el.getBoundingClientRect().height>=44)));
+  }
+  const pageAxe=await new AxeBuilder({page:tab}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+  assert.deepEqual(pageAxe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),[],`${entry.id} page accessibility`);
   assert.equal(await tab.getByRole('heading',{name:'Design your space',exact:true}).count(),entry.id==='space'?1:0);
   assert.equal(await tab.getByRole('link',{name:'Open Plan & Design',exact:true}).count(),entry.id==='space'?1:0);
   if(entry.id==='space'){
@@ -127,6 +141,8 @@ try {
  await page.getByRole('button',{name:'Show my next steps',exact:true}).click();
  const spaceButton=page.getByRole('button',{name:'Read the space guide',exact:true});
  await spaceButton.click();await dialog.waitFor();assert.equal(page.url(),overviewUrl);
+ assert.equal(await dialog.getByRole('navigation',{name:'Six-step learning path',exact:true}).count(),0);
+ assert.equal(await dialog.locator('img').count(),0);
  assert.ok(await dialog.getByRole('heading',{name:'Design your space',exact:true}).isVisible());
  assert.equal(await dialog.getByRole('button',{name:'Open Plan & Design',exact:true}).count(),1);
  assert.ok(await dialog.getByRole('checkbox',{name:'Record sunlight',exact:true}).isChecked());

@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import vm from 'node:vm';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as learning from '../lib/garden-learning.ts';
+import * as presentation from '../lib/beginner-guide-presentation.ts';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const require = createRequire(import.meta.url);
@@ -20,7 +21,11 @@ const MockLink = ({ children, href, ...props }) => React.createElement('a', { hr
 const MockDialog = ({ title, children }) => React.createElement('section', { role: 'dialog', 'aria-label': title }, children);
 const MockSources = compile('components/LearningSources.tsx').default;
 const progressCalls = [];
+const moduleStyles = new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) });
 const articleMocks = {
+  'next/image': ({ src, alt, width, height }) => React.createElement('img', { src, alt, width, height }),
+  '@/lib/beginner-guide-presentation': presentation,
+  '@/components/BeginnerGuidePage.module.css': moduleStyles,
   react: { ...React, useState: initial => [initial, () => {}] },
   'next/link': MockLink,
   '@/components/LearningSources': MockSources,
@@ -73,6 +78,61 @@ function descendants(node) {
   if (!React.isValidElement(node)) return [];
   return [node, ...React.Children.toArray(node.props.children).flatMap(descendants)];
 }
+
+test('each lesson has a distinct existing contextual illustration and a short heading for every full step', () => {
+  const visuals = presentation.beginnerGuidePresentation;
+  assert.deepEqual(Object.keys(visuals), learning.beginnerGuides.map(guide => guide.id));
+  assert.equal(new Set(Object.values(visuals).map(visual => visual.image.src)).size, 6);
+  for (const guide of learning.beginnerGuides) {
+    const visual = visuals[guide.id];
+    assert.equal(visual.stepTitles.length, guide.steps.length);
+    assert.ok(visual.stepTitles.every(title => title.length > 8 && title.length < 60));
+    assert.match(visual.image.src, /^\/[a-z0-9/-]+\.webp$/);
+    assert.ok(statSync(new URL('../public' + visual.image.src, import.meta.url)).size > 1000);
+    assert.ok(visual.image.width > 0 && visual.image.height > 0 && visual.image.alt.length > 35);
+  }
+});
+
+test('standalone pages add artwork, skimmable cards and a true current-step path without changing popup presentation', () => {
+  for (const guide of learning.beginnerGuides) {
+    const visual = presentation.beginnerGuidePresentation[guide.id];
+    const tree = Article({ guide, userId: 'guest', mode: 'page' });
+    const nodes = descendants(tree);
+    const path = nodes.find(node => node.type === 'nav' && node.props['aria-label'] === 'Six-step learning path');
+    const links = descendants(path).filter(node => node.props.href);
+    assert.equal(links.length, 6);
+    assert.deepEqual(links.map(node => node.props.href), learning.beginnerGuides.map(item => `/beginners-guide/${item.id}`));
+    assert.equal(links.filter(node => node.props['aria-current'] === 'step').length, 1);
+    assert.equal(links.find(node => node.props['aria-current'] === 'step').props.href, `/beginners-guide/${guide.id}`);
+    assert.doesNotMatch(renderToStaticMarkup(path), /completed|checked|aria-valuenow/);
+    const artwork = nodes.find(node => node.props.src === visual.image.src);
+    assert.equal(artwork.props.alt, visual.image.alt);
+    assert.equal(artwork.props.width, visual.image.width); assert.equal(artwork.props.height, visual.image.height);
+    assert.match(artwork.props.sizes, /760px/);
+    assert.equal(artwork.props.quality, 90);
+    const cards = nodes.filter(node => node.type === 'li' && node.props.className === 'stepCard');
+    assert.equal(cards.length, guide.steps.length);
+    assert.deepEqual(cards.map(card => descendants(card).find(node => node.type === 'h3').props.children), visual.stepTitles);
+    assert.deepEqual(cards.map(card => descendants(card).find(node => node.type === 'p').props.children), guide.steps);
+    assert.equal(nodes.filter(node => node.props.className === 'checklistPanel').length, 1);
+    assert.equal(nodes.filter(node => node.props.className === 'mistake').length, 1);
+    const popup = renderToStaticMarkup(React.createElement(Article, { guide, userId: 'guest', mode: 'dialog' }));
+    assert.doesNotMatch(popup, /<img|Six-step learning path|class="hero"|class="stepCard"|data-topic=/);
+    assert.match(popup, /class="learning-article learning-modal-article"/);
+  }
+});
+
+test('editorial styling stays scoped to pages, supports narrow layouts and keeps visible keyboard focus', () => {
+  const css = read('components/BeginnerGuidePage.module.css');
+  assert.doesNotMatch(css, /(?:^|\n)(?:body|html|:root|\.learning-modal)/);
+  assert.match(css, /:focus-visible/);
+  assert.match(css, /@media \(max-width: 760px\)/);
+  assert.match(css, /\.steps, \.review \{ grid-template-columns: 1fr/);
+  assert.match(css, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(css, /prefers-reduced-motion: reduce/);
+  assert.doesNotMatch(css, /line-clamp|text-overflow:\s*ellipsis/);
+});
+
 test('space design actions retain the page workspace hook and popup navigation callback', () => {
   let pageClicks = 0, popupClicks = 0;
   const guide = learning.beginnerGuides[0];
@@ -90,7 +150,7 @@ test('only the final guide offers Explore Plants, return and Start Your Garden i
   for (const guide of learning.beginnerGuides) {
     for (const mode of ['page', 'dialog']) {
       const tree = Article({ guide, userId: 'account-a', mode });
-      const nav = descendants(tree).find(node => node.type === 'nav');
+      const nav = descendants(tree).find(node => node.type === 'nav' && node.props['aria-label'] === 'Guide next steps');
       const actions = React.Children.toArray(nav.props.children);
       const final = guide.id === 'care';
       assert.deepEqual(actions.map(node => node.props.children), final ? ['Explore Plants', 'Return to the first guide', 'Start Your Garden'] : ['Next guide →']);
@@ -108,11 +168,11 @@ test('signed-in final actions use the actual vault and designer without changing
   const events = [];
   const props = { guide: learning.beginnerGuides.at(-1), userId: 'account-a' };
   const popup = Article({ ...props, mode: 'dialog', onExplorePlants: () => events.push('vault'), onNext: id => events.push(id), onPlan: () => events.push('layout') });
-  const popupActions = React.Children.toArray(descendants(popup).find(node => node.type === 'nav').props.children);
+  const popupActions = React.Children.toArray(descendants(popup).find(node => node.type === 'nav' && node.props['aria-label'] === 'Guide next steps').props.children);
   popupActions.forEach(node => node.props.onClick());
   assert.deepEqual(events, ['vault', 'space', 'layout']);
   const page = Article({ ...props, mode: 'page', onWorkspaceNavigate: () => events.push('workspace') });
-  const pageActions = React.Children.toArray(descendants(page).find(node => node.type === 'nav').props.children);
+  const pageActions = React.Children.toArray(descendants(page).find(node => node.type === 'nav' && node.props['aria-label'] === 'Guide next steps').props.children);
   pageActions[0].props.onClick(); pageActions[2].props.onClick();
   assert.deepEqual(events.slice(3), ['workspace', 'workspace']);
   const workspace = read('components/GardenWorkspace.tsx');
@@ -239,6 +299,7 @@ function identity({ id = null, session = null, error = null } = {}) {
     react: { ...React, useState: () => { const n = index++; return [n === 0 ? id : false, value => updates.push([n, value])]; }, useEffect: fn => effects.push(fn) },
     'next/link': MockLink,
     '@/components/BeginnerGuideArticle': 'article',
+    '@/components/BeginnerGuidePage.module.css': moduleStyles,
     '@/lib/supabase': { supabase: { auth: { getSession: async () => ({ data: { session }, error }), onAuthStateChange: fn => { callback = fn; return { data: { subscription: { unsubscribe: () => { unsubscribed = true; } } } }; } } } },
   }, { localStorage: { setItem: (...args) => writes.push(args) } }).default;
   const tree = Page({ guide: learning.beginnerGuides[0] });
