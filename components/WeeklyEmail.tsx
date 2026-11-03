@@ -101,7 +101,7 @@ export default function WeeklyEmail({
     try {
       const value = (await request("GET")) as Settings;
       setSettings(value);
-      setEmail(value.email || "");
+      setEmail(value.preferences?.enabled ? value.email || "" : "");
       setEnabled(value.preferences?.enabled || false);
       setDay(value.preferences?.day ?? 1);
       setChosen(
@@ -215,7 +215,7 @@ export default function WeeklyEmail({
                   <input
                     className="seasonal-input"
                     type="email"
-                    autoComplete="email"
+                    autoComplete="off"
                     required
                     maxLength={254}
                     value={email}
