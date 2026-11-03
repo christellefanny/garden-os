@@ -3,6 +3,8 @@ import { BEGINNER_PLANTS, BEGINNER_COMPANION_NOTE, BEGINNER_COMPANION_SOURCES, B
 import styles from './BeginnerPlantPicks.module.css';
 
 const illustrations: Record<string, { src: string; column?: number; row?: number }> = {
+  'sweet-bell-pepper': { src: '/planting-now/pepper.webp' },
+  'sweet-basil': { src: '/planting-now/basil.webp' },
   'leaf-lettuce': { src: '/planting-now/lettuce.webp' },
   'spring-radish': { src: '/planting-now/radish.webp' },
   'bush-snap-bean': { src: '/planting-now/beans.webp' },
@@ -39,9 +41,9 @@ export default function BeginnerPlantPicks({ mode }: { mode: 'page' | 'dialog' }
     <p className={styles.intro}>Choose two or three that suit your light, season and space. These are options to consider, not a shopping list. Open a plant for the practical details.</p>
     <p className={styles.seasonNote}>{BEGINNER_PLANTING_NOTE} Illustrations show representative plant forms.</p>
     {(['vegetable', 'flower'] as const).map(kind => <div key={kind} className={styles.group}>
-      <GroupHeading className={styles.groupHeading}>{kind === 'vegetable' ? 'Vegetables for your first harvest' : 'Flowers for color and garden life'}</GroupHeading>
+      <GroupHeading className={styles.groupHeading}>{kind === 'vegetable' ? 'Vegetables & herbs for your first harvest' : 'Flowers for color and garden life'}</GroupHeading>
       <div className={styles.grid}>
-        {BEGINNER_PLANTS.filter(plant => plant.kind === kind).map(plant => <details className={styles.card} key={plant.id} data-plant={plant.id}>
+        {BEGINNER_PLANTS.filter(plant => kind === 'flower' ? plant.kind === 'flower' : plant.kind !== 'flower').map(plant => <details className={styles.card} key={plant.id} data-plant={plant.id}>
           <summary className={styles.summary}>
             <Portrait plant={plant} />
             <span className={styles.summaryCopy}><strong className={styles.name}>{plant.name}</strong><span className={styles.season}>{plant.season}</span><span className={styles.light}>{plant.light}</span><span className={styles.toggle}><span className={styles.closedLabel}>Growing details</span><span className={styles.openLabel}>Close details</span><span className={styles.chevron} aria-hidden="true">⌄</span></span></span>

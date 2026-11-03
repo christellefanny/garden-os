@@ -5,7 +5,7 @@ export type BeginnerPlantSource = { label: string; url: string };
 export type BeginnerPlant = {
   id: string;
   name: string;
-  kind: 'vegetable' | 'flower';
+  kind: 'vegetable' | 'herb' | 'flower';
   season: string;
   light: string;
   why: string;
@@ -82,6 +82,34 @@ export const BEGINNER_PLANTS: BeginnerPlant[] = [
     sources: [source('Iowa State Extension: container tomatoes', 'https://yardandgarden.extension.iastate.edu/how-to/growing-tomatoes-containers'), source('Minnesota Extension: tomatoes', 'https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-tomatoes'), source('Minnesota Extension: transplant-to-harvest timing', 'https://extension.umn.edu/vegetable-growing-guides-farmers/crop-and-field-planning-tools-vegetable-farmers'), containerSource],
   },
   {
+    id: 'sweet-bell-pepper', name: 'Sweet bell pepper', kind: 'vegetable', season: 'Warm season',
+    light: 'Full sun, at least 6 hours; 8 or more is better.',
+    why: 'One sweet pepper plant gives a manageable introduction to growing fruiting vegetables.',
+    start: 'Buy a healthy transplant labeled sweet bell pepper. For seeds, start indoors about 8–10 weeks before your frost-free date; check the cultivar packet.',
+    timing: 'Harden off, then transplant after frost risk has passed and soil is at least about 65°F / 18°C.',
+    spacing: 'Allow 12–24 in / 30–60 cm between plants, following the label. A small cage or stake supports brittle branches.',
+    care: 'Keep moisture even without waterlogging. Follow soil-test or container-feed directions; too much fertilizer is not a shortcut to fruit.',
+    container: 'One plant in a drained pot of at least 5 gallons, filled with container potting mix.',
+    timeToReward: 'Sweet peppers often need 70–90 days after transplanting. Pick firm, full-size fruit green or wait longer for its ripe color; snip rather than pull.',
+    companions: 'Keep basil or marigolds in nearby pots for a sunny kitchen-garden grouping, with room around each plant. This is not a pest-control guarantee.',
+    caution: 'Cold slows growth; very hot weather can interrupt fruit set. Choose a variety that fits your season. Sweet and hot peppers planted nearby do not make this season’s sweet fruit hot.',
+    sources: [source('Maryland Extension: growing peppers', 'https://extension.umd.edu/resource/growing-peppers-home-garden'), source('Iowa State Extension: harvest timing from transplants', 'https://yardandgarden.extension.iastate.edu/how-to/vegetable-harvest-guide'), containerSource],
+  },
+  {
+    id: 'sweet-basil', name: 'Sweet basil', kind: 'herb', season: 'Warm season',
+    light: 'Full sun, with good air circulation.',
+    why: 'A small culinary herb for frequent leaf picking close to the kitchen.',
+    start: 'Buy a young sweet basil plant (Ocimum basilicum), or sow seeds about ⅛ in / 3 mm deep. Indoor starts need roughly 4–6 weeks before transplanting.',
+    timing: 'Sow or set out hardened plants after frost, once conditions are warm. Seeds commonly sprout in 10–14 days in warm soil.',
+    spacing: 'Thin to around 12 in / 30 cm apart for common sweet basil; check the variety’s mature spread.',
+    care: 'Keep mix evenly moist, not soggy. Harvest shoots above a leaf pair to encourage branching, leaving healthy leaves. Feed container plants according to the product label.',
+    container: 'Grow one plant in its own drained pot with container mix and room for the labeled mature size. Check moisture often; small pots dry quickly.',
+    timeToReward: 'Begin light harvests once an established plant has 6–8 healthy leaves. Readiness depends on the size of a purchased start or on seedling growth, not one fixed countdown.',
+    companions: 'Place near tomatoes or peppers where it will still get light and space. Separate pots make watering easier; do not count on basil to repel pests or improve tomato flavor.',
+    caution: 'Frost and cold damage basil. Crowding and wet foliage favor disease. Harvest regularly before flowering for a leafy crop, and inspect yellowing or spotted leaves.',
+    sources: [source('Utah State Extension: sweet basil, sowing and harvesting', 'https://extension.usu.edu/yardandgarden/research/basil-in-the-garden')],
+  },
+  {
     id: 'french-marigold', guideSlug: 'marigolds', name: 'French marigold', kind: 'flower', season: 'Warm season',
     light: 'Full sun is a good default; tolerates some partial shade.',
     why: 'Compact, colorful plants suit the front of a bed or a small flower container.',
@@ -145,4 +173,4 @@ export const BEGINNER_COMPANION_SOURCES: BeginnerPlantSource[] = [
   source('Oklahoma State Extension: limits of marigold pest control', 'https://extension.okstate.edu/fact-sheets/earth-kind-gardening-series-cultural-control-practices'),
   source('Illinois Extension: pollinator garden tips', 'https://extension.illinois.edu/sites/default/files/pollinator_garden_tips.pdf'),
 ];
-export const BEGINNER_PLANTING_NOTE = 'These are starting points, not a planting calendar for every climate. Use your local frost dates, soil conditions and the seed packet or plant label. Harvest estimates vary with cultivar and weather; tomato estimates start at transplanting. Containers need drainage holes, potting mix and regular moisture checks. Choose only two or three plants to begin.';
+export const BEGINNER_PLANTING_NOTE = 'These are starting points, not a planting calendar for every climate. Use your local frost dates, soil conditions and the seed packet or plant label. Harvest estimates vary with cultivar and weather; tomato and pepper estimates start at transplanting. Containers need drainage holes, potting mix and regular moisture checks. Choose only two or three plants to begin.';

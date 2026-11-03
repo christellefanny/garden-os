@@ -22,10 +22,10 @@ vm.runInNewContext(code, { exports, require: name => ({
 const Picks = exports.default;
 const escaped = text => renderToStaticMarkup(React.createElement('span', {}, text)).slice(6, -7);
 
-test('eight researched options have complete growing information and valid source URLs', () => {
-  assert.equal(plants.BEGINNER_PLANTS.length, 8);
-  assert.equal(new Set(plants.BEGINNER_PLANTS.map(p => p.id)).size, 8);
-  for (const kind of ['vegetable', 'flower']) assert.equal(plants.BEGINNER_PLANTS.filter(p => p.kind === kind).length, 4);
+test('ten researched options have complete growing information and valid source URLs', () => {
+  assert.equal(plants.BEGINNER_PLANTS.length, 10);
+  assert.equal(new Set(plants.BEGINNER_PLANTS.map(p => p.id)).size, 10);
+  for (const [kind, count] of [['vegetable', 5], ['herb', 1], ['flower', 4]]) assert.equal(plants.BEGINNER_PLANTS.filter(p => p.kind === kind).length, count);
   for (const plant of plants.BEGINNER_PLANTS) {
     for (const field of ['id', 'name', 'season', 'light', 'why', 'start', 'timing', 'spacing', 'container', 'care', 'timeToReward', 'companions', 'caution']) assert.ok(typeof plant[field] === 'string' && plant[field].length > 3, `${plant.id}: ${field}`);
     assert.ok(plant.sources.length > 0);
@@ -39,8 +39,8 @@ test('eight researched options have complete growing information and valid sourc
 test('page and popup expose the same complete cards and safely open public flower guides', () => {
   for (const mode of ['page', 'dialog']) {
     const html = renderToStaticMarkup(React.createElement(Picks, { mode }));
-    assert.equal((html.match(/<details /g) || []).length, 8);
-    assert.equal((html.match(/<summary /g) || []).length, 8);
+    assert.equal((html.match(/<details /g) || []).length, 10);
+    assert.equal((html.match(/<summary /g) || []).length, 10);
     assert.match(html, new RegExp(`<h${mode === 'page' ? 2 : 3} id="beginner-plants-heading"`));
     assert.match(html, /not a shopping list/);
     assert.doesNotMatch(html, /role="dialog"|<button|<input|<form|<details[^>]* open=/);
@@ -61,4 +61,23 @@ test('native keyboard disclosures remain intact, with scoped focus and narrow-la
   assert.match(css, /data-mode="dialog"\] \.grid \{ grid-template-columns: 1fr/);
   assert.doesNotMatch(css, /line-clamp|text-overflow:\s*ellipsis/);
   for (const path of [...source.matchAll(/src: '([^']+\.webp)'/g)].map(m => m[1])) assert.ok(statSync(new URL('../public' + path, import.meta.url)).size > 1000);
+});
+
+test('pepper and basil have distinct useful harvest guidance and honest companion notes', () => {
+  const pepper = plants.BEGINNER_PLANTS.find(p => p.id === 'sweet-bell-pepper');
+  const basil = plants.BEGINNER_PLANTS.find(p => p.id === 'sweet-basil');
+  assert.equal(pepper.kind, 'vegetable');
+  assert.equal(basil.kind, 'herb');
+  assert.match(pepper.timeToReward, /after transplanting/);
+  assert.match(pepper.container, /at least 5 gallons/);
+  assert.match(basil.timeToReward, /6–8 healthy leaves/);
+  assert.match(basil.care, /above a leaf pair/);
+  assert.match(pepper.companions, /not a pest-control guarantee/);
+  assert.match(basil.companions, /do not count on basil to repel pests/);
+  for (const mode of ['page', 'dialog']) {
+    const html = renderToStaticMarkup(React.createElement(Picks, { mode }));
+    assert.match(html, /Vegetables &amp; herbs for your first harvest/);
+    assert.match(html, /src="\/planting-now\/pepper.webp"/);
+    assert.match(html, /src="\/planting-now\/basil.webp"/);
+  }
 });

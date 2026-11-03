@@ -142,7 +142,7 @@ test('standalone pages add artwork, skimmable cards and a true current-step path
     const popup = renderToStaticMarkup(React.createElement(Article, { guide, userId: 'guest', mode: 'dialog' }));
     assert.doesNotMatch(popup, /Six-step learning path|class="hero"|class="stepCard"|data-topic=/);
     if (guide.id !== 'planting') assert.doesNotMatch(popup, /<img/);
-    else assert.equal((popup.match(/<details /g) || []).length, 8);
+    else assert.equal((popup.match(/<details /g) || []).length, 10);
     assert.match(popup, /class="learning-article learning-modal-article"/);
   }
 });
@@ -360,7 +360,7 @@ test('return links use fixed local destinations, and only an explicit guest retu
   for (const guide of learning.beginnerGuides) for (const mode of ['page', 'dialog']) {
     const html = renderToStaticMarkup(React.createElement(Article, { guide, mode, userId: 'guest' }));
     if (guide.id !== 'planting') { assert.doesNotMatch(html, /beginner-plants-heading/); continue; }
-    assert.equal((html.match(/data-plant=/g) || []).length, 8);
+    assert.equal((html.match(/data-plant=/g) || []).length, 10);
     const position = html.indexOf('id="beginner-plants-heading"');
     const lastStep = renderToStaticMarkup(React.createElement('span', {}, guide.steps.at(-1))).slice(6, -7);
     assert.ok(position > html.indexOf(lastStep));
