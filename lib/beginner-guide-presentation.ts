@@ -8,7 +8,7 @@ export type BeginnerGuidePresentation = {
 export const beginnerGuidePresentation: Record<string, BeginnerGuidePresentation> = {
   space: {
     label: 'Space',
-    image: { src: '/beginner-guide-art/space.png', alt: 'Watercolor of wooden raised beds, containers and fabric grow bags in varied heights and materials', width: 1536, height: 1024 },
+    image: { src: '/beginner-guide-art/space.png', alt: 'Watercolor of a plastic elevated planter, galvanized raised bed and bucket, terracotta pot and fabric grow bag', width: 1536, height: 1024 },
     stepTitles: ['Watch the light', 'Match plants to sunlight', 'Choose your growing space', 'Keep your first project small'],
   },
   timing: {
@@ -33,7 +33,7 @@ export const beginnerGuidePresentation: Record<string, BeginnerGuidePresentation
   },
   care: {
     label: 'Care',
-    image: { src: '/flower-guides/care.webp', alt: 'Watercolor of flowering plants beside a watering can and garden snips', width: 1536, height: 1024 },
+    image: { src: '/beginner-guide-art/care.png', alt: 'Watercolor of tomatoes, sweet basil and sweet alyssum beside a watering can and garden snips', width: 1536, height: 1024 },
     stepTitles: ['Check moisture regularly', 'Water thoroughly, then let it drain', 'Adjust as plants grow', 'Look closely and keep notes'],
   },
 };

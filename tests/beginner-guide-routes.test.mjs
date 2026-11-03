@@ -100,9 +100,9 @@ test('each lesson has a distinct existing contextual illustration and a short he
   }
 });
 
-test('first four lessons use native-sized topic artwork while planting and care keep their existing illustrations', () => {
+test('five lessons use native-sized topic artwork while planting keeps its existing illustration', () => {
   const visuals = presentation.beginnerGuidePresentation;
-  for (const id of ['space', 'timing', 'soil', 'essentials']) {
+  for (const id of ['space', 'timing', 'soil', 'essentials', 'care']) {
     const image = visuals[id].image;
     assert.equal(image.src, `/beginner-guide-art/${id}.png`);
     const bytes = readFileSync(new URL('../public' + image.src, import.meta.url));
@@ -112,7 +112,9 @@ test('first four lessons use native-sized topic artwork while planting and care 
     assert.ok(image.width >= 1024 && image.height >= 1024);
   }
   assert.equal(visuals.planting.image.src, '/interiors/vault.webp');
-  assert.equal(visuals.care.image.src, '/flower-guides/care.webp');
+  assert.equal(visuals.care.image.src, '/beginner-guide-art/care.png');
+  assert.match(visuals.care.image.alt, /tomatoes, sweet basil and sweet alyssum/);
+  assert.match(visuals.space.image.alt, /plastic elevated planter, galvanized raised bed and bucket/);
   assert.match(visuals.timing.image.alt, /not a zone map or planting calendar/);
 });
 

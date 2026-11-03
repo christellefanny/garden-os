@@ -44,3 +44,8 @@ test('landing art is crisp, seasonal, edge-blended, and independently responsive
   assert.doesNotMatch(styles, /filter:|\.seasonal-hero\s*\{/);
   assert.match(read('components/seasonal/SeasonalDashboard.tsx'), /className="seasonal-hero /);
 });
+
+test('landing no longer repeats the public Flower Corner shortcut above its banner', () => {
+  assert.doesNotMatch(source, /Explore Flower Corner — no account needed/);
+  assert.ok(read('app/flower-corner/page.tsx').length > 0, 'public Flower Corner route stays available');
+});

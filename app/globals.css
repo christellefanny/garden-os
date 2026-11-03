@@ -2328,3 +2328,14 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
       linear-gradient(to bottom, #0000 0%, #000 16%, #000 84%, #0000 100%);
   }
 }
+
+/* Decorative planting vignette belongs only to the Beginner overview's closing invitation. */
+.learning-note.beginner-start-garden {display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.85fr);align-items:center;gap:24px;padding:clamp(24px,4vw,36px);background:#f5f0e3;overflow:hidden;}
+.beginner-start-garden-copy {min-width:0;}
+.beginner-start-garden-art {position:relative;isolation:isolate;width:100%;max-width:360px;height:210px;justify-self:end;pointer-events:none;}
+.beginner-start-garden-art::before {content:"";position:absolute;inset:16px 4px 4px;border-radius:50%;background:radial-gradient(ellipse at 75% 30%,#f0d5bc80,transparent 65%),radial-gradient(ellipse at 20% 70%,#dbe4bd90,transparent 70%);}
+.beginner-start-garden-art img {position:absolute;object-fit:contain;mix-blend-mode:multiply;height:auto;mask-image:radial-gradient(ellipse at center,#000 52%,#000c 66%,transparent 75%);}
+.beginner-start-garden-tomato {width:46%;left:0;bottom:16px;transform:rotate(-8deg);}
+.beginner-start-garden-basil {width:36%;left:30%;bottom:0;transform:rotate(5deg);z-index:1;}
+.beginner-start-garden-zinnia {width:53%;right:0;top:0;transform:rotate(7deg);}
+@media(max-width:600px){.learning-note.beginner-start-garden{grid-template-columns:minmax(0,1fr);gap:14px;}.beginner-start-garden-art{justify-self:center;max-width:310px;height:190px;}}

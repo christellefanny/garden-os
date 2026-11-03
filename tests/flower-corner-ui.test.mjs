@@ -7,7 +7,8 @@ test('Flower Corner has a public route without account or guest dependencies',()
  const route=read('app/flower-corner/page.tsx'),ui=read('components/FlowerCorner.tsx'),editorial=read('components/FlowerCornerEditorial.tsx');
  assert.match(route,/<FlowerCorner\s*\/>/);assert.match(route,/SeasonProvider/);
  for(const source of [route,ui,editorial])assert.doesNotMatch(source,/ItemPicturesButton|PhotoJournal|useVault|readGuest|supabase|userId|photoUrl/);
- assert.match(read('components/GardenApp.tsx'),/href="\/flower-corner"/);
+ assert.ok(navigationDestinations(true).includes('Flower Corner'));
+ assert.doesNotMatch(read('components/GardenApp.tsx'),/Explore Flower Corner — no account needed/);
 });
 test('Flower Corner preserves nav position and legacy Library bookmarks',()=>{
  for(const guest of [true,false]){const nav=navigationDestinations(guest);assert.equal(nav[nav.indexOf('Tasks')-1],'Flower Corner');assert.equal(nav[nav.indexOf('My Gardens')+1],'Beginner’s Guide');}
