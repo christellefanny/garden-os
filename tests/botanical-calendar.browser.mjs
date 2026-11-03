@@ -209,39 +209,8 @@ try {
     .getByRole("dialog")
     .getByRole("button", { name: "Close dialog", exact: true })
     .click();
-  const emailTestUrl = "**/api/weekly-email/test";
-  await page.route(emailTestUrl, (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        ok: true,
-        message:
-          "Test email accepted by the mail service. Check your account inbox and spam folder. Your weekly schedule is unchanged.",
-      }),
-    }),
-  );
-  await page
-    .getByRole("button", { name: "Send test email", exact: true })
-    .click();
-  await page
-    .getByText("Test email accepted by the mail service.", { exact: false })
-    .waitFor();
-  await page.unroute(emailTestUrl);
-  await page.route(emailTestUrl, (route) =>
-    route.fulfill({
-      status: 502,
-      contentType: "application/json",
-      body: JSON.stringify({ error: "Check your verified sending domain." }),
-    }),
-  );
-  await page
-    .getByRole("button", { name: "Send test email", exact: true })
-    .click();
-  await page
-    .getByText("Check your verified sending domain.", { exact: true })
-    .waitFor();
-  await page.unroute(emailTestUrl);
+  assert.equal(await page.getByRole("button", { name: "Send test email", exact: true }).count(), 0);
+  assert.equal(await page.getByText("Other briefing options", { exact: true }).count(), 0);
   let cloudSaved = false;
   for (let n = 0; n < 60; n++) {
     const state = await (
