@@ -24,6 +24,7 @@ export async function GET(request: Request) {
   return Response.json(
     {
       ready: emailReady(),
+      testSender: /@resend\.dev(?:>|$)/i.test(process.env.GARDEN_EMAIL_FROM || ""),
       email: data?.value.email || auth.user.email || "",
       confirmed: !!auth.user.email_confirmed_at,
       preferences: data
