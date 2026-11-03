@@ -42,8 +42,16 @@
 .stepBadge { display: inline-flex; align-items: center; min-height: 30px; padding: 4px 11px; border: 1px solid currentColor; border-radius: 30px; color: var(--lesson-accent); font-size: 12px; margin: 0 0 16px; }
 .title { font: 400 clamp(32px, 4.1vw, 48px)/1.08 Georgia, serif; letter-spacing: -.025em; margin: 0 0 20px; color: #263e30; text-wrap: balance; }
 .intro { font-size: 15px; line-height: 1.8; margin: 0; max-width: 45ch; }
-.art { margin: 0; min-width: 0; }
-.art img { width: 100%; height: auto; max-height: 360px; object-fit: contain; mix-blend-mode: multiply; mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); }
+.art { margin: 0; min-width: 0; width: min(100%, 480px); justify-self: center; }
+.article[data-topic="space"] .art, .article[data-topic="soil"] .art { max-width: 360px; }
+.art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: multiply;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}
 
 .path { margin: 24px 0 40px; padding: 18px 0; border-block: 1px solid #d9dfd0; }
 .pathLabel { margin: 0 0 12px; color: #53614d; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
@@ -82,7 +90,7 @@
   .hero { grid-template-columns: 1fr; gap: 20px; }
   .intro { max-width: none; }
   .art { width: min(100%, 430px); justify-self: center; }
-  .art img { max-height: 280px; }
+  .article[data-topic="space"] .art, .article[data-topic="soil"] .art { max-width: 280px; }
   .path ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .path a { justify-content: center; }
   .steps, .review { grid-template-columns: 1fr; }
