@@ -1,15 +1,19 @@
+import { additionalPerennialProfiles } from './flower-corner-perennials.ts';
+import { additionalAnnualProfiles } from './flower-corner-annuals.ts';
+import { additionalSpecialtyProfiles } from './flower-corner-specialty.ts';
+import { additionalSeasonalProfiles } from './flower-corner-seasonal.ts';
 /** Public editorial reference data only — never account plants, photographs or saved bouquets.
  * Timing is a planning guide, not a location-specific calendar. A nursery crop time is
  * not automatically a sow-to-bloom time. Sources checked on the review date below.
  */
-export const flowerCornerReviewed = "2026-11-02";
+export const flowerCornerReviewed = "2026-11-03";
 export type FlowerCornerSource = { title: string; url: string };
 export type FlowerCornerProfile = {
   id: string; name: string; botanical: string; kind: "flower" | "foliage";
-  artName?: string; summary: string; light: string; water: string; spacing: string;
+  artName?: string; artVariety?: string; summary: string; light: string; water: string; spacing: string;
   matureSize: string; indoorStart: string; directSow: string; transplant: string;
   germination: string; sowToBloom: string; pinching: string; deadheading: string;
-  cutback: string; notes: string[]; sources: FlowerCornerSource[]; reviewed: string;
+  cutback: string; feeding: string; problems: string; bouquet: string; seedSaving: string; notes: string[]; sources: FlowerCornerSource[]; reviewed: string;
 };
 const nc = (slug: string, name: string): FlowerCornerSource => ({title:`NC State Extension · ${name}`,url:`https://plants.ces.ncsu.edu/plants/${slug}/`});
 const iowa = {title:"Iowa State Extension · Germination requirements",url:"https://yardandgarden.extension.iastate.edu/how-to/germination-requirements-annuals-and-vegetables"};
@@ -18,7 +22,7 @@ const texas = {title:"Texas A&M AgriLife · Starting seedlings at home",url:"htt
 const annualCare = {title:"Illinois Extension · Caring for annuals",url:"https://extension.illinois.edu/flowers/caring-annuals"};
 const reviewed = flowerCornerReviewed;
 
-export const flowerCornerProfiles: FlowerCornerProfile[] = [
+const originalProfiles: FlowerCornerProfile[] = [
   {
     id:"dahlias", name:"Dahlias", botanical:"Dahlia hybrids", kind:"flower", artName:"Dahlias",
     summary:"Tender perennials with sculptural flowers for borders and bouquets; tubers and seed-grown bedding types need different planning.",
@@ -33,6 +37,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"For bushier plants, remove the central tip above the upper leaves once there are 3–4 pairs of leaves; support tall growth.",
     deadheading:"Remove faded flowers regularly to prolong the display; distinguish spent heads from unopened buds.",
     cutback:"Where winter freezing threatens tubers, cut frost-killed stems and lift tubers for suitable frost-free storage. Mild-climate overwintering differs.",
+    feeding:"Use a soil test to guide nutrients; avoid treating weak flowering with repeated high-nitrogen feeding. Drainage and support matter as much as fertilizer.",
+    problems:"Watch for slug damage on young shoots and rot in wet tubers. Remove diseased material and inspect stored tubers; identify the cause before treating.",
+    bouquet:"Harvest open flowers, not tight buds. Place cleanly cut stems in water promptly; support the head and do not strip all healthy growth from the plant.",
+    seedSaving:"Seed-grown offspring may differ from the parent. Keep named varieties as correctly labeled tubers or cuttings; dry and label any mature seed saved for experimentation.",
     notes:["Saving seed does not reliably reproduce a named hybrid cultivar.","Plan stakes, winter storage and lifting before choosing tall cutting varieties.","Sap may irritate skin; do not assume flowers are food-safe. Heat can reduce performance, so check conditions before adding fertilizer."],
     sources:[nc("dahlia","Dahlia"),texas,{title:"University of Minnesota Arboretum · Dahlia trial garden",url:"https://arb.umn.edu/specialty-gardens/dahlia-trial"}], reviewed,
   },
@@ -50,6 +58,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Pinch leggy young growth to encourage branching; compact, naturally branching cultivars may not need it.",
     deadheading:"Cut faded flowers just above healthy leaves or a node. Some self-cleaning zinnia hybrids do not require this.",
     cutback:"Harvesting and deadheading encourage branching; do not routinely shear the whole plant. Remove dead annual growth at season's end.",
+    feeding:"Base feeding on soil conditions rather than adding fertilizer each time a flower fades; keep plants growing evenly without crowding.",
+    problems:"Powdery mildew and leaf spots favor susceptible, crowded plants. Water roots, provide airflow and remove badly affected material rather than wetting leaves repeatedly.",
+    bouquet:"Choose a fully developed flower on a firm stem; a floppy stem is not ready. Cut above a healthy leaf pair and hydrate promptly.",
+    seedSaving:"Reserve a few healthy heads, let them turn brown and dry, then separate mature seed. Hybrid varieties may produce different flowers next year.",
     notes:["Airflow matters: leaf spots and powdery mildew can spoil crowded plants.","A dwarf container variety is not interchangeable with a tall cutting variety."],
     sources:[nc("zinnia-elegans","Zinnia"),iowa,annualCare,{title:"Clemson Extension · Growing zinnias",url:"https://hgic.clemson.edu/factsheet/how-to-grow-zinnias-the-best-varieties-care-tips/"}], reviewed,
   },
@@ -67,6 +79,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Not compulsory. If a cultivar's instructions recommend branching pinches, do them while young rather than removing developed flower buds.",
     deadheading:"Remove faded flowers to extend flowering; leave selected healthy heads if saving seed.",
     cutback:"Keep healthy flowering stems rather than imposing a hard summer cutback. Clear dead annual stems at the end of their season.",
+    feeding:"Avoid rich feeding: excess fertility can favor leafy growth over flowers. Correct a demonstrated deficiency rather than routinely boosting nitrogen.",
+    problems:"Flopping can reflect rich soil or lack of support, not thirst. Watch crowding and drainage; remove diseased stems rather than giving every struggling plant more water.",
+    bouquet:"Cut as flowers begin to open for loose, airy bouquets; put stems in clean water and retain enough foliage for continued growth.",
+    seedSaving:"Let selected heads develop narrow, dark mature seeds; collect before they scatter. Label the variety, but expect variation if hybrids or nearby plants cross.",
     notes:["This is C. bipinnatus, not every cosmos species.","May self-seed; seedlings are not guaranteed to reproduce a hybrid's color or form.","Tall plants may need staking in exposed sites.","Overly rich soil may produce foliage instead of flowers. Check local suitability before allowing seed to spread beyond the garden."],
     sources:[nc("cosmos-bipinnatus","Cosmos"),iowa,annualCare], reviewed,
   },
@@ -84,6 +100,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Young shoot tips can be pinched to encourage bushier plants; already compact starts may not need it.",
     deadheading:"Remove old flower heads regularly to encourage fresh blooms and keep plants tidy.",
     cutback:"Use selective trimming, not an automatic severe midsummer cut. Remove finished annual growth after the season.",
+    feeding:"Use a soil-test-based feeding plan; the needs of a tall cutting type and a small container plant differ. Avoid an automatic strong feed for every plant.",
+    problems:"Inspect for mites, slugs and stem or leaf disease. Check root-zone moisture and airflow before deciding on a treatment.",
+    bouquet:"Choose fresh, developed blooms on useful stems, remove submerged foliage and hydrate promptly. Tall cultivars suit bouquets better than very dwarf bedding forms.",
+    seedSaving:"Collect mature dry heads; pull apart to find the slender seeds. Dry fully before storage; hybrid seed may not recreate the parent.",
     notes:["Sap may irritate sensitive skin; gloves are sensible when handling lots of stems.","Do not treat marigolds as universal pest repellents; benefits depend on species and use.","Watch for spider mites, slugs and leaf or stem disease; identify the cause before treating. Ornamental flowers are not automatically food-safe."],
     sources:[nc("tagetes","Marigolds"),missouri,annualCare,{title:"Wisconsin Extension · Marigolds",url:"https://hort.extension.wisc.edu/articles/marigolds/"}], reviewed,
   },
@@ -101,6 +121,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Young plants can be pinched for branching; this changes the flowering schedule and stem form, so follow cutting-series directions.",
     deadheading:"Remove spent flower spikes to encourage further flowering rather than allowing every spike to set seed.",
     cutback:"Do not mistake heat-related slowing for a need to cut every plant to the ground. Remove spent stems selectively and retain healthy growth.",
+    feeding:"Maintain suitable fertility during active growth, using soil-test or container-product guidance. Do not mistake a heat-related flowering pause for a fertilizer deficiency.",
+    problems:"Watch for rust, leaf disease and root problems; avoid overhead watering and stagnant wet soil. Tall stems need support before they lean.",
+    bouquet:"Harvest spikes when their lower florets open. Leave useful growth below the cut for branching; cutting-series instructions determine the number and quality of later stems.",
+    seedSaving:"Dry capsules can provide seed if flowers are left uncut, but named hybrids may not come true. Keep seed dry and clearly labeled.",
     notes:["A tender perennial often treated as an annual; survival and bloom season vary with climate.","Tall cutting series and dwarf bedding varieties are not interchangeable.","Rust, leaf spots and root rot can occur; check drainage, airflow and affected foliage before treatment."],
     sources:[nc("antirrhinum-majus","Snapdragons"),iowa,annualCare], reviewed,
   },
@@ -118,6 +142,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Not routinely needed to create its naturally low, branching habit.",
     deadheading:"Individual tiny flowers need not all be removed by hand; a light trim is more practical when a flush fades.",
     cutback:"Trim tired growth when flowering declines, especially after heat stress, to encourage a fresh flush; do not cut into a bare crown.",
+    feeding:"Avoid overfeeding this low-growing plant. Container feeding depends on the potting mix and fertilizer label, rather than the same schedule as an in-ground bed.",
+    problems:"Summer heat can pause bloom; crown rot can follow wet soil. Check these causes before adding more water or fertilizer.",
+    bouquet:"Use small flowering sprigs as delicate filler rather than expecting long florist stems. Hydrate promptly and keep leaves out of vase water.",
+    seedSaving:"Seed-grown open-pollinated types can self-sow. Let a few heads mature and collect dry seed; many vigorous vegetative hybrids are not reproduced this way.",
     notes:["Flowering may slow during summer heat and resume in cooler weather.","Some vigorous modern hybrids are propagated vegetatively rather than from saved seed.","Crown or stem rot can follow poor drainage; more water is not the answer to every decline. Check local suitability before allowing self-sown seedlings to spread."],
     sources:[nc("lobularia-maritima","Sweet alyssum"),missouri,{title:"Wisconsin Extension · Sweet alyssum",url:"https://hort.extension.wisc.edu/articles/sweet-alyssum-lobularia-maritima/"}], reviewed,
   },
@@ -135,6 +163,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Pinch young tips for a more compact, branched plant.",
     deadheading:"Remove spent heads to continue flowering; reserve a few healthy heads only when seed is wanted.",
     cutback:"Heat-tired plants may be cut back to encourage renewed fall growth when cooler conditions return.",
+    feeding:"Use moderate, soil-test-guided fertility; cooler conditions, not stronger fertilizer, are often the key to renewed flowering.",
+    problems:"Powdery mildew, slugs and snails can damage plants. Summer decline may also reflect heat, so diagnose before treating.",
+    bouquet:"Harvest newly opened flowers in cool weather; put clean stems in water promptly and remove submerged leaves.",
+    seedSaving:"Collect the distinctive curved seeds when heads mature and dry. Label and dry them well; leave only selected heads if continued flowering is the priority.",
     notes:["Not Tagetes: do not copy heat-loving marigold timing.","Watch for powdery mildew and slug or snail damage.","Food use requires correct identification and plants grown without unsuitable treatments."],
     sources:[nc("calendula-officinalis","Calendula"),{title:"UNH Extension · Growing calendula",url:"https://extension.unh.edu/resource/how-grow-calendula-calendula-officinalis"}], reviewed,
   },
@@ -152,6 +184,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Do not pinch single-stem sunflowers: the intended flower can be lost. Branching types may benefit from pinching above the second pair of true leaves.",
     deadheading:"On branching plants, remove an individual finished head without cutting off developing branches; leave seedheads if feeding birds or saving seed.",
     cutback:"A harvested single-stem plant does not become a repeat-flowering bush. Remove finished stalks, or leave healthy seedheads for wildlife.",
+    feeding:"A soil test is a better starting point than a universal heavy-feeding rule. Avoid excessive feeding and match the plan to the chosen cutting or giant variety.",
+    problems:"Watch for slugs, caterpillars, beetles, leaf spots and mildew. Tall plants may need wind protection and support; seedlings also attract birds.",
+    bouquet:"Cutting cultivars differ from giant seed types. Harvest at the stage specified for the cultivar, hydrate promptly, and remember a single-stem harvest removes that plant’s only flower.",
+    seedSaving:"Leave selected heads to mature instead of cutting them. Dry and protect mature seed from wildlife if saving it; hybrids may vary and some ornamental selections offer little useful seed.",
     notes:["This profile is annual H. annuus, not perennial sunflower species.","Shelter very tall, heavy-headed plants from wind; labels matter more than a generic sunflower height."],
     sources:[nc("helianthus-annuus","Annual sunflower"),iowa,{title:"Utah State Extension · Sunflower cut flower production",url:"https://extension.usu.edu/productionhort/research/sunflower-cut-flower-production-in-utah"}], reviewed,
   },
@@ -169,6 +205,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Pinching can encourage branching; follow the cultivar's directions because it changes stem count and timing.",
     deadheading:"Remove finished blooms selectively while preserving unopened buds and useful healthy stems.",
     cutback:"Do not promise a second crop from a universal hard cutback; regrowth depends on season and growing conditions.",
+    feeding:"Maintain appropriate fertility in well-drained soil, guided by a soil test or the plug supplier. More feeding does not replace the long, temperature-sensitive seedling phase.",
+    problems:"Inspect for cankers and fungal disease and correct drainage. Heat or other stress during seedling production can delay the crop; start with healthy plugs if this is your first attempt.",
+    bouquet:"Cut when the first blooms on a stem open. Handle the branched stems gently and hydrate quickly; subsequent flowering depends on the remaining season.",
+    seedSaving:"Tiny seed and the slow seedling phase make saved seed an advanced project. Named hybrids may not come true; purchased plugs provide a more predictable start.",
     notes:["A demanding seed-starting project, not a quick direct-sown annual.","Grow as an annual where conditions do not permit perennial survival; support tall cutting stems as needed.","Check declining stems for cankers or fungal disease and inspect drainage. Dwarf selections may suit pots."],
     sources:[nc("eustoma-grandiflorum","Lisianthus"),iowa], reviewed,
   },
@@ -186,6 +226,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Not a default requirement; retain the natural habit unless the chosen cultivar's growing instructions call for it.",
     deadheading:"Remove faded flowers for a longer display, or leave selected heads for seed and wildlife.",
     cutback:"Remove dead stems when tidying the bed; retaining healthy seedheads into winter is an alternative to immediate fall cleanup.",
+    feeding:"Avoid unnecessary rich feeding; average fertility with good drainage suits this plant. Use a soil test before correcting nutrient deficiencies.",
+    problems:"Powdery mildew and slugs can occur. Keep plants spaced and check moisture; do not confuse short-lived R. hirta with longer-lived perennial relatives.",
+    bouquet:"Harvest firm, open flowers rather than soft immature heads, and hydrate promptly. Leave some heads uncut for seed or wildlife.",
+    seedSaving:"Dry mature seedheads can be collected or left for birds. Seedlings may vary, and first-year flowering depends on the particular R. hirta selection.",
     notes:["This is R. hirta, not the longer-lived R. fulgida sold under similar common names.","May self-seed; watch for powdery mildew and slugs in susceptible conditions."],
     sources:[nc("rudbeckia-hirta","Black-eyed Susan"),iowa], reviewed,
   },
@@ -204,6 +248,10 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Do not pinch the foliage crown to make it branch like a cutting annual.",
     deadheading:"Cut finished flower stalks near their base without removing healthy leaves.",
     cutback:"In late winter or early spring remove dead or scorched leaves selectively; do not routinely shear healthy evergreen foliage.",
+    feeding:"Use a soil test to decide whether nutrients are needed; protect the shallow root system and avoid piling amendments against the crown.",
+    problems:"Watch for frost heaving, wet crowns and exposure-related scorch. Healthy species plants have few serious pest problems; hybrid tolerance varies.",
+    bouquet:"Foliage and delicate flower stems can provide texture. Take only a few mature stems from a well-established plant, leaving its crown and most leaves intact.",
+    seedSaving:"Seed will not reliably preserve a named hybrid’s leaf color. Use appropriately timed division to retain a cultivar, following any propagation restrictions.",
     notes:["Inspect for frost heaving in cold climates and protect shallow roots appropriately.","Cultivar performance differs in heat, sun and winter wet; a single species profile cannot describe every hybrid."],
     sources:[nc("heuchera-americana","American alumroot"),{title:"Oklahoma State Extension · Heuchera cultivars",url:"https://extension.okstate.edu/programs/oklahoma-proven/plant-profiles/heuchera-cultivars-coral-bells"}], reviewed,
   },
@@ -222,7 +270,28 @@ export const flowerCornerProfiles: FlowerCornerProfile[] = [
     pinching:"Do not pinch new leaf shoots or the crown; these are not branching annual flower stems.",
     deadheading:"Remove spent flower stalks near the crown if desired, keeping the foliage intact.",
     cutback:"Remove yellow or damaged leaves during growth. Clean up dead foliage in late fall; do not routinely shear healthy leaves in summer.",
+    feeding:"Test soil before fertilizing. Apply nutrients only as needed during active growth, following local guidance; do not treat drought stress with fertilizer.",
+    problems:"Slugs and deer damage leaves. Inspect unusual mottling or distorted growth before dividing or moving a plant; avoid spreading diseased material.",
+    bouquet:"Use a few mature leaves as foliage rather than stripping a whole clump. Cut cleanly and hydrate promptly; ornamental hosta material is not food-safe for pets.",
+    seedSaving:"Named varieties are normally retained by division, not seed. Seedlings may differ in color, pattern and size; do not divide a plant suspected of disease.",
     notes:["Slugs and deer may damage leaves.","Hostas are toxic to cats, dogs and horses if eaten; keep ornamental leaves away from pets and food preparations."],
     sources:[nc("hosta","Hosta"),{title:"University of Minnesota Extension · Hostas",url:"https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-hostas-in-minnesota"}], reviewed,
   },
 ];
+
+const careSources: FlowerCornerSource[] = [
+  {title:"University of Minnesota Extension · Soil testing for lawns and gardens",url:"https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/soil-testing-for-lawns-and-gardens"},
+  {title:"Iowa State Extension · Harvesting and caring for cut flowers",url:"https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers"},
+  {title:"Iowa State Extension · Harvesting and storing seed",url:"https://yardandgarden.extension.iastate.edu/how-to/how-harvest-and-store-seeds"},
+];
+const harvestSources: Record<string,FlowerCornerSource> = {
+ dahlias:{title:"Oklahoma State Extension · Cut flower harvest stages",url:"https://extension.okstate.edu/fact-sheets/the-care-and-handling-of-cut-flowers"},
+ snapdragons:{title:"Oklahoma State Extension · Cut flower harvest stages",url:"https://extension.okstate.edu/fact-sheets/the-care-and-handling-of-cut-flowers"},
+ calendula:{title:"Oklahoma State Extension · Cut flower harvest stages",url:"https://extension.okstate.edu/fact-sheets/the-care-and-handling-of-cut-flowers"},
+ rudbeckia:{title:"Oklahoma State Extension · Cut flower harvest stages",url:"https://extension.okstate.edu/fact-sheets/the-care-and-handling-of-cut-flowers"},
+ marigolds:{title:"Oklahoma State Extension · Cut flower harvest stages",url:"https://extension.okstate.edu/fact-sheets/the-care-and-handling-of-cut-flowers"},
+ cosmos:{title:"Johnny’s Selected Seeds · Cosmos production",url:"https://www.johnnyseeds.com/on/demandware.static/-/Library-Sites-JSSSharedLibrary/default/dwf971a43d/assets/information/8307-cosmos-production.pdf"},
+ lisianthus:{title:"Ball Seed · Lisianthus cut-flower guide",url:"https://www.ballseed.com/CutFlowers/documents/Lisianthus-Cut-Flower-Guide-English-.pdf"},
+ zinnias:{title:"Washington State Extension · Zinnias",url:"https://s3.wp.wsu.edu/uploads/sites/2083/2021/06/06-27-Zinnia-Barany_compressed.pdf"},
+};
+export const flowerCornerProfiles: FlowerCornerProfile[] = [...originalProfiles.map(profile=>({...profile,sources:[...profile.sources,...careSources,...(harvestSources[profile.id]?[harvestSources[profile.id]]:[])]})),...additionalAnnualProfiles,...additionalSpecialtyProfiles,...additionalSeasonalProfiles,...additionalPerennialProfiles];

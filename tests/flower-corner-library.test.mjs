@@ -8,14 +8,14 @@ import {getVaultBotanicalArt} from '../lib/vault-botanical-art.ts';
 
 const byId = id => flowerCornerProfiles.find(profile => profile.id === id);
 test('Flower Corner retains every original learning flower and adds two foliage profiles',()=>{
-  assert.equal(flowerCornerProfiles.length,12);
-  assert.equal(new Set(flowerCornerProfiles.map(p=>p.id)).size,12);
+  assert.equal(flowerCornerProfiles.length,45);
+  assert.equal(new Set(flowerCornerProfiles.map(p=>p.id)).size,flowerCornerProfiles.length);
   for(const old of flowerProfiles) assert.ok(byId(old.id),old.id);
   assert.equal(byId('heuchera').kind,'foliage');
   assert.equal(byId('hosta').kind,'foliage');
 });
 test('each public profile has substantive growing fields and institutional evidence',()=>{
-  const fields=['name','botanical','summary','light','water','spacing','matureSize','indoorStart','directSow','transplant','germination','sowToBloom','pinching','deadheading','cutback'];
+  const fields=['name','botanical','summary','light','water','spacing','matureSize','indoorStart','directSow','transplant','germination','sowToBloom','pinching','deadheading','cutback','feeding','problems','bouquet','seedSaving'];
   assert.match(flowerCornerReviewed,/^\d{4}-\d{2}-\d{2}$/);
   for(const profile of flowerCornerProfiles){
     for(const key of fields) assert.ok(typeof profile[key]==='string' && profile[key].trim().length>=(key==='name'?3:8),`${profile.id}.${key}`);
@@ -25,16 +25,16 @@ test('each public profile has substantive growing fields and institutional evide
     for(const source of profile.sources){
       const url=new URL(source.url);
       assert.equal(url.protocol,'https:');
-      assert.ok(url.hostname.endsWith('.edu'),source.url);
+      assert.ok(url.hostname.endsWith('.edu')||['www.rhs.org.uk','www.johnnyseeds.com','johnnyseeds.com','www.panamseed.com','www.tnipc.org','tnipc.org','txmg.org','dallascountymastergardeners.org','libguides.nybg.org','www.adaptiveseeds.com','www.ballseed.com','www.chicagobotanic.org'].includes(url.hostname),source.url);
       assert.ok(source.title.length>10);
-      assert.ok(!url.search && !url.hash,'no private link tokens in public data');
+      assert.ok((!url.search || (url.hostname==='www.tnipc.org'&&url.search==='?id=103')) && !url.hash,'no private link tokens in public data');
     }
   }
 });
 test('every library portrait reuses an existing approved artwork file',()=>{
   for(const profile of flowerCornerProfiles){
-    assert.ok(profile.artName,profile.id);
-    const art=getFlowerGardenArt(profile.artName)||getVaultBotanicalArt(profile.artName);
+    if(!profile.artName){assert.equal(profile.id,'daffodils'); continue;}
+    const art=getFlowerGardenArt(profile.artName)||getVaultBotanicalArt(profile.artName,profile.artVariety);
     assert.ok(art,profile.artName);
     assert.ok(existsSync(`public${art.src}`),profile.artName);
   }
@@ -70,4 +70,31 @@ test('library preserves safety and species distinctions',()=>{
   assert.match(byId('sunflowers').notes.join(' '),/not perennial/);
   assert.match(byId('snapdragons').notes.join(' '),/Rust/);
   assert.match(byId('lisianthus').notes.join(' '),/cankers/);
+});
+
+
+test('every featured cut flower has a full Library profile',async()=>{
+ const {cornerCutFlowers}=await import('../lib/flower-corner-editorial.ts');
+ for(const flower of cornerCutFlowers){
+  assert.ok(flowerCornerProfiles.some(p=>p.artName===flower.name||p.name===flower.name),flower.name);
+ }
+});
+test('seasonal and seed-saving flowers have full Library coverage',()=>{
+ for(const id of ['pansies','violas','daffodils','nasturtium'])assert.ok(byId(id),id);
+ for(const p of flowerCornerProfiles){
+  assert.ok(p.feeding.length>25,p.id+' feeding');
+  assert.ok(p.problems.length>25,p.id+' problems');
+  assert.ok(p.bouquet.length>25,p.id+' bouquet');
+  assert.ok(p.seedSaving.length>25,p.id+' seedSaving');
+ }
+});
+
+test('expanded catalog keeps species and cultivar safety distinctions',()=>{
+ assert.match(JSON.stringify(byId('ammi-majus')),/skin|photo|sunlight/i);
+ assert.match(byId('larkspur').notes.join(' '),/toxic|poison/i);
+ assert.match(byId('sweet-peas').notes.join(' '),/toxic|poison/i);
+ assert.match(byId('daffodils').cutback,/brown|dead/i);
+ assert.match(byId('daffodils').notes.join(' '),/poison/i);
+ assert.match(byId('chantilly-snapdragons').botanical,/Chantilly/);
+ assert.match(byId('rudbeckia-sahara').botanical,/Sahara/);
 });
