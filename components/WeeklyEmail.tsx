@@ -35,6 +35,7 @@ export default function WeeklyEmail({
     [message, setMessage] = useState("");
   const [settings, setSettings] = useState<Settings | null>(null),
     [enabled, setEnabled] = useState(false),
+    [email, setEmail] = useState(""),
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
   async function request(method: "GET" | "POST") {
@@ -53,6 +54,7 @@ export default function WeeklyEmail({
           ? {
               body: JSON.stringify({
                 enabled,
+                email: email.trim(),
                 day,
                 gardenId: chosen,
                 version: settings?.version || 0,
@@ -74,6 +76,7 @@ export default function WeeklyEmail({
     try {
       const value = (await request("GET")) as Settings;
       setSettings(value);
+      setEmail(value.email || "");
       setEnabled(value.preferences?.enabled || false);
       setDay(value.preferences?.day ?? 1);
       setChosen(
@@ -95,7 +98,7 @@ export default function WeeklyEmail({
       setOpen(false);
       setMessage(
         enabled
-          ? "Weekly garden emails are enabled for your account email."
+          ? `Weekly garden emails will be delivered to ${email.trim()}.`
           : "Weekly garden emails are off.",
       );
     } catch (e) {
@@ -138,16 +141,26 @@ export default function WeeklyEmail({
       {!open && message && <p role="status">{message}</p>}
       {open && (
         <Dialog title="Email subscription" onClose={() => setOpen(false)}>
-          <div className="weekly-settings">
+          <form className="weekly-settings" onSubmit={(event) => { event.preventDefault(); void save(); }}>
             {busy && !settings && (
               <p role="status">Loading email preferences…</p>
             )}
             {settings && (
               <>
-                <p>
-                  Deliver to{" "}
-                  <strong>{settings.email || "your account email"}</strong>
-                </p>
+                <label>
+                  Deliver to
+                  <input
+                    className="seasonal-input"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    maxLength={254}
+                    value={email}
+                    placeholder="you@example.com"
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+                </label>
+                <p>This address is for garden emails. Your sign-in email stays the same.</p>
                 {!settings.ready && (
                   <p className="interior-notice">
                     Email delivery isn’t connected yet. Your calendar and weekly
@@ -202,9 +215,8 @@ export default function WeeklyEmail({
                   emails here or use the unsubscribe link in any email.
                 </p>
                 <button
-                  type="button"
+                  type="submit"
                   className="seasonal-button"
-                  onClick={save}
                   disabled={busy || (enabled && (!settings.ready || !chosen))}
                 >
                   {busy ? "Saving…" : "Save subscription"}
@@ -212,7 +224,7 @@ export default function WeeklyEmail({
               </>
             )}
             {message && <p role="status">{message}</p>}
-          </div>
+          </form>
         </Dialog>
       )}
     </section>

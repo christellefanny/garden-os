@@ -5,13 +5,18 @@ export type EmailPreferences = {
   day: number;
   gardenId: string;
   nonce: string;
+  email?: string;
 };
+export function validDeliveryEmail(value: unknown): value is string {
+  return typeof value === "string" && value.length <= 254 && /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value);
+}
 export function validEmailPreferences(
   value: unknown,
 ): value is EmailPreferences {
   if (!value || typeof value !== "object") return false;
   const p = value as EmailPreferences;
   return (
+    (p.email === undefined || validDeliveryEmail(p.email)) &&
     typeof p.enabled === "boolean" &&
     Number.isInteger(p.day) &&
     p.day >= 0 &&

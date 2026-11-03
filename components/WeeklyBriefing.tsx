@@ -195,7 +195,7 @@ export default function WeeklyBriefing({
             reviewed Extension guidance.
           </p>
         </div>
-        <div className="interior-actions">
+        <div className="interior-actions weekly-briefing-actions">
           <button
             className="seasonal-button"
             onClick={generate}

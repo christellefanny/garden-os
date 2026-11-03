@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { authenticated } from "@/lib/reminders-server";
 import { emailReady } from "@/lib/weekly-email-server";
-import { emailPreferenceKey, validEmailPreferences } from "@/lib/weekly-email";
+import { emailPreferenceKey, validEmailPreferences, validDeliveryEmail } from "@/lib/weekly-email";
 const headers = { "Cache-Control": "private, no-store" };
 export async function GET(request: Request) {
   const auth = await authenticated(request);
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   return Response.json(
     {
       ready: emailReady(),
-      email: auth.user.email || "",
+      email: data?.value.email || auth.user.email || "",
       confirmed: !!auth.user.email_confirmed_at,
       preferences: data
         ? {
@@ -72,6 +72,9 @@ export async function POST(request: Request) {
       { error: "Choose a garden and delivery day." },
       { status: 400, headers },
     );
+  const email = typeof input.email === "string" ? input.email.trim() : auth.user.email || "";
+  if (!validDeliveryEmail(email))
+    return Response.json({ error: "Enter a valid delivery email address." }, { status: 400, headers });
   if (
     input.enabled &&
     (!emailReady() || !auth.user.email_confirmed_at || !auth.user.email)
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
       day: input.day,
       gardenId: input.gardenId,
       nonce: randomUUID(),
+      email,
     },
     p_version: input.version,
   });
