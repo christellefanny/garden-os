@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Garden } from "@/lib/garden";
 import Dialog from "@/components/ui/Dialog";
@@ -14,6 +14,7 @@ const days = [
 ];
 type Settings = {
   ready: boolean;
+  testSender?: boolean;
   email: string;
   confirmed: boolean;
   version: number;
@@ -38,6 +39,26 @@ export default function WeeklyEmail({
     [email, setEmail] = useState(""),
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
+  useEffect(() => {
+    if (guest) { setSettings(null); return; }
+    let active = true;
+    async function refreshStatus() {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) return;
+        const response = await fetch("/api/weekly-email", {
+          headers: { Authorization: `Bearer ${data.session.access_token}` },
+        });
+        if (!response.ok) throw new Error();
+        const value = await response.json() as Settings;
+        if (active) setSettings(value);
+      } catch {
+        if (active) setMessage("Could not check your subscription. Open email settings to retry.");
+      }
+    }
+    void refreshStatus();
+    return () => { active = false; };
+  }, [guest]);
   async function request(method: "GET" | "POST") {
     const { data } = await supabase.auth.getSession();
     if (!data.session)
@@ -94,11 +115,15 @@ export default function WeeklyEmail({
     setBusy(true);
     setMessage("");
     try {
-      await request("POST");
+      const saved = await request("POST");
+      setSettings((previous) => previous ? {
+        ...previous, email: email.trim(), version: saved.version,
+        preferences: saved.preferences,
+      } : previous);
       setOpen(false);
       setMessage(
         enabled
-          ? `Weekly garden emails will be delivered to ${email.trim()}.`
+          ? `Subscription saved for ${email.trim()}.`
           : "Weekly garden emails are off.",
       );
     } catch (e) {
@@ -132,12 +157,21 @@ export default function WeeklyEmail({
             onClick={load}
             disabled={busy}
           >
-            Subscribe by email
+            {settings?.preferences?.enabled ? "Manage subscription" : "Subscribe by email"}
           </button>
 
         </div>
       )}
       {compact && <p className="seasonal-muted mt-2 max-w-sm text-sm">Receive your weekly garden tasks, plant care instructions, and upcoming work by email.</p>}
+      {!guest && settings && (
+        <p className="seasonal-muted mt-2 max-w-sm text-sm" role="status">
+          {settings.preferences?.enabled
+            ? `Subscribed · ${days[settings.preferences.day]}s · ${settings.email}`
+            : "Weekly emails are off."}
+          {settings.preferences?.enabled && !settings.ready && " Delivery is unavailable while email setup is incomplete."}
+          {settings.testSender && " Email delivery is currently limited to the test account while we finish setup."}
+        </p>
+      )}
       {!open && message && <p role="status">{message}</p>}
       {open && (
         <Dialog title="Email subscription" onClose={() => setOpen(false)}>
