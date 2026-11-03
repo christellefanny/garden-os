@@ -145,6 +145,8 @@ export async function POST(request: Request) {
     return Response.json(
       {
         ok: true,
+        recipient: pref.email || auth.user.email,
+        messageId: receipt.id,
         message:
           "Test email accepted by the mail service. Check your delivery inbox and spam folder. Your weekly schedule is unchanged.",
       },

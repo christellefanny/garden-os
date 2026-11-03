@@ -33,6 +33,9 @@ export default function WeeklyEmail({
 }) {
   const [open, setOpen] = useState(false),
     [busy, setBusy] = useState(false),
+    [previewing, setPreviewing] = useState(false),
+    [previewMessage, setPreviewMessage] = useState(""),
+    [previewError, setPreviewError] = useState(false),
     [message, setMessage] = useState("");
   const [settings, setSettings] = useState<Settings | null>(null),
     [enabled, setEnabled] = useState(false),
@@ -91,6 +94,7 @@ export default function WeeklyEmail({
   }
   async function load() {
     setOpen(true);
+    setPreviewMessage("");
     setSettings(null);
     setMessage("");
     setBusy(true);
@@ -111,6 +115,31 @@ export default function WeeklyEmail({
       setBusy(false);
     }
   }
+  async function sendPreview() {
+    if (previewing) return;
+    setPreviewing(true);
+    setPreviewError(false);
+    setPreviewMessage("Preparing your weekly garden email…");
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) throw new Error("Sign in again to send a preview.");
+      const response = await fetch("/api/weekly-email/test", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${data.session.access_token}` },
+        signal: AbortSignal.timeout(65000),
+      });
+      const value = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(value?.error || "The preview request failed. Please try again later.");
+      if (!value?.ok || !value.recipient) throw new Error("The mail service did not confirm acceptance. Check your inbox before retrying.");
+      setPreviewMessage(`Preview accepted for ${value.recipient}. Check your inbox and spam folder. Inbox delivery is not yet confirmed. Your weekly schedule is unchanged.`);
+    } catch (error) {
+      setPreviewError(true);
+      setPreviewMessage(error instanceof Error && error.name === "TimeoutError"
+        ? "The request timed out. Delivery is uncertain—check your inbox before trying again."
+        : error instanceof Error ? error.message : "Could not send the preview.");
+    } finally { setPreviewing(false); }
+  }
+  const unsaved = !!settings && (email.trim() !== settings.email || enabled !== (settings.preferences?.enabled || false) || day !== (settings.preferences?.day ?? 1) || chosen !== (settings.preferences?.gardenId || gardenId || gardens[0]?.id || ""));
   async function save() {
     setBusy(true);
     setMessage("");
@@ -251,10 +280,21 @@ export default function WeeklyEmail({
                 <button
                   type="submit"
                   className="seasonal-button"
-                  disabled={busy || (enabled && (!settings.ready || !chosen))}
+                  disabled={busy || previewing || (enabled && (!settings.ready || !chosen))}
                 >
                   {busy ? "Saving…" : "Save subscription"}
                 </button>
+                <div>
+                  <button type="button" className="seasonal-button secondary"
+                    onClick={sendPreview}
+                    disabled={busy || previewing || unsaved || !settings.ready || !settings.confirmed || !settings.preferences?.enabled}>
+                    {previewing ? "Sending preview…" : "Send me a preview"}
+                  </button>
+                  <p>Send one weekly garden email to {settings.email || "your saved address"}. This does not change your delivery schedule.</p>
+                  {unsaved && <p>Save your changes, then reopen this window to send a preview.</p>}
+                  {!settings.preferences?.enabled && <p>Enable and save your subscription before sending a preview.</p>}
+                  {previewMessage && <p role={previewError ? "alert" : "status"} aria-live="polite">{previewMessage}</p>}
+                </div>
               </>
             )}
             {message && <p role="status">{message}</p>}
