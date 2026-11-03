@@ -1,3 +1,4 @@
+import { taskTiming } from "./calendar-focus.ts";
 import type { VaultPlant } from "../components/PlantVault";
 import type { Garden, Space } from "./garden";
 import { readDetails } from "./garden.ts";
@@ -561,11 +562,11 @@ export function buildWeeklyBrief(input: {
     .map((t) => ({
       id: t.id,
       title: t.title,
-      when: t.date,
+      when: `${t.date}${taskTiming(t, calendar).deadline ? ` · Deadline: ${taskTiming(t, calendar).deadline} (set by you)` : ""}`,
       why: t.id.startsWith("custom|")
         ? "You saved this reminder."
         : "This is a planning-calendar step, not a forecast or observed plant stage.",
-      steps: [t.detail],
+      steps: [t.detail, `Time needed: ${taskTiming(t, calendar).duration}.`],
       plants: [t.plant],
       spaces: [],
       sources: [],

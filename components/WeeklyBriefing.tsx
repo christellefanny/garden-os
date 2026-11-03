@@ -12,6 +12,7 @@ import type {
   WeeklyBrief,
   WeeklyPreferences,
 } from "@/lib/weekly-brief";
+import WeeklyEmail from "@/components/WeeklyEmail";
 import Dialog from "@/components/ui/Dialog";
 async function requestBrief(
   gardenId: string,
@@ -254,29 +255,9 @@ export default function WeeklyBriefing({
                 ? "Refresh briefing"
                 : "Read this week’s briefing"}
           </button>
-          <button
-            className="seasonal-outline"
-            onClick={() => {
-              setDraft(
-                options.weekly || {
-                  enabled: false,
-                  day: 1,
-                  gardenId: garden?.id || "",
-                },
-              );
-              setSettings(true);
-            }}
-          >
-            Weekly settings
-          </button>
+          <WeeklyEmail compact guest={guest} gardens={gardens} gardenId={garden?.id || ""} />
         </div>
       </div>
-      <p className="weekly-delivery">
-        {options.weekly?.enabled
-          ? `${days[options.weekly.day]} morning briefing · phone notifications must be enabled`
-          : "Weekly phone briefing is off. You can read it anytime."}{" "}
-        · {sync.status}
-      </p>
       {message && <p role="status">{message}</p>}
       {brief && (
         <article aria-label="Weekly garden briefing">
@@ -400,6 +381,24 @@ export default function WeeklyBriefing({
           </details>
         </article>
       )}
+      <details className="mt-5"><summary className="cursor-pointer text-sm">Other briefing options</summary>
+          <button
+            className="seasonal-outline"
+            onClick={() => {
+              setDraft(
+                options.weekly || {
+                  enabled: false,
+                  day: 1,
+                  gardenId: garden?.id || "",
+                },
+              );
+              setSettings(true);
+            }}
+          >
+            Phone briefing & planning options
+          </button>
+      <p className="seasonal-muted text-xs">Phone delivery is separate from your email subscription. {sync.status}</p>
+      </details>
       {settings && (
         <Dialog
           title="Weekly garden briefing"

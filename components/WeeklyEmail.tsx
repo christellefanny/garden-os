@@ -23,10 +23,12 @@ export default function WeeklyEmail({
   guest,
   gardens,
   gardenId,
+  compact = false,
 }: {
   guest: boolean;
   gardens: Garden[];
   gardenId: string;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [busy, setBusy] = useState(false),
@@ -121,15 +123,15 @@ export default function WeeklyEmail({
     }
   }
   return (
-    <section className="calendar-email-card seasonal-card">
-      <div>
+    <section className={compact ? "email-subscription" : "calendar-email-card seasonal-card"}>
+      {!compact && <div>
         <p className="modern-eyebrow">A little care, delivered</p>
         <h2>Your garden week, in your inbox</h2>
         <p>
           Plant priorities, seasonal reminders, and a gentle nudge to step
           outside.
         </p>
-      </div>
+      </div>}
       {guest ? (
         <p className="seasonal-muted">
           Weekly email is available with an account. Your guest calendar stays
@@ -143,7 +145,7 @@ export default function WeeklyEmail({
             onClick={load}
             disabled={busy}
           >
-            Weekly email settings
+            Subscribe by email
           </button>
           <button
             type="button"
@@ -155,9 +157,10 @@ export default function WeeklyEmail({
           </button>
         </div>
       )}
+      {compact && <p className="seasonal-muted mt-2 max-w-sm text-sm">Receive your weekly garden tasks, plant care instructions, and upcoming work by email.</p>}
       {!open && message && <p role="status">{message}</p>}
       {open && (
-        <Dialog title="Weekly garden emails" onClose={() => setOpen(false)}>
+        <Dialog title="Email subscription" onClose={() => setOpen(false)}>
           <div className="weekly-settings">
             {busy && !settings && (
               <p role="status">Loading email preferences…</p>
@@ -227,7 +230,7 @@ export default function WeeklyEmail({
                   onClick={save}
                   disabled={busy || (enabled && (!settings.ready || !chosen))}
                 >
-                  {busy ? "Saving…" : "Save email preferences"}
+                  {busy ? "Saving…" : "Save subscription"}
                 </button>
               </>
             )}
