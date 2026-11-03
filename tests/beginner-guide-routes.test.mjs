@@ -87,10 +87,26 @@ test('each lesson has a distinct existing contextual illustration and a short he
     const visual = visuals[guide.id];
     assert.equal(visual.stepTitles.length, guide.steps.length);
     assert.ok(visual.stepTitles.every(title => title.length > 8 && title.length < 60));
-    assert.match(visual.image.src, /^\/[a-z0-9/-]+\.webp$/);
+    assert.match(visual.image.src, /^\/[a-z0-9/-]+\.(?:webp|png)$/);
     assert.ok(statSync(new URL('../public' + visual.image.src, import.meta.url)).size > 1000);
     assert.ok(visual.image.width > 0 && visual.image.height > 0 && visual.image.alt.length > 35);
   }
+});
+
+test('first four lessons use native-sized topic artwork while planting and care keep their existing illustrations', () => {
+  const visuals = presentation.beginnerGuidePresentation;
+  for (const id of ['space', 'timing', 'soil', 'essentials']) {
+    const image = visuals[id].image;
+    assert.equal(image.src, `/beginner-guide-art/${id}.png`);
+    const bytes = readFileSync(new URL('../public' + image.src, import.meta.url));
+    assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
+    assert.equal(bytes.readUInt32BE(16), image.width);
+    assert.equal(bytes.readUInt32BE(20), image.height);
+    assert.ok(image.width >= 1024 && image.height >= 1024);
+  }
+  assert.equal(visuals.planting.image.src, '/interiors/vault.webp');
+  assert.equal(visuals.care.image.src, '/flower-guides/care.webp');
+  assert.match(visuals.timing.image.alt, /not a zone map or planting calendar/);
 });
 
 test('standalone pages add artwork, skimmable cards and a true current-step path without changing popup presentation', () => {

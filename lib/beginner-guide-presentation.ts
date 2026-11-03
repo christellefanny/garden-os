@@ -8,22 +8,22 @@ export type BeginnerGuidePresentation = {
 export const beginnerGuidePresentation: Record<string, BeginnerGuidePresentation> = {
   space: {
     label: 'Space',
-    image: { src: '/layout-inspiration/courtyard-open-entry.webp', alt: 'Watercolor of two raised beds and terracotta containers beside a clear garden path', width: 900, height: 900 },
+    image: { src: '/beginner-guide-art/space.png', alt: 'Watercolor of wooden raised beds, containers and fabric grow bags in varied heights and materials', width: 1536, height: 1024 },
     stepTitles: ['Watch the light', 'Match plants to sunlight', 'Choose your growing space', 'Keep your first project small'],
   },
   timing: {
     label: 'Timing',
-    image: { src: '/flower-guides/seasonal.webp', alt: 'Watercolor of flowering bulbs, a seedling tray, a trowel and an open garden notebook', width: 1536, height: 1024 },
+    image: { src: '/beginner-guide-art/timing.png', alt: 'Artistic watercolor transition from a cold-winter garden to a mild-winter garden, not a zone map or planting calendar', width: 1536, height: 1024 },
     stepTitles: ['Find your winter hardiness zone', 'A cold-winter garden: Zone 4', 'A mild-winter garden: Zone 10', 'Look up your local frost dates', 'Match the plant to the window'],
   },
   soil: {
     label: 'Soil',
-    image: { src: '/container-art/terracotta.webp', alt: 'Illustrated terracotta container filled with dark growing mix', width: 640, height: 599 },
+    image: { src: '/beginner-guide-art/soil.png', alt: 'Watercolor comparison of loose garden soil, fibrous potting mix with white perlite, and sandy soil', width: 1536, height: 1024 },
     stepTitles: ['Give containers the right mix', 'Let excess water escape', 'Test the soil in your beds', 'Check what the test includes'],
   },
   essentials: {
     label: 'Essentials',
-    image: { src: '/interiors/tasks.webp', alt: 'Watercolor of a watering can, hand trowel and potted herb', width: 900, height: 600 },
+    image: { src: '/beginner-guide-art/essentials.png', alt: 'Watercolor of a small wooden growing bed, practical garden tools and a modest seed-starting tray', width: 1536, height: 1024 },
     stepTitles: ['Your two-pot starter list', 'Work out how much mix to buy', 'Choose seeds or garden-ready plants', 'Adjust the list for a bed', 'Keep your tools simple', 'What can wait'],
   },
   planting: {
