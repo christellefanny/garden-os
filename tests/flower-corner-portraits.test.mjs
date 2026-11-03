@@ -27,11 +27,11 @@ test('individual exact-match artwork is preferred over sprite cells without inve
  const {exports}=await loadPortrait();
  for(const profile of flowerCornerProfiles){
   const native=exports.getNativeCornerPortrait(profile);
-  if(native){assert.ok(existsSync('public'+native.src),profile.id);assert.ok(native.width>=640,profile.id);assert.ok(native.height>=640,profile.id);}
+  if(native){assert.ok(existsSync('public'+native.src),profile.id);assert.ok(native.width>=512,profile.id);assert.ok(native.height>=512,profile.id);}
   else{const name=profile.artName||profile.name;const art=flowerArt.getFlowerGardenArt(name)||vaultArt.getVaultBotanicalArt(name,profile.artVariety||'');assert.ok(art,profile.id);assert.ok(existsSync('public'+art.src),profile.id);}
   if(flowerCornerArt[profile.id])assert.equal(native,flowerCornerArt[profile.id],profile.id);
  }
- const dahlia=flowerCornerProfiles.find(profile=>profile.id==='dahlias');assert.equal(exports.getNativeCornerPortrait(dahlia).src,'/cut-flowers/dahlias.webp');
+ const dahlia=flowerCornerProfiles.find(profile=>profile.id==='dahlias');assert.equal(exports.getNativeCornerPortrait(dahlia).src,'/layout-inspiration/dahlia-transparent.webp');
  const hosta=flowerCornerProfiles.find(profile=>profile.id==='hosta');assert.equal(exports.getNativeCornerPortrait(hosta),null);
 });
 
@@ -46,11 +46,29 @@ test('guide native portraits grow to450px while cards stay300px and sprites neve
  const source=read('components/FlowerCornerPortrait.tsx');assert.match(source,/quality=\{90\}/);assert.match(source,/unoptimized/);assert.match(source,/width=\{1254\} height=\{1254\}/);assert.doesNotMatch(source,/photoUrl|supabase/);
 });
 
-test('failed native portraits safely fall back to capped sprites and then an explicit unavailable state',async()=>{
+test('six exact profile cutouts are512px with real alpha and never masked at their edges',async()=>{
+ const {exports,render}=await loadPortrait();
+ const sharp=(await import('sharp')).default;
+ assert.deepEqual(Object.keys(exports.transparentCornerPortraits).sort(),['alyssum','cosmos','dahlias','lisianthus','snapdragons','zinnias']);
+ for(const [id,path] of Object.entries(exports.transparentCornerPortraits)){
+  const profile=flowerCornerProfiles.find(p=>p.id===id),native=exports.getNativeCornerPortrait(profile);
+  assert.equal(native.src,path);assert.equal(native.width,512);assert.equal(native.height,512);
+  const metadata=await sharp('public'+path).metadata();assert.equal(metadata.width,512);assert.equal(metadata.height,512);assert.equal(metadata.hasAlpha,true);
+  const stats=await sharp('public'+path).stats();assert.equal(stats.channels[3].min,0);assert.equal(stats.channels[3].max,255);
+  const html=render(profile,'guide');assert.match(html,/data-art-background="transparent"/);assert.match(html,/max-width:450px/);
+ }
+ const css=read('app/globals.css');assert.match(css,/\[data-art-background="transparent"\] \.corner-portrait-image\{mask-image:none/);
+ assert.match(css,/\[data-art-background="paper"\] \.corner-portrait-image\{mask-image:radial-gradient\(ellipse/);
+});
+
+test('failed transparent portraits fall back to individual paintings, capped sprites, then an unavailable state',async()=>{
  const dahlia=flowerCornerProfiles.find(profile=>profile.id==='dahlias');
- const failedNative=await loadPortrait(['/cut-flowers/dahlias.webp']);const fallback=failedNative.render(dahlia,'guide');
- assert.match(fallback,/data-art-kind="sprite"/);assert.match(fallback,/max-width:313px/);assert.match(fallback,/Watercolor illustration of Dahlias/);
- const sprite=flowerArt.getFlowerGardenArt('Dahlias');const allFailed=await loadPortrait(['/cut-flowers/dahlias.webp',sprite.src]);
+ const transparent='/layout-inspiration/dahlia-transparent.webp',paper='/cut-flowers/dahlias.webp';
+ const failedCutout=await loadPortrait([transparent]);const paperFallback=failedCutout.render(dahlia,'guide');
+ assert.match(paperFallback,/src="\/cut-flowers\/dahlias.webp"/);assert.match(paperFallback,/data-art-background="paper"/);assert.match(paperFallback,/max-width:450px/);
+ const failedNative=await loadPortrait([transparent,paper]);const spriteFallback=failedNative.render(dahlia,'guide');
+ assert.match(spriteFallback,/data-art-kind="sprite"/);assert.match(spriteFallback,/max-width:313px/);assert.match(spriteFallback,/Watercolor illustration of Dahlias/);
+ const sprite=flowerArt.getFlowerGardenArt('Dahlias');const allFailed=await loadPortrait([transparent,paper,sprite.src]);
  assert.match(allFailed.render(dahlia,'guide'),/Illustration unavailable/);
 });
 
