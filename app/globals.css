@@ -2283,3 +2283,48 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 @media(max-width:700px){.corner-filter-controls{display:grid;grid-template-columns:1fr;}}
 .corner-lifecycle{font-size:13px;color:var(--muted);max-width:680px;}
 .corner-lifecycle strong{display:block;color:var(--foreground);margin-bottom:4px;}
+
+/* Public welcome: one quiet, edge-blended image beneath the complete story. */
+.landing-garden-hero {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 620px;
+  background: var(--background);
+  overflow: hidden;
+}
+.landing-garden-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--hero-photo) 62% center / cover no-repeat;
+  mask-image: linear-gradient(to right, #0000 0%, #0002 30%, #0006 65%, #000 100%),
+    linear-gradient(to bottom, #0000 0%, #000 12%, #000 82%, #0000 100%);
+  mask-composite: intersect;
+}
+.landing-garden-copy {
+  position: relative;
+  padding: 32px 0 64px;
+}
+.landing-garden-copy > p,
+.landing-garden-season {
+  max-width: 76%;
+}
+.landing-garden-copy .seasonal-muted {
+  color: var(--foreground);
+}
+.landing-garden-season {
+  padding-top: 12px;
+}
+@media (max-width: 639px) {
+  .landing-garden-hero { min-height: 0; }
+  .landing-garden-copy { padding: 20px 0 56px; }
+  .landing-garden-copy > p,
+  .landing-garden-season { max-width: 90%; }
+  .landing-garden-art {
+    background-position: 66% center;
+    mask-image: linear-gradient(to right, #0000 0%, #0001 35%, #0004 75%, #0007 100%),
+      linear-gradient(to bottom, #0000 0%, #000 16%, #000 84%, #0000 100%);
+  }
+}

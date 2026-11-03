@@ -8,7 +8,7 @@ const illustrations: Record<string, { src: string; column?: number; row?: number
   'leaf-lettuce': { src: '/planting-now/lettuce.webp' },
   'spring-radish': { src: '/planting-now/radish.webp' },
   'bush-snap-bean': { src: '/planting-now/beans.webp' },
-  'compact-cherry-tomato': { src: '/planting-now/tomato.webp' },
+  'slicing-tomato': { src: '/planting-now/tomato.webp' },
   'french-marigold': { src: '/plant-vault/illustrated-collection-5.webp', column: 0, row: 0 },
   'bush-nasturtium': { src: '/plant-vault/illustrated-collection-5.webp', column: 2, row: 1 },
   'sweet-alyssum': { src: '/planting-now/alyssum.webp' },

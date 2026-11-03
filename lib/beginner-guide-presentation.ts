@@ -13,7 +13,7 @@ export const beginnerGuidePresentation: Record<string, BeginnerGuidePresentation
   },
   timing: {
     label: 'Timing',
-    image: { src: '/beginner-guide-art/timing.png', alt: 'Artistic watercolor transition from a cold-winter garden to a mild-winter garden, not a zone map or planting calendar', width: 1536, height: 1024 },
+    image: { src: '/beginner-guide-art/timing.png', alt: 'Watercolor of two planted gardens blending from hardy perennials to tropical flowers and foliage, not a zone map or planting calendar', width: 1536, height: 1024 },
     stepTitles: ['Find your winter hardiness zone', 'A cold-winter garden: Zone 4', 'A mild-winter garden: Zone 10', 'Look up your local frost dates', 'Match the plant to the window'],
   },
   soil: {

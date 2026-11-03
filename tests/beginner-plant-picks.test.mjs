@@ -81,3 +81,21 @@ test('pepper and basil have distinct useful harvest guidance and honest companio
     assert.match(html, /src="\/planting-now\/basil.webp"/);
   }
 });
+
+
+test('regular slicing tomato replaces cherry tomato in both reading surfaces', () => {
+  const tomato = plants.BEGINNER_PLANTS.find(p => p.id === 'slicing-tomato');
+  assert.equal(tomato.name, 'Slicing tomato');
+  assert.match(tomato.start, /bush \(determinate\)/);
+  assert.match(tomato.start, /sturdy cage/);
+  assert.match(tomato.spacing, /24–30 in/);
+  assert.match(tomato.container, /10 gallons or larger/);
+  assert.match(tomato.timeToReward, /65–90 days after transplanting/);
+  assert.ok(!plants.BEGINNER_PLANTS.some(p => /cherry/i.test(p.name)));
+  for (const mode of ['page', 'dialog']) {
+    const html = renderToStaticMarkup(React.createElement(Picks, { mode }));
+    assert.match(html, /Slicing tomato/);
+    assert.match(html, /src="\/planting-now\/tomato.webp"/);
+    assert.doesNotMatch(html, /Compact cherry tomato|Terenzo/);
+  }
+});
