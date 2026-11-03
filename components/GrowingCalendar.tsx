@@ -20,7 +20,6 @@ import WeeklyBriefing from "@/components/WeeklyBriefing";
 import type { Garden } from "@/lib/garden";
 import BotanicalCalendar from "@/components/BotanicalCalendar";
 
-import WeeklyEmail from "@/components/WeeklyEmail";
 import PhoneReminders from "@/components/PhoneReminders";
 export default function GrowingCalendar({
   userId,
@@ -216,13 +215,7 @@ export default function GrowingCalendar({
         </div>
         {!!focus.review.length && <details className="mt-5 border-t pt-4"><summary className="cursor-pointer text-sm font-semibold">Review earlier tasks · {focus.review.length}</summary><p className="seasonal-muted my-3 text-sm">These dates have passed. Check whether each task still applies, then reschedule it or mark it not needed. A past date alone does not mean a plant is at risk.</p><CalendarTaskCards options={options} tasks={focus.review} onOpen={setDetailId} /></details>}
       </section>
-      <details className="mb-5"><summary className="cursor-pointer text-sm font-semibold">Weekly email settings</summary>
-      <WeeklyEmail
-        guest={userId === "guest"}
-        gardens={gardens}
-        gardenId={garden?.id || ""}
-      />
-      </details>
+
       <details className="mb-5"><summary className="cursor-pointer text-sm font-semibold">Planning overview & frost dates</summary>
       <InteriorStats
         items={[

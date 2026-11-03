@@ -192,9 +192,8 @@ try {
     "2 tasks",
   );
   await page.getByRole("dialog").getByRole("button", { name: "Close dialog", exact: true }).click();
-  await page.locator("summary").filter({ hasText: /^Weekly email settings$/ }).click();
   await page
-    .getByRole("button", { name: "Weekly email settings", exact: true })
+    .getByRole("button", { name: "Subscribe by email", exact: true })
     .click();
   await page
     .getByText("Email delivery isn’t connected yet.", { exact: false })
