@@ -37,19 +37,19 @@ export default function WeeklyEmail({
     [enabled, setEnabled] = useState(false),
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
-  async function request(method: "GET" | "POST", test = false) {
+  async function request(method: "GET" | "POST") {
     const { data } = await supabase.auth.getSession();
     if (!data.session)
       throw new Error("Sign in again to manage weekly emails.");
     const response = await fetch(
-      test ? "/api/weekly-email/test" : "/api/weekly-email",
+      "/api/weekly-email",
       {
         method,
         headers: {
           Authorization: `Bearer ${data.session.access_token}`,
           "Content-Type": "application/json",
         },
-        ...(method === "POST" && !test
+        ...(method === "POST"
           ? {
               body: JSON.stringify({
                 enabled,
@@ -106,22 +106,6 @@ export default function WeeklyEmail({
       setBusy(false);
     }
   }
-  async function sendTest() {
-    setBusy(true);
-    setMessage("");
-    try {
-      const result = await request("POST", true);
-      setMessage(result.message);
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Could not send the test email.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
     <section className={compact ? "email-subscription" : "calendar-email-card seasonal-card"}>
       {!compact && <div>
@@ -147,14 +131,7 @@ export default function WeeklyEmail({
           >
             Subscribe by email
           </button>
-          <button
-            type="button"
-            className="seasonal-outline"
-            onClick={sendTest}
-            disabled={busy}
-          >
-            {busy ? "Please wait…" : "Send test email"}
-          </button>
+
         </div>
       )}
       {compact && <p className="seasonal-muted mt-2 max-w-sm text-sm">Receive your weekly garden tasks, plant care instructions, and upcoming work by email.</p>}
