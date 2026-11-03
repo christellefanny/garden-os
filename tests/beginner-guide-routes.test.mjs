@@ -8,6 +8,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as learning from '../lib/garden-learning.ts';
 import * as presentation from '../lib/beginner-guide-presentation.ts';
+import * as plants from '../lib/beginner-plants.ts';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const require = createRequire(import.meta.url);
@@ -22,7 +23,13 @@ const MockDialog = ({ title, children }) => React.createElement('section', { rol
 const MockSources = compile('components/LearningSources.tsx').default;
 const progressCalls = [];
 const moduleStyles = new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) });
+const PlantPicks = compile('components/BeginnerPlantPicks.tsx', {
+  'next/image': ({ src, alt }) => React.createElement('img', { src, alt }),
+  '@/lib/beginner-plants': plants,
+  './BeginnerPlantPicks.module.css': moduleStyles,
+}).default;
 const articleMocks = {
+  '@/components/BeginnerPlantPicks': PlantPicks,
   'next/image': ({ src, alt, width, height }) => React.createElement('img', { src, alt, width, height }),
   '@/lib/beginner-guide-presentation': presentation,
   '@/components/BeginnerGuidePage.module.css': moduleStyles,
@@ -133,7 +140,9 @@ test('standalone pages add artwork, skimmable cards and a true current-step path
     assert.equal(nodes.filter(node => node.props.className === 'checklistPanel').length, 1);
     assert.equal(nodes.filter(node => node.props.className === 'mistake').length, 1);
     const popup = renderToStaticMarkup(React.createElement(Article, { guide, userId: 'guest', mode: 'dialog' }));
-    assert.doesNotMatch(popup, /<img|Six-step learning path|class="hero"|class="stepCard"|data-topic=/);
+    assert.doesNotMatch(popup, /Six-step learning path|class="hero"|class="stepCard"|data-topic=/);
+    if (guide.id !== 'planting') assert.doesNotMatch(popup, /<img/);
+    else assert.equal((popup.match(/<details /g) || []).length, 8);
     assert.match(popup, /class="learning-article learning-modal-article"/);
   }
 });
@@ -345,4 +354,18 @@ test('return links use fixed local destinations, and only an explicit guest retu
   }
   const source = read('components/BeginnerGuideArticle.tsx'); assert.match(source, /href="\/\?view=garden-layout"/);
   assert.doesNotMatch(source, /window\.open|searchParams|returnTo|localStorage/);
+});
+
+ test('plant suggestions appear only in step five between advice and review in both modes', () => {
+  for (const guide of learning.beginnerGuides) for (const mode of ['page', 'dialog']) {
+    const html = renderToStaticMarkup(React.createElement(Article, { guide, mode, userId: 'guest' }));
+    if (guide.id !== 'planting') { assert.doesNotMatch(html, /beginner-plants-heading/); continue; }
+    assert.equal((html.match(/data-plant=/g) || []).length, 8);
+    const position = html.indexOf('id="beginner-plants-heading"');
+    const lastStep = renderToStaticMarkup(React.createElement('span', {}, guide.steps.at(-1))).slice(6, -7);
+    assert.ok(position > html.indexOf(lastStep));
+    assert.ok(position < html.indexOf('A common mistake'));
+    assert.ok(position < html.indexOf('Before moving on'));
+    assert.doesNotMatch(html, /role="dialog"/);
+  }
 });

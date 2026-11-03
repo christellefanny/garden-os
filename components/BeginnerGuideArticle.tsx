@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import LearningSources from '@/components/LearningSources';
+import BeginnerPlantPicks from '@/components/BeginnerPlantPicks';
 import { useLearningProgress } from '@/components/useLearningProgress';
 import { beginnerGuides, type GardenGuide } from '@/lib/garden-learning';
 import { beginnerGuidePresentation } from '@/lib/beginner-guide-presentation';
@@ -68,6 +69,7 @@ export default function BeginnerGuideArticle({ guide, userId, mode, identityMess
     <ol className={page ? styles.steps : undefined} role={page ? 'list' : undefined}>{guide.steps.map((step, stepIndex) => <li className={page ? styles.stepCard : undefined} key={step}>
       {page ? <><div className={styles.cardTop}><span className={styles.cardNumber} aria-hidden="true">{String(stepIndex + 1).padStart(2, '0')}</span><h3>{presentation.stepTitles[stepIndex]}</h3></div><p>{step}</p></> : step}
     </li>)}</ol>
+    {guide.id === 'planting' && <BeginnerPlantPicks mode={mode} />}
     <div className={page ? styles.review : undefined}>
       <div className={page ? styles.mistake : 'learning-note'}><SectionHeading>A common mistake</SectionHeading><p>{guide.mistake}</p></div>
       <section className={page ? styles.checklistPanel : undefined} aria-labelledby="beginner-checklist-heading">
