@@ -7,6 +7,7 @@ export default function TrafficAnalytics() {
     <Analytics
       beforeSend={(event) => {
         const url = new URL(event.url);
+        if (url.pathname === "/owner" || url.pathname.startsWith("/owner/")) return null;
         // Keep account links and garden details out of traffic reports.
         url.search = "";
         url.hash = "";
