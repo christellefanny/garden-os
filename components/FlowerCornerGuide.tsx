@@ -26,9 +26,9 @@ export default function FlowerCornerGuide({ profile, returnTo = '/flower-corner'
   const sources = [...profile.sources, ...(classification?.sourceUrls || []).filter(url=>!profile.sources.some(source=>source.url===url)).map(url=>({title:"Life-cycle reference",url}))];
   return <article className="interior-page flower-corner corner-guide-page">
     <nav aria-label="Plant guide navigation"><Link className="seasonal-outline" href={safeFlowerCornerReturn(returnTo)}>← Back to Library</Link></nav>
-    <header className="corner-guide-header grid gap-6 py-6 sm:grid-cols-[minmax(0,1fr)_minmax(180px,280px)]">
-      <div><p className="modern-eyebrow">Flower Corner</p><h1>{profile.name}</h1><p><em>{profile.botanical}</em></p>{classification&&<p className="corner-lifecycle"><strong>{classification.label}</strong><span>{classification.note}</span></p>}<p>{profile.summary}</p></div>
-      <div className="mx-auto w-full max-w-[280px]"><FlowerCornerPortrait profile={profile} /></div>
+    <header className="corner-guide-header">
+      <div className="corner-guide-portrait"><FlowerCornerPortrait profile={profile} variant="guide" /></div>
+      <div className="corner-guide-copy"><p className="modern-eyebrow">Flower Corner</p><h1>{profile.name}</h1><p className="corner-guide-botanical"><em>{profile.botanical}</em></p><p className="corner-guide-summary">{profile.summary}</p>{classification&&<p className="corner-lifecycle"><strong>{classification.label}</strong><span>{classification.note}</span></p>}</div>
     </header>
     <div className="corner-profile">
       <Facts title="The right place" items={[["Light", profile.light], ["Water", profile.water], ["Spacing", profile.spacing], ["Mature size", profile.matureSize]]} />
@@ -42,7 +42,7 @@ export default function FlowerCornerGuide({ profile, returnTo = '/flower-corner'
     </div>
     <Link className="seasonal-outline" href={safeFlowerCornerReturn(returnTo)}>← Back to Library</Link>
     {extra && <Dialog title="About this growing guide" onClose={() => setExtra(null)}>
-      <article className="corner-profile"><p>This public guide summarizes horticultural sources for home gardeners.</p><p>Seed germination, transplant readiness and first flowering describe different stages. Bulbs, divisions and named cultivars may need a different growing route from seed.</p><p>Illustrations are representative artwork, not identification tools. The care drawings are simplified schematics; check the botanical name, cultivar and accompanying instructions before making a cut.</p><p>Sources were reviewed {profile.reviewed}. Follow the source links on the page for more detail and regional context.</p></article>
+      <article className="corner-profile"><p>This public guide summarizes horticultural sources for home gardeners.</p><p>Seed germination, transplant readiness and first flowering describe different stages. Bulbs, divisions and named cultivars may need a different growing route from seed.</p><p>Illustrations are representative artwork, not identification tools. The care illustrations show botanical examples; follow the instructions for your species and cultivar before making a cut.</p><p>Sources were reviewed {profile.reviewed}. Follow the source links on the page for more detail and regional context.</p></article>
     </Dialog>}
   </article>;
 }

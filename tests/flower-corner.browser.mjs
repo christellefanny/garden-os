@@ -21,6 +21,14 @@ try{
   await page.setViewportSize({width,height:844});
   await page.goto(origin+'/flower-corner');
   await page.getByRole('heading',{name:'Flower Corner',exact:true}).waitFor();
+  assert.equal(await page.locator('.corner-hero').evaluate(element=>getComputedStyle(element).borderTopWidth),'0px');
+  assert.equal(await page.locator('.corner-filters').evaluate(element=>getComputedStyle(element).borderTopWidth),'0px');
+  const filterBounds=await filterToggle().boundingBox();assert.ok(filterBounds.width<220);
+  if(width>700)assert.ok(filterBounds.height<=40);else assert.ok(filterBounds.height>=44);
+  if(width<=700){
+   const copy=await page.locator('.corner-hero-copy').boundingBox(),art=await page.locator('.corner-hero-art').boundingBox();
+   assert.ok(art.y>=copy.y+copy.height-2,'mobile artwork must sit below the title, not behind it');
+  }
   await revealFilters();
   await page.getByRole('searchbox',{name:'Search the Library'}).fill('hosta');
   await page.getByRole('combobox',{name:'Plant kind',exact:true}).selectOption('foliage');
@@ -52,6 +60,11 @@ try{
   const guide=await openProfile(imageLink,'statice');
   await guide.setViewportSize({width,height:844});
   await guide.getByRole('heading',{name:'Statice',exact:true}).waitFor();
+  const portrait=guide.locator('.corner-guide-portrait .corner-original-portrait');
+  assert.equal(await portrait.getAttribute('data-art-kind'),'individual');
+  assert.equal(await portrait.evaluate(element=>getComputedStyle(element).maxWidth),'450px');
+  const portraitBounds=await portrait.boundingBox();assert.ok(portraitBounds.width<=450);
+  if(width>1000){assert.ok(portraitBounds.width>=400);const copy=await guide.locator('.corner-guide-copy').boundingBox();assert.ok(copy.x>=portraitBounds.x+portraitBounds.width-1);assert.ok(copy.x-portraitBounds.x-portraitBounds.width<=30);}
   assert.equal(page.url(),libraryUrl);
   assert.equal(await page.getByRole('searchbox',{name:'Search the Library'}).inputValue(),'statice');
   const task=guide.locator('.floating-add-task');

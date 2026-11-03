@@ -92,3 +92,12 @@ test('server route supports direct refresh for each ID and rejects unknown IDs',
  }
  await assert.rejects(exports.default({params:Promise.resolve({plantId:'not-a-plant'}),searchParams:Promise.resolve({})}),/NOT_FOUND/);
 });
+
+
+test('guide header places large native artwork directly beside its semantic title',()=>{
+ const source=read('components/FlowerCornerGuide.tsx'),css=read('app/globals.css');
+ assert.match(source,/className="corner-guide-portrait"><FlowerCornerPortrait profile=\{profile\} variant="guide"/);
+ assert.match(source,/className="corner-guide-copy"/);assert.doesNotMatch(source,/max-w-\[280px\]/);
+ assert.match(css,/\.corner-guide-header\{display:grid;grid-template-columns:minmax\(0,450px\)/);
+ assert.match(source,/care illustrations show botanical examples/);assert.doesNotMatch(source,/care drawings are simplified schematics/);
+});

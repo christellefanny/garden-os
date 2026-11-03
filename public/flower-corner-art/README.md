@@ -38,3 +38,9 @@ Taxa follow the corresponding Garden Atelier library profiles and their cited ho
 
 Care-technique visuals are intentionally separate code-native SVG schematics so cut locations and conditional species guidance can remain explicit and editable. No raster care diagram is included here.
 
+
+## Blended landing illustration
+
+`hero-blended.png` (1536 × 1024) was generated on 2026-11-03 using the app’s existing spring garden artwork as a style reference. It is a new composition with crisp flowers on the right and quiet ivory negative space on the upper left for HTML text. The original generated pixels are retained. It contains no interface text or private garden photographs.
+
+Prompt summary: detailed botanical watercolor of pink blossom, alliums, daffodils and grape hyacinths; natural irregular watercolor edges blend into pale ivory paper, clear upper-left text area, no words, UI or borders. This artwork is decorative, not a planting combination or plant-identification claim.

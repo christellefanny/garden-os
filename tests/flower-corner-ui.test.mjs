@@ -22,7 +22,7 @@ test('public library consolidates sourced profiles and linked care techniques',(
  assert.match(ui,/FlowerCornerPortrait/);
 });
 
-async function loadUI({section='Library',techniques=false,filters=null,filtersOpen=false}={}){
+async function loadUI({section='Library',techniques=false,filters=null,filtersOpen=false,heroUnavailable=false}={}){
  const React=await import('react');
  const {renderToStaticMarkup}=await import('react-dom/server');
  const {createRequire}=await import('node:module');
@@ -34,7 +34,7 @@ async function loadUI({section='Library',techniques=false,filters=null,filtersOp
  const navigation=await import('../lib/flower-corner-navigation.ts');
  const require=createRequire(import.meta.url),exports={};
  let stateIndex=0;
- const state=[section,filters??navigation.defaultFlowerCornerFilters,filtersOpen,'/flower-corner',techniques];
+ const state=[section,filters??navigation.defaultFlowerCornerFilters,filtersOpen,'/flower-corner',techniques,heroUnavailable];
  const js=ts.default.transpileModule(read('components/FlowerCorner.tsx'),{compilerOptions:{jsx:ts.default.JsxEmit.ReactJSX,module:ts.default.ModuleKind.CommonJS,target:ts.default.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
  vm.default.runInNewContext(js,{exports,URLSearchParams,require:id=>{
   if(id==='react')return {...React,useState:()=>[state[stateIndex++],()=>{}]};
@@ -152,4 +152,14 @@ test('Filters control exposes a grouped panel, active count, reset and clear emp
  assert.match(html,/0 plants match your filters/);assert.match(html,/No plants match all your filters/);assert.match(html,/Clear all filters/);
  const closed=await loadUI();const closedHtml=closed.renderToStaticMarkup(closed.React.createElement(closed.exports.default));
  assert.match(closedHtml,/aria-expanded="false"/);assert.match(closedHtml,/hidden=""/);assert.doesNotMatch(closedHtml,/Reset filters|Clear all filters/);
+});
+
+
+test('the hub uses a blended real hero image, compact inline Filters and no enclosing band',async()=>{
+ const {React,renderToStaticMarkup,exports}=await loadUI();const html=renderToStaticMarkup(React.createElement(exports.default));
+ assert.match(html,/src="\/flower-corner-art\/hero-blended.png"/);assert.match(html,/class="corner-hero-copy"/);
+ assert.match(html,/class="corner-section-heading"/);assert.match(html,/class="corner-filter-toggle"/);assert.match(html,/class="corner-filters" aria-label="Filter the Library"/);
+ assert.doesNotMatch(html,/corner-filters my-6|corner-filters[^\"]*border|corner-filters[^\"]*rounded/);
+ const fallback=await loadUI({heroUnavailable:true});assert.match(fallback.renderToStaticMarkup(fallback.React.createElement(fallback.exports.default)),/src="\/flower-botanical-spring.webp"/);
+ const css=read('app/globals.css');assert.match(css,/\.corner-filter-toggle\{[^}]*min-height:38px/);assert.match(css,/\.corner-filters\{[^}]*border:0/);assert.match(css,/mix-blend-mode:multiply/);
 });

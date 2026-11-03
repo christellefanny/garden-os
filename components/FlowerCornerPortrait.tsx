@@ -2,32 +2,48 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { flowerCornerArt } from "@/lib/flower-corner-art";
+import { flowerCornerArt, type FlowerCornerArt } from "@/lib/flower-corner-art";
 import { getFlowerGardenArt } from "@/lib/flower-garden-art";
 import { getVaultBotanicalArt } from "@/lib/vault-botanical-art";
 import type { FlowerCornerProfile } from "@/lib/flower-corner-library";
 
-/** Keep the loved watercolor plates at their original quality. Most plates have
- * four columns: a 1254px source contains only ~313px of detail per plant. */
-export default function FlowerCornerPortrait({ profile }: { profile: FlowerCornerProfile }) {
-  const [failed, setFailed] = useState(false);
-  const name = profile.artName || profile.name;
+/** Prefer a verified individual image, never an enlarged cell from a sprite sheet. */
+export function getNativeCornerPortrait(profile: FlowerCornerProfile): FlowerCornerArt | null {
   const original = flowerCornerArt[profile.id];
+  if (original) return original;
+  const name = profile.artName || profile.name;
+  if (!getFlowerGardenArt(name)) return null;
+  return {
+    src: `/cut-flowers/${name.toLowerCase().replaceAll("'", "").replaceAll(" ", "-")}.webp`,
+    width: 640,
+    height: 640,
+    alt: `Representative botanical watercolor of ${name.toLowerCase()}.`,
+  };
+}
+
+/** A 1254px four-column plate contains only ~313px of detail per plant.
+ * Individual 640px / 1254px images can safely occupy the larger guide header. */
+export default function FlowerCornerPortrait({ profile, variant = "card" }: { profile: FlowerCornerProfile; variant?: "card" | "guide" }) {
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+  const name = profile.artName || profile.name;
+  const individual = getNativeCornerPortrait(profile);
   const flower = getFlowerGardenArt(name);
   const vault = getVaultBotanicalArt(name, profile.artVariety || "");
   const art = flower ? { ...flower, columns: 4 } : vault;
+  const nativeAvailable = individual && !failedSources.includes(individual.src);
+  const spriteAvailable = art && !failedSources.includes(art.src);
+  const maximumWidth = variant === "guide" ? (nativeAvailable ? 450 : 313) : 300;
   const label = `${profile.artVariety ? `${profile.artVariety} ` : ""}${name}`;
-  return <div className="corner-original-portrait" style={{ width: "100%", maxWidth: 300, marginInline: "auto" }}>
-    {original && !failed ? <figure><Image src={original.src} alt={original.alt} width={original.width} height={original.height} sizes="300px" quality={90} className="aspect-square h-auto w-full rounded-xl bg-white object-contain" onError={()=>setFailed(true)}/></figure> : art && !failed ? <>
-      <div role="img" aria-label={`Watercolor illustration of ${label}`}
-        className="relative aspect-square overflow-hidden rounded-xl bg-white"
-        style={{ clipPath: "inset(5.5% round 12px)" }}>
-        <Image src={art.src} alt="" aria-hidden="true" width={1254} height={1254}
-          unoptimized
+  function markFailed(src: string) { setFailedSources(current => [...current, src]); }
+
+  return <div className={`corner-original-portrait corner-original-portrait--${variant}`} data-art-kind={nativeAvailable ? "individual" : "sprite"} style={{ width: "100%", maxWidth: maximumWidth, marginInline: "auto" }}>
+    {nativeAvailable ? <figure><Image src={individual.src} alt={individual.alt} width={individual.width} height={individual.height} sizes={variant === "guide" ? "(max-width:700px) min(90vw, 340px), (max-width:1000px) 40vw, 450px" : "300px"} quality={90} className="corner-portrait-image" onError={() => markFailed(individual.src)} /></figure> : spriteAvailable ? <>
+      <div role="img" aria-label={`Watercolor illustration of ${label}`} className="corner-portrait-sprite" style={{ clipPath: "inset(5.5% round 12px)" }}>
+        <Image src={art.src} alt="" aria-hidden="true" width={1254} height={1254} unoptimized
           style={{ position: "absolute", width: `${art.columns * 100}%`, height: `${art.columns * 100}%`, maxWidth: "none", left: `${-art.column * 100}%`, top: `${-art.row * 100}%` }}
-          onError={() => setFailed(true)} />
+          onError={() => markFailed(art.src)} />
       </div>
-      {profile.artVariety && <p className="seasonal-muted text-xs">Illustration of {profile.artVariety}; other varieties may differ.</p>}
-    </> : <div className="seasonal-muted flex aspect-square items-center justify-center rounded-xl bg-white text-sm">{failed ? "Illustration unavailable" : "No verified illustration yet"}</div>}
+    </> : <div className="corner-portrait-unavailable seasonal-muted">{failedSources.length ? "Illustration unavailable" : "No verified illustration yet"}</div>}
+    {profile.artVariety && (nativeAvailable || spriteAvailable) && <p className="seasonal-muted text-xs">Illustration of {profile.artVariety}; other varieties may differ.</p>}
   </div>;
 }

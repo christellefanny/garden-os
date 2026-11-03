@@ -41,6 +41,7 @@ export default function FlowerCorner() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [returnPath, setReturnPath] = useState("/flower-corner");
   const [techniques, setTechniques] = useState(false);
+  const [heroUnavailable, setHeroUnavailable] = useState(false);
   const filtersId = useId();
   const heading = useRef<HTMLHeadingElement>(null);
   const activeFilters = Number(Boolean(filters.query.trim())) + Number(filters.kind !== "all") + Number(filters.life !== "all") + Number(filters.light !== "all");
@@ -73,18 +74,22 @@ export default function FlowerCorner() {
   }
   const profiles = flowerCornerProfiles.filter(profile => matchesLibraryFilters(profile, filters));
 
-  return <section className="interior-page flower-corner">
-    <header className="corner-hero"><div><p className="modern-eyebrow">A place for everything that blooms — and the foliage around it</p><h1>Flower Corner</h1><p>Find your next favorite. Learn when to plant, how to care for it, and what to bring into a bouquet.</p><p className="corner-public-note">Outdoor guidance for U.S. home gardens. Follow local frost dates, soil conditions and your variety’s instructions; hardiness zones describe winter cold, not planting dates.</p></div><Image src="/flower-botanical-spring.webp" width={650} height={480} alt="Watercolor flowers in a spring garden" sizes="(max-width:700px) 100vw, 40vw" priority /></header>
+  return <section className="interior-page flower-corner corner-hub-page">
+    <header className="corner-hero">
+      <div className={`corner-hero-art${heroUnavailable ? " is-fallback" : ""}`} aria-hidden="true"><Image src={heroUnavailable ? "/flower-botanical-spring.webp" : "/flower-corner-art/hero-blended.png"} fill alt="" sizes="(max-width:700px) 100vw, 1220px" unoptimized priority onError={() => setHeroUnavailable(true)} /></div>
+      <div className="corner-hero-copy"><p className="modern-eyebrow">Flowers · Foliage · Inspiration</p><h1>Flower Corner</h1><p>Find your next favorite. Learn when to plant, how to care for it, and what to bring into a bouquet.</p></div>
+    </header>
     <nav className="corner-sections" aria-label="Flower Corner sections">{sections.map(name => <button type="button" key={name} aria-current={section === name ? "page" : undefined} onClick={() => openSection(name)}>{name}</button>)}</nav>
-    <h2 className="corner-section-title" ref={heading} tabIndex={-1}>{section}</h2>
+    <p className="corner-public-note">Outdoor guidance for U.S. home gardens. Follow local frost dates, soil conditions and your variety’s instructions; hardiness zones describe winter cold, not planting dates.</p>
+    <div className="corner-section-heading">
+      <h2 className="corner-section-title" ref={heading} tabIndex={-1}>{section}</h2>
+      {section === "Library" && <div className="corner-filter-actions">
+        <button type="button" className="corner-filter-toggle" aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(!filtersOpen)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16"/><circle cx="6" cy="5" r="2"/><circle cx="13" cy="10" r="2"/><circle cx="8" cy="15" r="2"/></svg>Filters{activeFilters > 0 && <span> · {activeFilters} active</span>}<span aria-hidden="true">{filtersOpen ? "−" : "+"}</span></button>
+        {activeFilters > 0 && <button type="button" className="corner-filter-reset" onClick={() => updateFilters(defaultFlowerCornerFilters)}>Reset filters</button>}
+      </div>}
+    </div>
     {section === "Library" && <>
-      <p className="corner-intro">Flowers and ornamental foliage, together. Explore planting, everyday care, bouquet use and seed saving for each plant.</p>
-      <button type="button" className="seasonal-outline" aria-haspopup="dialog" onClick={() => setTechniques(true)}>Care techniques: pinching, deadheading &amp; cutting back</button>
-      <section className="corner-filters my-6 rounded-2xl border border-[var(--border)] p-4 sm:p-5" aria-label="Filter the Library">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <button type="button" className="seasonal-outline" aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(!filtersOpen)}>Filters{activeFilters > 0 && <span> · {activeFilters} active</span>} <span aria-hidden="true">{filtersOpen ? "−" : "+"}</span></button>
-          {activeFilters > 0 && <button type="button" className="seasonal-outline" onClick={() => updateFilters(defaultFlowerCornerFilters)}>Reset filters</button>}
-        </div>
+      <section className="corner-filters" aria-label="Filter the Library">
         <div id={filtersId} hidden={!filtersOpen}>
           <div className="learning-toolbar corner-filter-controls">
             <label>Search the Library<input type="search" value={filters.query} maxLength={200} onChange={event => updateFilters({ ...filters, query: event.target.value })} placeholder="Flower, foliage or botanical name…" /></label>
@@ -95,6 +100,7 @@ export default function FlowerCorner() {
           <p className="seasonal-muted text-sm">Filters work together. Annuals also include plants commonly grown for one season, even when botanically perennial.</p>
         </div>
       </section>
+      <div className="corner-library-intro"><p className="corner-intro">Flowers and ornamental foliage, together. Explore planting, everyday care, bouquet use and seed saving for each plant.</p><button type="button" className="corner-care-link" aria-haspopup="dialog" onClick={() => setTechniques(true)}>Care techniques: pinching, deadheading &amp; cutting back <span aria-hidden="true">↗</span></button></div>
       <p role="status" aria-live="polite" aria-atomic="true" className="seasonal-muted">{profiles.length} {profiles.length === 1 ? "plant" : "plants"}{activeFilters > 0 ? (profiles.length === 1 ? " matches your filters" : " match your filters") : " to explore"}</p>
       <div className="corner-library-grid">{profiles.map(profile => <article className="corner-library-card" key={profile.id}>
         <Link href={guideUrl(profile.id)} target="_blank" rel="noopener noreferrer" className="corner-picture-link" aria-label={`Explore ${profile.name} (opens in a new tab)`}><FlowerCornerPortrait profile={profile} /></Link>
