@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     const brief = await generateWeeklyBrief(context);
     const origin = emailOrigin();
     const unsubscribe = `${origin}/api/weekly-email/unsubscribe?token=${encodeURIComponent(unsubscribeToken(auth.user.id, pref.nonce, emailSecret()))}`;
-    const mail = renderWeeklyEmail(brief, origin, unsubscribe);
+    const mail = renderWeeklyEmail(brief, origin, unsubscribe, undefined, pref.firstName);
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {

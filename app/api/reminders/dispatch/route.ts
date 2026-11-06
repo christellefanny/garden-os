@@ -1,4 +1,4 @@
-import { dispatchWeeklyEmails } from "@/lib/weekly-email-server";
+import { dispatchWeeklyEmails, emailDispatchHealthy } from "@/lib/weekly-email-server";
 import { timingSafeEqual } from "node:crypto";
 import {
   adminDatabase,
@@ -27,12 +27,11 @@ export async function GET(request: Request) {
   try {
     email = await dispatchWeeklyEmails();
   } catch {
-    email = { ready: false, sent: 0, failed: 1, skipped: 0 };
+    email = { ready: false, runId: null, sent: 0, failed: 1, skipped: 0, reviewRequired: 1, deferred: 0, reasons: { dispatch_exception: 1 } };
+    console.error("weekly_email_dispatch", email);
   }
   if (!remindersReady())
-    return email.ready
-      ? Response.json({ ok: true, email, phoneReady: false })
-      : setupError();
+    return Response.json({ ok: emailDispatchHealthy(email), email, phoneReady: false }, { status: emailDispatchHealthy(email) ? 200 : 503, headers: { "Cache-Control": "no-store" } });
   const db = adminDatabase(),
     day = localDay();
   const { data, error } = await db
@@ -40,7 +39,13 @@ export async function GET(request: Request) {
     .select("id,user_id,subscription,tasks,last_sent_day")
     .order("id")
     .limit(500);
-  if (error) return setupError();
+  if (error) {
+    const phoneError = await setupError().json();
+    return Response.json(
+      { ...phoneError, ok: false, email, phoneReady: false },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
+  }
   let sent = 0,
     failed = 0,
     weeklySent = 0;
@@ -140,7 +145,7 @@ export async function GET(request: Request) {
     }
   }
   return Response.json(
-    { ok: true, sent, failed, weeklySent, weeklyFailed, email },
-    { headers: { "Cache-Control": "no-store" } },
+    { ok: emailDispatchHealthy(email), sent, failed, weeklySent, weeklyFailed, email },
+    { status: emailDispatchHealthy(email) ? 200 : 503, headers: { "Cache-Control": "no-store" } },
   );
 }

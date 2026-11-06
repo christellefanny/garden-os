@@ -10,7 +10,6 @@ import type {
   BriefAction,
   WeeklyBrief,
 } from "@/lib/weekly-brief";
-import WeeklyEmail from "@/components/WeeklyEmail";
 async function requestBrief(
   gardenId: string,
   signal?: AbortSignal,
@@ -72,13 +71,11 @@ async function requestBrief(
 export default function WeeklyBriefing({
   garden,
   guest = false,
-  gardens,
   options,
   onSave,
 }: {
   garden?: Garden;
   guest?: boolean;
-  gardens: Garden[];
   options: CalendarOptions;
   onSave: (next: CalendarOptions) => boolean;
 }) {
@@ -207,7 +204,6 @@ export default function WeeklyBriefing({
                 ? "Refresh briefing"
                 : "Read this week’s briefing"}
           </button>
-          <WeeklyEmail compact guest={guest} gardens={gardens} gardenId={garden?.id || ""} />
         </div>
       </div>
       {message && <p role="status">{message}</p>}

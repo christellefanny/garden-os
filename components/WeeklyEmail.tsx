@@ -18,7 +18,7 @@ type Settings = {
   email: string;
   confirmed: boolean;
   version: number;
-  preferences: { enabled: boolean; day: number; gardenId: string } | null;
+  preferences: { enabled: boolean; day: number; gardenId: string; firstName?: string } | null;
 };
 export default function WeeklyEmail({
   guest,
@@ -40,6 +40,7 @@ export default function WeeklyEmail({
   const [settings, setSettings] = useState<Settings | null>(null),
     [enabled, setEnabled] = useState(false),
     [email, setEmail] = useState(""),
+    [firstName, setFirstName] = useState(""),
     [day, setDay] = useState(1),
     [chosen, setChosen] = useState(gardenId);
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function WeeklyEmail({
               body: JSON.stringify({
                 enabled,
                 email: email.trim(),
+                firstName: firstName.trim(),
                 day,
                 gardenId: chosen,
                 version: settings?.version || 0,
@@ -103,6 +105,7 @@ export default function WeeklyEmail({
       const value = (await request("GET")) as Settings;
       setSettings(value);
       setEmail(value.preferences?.enabled ? value.email || "" : "");
+      setFirstName(value.preferences?.firstName || "");
       setEnabled(value.preferences?.enabled || false);
       setDay(value.preferences?.day ?? 1);
       setChosen(
@@ -140,7 +143,7 @@ export default function WeeklyEmail({
         : error instanceof Error ? error.message : "Could not send the preview.");
     } finally { setPreviewing(false); }
   }
-  const unsaved = !!settings && (email.trim() !== settings.email || enabled !== (settings.preferences?.enabled || false) || day !== (settings.preferences?.day ?? 1) || chosen !== (settings.preferences?.gardenId || gardenId || gardens[0]?.id || ""));
+  const unsaved = !!settings && (email.trim() !== settings.email || firstName.trim() !== (settings.preferences?.firstName || "") || enabled !== (settings.preferences?.enabled || false) || day !== (settings.preferences?.day ?? 1) || chosen !== (settings.preferences?.gardenId || gardenId || gardens[0]?.id || ""));
   async function save() {
     setBusy(true);
     setMessage("");
@@ -165,7 +168,7 @@ export default function WeeklyEmail({
     }
   }
   return (
-    <section className={compact ? "email-subscription" : "calendar-email-card seasonal-card"}>
+    <section id="weekly-email" aria-label="Weekly garden emails" className={compact ? "email-subscription" : "calendar-email-card seasonal-card"}>
       {!compact && <div>
         <p className="modern-eyebrow">A little care, delivered</p>
         <h2>Your garden week, in your inbox</h2>
@@ -211,6 +214,21 @@ export default function WeeklyEmail({
             )}
             {settings && (
               <>
+                <label>
+                  First name
+                  <input
+                    className="seasonal-input"
+                    type="text"
+                    name="given-name"
+                    autoComplete="given-name"
+                    required={enabled}
+                    maxLength={80}
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                    aria-describedby="email-first-name-help"
+                  />
+                </label>
+                <p id="email-first-name-help">We’ll use this for a little hello at the start of your garden emails.</p>
                 <label>
                   Deliver to
                   <input

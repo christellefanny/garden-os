@@ -15,7 +15,7 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const mapping = {
-  "@/lib/weekly-email-server": "dispatchWeeklyEmails",
+  "@/lib/weekly-email-server": "dispatchWeeklyEmails,emailDispatchHealthy",
   "@/lib/reminders-server":
     "adminDatabase, remindersReady, sendReminder, setupError",
   "@/lib/reminder-groups": "groupReminders",
@@ -35,6 +35,7 @@ async function runFixture({
   due = true,
   fail = false,
   brokenBrief = false,
+  emailFails = false,
 } = {}) {
   const devices = [
     {
@@ -122,7 +123,8 @@ async function runFixture({
     },
   };
   globalThis.__weeklyDispatchTest = {
-    dispatchWeeklyEmails: async () => ({ready:false,sent:0,failed:0,skipped:0}),
+    dispatchWeeklyEmails: async () => ({ready:true,runId:"fixture-run",sent:0,failed:emailFails ? 1 : 0,skipped:0,reviewRequired:0,deferred:0,reasons:{}}),
+    emailDispatchHealthy: result => result.ready && !result.failed && !result.reviewRequired && !result.deferred,
     adminDatabase: () => db,
     remindersReady: () => true,
     setupError: () => Response.json({ error: "setup" }, { status: 503 }),
@@ -222,6 +224,20 @@ test("briefing failure does not break a daily reminder; failed push releases the
     const r = await (await f.request()).json();
     assert.equal(r.failed, 1);
     assert.equal(f.devices[0].last_sent_day, null);
+  } finally {
+    f.restore();
+  }
+});
+test("email failure returns 503 without suppressing independent phone delivery", async () => {
+  const f = await runFixture({ emailFails: true });
+  try {
+    const response = await f.request();
+    assert.equal(response.status, 503);
+    const result = await response.json();
+    assert.equal(result.ok, false);
+    assert.equal(result.email.failed, 1);
+    assert.equal(result.sent, 1);
+    assert.equal(f.sends.length, 1);
   } finally {
     f.restore();
   }

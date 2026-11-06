@@ -6,7 +6,12 @@ export type EmailPreferences = {
   gardenId: string;
   nonce: string;
   email?: string;
+  // Optional so subscriptions created before personalization keep working.
+  firstName?: string;
 };
+export function validFirstName(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= 80 && !/[\p{Cc}\p{Zl}\p{Zp}]/u.test(value);
+}
 export function validDeliveryEmail(value: unknown): value is string {
   return typeof value === "string" && value.length <= 254 && /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value);
 }
@@ -17,6 +22,7 @@ export function validEmailPreferences(
   const p = value as EmailPreferences;
   return (
     (p.email === undefined || validDeliveryEmail(p.email)) &&
+    (p.firstName === undefined || validFirstName(p.firstName)) &&
     typeof p.enabled === "boolean" &&
     Number.isInteger(p.day) &&
     p.day >= 0 &&
@@ -89,7 +95,9 @@ export function renderWeeklyEmail(
   origin: string,
   unsubscribe: string,
   contactEmail = process.env.GARDEN_CONTACT_EMAIL || "",
+  firstName?: string,
 ) {
+  const greeting = validFirstName(firstName) ? `Hello ${firstName.trim()},` : "Hello there,";
   const calendarUrl = `${origin}/?view=calendar&brief=weekly`;
   const preferencesUrl = `${origin}/?view=calendar`;
   const contact = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(
@@ -152,6 +160,7 @@ export function renderWeeklyEmail(
     ["Your saved reminders", brief.savedTasks.slice(0, 5)],
   ];
   const text = [
+    greeting,
     `Garden Atelier · ${dateRange}`,
     `${brief.garden} · ${brief.location}`,
     brief.summary,
@@ -189,6 +198,7 @@ export function renderWeeklyEmail(
 <body style="margin:0;background:#f8f4eb;color:#344a37;font:16px/1.6 Georgia,serif">
 <div style="max-width:600px;margin:auto;padding:30px 24px;word-break:break-word">
   <p style="margin:0 0 24px;text-align:center"><a href="${escape(origin)}"><img src="${escape(origin)}/garden-atelier-logo.png" width="192" height="99" alt="Garden Atelier" style="display:block;width:192px;height:99px;margin:auto;border:0"></a></p>
+  <p style="margin:0 0 20px">${escape(greeting)}</p>
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;border-top:1px solid #ded7c7;border-bottom:1px solid #ded7c7;margin-bottom:22px"><tr>
     <td valign="middle" style="padding:22px 12px 22px 0"><p style="margin:0 0 10px;font:11px/1.6 Arial,sans-serif;letter-spacing:1.5px;color:#65705d">YOUR WEEK IN THE GARDEN</p><h1 style="margin:0;font:30px/1.25 Georgia,serif;font-weight:400">A little care for the week ahead</h1></td>
     <td valign="middle" align="right" width="30%" style="padding:14px 0"><img src="${escape(origin)}/email/${seasonalArt}.jpg" width="120" alt="Seasonal botanical illustration of ${seasonalArt}" style="display:block;width:100%;max-width:120px;height:auto;border:0;border-radius:10px"></td>

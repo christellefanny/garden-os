@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { authenticated } from "@/lib/reminders-server";
 import { emailReady } from "@/lib/weekly-email-server";
-import { emailPreferenceKey, validEmailPreferences, validDeliveryEmail } from "@/lib/weekly-email";
+import { emailPreferenceKey, validEmailPreferences, validDeliveryEmail, validFirstName } from "@/lib/weekly-email";
 const headers = { "Cache-Control": "private, no-store" };
 export async function GET(request: Request) {
   const auth = await authenticated(request);
@@ -32,6 +32,7 @@ export async function GET(request: Request) {
             enabled: data.value.enabled,
             day: data.value.day,
             gardenId: data.value.gardenId,
+            firstName: data.value.firstName || "",
           }
         : null,
       version: data?.version || 0,
@@ -74,6 +75,13 @@ export async function POST(request: Request) {
       { status: 400, headers },
     );
   const email = typeof input.email === "string" ? input.email.trim() : auth.user.email || "";
+  const firstName = typeof input.firstName === "string" ? input.firstName.trim() : "";
+  // Older subscriptions need no backfill. They keep receiving the generic
+  // greeting, and disabling delivery must never require adding a name.
+  if ((input.enabled && !validFirstName(firstName)) ||
+    (input.firstName !== undefined && typeof input.firstName !== "string") ||
+    (firstName && !validFirstName(firstName)))
+    return Response.json({ error: "Enter your first name (up to 80 characters)." }, { status: 400, headers });
   if (!validDeliveryEmail(email))
     return Response.json({ error: "Enter a valid delivery email address." }, { status: 400, headers });
   if (
@@ -108,6 +116,7 @@ export async function POST(request: Request) {
       gardenId: input.gardenId,
       nonce: randomUUID(),
       email,
+      ...(firstName ? { firstName } : {}),
     },
     p_version: input.version,
   });
@@ -126,6 +135,7 @@ export async function POST(request: Request) {
         enabled: input.enabled,
         day: input.day,
         gardenId: input.gardenId,
+        firstName,
       },
       version: data[0].version,
     },

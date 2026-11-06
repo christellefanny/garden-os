@@ -17,6 +17,7 @@ import InteriorHeader, { InteriorStats } from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
 import WeeklyBriefing from "@/components/WeeklyBriefing";
+import WeeklyEmail from "@/components/WeeklyEmail";
 import type { Garden } from "@/lib/garden";
 import BotanicalCalendar from "@/components/BotanicalCalendar";
 
@@ -389,6 +390,7 @@ export default function GrowingCalendar({
           </div>
         </Dialog>
       )}
+      <WeeklyEmail guest={userId === "guest"} gardens={gardens} gardenId={garden?.id || ""} />
       <div className="interior-toolbar calendar-toolbar">
         <button
           aria-pressed={view === "week"}
@@ -537,7 +539,6 @@ export default function GrowingCalendar({
       <WeeklyBriefing
         guest={userId === "guest"}
         garden={garden}
-        gardens={gardens}
         options={options}
         onSave={save}
       />

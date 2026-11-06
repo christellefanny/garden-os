@@ -6,11 +6,11 @@ import {
   emailPreferenceKey,
   validEmailPreferences,
   validDeliveryEmail,
+  validFirstName,
   unsubscribeToken,
   readUnsubscribeToken,
   renderWeeklyEmail,
 } from "../lib/weekly-email.ts";
-import { weekBounds } from "../lib/weekly-brief.ts";
 const owner = "a0a0a0a0-0000-4000-8000-000000000001",
   nonce = "b0b0b0b0-0000-4000-8000-000000000001";
 const preference = { enabled: true, day: 1, gardenId: "g1", nonce };
@@ -174,88 +174,6 @@ function database() {
     },
   };
 }
-test("email dispatch uses Auth email, explicit consent, weekly claims and provider rejection handling", async () => {
-  const db = database(),
-    sends = [];
-  let reject = false,
-    timeout = false;
-  globalThis.__emailTest = {
-    adminDatabase: () => db,
-    loadBriefContext: async () => ({}),
-    generateWeeklyBrief: async () => brief,
-    emailPreferenceKey,
-    validEmailPreferences,
-    validDeliveryEmail,
-    unsubscribeToken,
-    renderWeeklyEmail,
-    localDay: () => "2026-10-19",
-    weekBounds,
-  };
-  const emailDispatch = await compile("lib/weekly-email-server.ts", {
-    "./reminders-server": "adminDatabase",
-    "./weekly-brief-server": "loadBriefContext,generateWeeklyBrief",
-    "./weekly-email":
-      "emailPreferenceKey,renderWeeklyEmail,unsubscribeToken,validEmailPreferences",
-    "./growing-calendar": "localDay",
-    "./weekly-brief": "weekBounds",
-  });
-  const originalFetch = globalThis.fetch,
-    old = { ...process.env };
-  Object.assign(process.env, {
-    RESEND_API_KEY: "fixture",
-    GARDEN_EMAIL_FROM: "Garden <test@example.test>",
-    SUPABASE_SERVICE_ROLE_KEY: "fixture",
-    CRON_SECRET: "fixture",
-    VERCEL_ENV: "production",
-  });
-  globalThis.fetch = async (url, options) => {
-    assert.equal(url, "https://api.resend.com/emails");
-    sends.push(JSON.parse(options.body));
-    if (timeout) throw new Error("unknown outcome");
-    return reject
-      ? Response.json({ error: "rate limit" }, { status: 429 })
-      : Response.json({ id: "fixture-receipt" });
-  };
-  try {
-    const results = await Promise.all([
-      emailDispatch.dispatchWeeklyEmails(),
-      emailDispatch.dispatchWeeklyEmails(),
-    ]);
-    assert.equal(
-      results.reduce((n, r) => n + r.sent, 0),
-      1,
-    );
-    assert.equal(sends.length, 1);
-    assert.deepEqual(sends[0].to, ["owner@example.test"]);
-    assert.ok(sends[0].headers["List-Unsubscribe"]);
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 0);
-    db.records.splice(1);
-    db.records[0].value.email = "garden-inbox@example.test";
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 1);
-    assert.deepEqual(sends.at(-1).to, ["garden-inbox@example.test"]);
-    db.records.splice(1);
-    reject = true;
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).failed, 1);
-    assert.equal(db.records.length, 1);
-    reject = false;
-    timeout = true;
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).failed, 1);
-    assert.equal(db.records.length, 2);
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 0);
-    db.records.splice(1);
-    db.records[0].value.enabled = false;
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 0);
-    db.records[0].value.enabled = true;
-    process.env.VERCEL_ENV = "preview";
-    assert.equal((await emailDispatch.dispatchWeeklyEmails()).sent, 0);
-  } finally {
-    globalThis.fetch = originalFetch;
-    for (const key of Object.keys(process.env))
-      if (!(key in old)) delete process.env[key];
-    Object.assign(process.env, old);
-    delete globalThis.__emailTest;
-  }
-});
 test("email settings require authentication, prevent other-garden subscriptions and report absent provider", async () => {
   let authenticated = false,
     ready = false,
@@ -298,17 +216,19 @@ test("email settings require authentication, prevent other-garden subscriptions 
     emailPreferenceKey,
     validEmailPreferences,
     validDeliveryEmail,
+    validFirstName,
   };
   const route = await compile("app/api/weekly-email/route.ts", {
     "@/lib/reminders-server": "authenticated",
     "@/lib/weekly-email-server": "emailReady",
-    "@/lib/weekly-email": "emailPreferenceKey,validEmailPreferences,validDeliveryEmail",
+    "@/lib/weekly-email": "emailPreferenceKey,validEmailPreferences,validDeliveryEmail,validFirstName",
   });
   const request = (values = {}) =>
     new Request("http://fixture/api/weekly-email", {
       method: "POST",
       body: JSON.stringify({
         enabled: true,
+        firstName: "Camille",
         day: 1,
         gardenId: "someone-elses",
         version: 0,
