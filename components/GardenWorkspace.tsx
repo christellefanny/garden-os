@@ -45,8 +45,6 @@ const FlowerCorner = dynamic(() => import("@/components/FlowerCorner"), { loadin
 
 const GardenLearning = dynamic(() => import("@/components/GardenLearning"), { loading: () => <p role="status">Opening garden guides…</p> });
 
-const GardenVisionBoard = dynamic(() => import("@/components/GardenVisionBoard"), { loading: () => <p role="status">Opening your garden vision…</p> });
-
 const GardenPictures = dynamic(() => import("@/components/PhotoJournal"), { loading: () => <p role="status">Opening garden pictures…</p> });
 
 function pageView(page: Destination) {
@@ -56,7 +54,8 @@ function pageView(page: Destination) {
 function readPageFromUrl(guest = false): Destination {
   if (typeof window === "undefined") return "Dashboard";
   const requestedView = new URLSearchParams(window.location.search).get("view");
-  const view = requestedView === "flower-library" ? "flower-corner" : requestedView;
+  // Keep old Vision Board bookmarks opening the same saved inspiration collection.
+  const view = requestedView === "vision-board" ? "garden-inspiration" : requestedView === "flower-library" ? "flower-corner" : requestedView;
   return destinations.find((destination) => pageView(destination) === view && (!guest || destination !== "Plant Vault")) ?? "Dashboard";
 }
 
@@ -532,7 +531,6 @@ export default function GardenWorkspace({
               }}
             />
           )}
-          {page === "Vision Board" && <GardenVisionBoard userId={userId} />}
           {page === "Tasks" && (
             <TasksPage
               spaces={activeSpaces}

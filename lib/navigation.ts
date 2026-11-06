@@ -2,7 +2,7 @@
 export const destinations = [
   "Dashboard", "My Gardens", "Beginner’s Guide", "Plant Vault", "Flower Garden",
   "Garden Layout", "Garden Inspiration", "Growing Calendar", "Flower Corner", "Tasks", "Journal",
-  "Vision Board", "Settings", "Help",
+  "Settings", "Help",
 ] as const;
 export type Destination = typeof destinations[number];
 
