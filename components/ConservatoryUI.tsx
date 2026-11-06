@@ -241,6 +241,9 @@ export function ModernDashboard({
 }) {
   const { season } = useSeason(),
     today = localDay();
+  // Discovery is separate from saved gardens. Never present example garden cards
+  // as a guest's own collection; returning guests keep their locally saved work.
+  const emptyGuest = userId === "guest" && gardens.length === 0;
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   useEffect(() => {
     const refresh = () => setOptions(loadCalendarOptions(userId));
@@ -314,6 +317,7 @@ export function ModernDashboard({
           <span>Plan <b>·</b> Grow <b>·</b> Harvest <b>·</b> Enjoy</span>
         </div>
       </section>
+      {emptyGuest && <div className="guest-discovery-lead"><GuestPlantingNow /></div>}
       <section className="modern-card atelier-welcome-note" aria-labelledby="atelier-welcome-note-title">
         <h2 id="atelier-welcome-note-title">A little planning.<br/> A lot of growing.</h2>
         <div>
@@ -322,7 +326,7 @@ export function ModernDashboard({
           <p>Whether you have a few pots or a garden full of plans, I hope you’ll feel at home here. Look around, gather a little inspiration, and make it your own. I’m glad you’re here.</p>
         </div>
       </section>
-      <div className="atelier-home-sections">
+      {!emptyGuest && <div className="atelier-home-sections">
         <section className="modern-card atelier-gardens-panel">
           <div className="modern-card-title">
             <h2>My Gardens</h2>
@@ -352,12 +356,12 @@ export function ModernDashboard({
           </div>
           <div className="dashboard-add-task"><AddTaskButton userId={userId} onSaved={setOptions}/></div>
         </aside>
-      </div>
+      </div>}
       {userId!=="guest"&&vault.length>0&&<div className="modern-stats dashboard-collection-stats">
         {[["Plants",vault.length],["Flowers",category("Flower")],["Herbs",category("Herb")]].map(([label,count],i)=><button key={label} type="button" onClick={()=>navigate("Plant Vault")}><span className="stat-icon"><LineIcon index={i+1}/></span><span><b>{count}</b><strong>{label}</strong><small>Saved in your collection</small></span><span aria-hidden="true">›</span></button>)}
       </div>}
       <div className="modern-main-grid">
-        {(userId === "guest" || !planted.length) && <GuestPlantingNow />}
+        {!emptyGuest && (userId === "guest" || !planted.length) && <GuestPlantingNow />}
         {!selectedCustom && !hasSavedLayout ? <GuestGardenExample onCreate={() => navigate("Garden Layout")} onEdit={onEditExample} /> : <section className="modern-card layout-preview">
           <div className="modern-card-title">
             <h2>My Garden Layout</h2>

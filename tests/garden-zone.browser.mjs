@@ -61,7 +61,8 @@ try {
   const gc=await browser.newContext({viewport:{width:390,height:844}}), gp=await gc.newPage();
   await gp.goto("http://127.0.0.1:3043");
   await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
-  await gp.getByRole("button",{name:/^Create your first garden/}).click();
+  await gp.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'My Gardens',exact:true}).click();
+  await gp.getByRole('button',{name:'+ New Garden',exact:true}).click();
   let lateDone;
   const late=new Promise(resolve=>{lateDone=resolve;});
   await gp.route("**/api/garden-zone",async route=>{

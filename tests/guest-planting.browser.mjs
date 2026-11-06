@@ -26,7 +26,7 @@ try {
  assert.equal(await page.getByRole("heading",{name:"Plant Vault",exact:true}).count(),0);
  assert.equal(await page.getByRole('heading',{name:'In the Garden Now',exact:true}).count(),0);
  await section.getByRole('button',{name:'Explore Garlic',exact:true}).click();await page.getByRole('dialog').getByText('Check local timing',{exact:true}).waitFor();await page.getByRole('button',{name:'Close dialog',exact:true}).click();
- await section.getByRole('button',{name:'Find my growing location',exact:true}).click();await page.getByRole('button',{name:'Use my current location',exact:true}).click();await page.getByRole('alert').getByText(/Location permission was declined/).waitFor();
+ await section.getByRole('button',{name:'Find my growing zone',exact:true}).click();await page.getByRole('button',{name:'Use my current location',exact:true}).click();await page.getByRole('alert').getByText(/Location permission was declined/).waitFor();
  await page.getByLabel('U.S. ZIP code',{exact:true}).fill('60544');await page.getByRole('button',{name:'Show local planting ideas',exact:true}).click();await section.getByText('Plainfield, Illinois',{exact:true}).waitFor();
  assert.deepEqual(requests,[{zip:'60544'}]);assert.equal(await section.getByText('Grow indoors',{exact:true}).count(),2);
  for(const image of await section.locator('img').all())await image.evaluate(el=>el.decode());

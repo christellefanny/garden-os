@@ -21,7 +21,7 @@ try {
  for(const [label,count] of [['Compact courtyard garden',2],['A garden for bouquets',4],['Four-bed vegetable garden',4]]){await inspiration.getByRole('button',{name:label,exact:true}).click();assert.equal(await inspiration.locator('.guest-example-art button[aria-pressed]').count(),count);await inspiration.locator('img').evaluate(el=>el.decode());}
  await page.getByRole('heading',{name:'What to Plant Now',exact:true}).waitFor();
  assert.equal(await page.getByRole('heading',{name:'Plant Vault',exact:true}).count(),0);
- assert.equal(await page.locator('.garden-example-tile').count(),3);assert.equal(await page.getByRole('heading',{name:'Upcoming Tasks',exact:true}).count(),0);assert.equal(await page.locator('.dashboard-quick-summary .dashboard-summary-cards>button').count(),2);assert.equal(await page.locator('.dashboard-add-task').getByRole('button',{name:'Add task',exact:false}).count(),1);
+ assert.equal(await page.locator('.garden-example-tile').count(),0);assert.equal(await page.getByRole('heading',{name:'My Gardens',exact:true}).count(),0);assert.equal(await page.locator('.guest-discovery-lead').getByRole('heading',{name:'What to Plant Now',exact:true}).count(),1);assert.equal(await page.getByRole('heading',{name:'Upcoming Tasks',exact:true}).count(),0);assert.equal(await page.locator('.dashboard-quick-summary').count(),0);assert.equal(await page.getByRole('button',{name:'Add task',exact:false}).count(),1);
  await mkdir('docs/previews/layout-studio',{recursive:true});
  // Guests can save a freeform task without plants; overdue tasks survive reopening.
  await page.getByRole('button',{name:'Add task',exact:false}).click();const taskDialog=page.getByRole('dialog',{name:'Add a task',exact:true});

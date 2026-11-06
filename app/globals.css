@@ -1684,6 +1684,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .atelier-welcome-copy>span {font:clamp(12px,1.1vw,16px)/1.7 Georgia,serif;white-space:nowrap;}
 .atelier-welcome-copy b {font-weight:normal;padding:0 4px;}
 .atelier-home-sections {display:grid;grid-template-columns:minmax(0,1.7fr) minmax(290px,1fr);gap:20px;margin:24px 0;}
+.guest-discovery-lead {margin:24px 0;}
 .atelier-home-sections .modern-card {padding:24px;}
 .atelier-gardens-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px;}
 .atelier-garden-tile,.atelier-add-garden {min-width:0;text-align:left;overflow:hidden;border:1px solid #e8e2d7;border-radius:11px;background:#fffdf8;padding-bottom:14px;transition:box-shadow .2s,transform .2s;}
