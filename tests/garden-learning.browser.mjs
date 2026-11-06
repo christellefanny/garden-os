@@ -32,7 +32,7 @@ try {
  for(const width of [1440,390,320]){
   await page.setViewportSize({width,height:844});
   const labels=await nav.getByRole('button').allTextContents();
-  assert.equal(labels[labels.indexOf('My Gardens')+1],'Beginner’s Guide');
+  assert.equal(labels[labels.indexOf('My Gardens')-1],'Beginner’s Guide');
   assert.equal(labels[labels.indexOf('Tasks')-1],'Flower Corner');
   assert.ok(!labels.includes('Flower Garden')&&!labels.includes('Blooms'));
   await nav.getByRole('button',{name:'My Gardens',exact:true}).click();

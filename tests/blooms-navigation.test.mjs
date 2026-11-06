@@ -21,11 +21,12 @@ const Navigation=component('ConservatoryUI','ConservatoryNavigation');
 const Collection=component('GardenCollection');
 for(const guest of [false,true])test(`navigation order and active parent for ${guest?'guest':'account'}`,()=>{
  const nav=navigationDestinations(guest);
- assert.equal(nav[nav.indexOf('My Gardens')+1],'Beginner’s Guide');
+ assert.deepEqual(nav.slice(0,3),['Dashboard','Beginner’s Guide','My Gardens']);
  assert.equal(nav[nav.indexOf('Tasks')-1],'Flower Corner');
  assert.equal(nav.includes('Plant Vault'),!guest);
  assert.ok(!nav.includes('Flower Garden'));
  const html=renderToStaticMarkup(React.createElement(Navigation,{guest,page:'Flower Garden',navigate:()=>{},onSignOut:()=>{}}));
+ assert.ok(html.indexOf('<span>Beginner’s Guide</span>')<html.indexOf('<span>My Gardens</span>'));
  assert.doesNotMatch(html,/The Flower Library|My Gardens sections|>Flower Garden</);
  assert.match(html,/aria-current="page"[^>]*>[\s\S]*?<span>My Gardens<\/span>/);
 });
