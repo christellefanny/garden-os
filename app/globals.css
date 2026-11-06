@@ -1616,6 +1616,30 @@ button:focus-visible {
  .garden-atelier-brand-tagline {font-size:6.5px;letter-spacing:1px}
 }
 
+/* The name field stays visibly editable even when it is empty. Its tint follows
+   the same active palette as Save subscription, without placeholder names. */
+.weekly-settings .weekly-name-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--sidebar-start) 78%, var(--surface));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sidebar-start) 9%, transparent);
+  color: var(--foreground);
+  caret-color: var(--sidebar-start);
+  cursor: text;
+}
+.weekly-settings .weekly-name-input:hover {
+  border-color: var(--sidebar-start);
+  background: color-mix(in srgb, var(--sidebar-start) 12%, transparent);
+}
+.weekly-settings .weekly-name-input:focus-visible {
+  border-color: var(--sidebar-start);
+  outline: 3px solid var(--sidebar-start);
+  outline-offset: 3px;
+}
+
 /* Garden Atelier: paper surfaces, botanical paintings, seasonal ink. */
 :root, html[data-season="summer"] {--atelier-tint:#e5bdca;--atelier-deep:#973c60;--atelier-light:#faedf1;--atelier-dark:#712d48;}
 html[data-season="spring"] {--atelier-tint:#e7cbd9;--atelier-deep:#8a4f70;--atelier-light:#f7eef4;--atelier-dark:#653a52;}

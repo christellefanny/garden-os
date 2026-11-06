@@ -217,7 +217,7 @@ export default function WeeklyEmail({
                 <label>
                   First name
                   <input
-                    className="seasonal-input"
+                    className="seasonal-input weekly-name-input"
                     type="text"
                     name="given-name"
                     autoComplete="given-name"
