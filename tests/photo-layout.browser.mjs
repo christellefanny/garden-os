@@ -12,7 +12,8 @@ let browser;
 try{
  for(let i=0;i<160;i++){try{if((await fetch('http://127.0.0.1:3043')).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));}
  browser=await launch();let context=await browser.newContext({viewport:{width:1440,height:1050}}),page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:3043');await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
+ await page.goto('http://127.0.0.1:3043');if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
+  await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
  await page.getByRole('navigation').getByRole('button',{name:'Plan & Design',exact:true}).click();
  const key='garden-os-custom-layouts-v1-a0a0a0a0-0000-4000-8000-000000000001-garden-1';
  const original={id:'existing-layout',name:'Keep my existing plan',items:[{id:'old-bed',name:'Original bed',kind:'Bed',x:5,y:5,w:25,h:25,spaceId:'existing-space'}]};
@@ -40,7 +41,7 @@ try{
  const synced=await fetch('http://127.0.0.1:54321/control/state').then(r=>r.json());assert.equal(synced.spaces.length,0);assert.equal(synced.gardens.length,1);
  assert.deepEqual(errors,[]);console.log('PASS: account photo review, container focus, corrections, reference/measurements, separate editable layout, existing design preserved, no garden/plant records created, service failure manual fallback, WCAG AA.');
  await browser.close();browser=await launch();context=await browser.newContext({viewport:{width:390,height:844}});page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:3043');await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('navigation').getByRole('button',{name:'Plan & Design',exact:true}).click();await page.getByRole('button',{name:'Upload a garden photo →',exact:true}).click();
+ await page.goto('http://127.0.0.1:3043');await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await page.getByRole('navigation').getByRole('button',{name:'Plan & Design',exact:true}).click();await page.getByRole('button',{name:'Upload a garden photo →',exact:true}).click();
  await page.getByRole('radio',{name:'Container garden Pots, planters & grow bags'}).check();await page.getByLabel('Choose a garden photo').setInputFiles(picture);await page.getByRole('img',{name:'Your chosen garden photo',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Find garden areas',exact:true}).isEnabled(),false);
  await page.getByRole('button',{name:'Mark areas myself',exact:true}).click();await page.getByRole('button',{name:'+ Container',exact:true}).click();await page.getByLabel('Area name',{exact:true}).fill('Balcony tomato pot');await page.getByLabel('Layout name',{exact:true}).fill('My balcony garden');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await page.screenshot({path:'/workspace/scratch/photo-layout-mobile.png',fullPage:true});

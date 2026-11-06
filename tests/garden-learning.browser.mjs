@@ -26,7 +26,7 @@ try {
  assert.equal(new URL(fresh.url()).searchParams.get('view'),'garden-layout');
  assert.equal(await fresh.evaluate(()=>localStorage.getItem('garden-os-guest-active')),'true');
  await fresh.goBack();await fresh.getByRole('heading',{name:beginnerGuides[0].title,exact:true}).waitFor();await fresh.close();
- await page.goto(origin);await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('button',{name:'Continue as guest',exact:true}).click();
+ await page.goto(origin);await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
  const nav=page.getByRole('navigation',{name:'Garden Atelier navigation'});
  // Blooms lives inside My Gardens, not the sidebar; exercise return/cancel and narrow layouts.
  for(const width of [1440,390,320]){

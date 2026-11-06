@@ -177,6 +177,7 @@ export default function GardenApp() {
 
 function Welcome({ authError, onGuest, savingGuest, initialMode }: { authError: string; onGuest: () => void; savingGuest: boolean; initialMode: "signin" | "signup" }) {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">(initialMode);
+  const [accountOpen, setAccountOpen] = useState(savingGuest || initialMode === "signup");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -226,7 +227,7 @@ function Welcome({ authError, onGuest, savingGuest, initialMode }: { authError: 
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <GardenHeader gardenYear={new Date().getFullYear()} />
-        <section className="mt-10 grid items-center gap-10 py-5 lg:grid-cols-[1.2fr_1fr] lg:py-12">
+        <section className="landing-welcome-grid mt-6 grid items-center gap-8 py-5 lg:mt-10 lg:grid-cols-[1.2fr_1fr] lg:gap-10 lg:py-12">
           <div className="landing-garden-hero">
             <div className="landing-garden-art" aria-hidden="true" />
             <div className="landing-garden-copy">
@@ -262,113 +263,148 @@ function Welcome({ authError, onGuest, savingGuest, initialMode }: { authError: 
               </div>
             </div>
           </div>
-          <div className="seasonal-card rounded-3xl border p-6 sm:p-8">
-            <p className="eyebrow seasonal-muted">
-              Your own patch of possibility
-            </p>
+          <div className="landing-welcome-card seasonal-card rounded-3xl border p-6 sm:p-8">
+            <p className="eyebrow seasonal-muted">Your own patch of possibility</p>
             <h3 className="editorial-title seasonal-heading mt-3 text-3xl">
-              {mode === "reset"
-                ? "A fresh start."
-                : mode === "signin"
-                  ? "Welcome to your garden."
-                  : "Let’s start growing."}
+              Welcome to your garden.
             </h3>
             <p className="seasonal-muted mt-3 text-sm leading-6">
-              {mode === "reset"
-                ? "Enter your account email to receive a password reset link."
-                : mode === "signin"
-                  ? "Sign in to keep your garden records together."
-                  : "Create an account for your garden’s story, from first seed to final harvest."}
+              Explore, plan, and make yourself at home. No account needed.
             </p>
-            <button type="button" disabled={busy} onClick={onGuest} className="seasonal-outline mt-5 w-full rounded-xl border px-4 py-3 font-bold">{savingGuest ? "Back to my guest garden" : "Continue as guest"}</button>
-            <p className="seasonal-muted mt-2 text-xs">Plan, track, and record your garden. Saved in this browser. No account required.</p>
-            {savingGuest && <p className="mt-3 text-sm">Your guest work will be added to this account after you sign in. Keep this browser’s data until the transfer finishes.</p>}
-            <form onSubmit={submit} className="mt-6 space-y-4">
-              <fieldset
-                disabled={busy}
-                className="space-y-4 disabled:opacity-60"
-              >
-                <label className="block text-sm font-bold">
-                  Email
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    className="seasonal-input mt-2 w-full rounded-xl border p-3"
-                  />
-                </label>
-                {mode !== "reset" && (
-                  <label className="block text-sm font-bold">
-                    Password
-                    <input
-                      name="password"
-                      type="password"
-                      minLength={mode === "signup" ? 8 : undefined}
-                      required
-                      autoComplete={
-                        mode === "signup" ? "new-password" : "current-password"
-                      }
-                      className="seasonal-input mt-2 w-full rounded-xl border p-3"
-                    />
-                  </label>
-                )}
-                {mode === "signup" && (
-                  <p className="seasonal-muted text-xs">
-                    Use at least 8 characters.
-                  </p>
-                )}
-                <button
-                  type="submit"
-                  className="seasonal-button w-full rounded-xl py-3 font-bold text-white"
-                >
-                  {busy
-                    ? "One moment…"
-                    : mode === "reset"
-                      ? "Send reset link"
-                      : mode === "signin"
-                        ? "Open my garden"
-                        : "Create my account"}
-                </button>
-              </fieldset>
-              {(message || authError) && (
-                <p
-                  role="status"
-                  className="seasonal-icon rounded-xl p-3 text-sm"
-                >
-                  {message || authError}
-                </p>
-              )}
-            </form>
             <button
               type="button"
               disabled={busy}
-              onClick={() => {
-                setMode(mode === "signin" ? "signup" : "signin");
-                setMessage("");
-              }}
-              className="seasonal-link mt-5 min-h-11 text-sm font-semibold underline"
+              onClick={onGuest}
+              className="landing-guest-button seasonal-button mt-5 min-h-12 w-full rounded-xl px-4 py-3 font-bold"
             >
-              {mode === "signin"
-                ? "New here? Create an account"
-                : "Already growing with us? Sign in"}
+              {savingGuest ? "Back to my guest garden" : "Try it as a guest"}
             </button>
-            {mode === "signin" && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  setMode("reset");
-                  setMessage("");
-                }}
-                className="seasonal-muted ml-3 min-h-11 text-sm underline"
-              >
-                Forgot password?
-              </button>
-            )}
-            <p className="seasonal-muted mt-5 border-t border-[var(--border)] pt-4 text-xs leading-5">
-              A private place to keep your garden’s story.
+            <p className="seasonal-muted mt-3 text-center text-xs leading-5">
+              Garden Atelier is currently free, including accounts.
             </p>
+            <p className="seasonal-muted mt-4 text-xs leading-5">
+              Guest work is saved only in this browser. Clearing browser data or switching devices can mean losing access to it. Create an account to back up and sync your garden.
+            </p>
+            {savingGuest && <p className="mt-3 text-sm leading-6">Your guest work will be added to this account after you sign in. Keep this browser’s data until the transfer finishes.</p>}
+            {authError && <p role="alert" className="seasonal-icon mt-4 rounded-xl p-3 text-sm">{authError}</p>}
+            <div className="mt-6 border-t border-[var(--border)] pt-2">
+              <h4>
+                <button
+                  type="button"
+                  disabled={busy}
+                  aria-expanded={accountOpen}
+                  aria-controls="welcome-account-form"
+                  onClick={() => {
+                    setAccountOpen(open => !open);
+                    if (accountOpen) { setMode("signin"); setMessage(""); }
+                  }}
+                  className="landing-account-toggle seasonal-heading flex min-h-12 w-full items-center justify-between gap-4 rounded-lg text-left text-sm font-bold"
+                >
+                  {mode === "signup" ? "Create your account" : mode === "reset" ? "Reset your password" : "Already have an account?"}
+                  <span aria-hidden="true" className="text-xl font-normal">{accountOpen ? "−" : "+"}</span>
+                </button>
+              </h4>
+              <div id="welcome-account-form" hidden={!accountOpen}>
+                <p className="seasonal-muted mt-2 text-sm leading-6">
+                  {mode === "reset"
+                    ? "Enter your account email to receive a password reset link."
+                    : mode === "signin"
+                      ? "Sign in to keep your garden records together."
+                      : "Create an account to back up your garden and open it on your other devices."}
+                </p>
+                <form onSubmit={submit} className="mt-6 space-y-4">
+                  <fieldset
+                    disabled={busy}
+                    className="space-y-4 disabled:opacity-60"
+                  >
+                    <label className="block text-sm font-bold">
+                      Email
+                      <input
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        className="seasonal-input mt-2 w-full rounded-xl border p-3"
+                      />
+                    </label>
+                    {mode !== "reset" && (
+                      <label className="block text-sm font-bold">
+                        Password
+                        <input
+                          name="password"
+                          type="password"
+                          minLength={mode === "signup" ? 8 : undefined}
+                          required
+                          autoComplete={
+                            mode === "signup" ? "new-password" : "current-password"
+                          }
+                          className="seasonal-input mt-2 w-full rounded-xl border p-3"
+                        />
+                      </label>
+                    )}
+                    {mode === "signup" && (
+                      <p className="seasonal-muted text-xs">
+                        Use at least 8 characters.
+                      </p>
+                    )}
+                    <button
+                      type="submit"
+                      className="seasonal-outline min-h-12 w-full rounded-xl border py-3 font-bold"
+                    >
+                      {busy
+                        ? "One moment…"
+                        : mode === "reset"
+                          ? "Send reset link"
+                          : mode === "signin"
+                            ? "Open my garden"
+                            : "Create my account"}
+                    </button>
+                  </fieldset>
+                  {message && (
+                    <p
+                      role="status"
+                      className="seasonal-icon rounded-xl p-3 text-sm"
+                    >
+                      {message}
+                    </p>
+                  )}
+                </form>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => {
+                    setMode(mode === "signin" ? "signup" : "signin");
+                    setMessage("");
+                  }}
+                  className="seasonal-link mt-5 min-h-11 text-sm font-semibold underline"
+                >
+                  {mode === "signin"
+                    ? "New here? Create an account"
+                    : "Already growing with us? Sign in"}
+                </button>
+                {mode === "signin" && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      setMode("reset");
+                      setMessage("");
+                    }}
+                    className="seasonal-muted ml-3 min-h-11 text-sm underline"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+            </div>
+            {!accountOpen && <button
+              type="button"
+              disabled={busy}
+              onClick={() => { setMode("signup"); setAccountOpen(true); setMessage(""); }}
+              className="seasonal-link min-h-11 text-sm font-semibold underline"
+            >
+              Prefer an account? Create one
+            </button>}
           </div>
         </section>
       </div>

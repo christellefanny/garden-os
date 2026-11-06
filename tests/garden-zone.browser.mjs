@@ -17,6 +17,7 @@ try {
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   await page.goto("http://127.0.0.1:3043");
+  if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
@@ -59,7 +60,7 @@ try {
   browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:["--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--single-process","--no-zygote"]});
   const gc=await browser.newContext({viewport:{width:390,height:844}}), gp=await gc.newPage();
   await gp.goto("http://127.0.0.1:3043");
-  await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
+  await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
   await gp.getByRole("button",{name:/^Create your first garden/}).click();
   let lateDone;
   const late=new Promise(resolve=>{lateDone=resolve;});

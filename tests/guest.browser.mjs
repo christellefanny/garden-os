@@ -14,9 +14,9 @@ try {
   const cloudWrites = [];
   page.on('request', r => { if (r.method() !== 'GET' && /rest\/v1|api\/state/.test(r.url())) cloudWrites.push(r.url()); });
   await page.goto('http://127.0.0.1:3000');
-  await page.getByRole('button', { name: 'Continue as guest', exact: true }).click();
+  await page.getByRole('button', { name: /^(Try it as a guest|Continue as guest)$/, exact: true }).click();
   await page.getByRole('heading', { name: 'Keep your garden safe' }).waitFor();
-  await page.getByRole('button', { name: 'Continue as guest', exact: true }).click();
+  await page.getByRole('button', { name: /^(Try it as a guest|Continue as guest)$/, exact: true }).click();
   await page.getByRole('button', { name: 'My Gardens', exact: true }).click();
   await page.getByLabel('Garden Name', { exact: true }).fill('Guest vegetable garden');
   await page.getByRole('button', { name: 'Save Garden', exact: true }).click();
@@ -44,6 +44,7 @@ try {
   });
   await page.getByRole('button', { name: 'Save to an account', exact: true }).click();
   await page.getByRole('button', { name: 'Already growing with us? Sign in' }).click();
+  if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await page.getByLabel('Email', { exact: true }).fill('garden@example.test');
   await page.getByLabel('Password', { exact: true }).fill('test-password');
   await page.getByRole('button', { name: 'Open my garden', exact: true }).click();

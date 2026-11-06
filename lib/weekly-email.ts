@@ -183,7 +183,7 @@ export function renderWeeklyEmail(
     ),
     ...brief.limitations,
     `Open your calendar: ${calendarUrl}`,
-    "Happy growing,\nGarden Atelier\nPlan · Grow · Record · Be Inspired",
+    "Happy growing,\nGarden Atelier\nPlan · Grow · Harvest · Enjoy",
     contact ? `Contact us: ${contact}` : "",
     `Visit Garden Atelier: ${origin}`,
     "You’re receiving this because you subscribed to weekly Garden Atelier emails.",
@@ -229,7 +229,7 @@ export function renderWeeklyEmail(
   <div style="margin:32px 0 24px;padding-top:24px;border-top:1px solid #e1d9ca">
     <p style="margin:0 0 6px;font-style:italic">Happy growing,</p>
     <p style="margin:0;color:#344a37;font:30px/1.25 Georgia,serif">Garden Atelier</p>
-    <p style="margin:8px 0 18px;color:#65705d;font:12px/1.6 Arial,sans-serif;letter-spacing:.6px">Plan · Grow · Record · Be Inspired</p>
+    <p style="margin:8px 0 18px;color:#65705d;font:12px/1.6 Arial,sans-serif;letter-spacing:.6px">Plan · Grow · Harvest · Enjoy</p>
     <p style="margin:0;font:13px/1.8 Arial,sans-serif">${contact ? `<a href="mailto:${escape(contact)}" style="color:#825069;text-decoration:underline">${escape(contact)}</a><br>` : ""}<a href="${escape(origin)}" style="color:#825069;text-decoration:underline">Visit Garden Atelier</a></p>
   </div>
   <div style="border-top:1px solid #e1d9ca;padding-top:18px;color:#65705d;font:12px/1.7 Arial,sans-serif">

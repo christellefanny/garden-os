@@ -19,6 +19,7 @@ try {
   page.on("response",async response=>{if(response.url().includes("/api/photos")&&!response.ok())console.log("Photo API error",response.status(),await response.text());});
   page.on("pageerror", e => errors.push(e.message));
   await page.goto("http://127.0.0.1:3043");
+  if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
@@ -84,6 +85,7 @@ try {
   browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE, args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--single-process", "--no-zygote"] });
   const freshContext=await browser.newContext({viewport:{width:1200,height:950}}), fresh=await freshContext.newPage();
   await fresh.goto("http://127.0.0.1:3043/?view=my-gardens&garden=garden-1");
+  if (!(await fresh.getByLabel("Email", { exact: true }).isVisible())) await fresh.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await fresh.getByLabel("Email",{exact:true}).fill("garden@example.test");
   await fresh.getByLabel("Password",{exact:true}).fill("fixture-password");
   await fresh.getByRole("button",{name:"Open my garden",exact:true}).click();
@@ -112,6 +114,7 @@ try {
   await guestPage.getByRole("dialog").getByRole("button",{name:"Close dialog",exact:true}).click();
   await guestPage.getByRole("button",{name:"Save to an account",exact:true}).click();
   await guestPage.getByRole("button",{name:"Already growing with us? Sign in",exact:true}).click();
+  if (!(await guestPage.getByLabel("Email", { exact: true }).isVisible())) await guestPage.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await guestPage.getByLabel("Email",{exact:true}).fill("garden@example.test");await guestPage.getByLabel("Password",{exact:true}).fill("fixture-password");
   await guestPage.getByRole("button",{name:"Open my garden",exact:true}).click();
   await guestPage.getByRole("button",{name:"Pictures",exact:true}).click();

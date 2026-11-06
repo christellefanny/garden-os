@@ -26,7 +26,8 @@ try {
  });
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:3000');
- await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
+ if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
+  await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
  await page.locator('.modern-dashboard').waitFor();
  const cards=page.locator('.atelier-garden-tile');assert.equal(await cards.count(),4);
  for(const [name,count] of [['Front Yard Garden',1],['Vegetable Garden',2],['Flower Garden',1],['Herb Garden',0]])assert.match(await cards.filter({hasText:name}).innerText(),new RegExp(count+' growing space'));

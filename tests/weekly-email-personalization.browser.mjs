@@ -41,6 +41,7 @@ try {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, recipient: "garden@example.test" }) });
   });
   await page.goto(origin);
+  if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();

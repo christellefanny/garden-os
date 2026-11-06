@@ -8,7 +8,7 @@ try{
  for(let i=0;i<160;i++){try{if((await fetch('http://127.0.0.1:3043')).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));}
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--single-process','--no-zygote']});
  const context=await browser.newContext({viewport:{width:1440,height:1000}});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:3043');await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('button',{name:'Continue as guest',exact:true}).click();await page.getByRole('navigation').getByRole('button',{name:'Plan & Design',exact:true}).click();
+ await page.goto('http://127.0.0.1:3043');await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();await page.getByRole('navigation').getByRole('button',{name:'Plan & Design',exact:true}).click();
 
  await page.getByRole('button',{name:'Start from scratch →',exact:true}).click();await page.getByRole('button',{name:'Create blank canvas',exact:true}).click();await page.getByRole('button',{name:'Add wall',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Choose a garden wall'});await dialog.waitFor();assert.equal(await dialog.locator('.container-picker-grid button').count(),5);

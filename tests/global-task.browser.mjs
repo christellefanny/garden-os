@@ -18,6 +18,7 @@ try {
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   await page.goto("http://127.0.0.1:3043");
+  if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
@@ -49,8 +50,8 @@ try {
   const gp = await guest.newPage();
   await gp.goto("http://127.0.0.1:3043");
 
-  await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
-  await gp.getByRole("button",{name:"Continue as guest",exact:true}).click();
+  await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
+  await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
   await gp.getByRole('navigation').getByRole('button',{name:'My Gardens',exact:true}).click(); await gp.getByRole('button',{name:'Open Blooms →',exact:true}).click();
   await gp.locator(".floating-add-task").click();
   await gp.getByLabel("Task",{exact:true}).fill("Save marigold seeds");

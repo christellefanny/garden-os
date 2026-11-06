@@ -449,7 +449,7 @@ test("subscription email omits the requested planning note and keeps useful plan
     assert.ok(!content.includes(planningNote));
     assert.ok(content.includes("Check the seed packet and soil conditions."));
     assert.ok(content.includes("Happy growing,"));
-    assert.ok(content.includes("Plan · Grow · Record · Be Inspired"));
+    assert.ok(content.includes("Plan · Grow · Harvest · Enjoy"));
     assert.ok(content.includes("hello@garden.example"));
     assert.ok(content.includes("Manage email preferences"));
     assert.ok(content.includes("Unsubscribe"));

@@ -311,7 +311,7 @@ export function ModernDashboard({
         <div className="atelier-welcome-copy">
           <p className="atelier-season-label">{seasonContent[season].name} · A season in your garden</p>
           <h1><span>Welcome to</span>Garden Atelier</h1>
-          <span>Plan <b>·</b> Grow <b>·</b> Record <b>·</b> Be Inspired</span>
+          <span>Plan <b>·</b> Grow <b>·</b> Harvest <b>·</b> Enjoy</span>
         </div>
       </section>
       <section className="modern-card atelier-welcome-note" aria-labelledby="atelier-welcome-note-title">

@@ -25,7 +25,7 @@ export default function GardenHeader({ gardenYear, onOpenCalendar, onHome, calen
             }}>Garden Atelier</Link>
           </h1>
         </div>
-        <p className="seasonal-muted mt-3 text-sm">Plan · Grow · Record · Be Inspired</p>
+        <p className="seasonal-muted mt-3 text-sm">Plan · Grow · Harvest · Enjoy</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

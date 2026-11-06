@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Garden Atelier",
-  description: "Your garden, beautifully cultivated. Plan, grow, and enjoy every season.",
+  description: "Plan · Grow · Harvest · Enjoy. Your garden, beautifully cultivated.",
 };
 
 export default function RootLayout({

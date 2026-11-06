@@ -2365,3 +2365,14 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 @media(max-width:600px){.learning-note.beginner-start-garden{grid-template-columns:minmax(0,1fr);gap:14px;}.beginner-start-garden-art{justify-self:center;max-width:310px;height:190px;}}
 .weekly-heading .weekly-briefing-actions { align-items: flex-start; }
 .weekly-briefing-actions .email-subscription > .interior-actions { margin-top: 0; }
+
+/* Guest-first welcome: start freely, open account controls only when needed. */
+.landing-welcome-card { min-width: 0; }
+.landing-guest-button:focus-visible,
+.landing-account-toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+@media (max-width: 1023px) {
+  .landing-welcome-card { order: -1; }
+}

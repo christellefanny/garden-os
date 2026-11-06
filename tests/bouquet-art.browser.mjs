@@ -11,7 +11,8 @@ try{
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--disable-gpu','--single-process','--no-zygote']});
  const page=await browser.newPage({viewport:{width:1536,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:3000');
- await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
+ if (!(await page.getByLabel("Email", { exact: true }).isVisible())) await page.getByRole("button", { name: "Already have an account?", exact: true }).click();
+  await page.getByLabel('Email',{exact:true}).fill('garden@example.test');await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Open my garden',exact:true}).click();
  await page.getByRole('navigation').getByRole('button',{name:'My Gardens',exact:true}).click(); await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();
  await page.getByRole('button',{name:/Cut Flowers Discover bouquet/}).click();
  const section=page.getByRole('heading',{name:'Bouquet Inspiration',exact:true}).locator('..');
