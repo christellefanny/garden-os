@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
 import AddTaskButton from "@/components/AddTaskButton";
+import FirstGardenSteps from "@/components/FirstGardenSteps";
 import { transact } from "@/lib/photo-local";
 import { uploadCloudEntry, type PhotoEntry } from "@/lib/photo-cloud";
 import InteriorHeader from "@/components/InteriorHeader";
@@ -136,6 +137,8 @@ export default function GardenWorkspace({
   const [plannerCrop, setPlannerCrop] = useState("");
   const [plantSpacing, setPlantSpacing] = useState<number | undefined>();
   const [planner, setPlanner] = useState(false);
+  const [addingFirstPlant, setAddingFirstPlant] = useState(false);
+  const [savingGarden, setSavingGarden] = useState(false);
   const [picturesGardenId, setPicturesGardenId] = useState<string | null>(null);
   const [picturesSpaceId, setPicturesSpaceId] = useState<string | null>(null);
   const [calendarOpen, setCalendarOpen] = useState(
@@ -158,6 +161,7 @@ export default function GardenWorkspace({
     url.searchParams.delete("garden");
     setGardenPageId(null);
     setEditor(null);
+    setAddingFirstPlant(false);
     setOpenId(null);
     setGardenForm(null);
     if (url.href !== window.location.href) window.history.pushState(null, "", url);
@@ -174,6 +178,7 @@ export default function GardenWorkspace({
       setPage(next);
       setGardenPageId(readGardenPageFromUrl());
       setEditor(null);
+      setAddingFirstPlant(false);
       setOpenId(null);
       setGardenForm(null);
       setVaultOpen(next === "Plant Vault");
@@ -219,6 +224,7 @@ export default function GardenWorkspace({
     if (url.href !== window.location.href) window.history.pushState(null, "", url);
     setGardenPageId(id);
     setPage("My Gardens");
+    setVaultOpen(false); setCalendarOpen(false); setLayoutOpen(false); setSearch("");
     window.scrollTo({ top: 0, behavior: "auto" });
   }
 
@@ -234,6 +240,28 @@ export default function GardenWorkspace({
       /* Selection works without browser storage. */
     }
   }
+  function startGarden() {
+    navigate("My Gardens");
+    setGardenForm("new");
+  }
+  function addFirstPlant() {
+    if (!garden) { startGarden(); return; }
+    openGarden(garden.id);
+    setPlannerCrop("");
+    setPlantSpacing(12);
+    if (activeSpaces.length) setOpenId(activeSpaces[0].id);
+    else { setAddingFirstPlant(true); setEditor("new"); }
+  }
+  const firstGardenSteps = gardens.length <= 1 && loaded && !error ? <FirstGardenSteps
+    userId={userId}
+    garden={garden}
+    hasPlants={vault.length > 0 || activeSpaces.some(space => Boolean(summaries.get(space.id)?.plants))}
+    hasSpaces={activeSpaces.length > 0}
+    onGarden={startGarden}
+    onPlant={addFirstPlant}
+    onCalendar={() => navigate("Growing Calendar")}
+  /> : null;
+
   async function reload() {
     setBusy(true);
     try {
@@ -277,6 +305,7 @@ export default function GardenWorkspace({
     input: SpaceInput,
     existing?: Space,
     photoFiles: File[] = [],
+    onCreated?: (id: string) => void,
   ): Promise<boolean> {
     if (busy || !garden || !loaded) return false;
     setBusy(true);
@@ -310,6 +339,7 @@ export default function GardenWorkspace({
         setSpaces(readGuest().spaces);
         await saveProgressPhotos(saved.id);
         setNotice("Changes and selected pictures saved on this device.");
+        if (!existing) onCreated?.(saved.id);
         return true;
       }
       const query = existing
@@ -335,6 +365,7 @@ export default function GardenWorkspace({
       );
       setNotice("Changes saved.");
       if (photoFiles.length) await saveProgressPhotos((data as Space).id);
+      if (!existing) onCreated?.((data as Space).id);
       return true;
     } catch (error) {
       setError(
@@ -524,7 +555,8 @@ export default function GardenWorkspace({
               vault={vault}
               navigate={navigate}
               onGarden={openGarden}
-              onNewGarden={() => { navigate("My Gardens"); setGardenForm("new"); }}
+              onNewGarden={startGarden}
+              firstGardenSteps={firstGardenSteps}
               onSpace={setOpenId}
               onEditExample={id=>{navigate("Garden Layout");setLayoutTemplate(id);setLayoutBed(undefined);}}
               onVault={query=>{setVaultQuery(query);navigate("Plant Vault");}}
@@ -617,6 +649,7 @@ export default function GardenWorkspace({
           )}
           {calendarOpen && (
             <GrowingCalendar
+              onAddPlant={addFirstPlant}
               garden={garden}
               gardens={gardens}
               location={garden?.location || undefined}
@@ -687,6 +720,7 @@ export default function GardenWorkspace({
                   {notice}
                 </p>
               )}
+              {firstGardenSteps}
               {gardenPageId && garden && <details className="vault-backup-tools"><summary>Recover older growing spaces</summary>              <LegacySpaces
                 gardenId={gardenId}
                 busy={busy}
@@ -697,29 +731,10 @@ export default function GardenWorkspace({
               />
 </details>}
               {gardenForm && loaded && (
-                <div
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-label={
-                    gardenForm === "edit" ? "Edit garden" : "New garden"
-                  }
-                  onPointerDown={(e) => {
-                    if (e.target === e.currentTarget && !busy)
-                      setGardenForm(null);
-                  }}
-                >
-                  <div className="relative w-full max-w-2xl">
-                    <button
-                      type="button"
-                      aria-label="Close"
-                      disabled={busy}
-                      onClick={() => setGardenForm(null)}
-                      className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-xl font-bold hover:bg-black/10"
-                    >
-                      ×
-                    </button>
+                <Dialog title={gardenForm === "edit" ? "Edit garden" : "Create your garden"} onClose={() => { if (!savingGarden) setGardenForm(null); }}>
                     <NewGardenModal
+                      embedded
+                      onBusyChange={setSavingGarden}
                       guest={userId === GUEST_ID}
                       key={`${gardenForm}-${gardenId}`}
                       garden={gardenForm === "edit" ? garden : undefined}
@@ -733,8 +748,7 @@ export default function GardenWorkspace({
                         setNotice("Garden saved.");
                       }}
                     />
-                  </div>
-                </div>
+                </Dialog>
               )}
               {gardenPageId && garden && <><section className="spaces-section">
                 <div className="section-heading">
@@ -767,7 +781,7 @@ export default function GardenWorkspace({
                     </p>
                     <p className="seasonal-muted mt-2">
                       {garden
-                        ? "Add your first bed or container. Your spaces and plant records will stay together in your account."
+                        ? guestMode ? "Add your first bed or container. Your spaces and plants are saved in this browser." : "Add your first bed or container. Your spaces and plant records will stay together in your account."
                         : "Create a garden to start planning your beds and containers."}
                     </p>
                   </div>
@@ -909,9 +923,7 @@ export default function GardenWorkspace({
               <footer className="seasonal-muted mt-12 border-t border-[var(--border)] pt-5 text-sm">
                 Garden Atelier · Grow smarter. Harvest better.{" "}
                 <span className="block mt-1">
-                  Garden records sync across devices. Vault entries, layouts and
-                  calendar settings sync when cloud storage is connected. Your
-                  theme preference stays on this browser.
+                  {guestMode ? "Your guest garden, plants and tasks are saved only in this browser. Save to an account to keep them across devices." : "Garden records sync across devices. Vault entries, layouts and calendar settings sync when cloud storage is connected. Your theme preference stays on this browser."}
                 </span>
               </footer>
             </section>
@@ -930,9 +942,11 @@ export default function GardenWorkspace({
               key={editor}
               space={editing}
               busy={busy}
-              onClose={() => setEditor(null)}
+              onClose={() => { setEditor(null); setAddingFirstPlant(false); }}
               onAddPlant={editing ? () => { setEditor(null); setPlannerCrop(""); setPlantSpacing(12); setOpenId(editing.id); } : undefined}
-              onSave={(input) => saveSpace(input, editing)}
+              onSave={(input, photos) => saveSpace(input, editing, photos, addingFirstPlant ? (id) => {
+                setPlannerCrop(""); setPlantSpacing(12); setOpenId(id);
+              } : undefined)}
             />
           )}
           {opened && !summaries.get(opened.id)?.error && (

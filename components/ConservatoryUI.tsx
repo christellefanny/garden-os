@@ -9,7 +9,7 @@ import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
 import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
 import { seasonContent, parseThemeSelection, seasons } from "@/lib/seasons";
 import {
@@ -225,6 +225,7 @@ export function ModernDashboard({
   onBed,
   onVault,
   onEditExample,
+  firstGardenSteps,
 }: {
   userId: string;
   garden?: Garden;
@@ -239,6 +240,7 @@ export function ModernDashboard({
   onBed: (id: string) => void;
   onVault:(query:string)=>void;
   onEditExample:(templateId:string)=>void;
+  firstGardenSteps?: ReactNode;
 }) {
   const { season } = useSeason(),
     today = localDay();
@@ -319,6 +321,7 @@ export function ModernDashboard({
         </div>
       </section>
       {emptyGuest && <div className="guest-discovery-lead"><GuestPlantingNow /></div>}
+      {firstGardenSteps}
       <section className="modern-card atelier-welcome-note" aria-labelledby="atelier-welcome-note-title">
         <h2 id="atelier-welcome-note-title">A little planning.<br/> A lot of growing.</h2>
         <div>

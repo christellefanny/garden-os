@@ -4,7 +4,7 @@ import {useState,type FormEvent} from "react";
 import Dialog from "@/components/ui/Dialog";
 import {loadCalendarOptions,localDay,type CalendarOptions} from "@/lib/growing-calendar";
 
-export default function AddTaskButton({userId,onSaved,floating=false}:{userId:string;onSaved?:(options:CalendarOptions)=>void;floating?:boolean}){
+export default function AddTaskButton({userId,onSaved,floating=false,label="+ Add task"}:{userId:string;onSaved?:(options:CalendarOptions)=>void;floating?:boolean;label?:string}){
   const [open,setOpen]=useState(false),[title,setTitle]=useState(""),[date,setDate]=useState(localDay),[notes,setNotes]=useState(""),[error,setError]=useState(""),[saved,setSaved]=useState(false);
   function save(event:FormEvent){
     event.preventDefault();
@@ -20,7 +20,7 @@ export default function AddTaskButton({userId,onSaved,floating=false}:{userId:st
     }catch{setError("Could not save this task. Your existing reminders are unchanged. Please try again.");}
   }
   return <>
-    <button type="button" className={`seasonal-button add-task-button${floating?" floating-add-task":""}`} onClick={()=>{setSaved(false);setTitle("");setNotes("");setDate(localDay());setError("");setOpen(true);}} aria-haspopup="dialog">+ Add task</button>
+    <button type="button" className={`seasonal-button add-task-button${floating?" floating-add-task":""}`} onClick={()=>{setSaved(false);setTitle("");setNotes("");setDate(localDay());setError("");setOpen(true);}} aria-haspopup="dialog">{label}</button>
     {floating&&<p role="status" className="floating-task-status">{saved?"Task saved. Find it in Tasks and Growing Calendar.":""}</p>}
     {open&&<Dialog title="Add a task" onClose={()=>setOpen(false)}><form onSubmit={save} className="personal-task-form">
       <p>{userId==="guest"?"Saved in this browser for your next visit. No account or plant needed.":"Save anything you want to remember. Tasks use your existing account synchronization."}</p>

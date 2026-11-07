@@ -9,11 +9,15 @@ import { Field } from "@/components/SpaceEditor";
 export default function NewGardenModal({
   garden,
   guest = false,
+  embedded = false,
+  onBusyChange,
   onSaved,
   onCancel,
 }: {
   garden?: Garden;
   guest?: boolean;
+  embedded?: boolean;
+  onBusyChange?: (busy: boolean) => void;
   onSaved?: (garden: Garden) => void;
   onCancel?: () => void;
 }) {
@@ -55,6 +59,7 @@ export default function NewGardenModal({
       return;
     }
     setBusy(true);
+    onBusyChange?.(true);
     setMessage("Saving…");
     try {
       const input = {
@@ -83,15 +88,16 @@ export default function NewGardenModal({
       );
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
     }
   }
   return (
-    <section className="seasonal-card mt-8 rounded-3xl border p-6 shadow-sm">
-      <h2 className="seasonal-heading text-2xl font-black">
+    <section className={embedded ? "" : "seasonal-card mt-8 rounded-3xl border p-6 shadow-sm"}>
+      {!embedded && <h2 className="seasonal-heading text-2xl font-black">
         {garden ? "Edit Garden" : "Create a New Garden"}
-      </h2>
+      </h2>}
       <p className="seasonal-muted mt-2">
-        Every growing season starts with a garden.
+        Name your garden, and add your location or zone if you know it. Next, choose a bed or container for your first plant.
       </p>
       <form onSubmit={save} className="mt-5 space-y-4">
         <fieldset
