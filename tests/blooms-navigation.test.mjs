@@ -6,7 +6,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { destinations, navigationDestinations } from '../lib/navigation.ts';
+import { destinations, navigationDestinations, sidebarDestination } from '../lib/navigation.ts';
 const require=createRequire(import.meta.url);
 const source=name=>readFileSync(new URL('../components/'+name+'.tsx',import.meta.url),'utf8');
 function component(name,exportName='default'){
@@ -14,15 +14,15 @@ function component(name,exportName='default'){
  if(name==='ConservatoryUI')input=input.split('export function ConservatoryTopbar')[0];
  const js=ts.transpileModule(input,{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
  const exports={};
- vm.runInNewContext(js,{exports,require:id=>id==='next/image'?({src,alt})=>React.createElement('img',{src,alt}):id==='@/lib/navigation'?{destinations,navigationDestinations}:id.startsWith('@/')?{}:require(id)});
+ vm.runInNewContext(js,{exports,require:id=>id==='next/image'?({src,alt})=>React.createElement('img',{src,alt}):id==='@/lib/navigation'?{destinations,navigationDestinations,sidebarDestination}:id.startsWith('@/')?{}:require(id)});
  return exports[exportName];
 }
 const Navigation=component('ConservatoryUI','ConservatoryNavigation');
 const Collection=component('GardenCollection');
 for(const guest of [false,true])test(`navigation order and active parent for ${guest?'guest':'account'}`,()=>{
  const nav=navigationDestinations(guest);
- assert.deepEqual(nav,['Dashboard','Beginner’s Guide',...(!guest?['Plant Vault']:[]),'Garden Layout','My Gardens','Garden Inspiration','Growing Calendar','Flower Corner','Tasks','Journal','Settings','Help']);
- assert.equal(nav[nav.indexOf('Tasks')-1],'Flower Corner');
+ assert.deepEqual(nav,['Dashboard','Beginner’s Guide',...(!guest?['Plant Vault']:[]),'Garden Layout','My Gardens','Garden Inspiration','Growing Calendar','Flower Corner','Settings','Help']);
+ assert.equal(nav[nav.indexOf('Settings')-1],'Flower Corner');
  assert.equal(nav.includes('Plant Vault'),!guest);
  assert.ok(!nav.includes('Flower Garden'));
  const html=renderToStaticMarkup(React.createElement(Navigation,{guest,page:'Flower Garden',navigate:()=>{},onSignOut:()=>{}}));

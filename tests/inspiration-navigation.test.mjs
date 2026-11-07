@@ -6,14 +6,14 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { destinations, navigationDestinations } from '../lib/navigation.ts';
+import { destinations, navigationDestinations, sidebarDestination } from '../lib/navigation.ts';
 
 const require = createRequire(import.meta.url);
 const source = name => readFileSync(new URL('../components/' + name + '.tsx', import.meta.url), 'utf8');
 const input = source('ConservatoryUI').split('export function ConservatoryTopbar')[0];
 const js = ts.transpileModule(input, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
 const exports = {};
-vm.runInNewContext(js, { exports, require: id => id === 'next/image' ? ({ src, alt }) => React.createElement('img', { src, alt }) : id === '@/lib/navigation' ? { destinations, navigationDestinations } : id.startsWith('@/') ? {} : require(id) });
+vm.runInNewContext(js, { exports, require: id => id === 'next/image' ? ({ src, alt }) => React.createElement('img', { src, alt }) : id === '@/lib/navigation' ? { destinations, navigationDestinations, sidebarDestination } : id.startsWith('@/') ? {} : require(id) });
 
 for (const guest of [false, true]) test(`one inspiration destination with the existing board icon for ${guest ? 'guest' : 'account'}`, () => {
   const names = navigationDestinations(guest);

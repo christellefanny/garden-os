@@ -16,10 +16,10 @@ import * as plantingNow from '../lib/planting-now.ts';
 
 const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
 function compile(file, overrides = {}) {
-  const module = { exports: {} };
+  const compiled = { exports: {} };
   const output = ts.transpileModule(read(file), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   vm.runInNewContext(output, {
-    exports: module.exports,
+    exports: compiled.exports,
     localStorage: globalThis.localStorage,
     require(name) {
       if (name in overrides) return overrides[name];
@@ -39,7 +39,7 @@ function compile(file, overrides = {}) {
       return { __esModule: true, default: () => null };
     },
   });
-  return module.exports;
+  return compiled.exports;
 }
 
 function storage(values = {}) {

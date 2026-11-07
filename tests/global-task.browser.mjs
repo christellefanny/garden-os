@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 // Isolated browser QA. No real accounts, mail, or production data.
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
@@ -30,7 +31,7 @@ try {
   await page.getByRole("button",{name:"Save task",exact:true}).click();
   await page.getByRole("status").filter({hasText:"Task saved."}).waitFor();
   assert.match(page.url(), /flower-garden/);
-  await page.getByRole("navigation").getByRole("button",{name:"Tasks",exact:true}).click();
+  await navigateGarden(page, 'Tasks');
   await page.getByText("Check the cut flowers",{exact:true}).waitFor();
   await page.reload();
   await page.getByText("Check the cut flowers",{exact:true}).waitFor();
@@ -40,7 +41,7 @@ try {
   await page.getByRole("button",{name:"Save task",exact:true}).click();
   await page.getByText("Water the seedlings",{exact:false}).first().waitFor({state:"attached"});
   for (const name of ["Home","My Gardens","Plant Vault","Beginner’s Guide","Flower Corner","Plan & Design","Tasks","Garden Journal","Settings","Help"]) {
-    await page.getByRole("navigation").getByRole("button",{name,exact:true}).click();
+    await navigateGarden(page, name);
     await quick.waitFor({state:"visible"});
   }
   console.log("PASS: signed-in navigation, capture, calendar refresh and reload.");
@@ -56,7 +57,7 @@ try {
   await gp.locator(".floating-add-task").click();
   await gp.getByLabel("Task",{exact:true}).fill("Save marigold seeds");
   await gp.getByRole("button",{name:"Save task",exact:true}).click();
-  await gp.getByRole("navigation").getByRole("button",{name:"Tasks",exact:true}).click();
+  await navigateGarden(gp, 'Tasks');
   await gp.getByText("Save marigold seeds",{exact:true}).waitFor();
   await gp.reload();
   await gp.getByText("Save marigold seeds",{exact:true}).waitFor();

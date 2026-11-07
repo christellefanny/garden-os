@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 /* Isolated end-to-end QA. These records exist only in the local fixture server. */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -53,7 +54,7 @@ try {
  const names=['My Gardens','Plant Vault','Beginner’s Guide','Flower Corner','Plan & Design','Growing Calendar','Tasks','Garden Journal','Settings','Help','Home'];
  for(const width of [1536,1024,768,390,320]){
   await page.setViewportSize({width,height:1000});
-  for(const name of names){await nav.getByRole('button',{name,exact:true}).click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,name+' overflow at '+width);}
+  for(const name of names){await navigateGarden(page, name);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,name+' overflow at '+width);}
  }
  await page.setViewportSize({width:390,height:844});await page.getByLabel('Change seasonal theme').selectOption('summer');await page.screenshot({path:root+'/docs/previews/atelier/mobile-home.png',fullPage:true});
  await page.getByLabel('Change seasonal theme').selectOption('automatic');const m=new Date().getMonth(),expected=m>=2&&m<=4?'spring':m>=5&&m<=7?'summer':m>=8&&m<=10?'fall':'winter';await page.waitForFunction(s=>document.documentElement.dataset.season===s,expected);

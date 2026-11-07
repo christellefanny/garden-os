@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 // Isolated browser QA. No real accounts, mail, or production data.
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
@@ -23,7 +24,6 @@ try {
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
-  const nav=page.getByRole("navigation");
   const jpeg=await (await import("node:fs/promises")).readFile("public/email/dahlia.jpg");
   const visit=async id=>{await page.goto(`http://127.0.0.1:3043/?view=my-gardens&garden=${id}`);await page.getByRole("button",{name:"Pictures",exact:true}).click();};
   const upload=async(name,date)=>{
@@ -75,7 +75,7 @@ try {
   await page.screenshot({path:"/workspace/scratch/garden-pictures-mobile.png"});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.getByRole("dialog").getByRole("button",{name:"Close dialog",exact:true}).click();
-  await nav.getByRole("button",{name:"Garden Journal",exact:true}).click();
+  await navigateGarden(page, 'Garden Journal');
   await page.getByRole("tab",{name:"Photos",exact:true}).click();
   await page.getByRole("button",{name:"Show all pictures",exact:true}).click();
   await page.getByRole("button",{name:"View Spring seedlings",exact:true}).waitFor();

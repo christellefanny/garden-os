@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 // Isolated saved-vault fixtures: never connects to production Supabase or sends mail.
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
@@ -293,7 +294,7 @@ try {
     "Garden Journal",
     "Growing Calendar",
   ]) {
-    await page.getByRole("button", { name, exact: true }).first().click();
+    await navigateGarden(page, name);
     await page.locator(".interior-page").first().waitFor();
   }
   const guestContext = await browser.newContext({

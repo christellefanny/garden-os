@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 /* Isolated end-to-end QA. These records exist only in the local fixture server. */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -32,7 +33,7 @@ try {
  await mkdir('docs/previews/interiors',{recursive:true});
  const sources=new Set();
  for(const [name,key] of pages){
-   await nav.getByRole('button',{name,exact:true}).click();
+   await navigateGarden(page, name);
    const header=page.locator('.atelier-interior-header');await header.waitFor();
    const image=header.locator('img');await image.evaluate(el=>el.decode());sources.add(await image.getAttribute('src'));
    for(const season of ['spring','summer','fall','winter']){
@@ -56,9 +57,9 @@ try {
  await page.getByRole('button',{name:'Add reminder',exact:true}).click();await page.getByRole('dialog').waitFor();await page.getByRole('dialog').getByRole('button',{name:'Close dialog',exact:true}).click();
  await page.getByRole('button',{name:'Monthly Calendar',exact:true}).click();await page.getByRole('button',{name:/gardening steps/}).first().click();
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'mobile month overflow');
- await nav.getByRole('button',{name:'Tasks',exact:true}).click();
+ await navigateGarden(page, 'Tasks');
  const task=page.getByRole('button',{name:/Complete Check soil moisture for/});await task.click();await page.reload();await page.locator('.tasks-page').waitFor();assert.equal(await task.count(),0);
- await nav.getByRole('button',{name:'Garden Journal',exact:true}).click();
+ await navigateGarden(page, 'Garden Journal');
  await page.getByRole('button',{name:'Add observation',exact:true}).click();
  await page.getByRole('dialog').getByLabel('Observation',{exact:true}).fill('A small new leaf in the garden.');await page.getByRole('button',{name:'Save observation',exact:true}).click();
  await page.getByText('A small new leaf in the garden.',{exact:true}).waitFor();

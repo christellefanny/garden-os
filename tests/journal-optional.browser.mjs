@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 // Isolated browser QA. No real accounts, mail, or production data.
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
@@ -22,8 +23,7 @@ try {
   await page.getByLabel("Email", { exact: true }).fill("garden@example.test");
   await page.getByLabel("Password", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
-  const nav = page.getByRole("navigation");
-  await nav.getByRole("button",{name:"Garden Journal",exact:true}).click();
+  await navigateGarden(page, 'Garden Journal');
   await page.getByRole("button",{name:"Add observation",exact:true}).click();
   assert.equal(await page.getByLabel("Growing space (optional)").inputValue(), "");
   await page.getByLabel("Observation",{exact:true}).fill("Butterflies visited today.");
@@ -79,7 +79,7 @@ try {
   await gp.getByRole("button",{name:"Sign in",exact:true}).waitFor();
   await gp.screenshot({path:"/workspace/scratch/guest-signin-mobile.png"});
   await gp.getByRole("button",{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
-  await gp.getByRole("navigation").getByRole("button",{name:"Garden Journal",exact:true}).click();
+  await navigateGarden(gp, 'Garden Journal');
   await gp.getByRole("button",{name:"Add observation",exact:true}).click();
   await gp.getByLabel("Observation",{exact:true}).fill("My first guest observation.");
   await gp.getByRole("button",{name:"Save observation",exact:true}).click();

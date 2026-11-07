@@ -377,7 +377,7 @@ a:focus-visible {
 .modern-sidebar nav button[aria-current="page"] {
   background: #ffffff24;
 }
-.modern-sidebar nav button:nth-child(9) {
+.modern-sidebar nav button.sidebar-secondary-start {
   margin-top: 20px;
   border-top: 1px solid #d6d0a640;
   border-radius: 0;
@@ -967,7 +967,7 @@ a:focus-visible {
   .modern-sidebar nav svg {
     display: none;
   }
-  .modern-sidebar nav button:nth-child(9) {
+  .modern-sidebar nav button.sidebar-secondary-start {
     margin: 0;
     padding: 6px 10px;
     border: 0;
@@ -1653,7 +1653,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .modern-sidebar nav button:hover {background:#ffffff18;color:#fffdf7;}
 .modern-sidebar nav button[aria-current="page"] {background:#fff8eb;color:var(--atelier-dark);font-weight:600;box-shadow:0 2px 8px #0000000a;}
 .modern-sidebar button:focus-visible {outline:2px solid #fff8eb;outline-offset:3px;}
-.modern-sidebar nav button:nth-child(9) {border-color:#ffffff35;margin-top:16px;}
+.modern-sidebar nav button.sidebar-secondary-start {border-color:#ffffff35;margin-top:16px;}
 .modern-brand:has(.garden-atelier-mark) {align-items:center;padding:0 0 24px;gap:0;}
 .garden-atelier-mark {height:96px;width:177px;background:#fffdf7;border-radius:12px;}
 .garden-atelier-mark img {width:177px;}
@@ -1707,7 +1707,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .stat-icon {background:var(--atelier-light);color:var(--atelier-deep);}
 @media(min-width:1600px) {.atelier-welcome-banner{min-height:350px;}}
 @media(max-width:1200px) {.atelier-home-sections{grid-template-columns:1fr;}.atelier-gardens-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));}}
-@media(max-width:800px) {.modern-sidebar{padding:16px;overflow:visible}.modern-sidebar nav button{min-height:42px}.modern-sidebar nav button:nth-child(9){margin:0}.modern-brand:has(.garden-atelier-mark){padding-bottom:14px}.atelier-welcome-banner{min-height:270px}.atelier-welcome-copy{width:50%}.atelier-welcome-copy h1{font-size:39px}.atelier-season-label{font-size:9px;letter-spacing:1px}.atelier-home-sections{margin:18px 0;gap:18px}}
+@media(max-width:800px) {.modern-sidebar{padding:16px;overflow:visible}.modern-sidebar nav button{min-height:42px}.modern-sidebar nav button.sidebar-secondary-start{margin:0}.modern-brand:has(.garden-atelier-mark){padding-bottom:14px}.atelier-welcome-banner{min-height:270px}.atelier-welcome-copy{width:50%}.atelier-welcome-copy h1{font-size:39px}.atelier-season-label{font-size:9px;letter-spacing:1px}.atelier-home-sections{margin:18px 0;gap:18px}}
 @media(max-width:540px) {.atelier-welcome-banner{min-height:330px;align-items:flex-start;padding:24px;background-position:70% bottom;background-size:auto 210px;background-repeat:no-repeat;}.atelier-welcome-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(#faf4e6 0%,#faf4e6 30%,#faf4e680 55%,transparent 78%)}.atelier-welcome-copy{width:100%}.atelier-season-label{margin-bottom:10px}.atelier-welcome-copy h1{font-size:39px;margin-bottom:10px}.atelier-welcome-copy h1>span{font-size:23px}.atelier-welcome-copy>span{font-size:13px}.atelier-home-sections .modern-card{padding:18px}.atelier-gardens-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.atelier-garden-art{height:120px}.atelier-garden-tile strong{font-size:16px}.atelier-add-garden{min-height:200px}.modern-card h2{font-size:24px}.modern-theme{gap:4px;padding:8px}.modern-topbar{gap:8px}.modern-search{padding:10px;flex-basis:48%;}.modern-search input{width:100%;}.modern-account{flex-shrink:0}}
 @media(prefers-reduced-motion:reduce){.atelier-garden-tile,.atelier-add-garden{transition:none}}
 .atelier-layout-empty {min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--atelier-light);border-radius:10px;margin-bottom:12px;text-align:center;padding:20px;}
@@ -2377,3 +2377,13 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 @media (max-width: 1023px) {
   .landing-welcome-card { order: -1; }
 }
+
+/* Calendar, tasks, and journal retain their routes within one sidebar section. */
+.growing-hub-navigation {display:flex;gap:6px;padding:7px;background:#eee8db;border:1px solid #ded5c4;border-radius:14px;margin:4px 0 22px;width:fit-content;max-width:100%;}
+.growing-hub-navigation button {display:flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:10px 22px;border:1px solid transparent;border-radius:9px;color:var(--foreground);font-size:14px;font-weight:500;white-space:nowrap;}
+.growing-hub-navigation svg {width:19px;height:19px;flex-shrink:0;}
+.growing-hub-navigation button[aria-current="page"] {background:var(--atelier-deep);color:#fff8eb;border-color:var(--atelier-deep);box-shadow:0 2px 5px #4f452117;font-weight:600;}
+.growing-hub-navigation button:hover:not([aria-current]) {background:#fbf7ee;}
+.growing-hub-navigation button:focus-visible {outline:2px solid var(--primary);outline-offset:3px;}
+@media(max-width:600px){.growing-hub-navigation{width:100%;gap:3px;padding:5px;}.growing-hub-navigation button{font-size:12px;gap:6px;padding:9px 10px;flex:1 0 auto;min-width:0;}.growing-hub-navigation svg{width:16px;height:16px;}}
+@media(max-width:360px){.growing-hub-navigation button{gap:0;padding-inline:8px;}.growing-hub-navigation svg{display:none;}}

@@ -30,7 +30,7 @@ import {
 import { dailyRecommendations } from "@/lib/connected-garden";
 import { loadCustomLayouts } from "@/components/BlankGardenLayout";
 import { initialLayout, nineBedLayout } from "@/lib/garden-layout";
-import { navigationDestinations, type Destination } from "@/lib/navigation";
+import { navigationDestinations, sidebarDestination, type Destination } from "@/lib/navigation";
 export { destinations, type Destination } from "@/lib/navigation";
 const navigationIconPaths: Record<string, string> = {
   "Dashboard": "M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7",
@@ -97,7 +97,8 @@ export function ConservatoryNavigation({
         {navigationDestinations(guest).map((name) => (
           <button
             key={name}
-            aria-current={page === name || (page === "Flower Garden" && name === "My Gardens") ? "page" : undefined}
+            aria-current={sidebarDestination(page) === name ? "page" : undefined}
+            className={name === "Settings" ? "sidebar-secondary-start" : undefined}
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />

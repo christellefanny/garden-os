@@ -1,3 +1,4 @@
+import { navigateGarden } from './helpers/navigate.mjs';
 // Isolated guest/member fixture. No production records or location requests.
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
@@ -28,7 +29,7 @@ try {
  await taskDialog.getByLabel('Task',{exact:true}).fill('Buy seed trays');await taskDialog.getByLabel('Due date',{exact:true}).fill('2020-01-01');await taskDialog.getByLabel('Notes (optional)',{exact:true}).fill('Check the garage before ordering');
  await taskDialog.getByRole('button',{name:'Save task',exact:true}).click();await page.locator('.week-card').getByText('Buy seed trays',{exact:true}).waitFor();
  await page.reload();await page.locator('.week-card').getByText('Buy seed trays',{exact:true}).waitFor();assert.equal(await page.locator('.week-card').getByText('Overdue',{exact:true}).count(),1);
- await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Tasks',exact:true}).click();await page.getByText('Check the garage before ordering',{exact:false}).waitFor();
+ await navigateGarden(page, 'Tasks');await page.getByText('Check the garage before ordering',{exact:false}).waitFor();
  await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Add task',exact:false}).click();await taskDialog.waitFor();await page.screenshot({path:'docs/previews/layout-studio/add-task-mobile.png',fullPage:true});
  const taskAxe=await new AxeBuilder({page}).include('dialog').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(taskAxe.violations.map(v=>v.id),[]);await taskDialog.getByRole('button',{name:'Cancel',exact:true}).click();
  await page.getByRole('button',{name:'Complete Buy seed trays for Personal task',exact:true}).click();await page.reload();assert.equal(await page.getByRole('button',{name:'Complete Buy seed trays for Personal task',exact:true}).count(),0);

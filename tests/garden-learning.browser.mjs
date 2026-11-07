@@ -34,7 +34,7 @@ try {
   const labels=await nav.getByRole('button').allTextContents();
   assert.equal(labels[labels.indexOf('My Gardens')-1],'Plan & Design');
   assert.equal(labels[labels.indexOf('My Gardens')+1],'Garden Inspiration');
-  assert.equal(labels[labels.indexOf('Tasks')-1],'Flower Corner');
+  assert.equal(labels[labels.indexOf('Settings')-1],'Flower Corner');
   assert.ok(!labels.includes('Flower Garden')&&!labels.includes('Blooms'));
   await nav.getByRole('button',{name:'My Gardens',exact:true}).click();
   await page.getByRole('button',{name:'Open Blooms →',exact:true}).click();

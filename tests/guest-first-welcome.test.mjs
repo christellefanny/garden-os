@@ -9,12 +9,12 @@ import ts from 'typescript';
 const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
 const source = read('components/GardenApp.tsx');
 const output = ts.transpileModule(`${source}\nexport { Welcome };`, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-const module = { exports: {} };
+const compiled = { exports: {} };
 vm.runInNewContext(output, {
-  exports: module.exports,
+  exports: compiled.exports,
   require: name => name === 'react' ? React : name === 'react/jsx-runtime' ? jsx : name === '@/lib/supabase' ? { supabase: {} } : { __esModule: true, default: () => null },
 });
-const render = props => renderToStaticMarkup(React.createElement(module.exports.Welcome, { authError: '', onGuest() {}, savingGuest: false, initialMode: 'signin', ...props }));
+const render = props => renderToStaticMarkup(React.createElement(compiled.exports.Welcome, { authError: '', onGuest() {}, savingGuest: false, initialMode: 'signin', ...props }));
 
 test('first-time welcome leads with a filled guest button and collapsed sign-in fields', () => {
   const html = render();

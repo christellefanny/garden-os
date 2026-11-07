@@ -62,12 +62,6 @@ export default function GrowingCalendar({
   );
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
-    headingRef.current?.scrollIntoView({
-      block: "start",
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "auto"
-        : "smooth",
-    });
   }, []);
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   useEffect(() => {

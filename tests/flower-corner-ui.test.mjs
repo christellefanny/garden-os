@@ -11,7 +11,7 @@ test('Flower Corner has a public route without account or guest dependencies',()
  assert.doesNotMatch(read('components/GardenApp.tsx'),/Explore Flower Corner — no account needed/);
 });
 test('Flower Corner preserves nav position and legacy Library bookmarks',()=>{
- for(const guest of [true,false]){const nav=navigationDestinations(guest);assert.equal(nav[nav.indexOf('Tasks')-1],'Flower Corner');assert.equal(nav[nav.indexOf('My Gardens')-1],'Garden Layout');assert.equal(nav[nav.indexOf('My Gardens')+1],'Garden Inspiration');}
+ for(const guest of [true,false]){const nav=navigationDestinations(guest);assert.equal(nav[nav.indexOf('Settings')-1],'Flower Corner');assert.equal(nav[nav.indexOf('My Gardens')-1],'Garden Layout');assert.equal(nav[nav.indexOf('My Gardens')+1],'Garden Inspiration');}
  assert.match(read('components/GardenWorkspace.tsx'),/requestedView === "flower-library" \? "flower-corner"/);
 });
 test('public library consolidates sourced profiles and linked care techniques',()=>{

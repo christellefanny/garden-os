@@ -28,6 +28,8 @@ import NewGardenModal from "@/components/NewGardenModal";
 import SpaceEditor, { type SpaceInput } from "@/components/SpaceEditor";
 import SpacePanel from "@/components/SpacePanel";
 import PlantPlanner from "@/components/PlantPlanner";
+import GrowingCalendarNavigation from "@/components/GrowingCalendarNavigation";
+import { isGrowingCalendarDestination } from "@/lib/navigation";
 import GrowingCalendar from "@/components/GrowingCalendar";
 import PlantVault from "@/components/PlantVault";
 import FlowersPage from "@/components/FlowersPage";
@@ -469,6 +471,7 @@ export default function GardenWorkspace({
             onSearch={setSearch}
             navigate={navigate}
           />
+          {isGrowingCalendarDestination(page) && <GrowingCalendarNavigation page={page} navigate={navigate} />}
           {page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} /></section>}
           {search && (
             <section className="modern-card search-results">
