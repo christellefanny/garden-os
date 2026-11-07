@@ -3,10 +3,12 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import { createCloudSync } from "@/lib/cloud-sync";
 export type SyncInfo = {
   status: string;
   conflicts: string[];
@@ -22,15 +24,6 @@ const Context = createContext<SyncInfo>({
   download: () => {},
 });
 export const useCloudData = () => useContext(Context);
-const prefixes = [
-  "garden-os-plant-vault-",
-  "garden-os-calendar-",
-  "garden-os-journal-",
-  "garden-os-layout-",
-  "garden-os-custom-layouts-",
-  "garden-os-original-layout-name-",
-  "garden-os-layout-selection-",
-];
 export default function CloudDataBoundary({
   userId,
   children,
@@ -42,194 +35,44 @@ export default function CloudDataBoundary({
     [ready, setReady] = useState(userId === "guest"),
     [conflicts, setConflicts] = useState<string[]>([]),
     [attempt, setAttempt] = useState(0);
+  const workspaceOpened = useRef(userId === "guest");
   useEffect(() => {
     if (userId === "guest") return;
-    let alive = true,
-      hydrating = true;
     const original = Storage.prototype.setItem;
-    const versions = new Map<string, number>();
-    const pendingKey = `garden-os-sync-pending-${userId}`;
-    let dirty: Record<string, string> = {};
-    try {
-      dirty = JSON.parse(localStorage.getItem(pendingKey) || "{}");
-    } catch {}
-    const pending = new Map<string, string>(Object.entries(dirty));
-    const blocked = new Set<string>();
-    const remember = () =>
-      original.call(localStorage, pendingKey, JSON.stringify(dirty));
-    let queue = Promise.resolve();
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const valid = (key: string) =>
-      prefixes.some((prefix) => key.startsWith(prefix)) &&
-      key.includes(userId) &&
-      !key.includes("before-") &&
-      !key.includes("backup") &&
-      !key.includes("conflict") &&
-      !key.endsWith("-cloud-base");
-    const token = async () => {
-      const { data } = await supabase.auth.getSession();
-      return data.session?.access_token;
-    };
-    const request = async (method: string, body?: unknown) => {
-      const response = await fetch("/api/state", {
-        method,
-        signal: AbortSignal.timeout(10000),
-        headers: {
-          Authorization: `Bearer ${await token()}`,
-          "Content-Type": "application/json",
-        },
-        ...(body ? { body: JSON.stringify(body) } : {}),
-      });
-      return {
-        ok: response.ok,
-        status: response.status,
-        data: await response.json(),
-      };
-    };
-    const flush = () => {
-      const edits = [...pending];
-      pending.clear();
-      queue = queue.then(async () => {
-        for (const [key, raw] of edits) {
-          if (!alive) return;
-          if (blocked.has(key)) continue;
-          let value;
-          try {
-            value = JSON.parse(raw);
-          } catch {
-            value = raw;
-          }
-          try {
-            const result = await request("PUT", {
-              key,
-              value,
-              version: versions.get(key) ?? 0,
-            });
-            if (!alive) return;
-            if (result.ok) {
-              versions.set(key, result.data.record.version);
-              original.call(localStorage, `${key}-cloud-base`, raw);
-              if (dirty[key] === raw) {
-                delete dirty[key];
-                remember();
-              }
-              setStatus("All changes synced to your account");
-            } else {
-              original.call(localStorage, `${key}-conflict-${Date.now()}`, raw);
-              blocked.add(key);
-              setConflicts((current) => [...new Set([...current, key])]);
-              setStatus(
-                result.status === 409
-                  ? "A device conflict needs review. Local changes are preserved."
-                  : "Cloud unavailable. Changes are saved in this browser.",
-              );
-            }
-          } catch {
-            pending.set(key, raw);
-            if (alive)
-              setStatus(
-                "Offline. Changes are saved locally and will retry when connected.",
-              );
-          }
-        }
-      });
-    };
+    const sync = createCloudSync({
+      userId,
+      storage: localStorage,
+      write: (key, value) => original.call(localStorage, key, value),
+      request: async (method, body) => {
+        const { data } = await supabase.auth.getSession();
+        const response = await fetch("/api/state", {
+          method,
+          signal: AbortSignal.timeout(10000),
+          headers: {
+            Authorization: `Bearer ${data.session?.access_token}`,
+            "Content-Type": "application/json",
+          },
+          ...(body ? { body: JSON.stringify(body) } : {}),
+        });
+        return { ok: response.ok, status: response.status, data: await response.json() };
+      },
+      onStatus: setStatus,
+      onConflicts: setConflicts,
+      canHydrate: () => !workspaceOpened.current,
+      onReady: () => { workspaceOpened.current = true; setReady(true); },
+      onDataChange: () => window.dispatchEvent(new Event("garden-os-data-change")),
+    });
     const patch = function (this: Storage, key: string, value: string) {
       original.call(this, key, value);
-      if (this === localStorage && valid(key) && !hydrating) {
-        pending.set(key, value);
-        dirty[key] = value;
-        remember();
-        window.dispatchEvent(new Event("garden-os-data-change"));
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(flush, 700);
-      }
+      if (this === localStorage) sync.edit(key, value);
     };
-    async function start() {
-      try {
-        const result = await request("GET");
-        if (!alive) return;
-        if (!result.ok) {
-          setStatus(
-            result.data.setup
-              ? "Cloud setup required. Existing data is preserved locally."
-              : "Cloud unavailable. Existing data is preserved locally.",
-          );
-          hydrating = false;
-          setReady(true);
-          return;
-        }
-        const remote = new Map<string, { value: unknown; version: number }>(
-          (result.data.records ?? [])
-            .filter((record: { key: string }) => valid(record.key))
-            .map((record: { key: string; value: unknown; version: number }) => [
-              record.key,
-              record,
-            ]),
-        );
-        for (const [key, record] of remote) {
-          versions.set(key, record.version);
-          const cloud =
-            typeof record.value === "string"
-              ? record.value
-              : JSON.stringify(record.value);
-          const local = localStorage.getItem(key);
-          const base = localStorage.getItem(`${key}-cloud-base`);
-          if (local && local !== cloud && local !== base) {
-            original.call(localStorage, `${key}-before-cloud-migration`, local);
-            original.call(localStorage, `${key}-cloud-conflict`, cloud);
-            blocked.add(key);
-            pending.delete(key);
-            setConflicts((current) => [...new Set([...current, key])]);
-            continue;
-          }
-          original.call(localStorage, key, cloud);
-          original.call(localStorage, `${key}-cloud-base`, cloud);
-        }
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (
-            !key ||
-            !valid(key) ||
-            key.endsWith("-cloud-base") ||
-            remote.has(key)
-          )
-            continue;
-          const raw = localStorage.getItem(key);
-          if (raw) {
-            pending.set(key, raw);
-            dirty[key] = raw;
-            remember();
-            original.call(localStorage, `${key}-before-cloud-migration`, raw);
-          }
-        }
-        hydrating = false;
-        Storage.prototype.setItem = patch;
-        setReady(true);
-        setStatus(
-          blocked.size
-            ? "Cloud connected. Some local/cloud differences need review; both versions are preserved."
-            : "Cloud connected. Local backups retained.",
-        );
-        window.dispatchEvent(new Event("garden-os-data-change"));
-        flush();
-      } catch {
-        if (alive) {
-          hydrating = false;
-          setReady(true);
-          setStatus("Cloud unavailable. Your browser data is safe.");
-        }
-      }
-    }
-    void start();
-    const online = () => {
-      flush();
-    };
-    window.addEventListener("online", online);
+    // Install before loading: edits remain tracked even if the first read fails.
+    Storage.prototype.setItem = patch;
+    void sync.start();
+    window.addEventListener("online", sync.retry);
     return () => {
-      alive = false;
-      window.removeEventListener("online", online);
-      if (timer) clearTimeout(timer);
+      sync.stop();
+      window.removeEventListener("online", sync.retry);
       if (Storage.prototype.setItem === patch)
         Storage.prototype.setItem = original;
     };

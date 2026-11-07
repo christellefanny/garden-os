@@ -22,16 +22,19 @@ import type { Garden } from "@/lib/garden";
 import BotanicalCalendar from "@/components/BotanicalCalendar";
 
 import PhoneReminders from "@/components/PhoneReminders";
+import AddTaskButton from "@/components/AddTaskButton";
 export default function GrowingCalendar({
   userId,
   location,
   garden,
   gardens,
+  onAddPlant,
 }: {
   userId: string;
   location?: string;
   garden?: Garden;
   gardens: Garden[];
+  onAddPlant: () => void;
 }) {
   const [plants] = useState<VaultPlant[]>(() => {
     try {
@@ -196,6 +199,17 @@ export default function GrowingCalendar({
         </button>
       </InteriorHeader>
 
+      {!plants.length && <section className="seasonal-card my-6 rounded-2xl border p-5 sm:p-7" aria-labelledby="calendar-start-title">
+        <p className="modern-eyebrow">Start with one small thing</p>
+        <h2 id="calendar-start-title" className="font-serif text-3xl">Make this calendar yours</h2>
+        <p className="seasonal-muted mt-3 max-w-2xl text-sm leading-7">Save a task like checking a seed packet or watering a pot. No plant is needed. For plant-specific suggestions, add your first plant to a growing space.</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <AddTaskButton userId={userId} label={options.reminders?.length ? "Add a task" : "Add your first task"} onSaved={setOptions} />
+          <button type="button" className="seasonal-outline min-h-11 rounded-xl border px-4" onClick={onAddPlant}>{garden ? "Add your first plant" : "Create your first garden"}</button>
+        </div>
+        <p className="seasonal-muted mt-3 text-xs">{userId === "guest" ? "Saved only in this browser. Use Save to an account above to keep it across devices." : "Your tasks use your account’s existing synchronization."}</p>
+      </section>}
+
       <section className="seasonal-card my-6 rounded-2xl border p-5 sm:p-7" aria-labelledby="calendar-focus-title">
         <p className="modern-eyebrow">Your next steps</p>
         <h2 id="calendar-focus-title" className="font-serif text-3xl">Today & this week</h2>
@@ -283,9 +297,11 @@ export default function GrowingCalendar({
               )}
             </>
           ) : (
-            <p className="seasonal-muted">
-              Add a plant to your Plant Vault first to create a plant reminder.
-            </p>
+            <div>
+              <p className="seasonal-muted mb-4">Plant reminders need a saved plant. Add one to a bed or container to get started.</p>
+              <button type="button" className="seasonal-button min-h-11 rounded-xl px-4" onClick={() => { setAddingReminder(false); onAddPlant(); }}>{garden ? "Add your first plant" : "Create your first garden"}</button>
+              <p className="seasonal-muted mt-4 text-sm">For a task that is not tied to a plant, close this window and choose Add task.</p>
+            </div>
           )}
           <div ref={setControlsTarget} />
         </Dialog>
@@ -468,12 +484,6 @@ export default function GrowingCalendar({
           <button type="button" className="seasonal-outline rounded-lg border px-4 py-2" onClick={() => setConfirmBulkDelete(false)}>Cancel</button>
         </div>
       </Dialog>}
-      {!plants.length && (
-        <p className="seasonal-card mt-5 rounded-xl border p-6">
-          Add plants in Plant Vault first, then return here to build your
-          calendar.
-        </p>
-      )}
       {dayOpen && !detailTask && !editingTaskId && !confirmBulkDelete && <Dialog title={selectedDay
         ? new Date(`${selectedDay}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })
         : "This week’s tasks"} onClose={() => { setDayOpen(false); if (view === "week") { setView("month"); setYear(Number(month.slice(0, 4))); } }}>

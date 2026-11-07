@@ -1,0 +1,14 @@
+.card { margin: 1.5rem 0; padding: clamp(1.2rem, 3vw, 2rem); border: 1px solid var(--border); border-radius: 1.5rem; background: var(--surface); }
+.card h2 { margin-top: .35rem; font-family: Georgia, serif; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--foreground); line-height: 1.2; }
+.intro { margin-top: .65rem; font-size: .95rem; line-height: 1.7; }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; list-style: none; margin: 1.5rem 0; padding: 0; }
+.steps li { display: flex; align-items: flex-start; gap: .65rem; min-width: 0; }
+.number { display: grid; place-items: center; flex: 0 0 2rem; height: 2rem; border: 1px solid var(--border); border-radius: 50%; font-size: .85rem; font-weight: 600; }
+.done .number { background: #e7eee0; color: #314c30; border-color: #bdcbb3; }
+.steps h3 { font-size: .9rem; font-weight: 600; line-height: 1.4; }
+.steps p { margin-top: .3rem; font-size: .78rem; line-height: 1.5; overflow-wrap: anywhere; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem 1.2rem; border-top: 1px solid var(--border); padding-top: 1.2rem; }
+.actions button { min-height: 44px; padding: .75rem 1.2rem; border-radius: .7rem; }
+.actions p { font-size: .8rem; line-height: 1.5; flex: 1 1 200px; }
+@media (max-width: 700px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem .75rem; } }
+@media (max-width: 360px) { .steps { grid-template-columns: minmax(0, 1fr); } }
