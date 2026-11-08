@@ -2,9 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import type { VaultPlant } from "@/components/PlantVault";
-import { plantChoices } from "@/lib/plant-picker";
+import { plantChoices, resolvePlantCategory } from "@/lib/plant-picker";
 import { CompanionPlanting, CompanionBedCheck } from "@/components/CompanionPlanting";
 import Dialog from "@/components/ui/Dialog";
+import VegetableSoilGuidance from "@/components/VegetableSoilGuidance";
 import { Field } from "@/components/SpaceEditor";
 import {
   localDate,
@@ -53,6 +54,8 @@ export default function SpacePanel({
   const [panel,setPanel]=useState("plants");
   const [removing, setRemoving] = useState<string | null>(null);
   const editedPlant = details.plants.find((p) => p.id === plantEditor);
+  // The guidance and saved record use the same category after a custom rename.
+  const guidanceCategory = resolvePlantCategory(plantName, selected, editedPlant);
   async function savePlant(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const f = new FormData(event.currentTarget),
@@ -78,7 +81,7 @@ export default function SpacePanel({
       id: editedPlant?.id ?? crypto.randomUUID(),
       name,
       vaultPlantId: selected?.source === "vault" && selected.variety === variety ? selected.id.slice(6) : editedPlant?.name === name && editedPlant.variety === variety ? editedPlant.vaultPlantId : undefined,
-      category: selected?.category || editedPlant?.category,
+      category: resolvePlantCategory(name, selected, editedPlant),
       variety,
       quantity,
       spacing,
@@ -284,6 +287,14 @@ export default function SpacePanel({
                 <label className="block text-sm font-bold">Plant name<input name="name" value={plantName} onChange={event => setPlantName(event.target.value)} required maxLength={100} placeholder="Enter a plant not listed…" className="seasonal-input mt-1 w-full rounded-xl border p-3" /></label>
                 <Field name="variety" label="Variety (optional)" value={editedPlant?.variety} maxLength={100} />
               </>}
+              <VegetableSoilGuidance
+                name={selected?.name ?? plantName}
+                category={guidanceCategory}
+                spaceId={space.id}
+                spaceType={space.type}
+                mode="contextual"
+                headingLevel={5}
+              />
               <div className="grid grid-cols-2 gap-3">
                 <label className="block text-sm font-bold">
                   Quantity

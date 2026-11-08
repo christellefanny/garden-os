@@ -1,0 +1,116 @@
+.card {
+  /* Keep small copy above AA contrast on the slightly darker advice surface. */
+  --soil-muted: color-mix(in srgb, var(--foreground, #293d30) 80%, var(--surface-alt, #f5f4eb) 20%);
+  min-width: 0;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid var(--border, #dce0d0);
+  border-radius: 16px;
+  background: var(--surface-alt, #f5f4eb);
+  color: var(--foreground, #293d30);
+  overflow-wrap: anywhere;
+}
+
+.heading {
+  margin: 0 0 8px;
+  color: var(--primary-dark, #284330);
+  font: 400 25px/1.25 Georgia, "Times New Roman", serif;
+}
+
+.intro, .notice, .contextNote {
+  margin: 0;
+  color: var(--soil-muted, #526052);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.planterNote { margin: 9px 0 0; color: var(--soil-muted, #526052); font-size: 12px; line-height: 1.75; }
+
+.methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0 8px;
+}
+
+.methods button {
+  min-height: 44px;
+  flex: 1 1 115px;
+  padding: 9px 14px;
+  border: 1px solid var(--border, #dce0d0);
+  border-radius: 10px;
+  background: var(--surface, #fffdf7);
+  color: var(--primary-dark, #284330);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.methods button[aria-pressed="true"] {
+  border-color: var(--primary, #44664d);
+  background: var(--primary-soft, #e9eee5);
+  box-shadow: inset 0 0 0 1px var(--primary, #44664d);
+}
+
+.methods button:hover { border-color: var(--primary, #44664d); }
+
+.rows { margin: 0; }
+.row { position: relative; padding-left: 45px; margin: 21px 0; }
+.row dt { font-size: 13px; font-weight: 700; line-height: 1.5; }
+.row dd { margin: 6px 0 0; color: var(--soil-muted, #526052); font-size: 13px; line-height: 1.8; }
+
+.icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--surface, #fffdf7);
+  color: var(--primary, #44664d);
+}
+.icon svg { width: 22px; height: 22px; }
+
+.learnMore { border-top: 1px solid var(--border, #dce0d0); margin-top: 18px; }
+.learnMore summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 0;
+  color: var(--primary-dark, #284330);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  cursor: pointer;
+  list-style: none;
+}
+.learnMore summary::-webkit-details-marker { display: none; }
+.learnMore summary::marker { content: ""; }
+.disclosureMark { position: relative; flex: 0 0 16px; width: 16px; height: 16px; }
+.disclosureMark::before, .disclosureMark::after { content: ""; position: absolute; top: 7px; left: 2px; width: 12px; height: 1.5px; background: currentColor; }
+.disclosureMark::after { transform: rotate(90deg); }
+.learnMore[open] .disclosureMark::after { display: none; }
+.moreBody { padding: 0 0 5px; color: var(--soil-muted, #526052); font-size: 12px; line-height: 1.8; }
+.moreBody p { margin: 0 0 12px; }
+.moreBody .ph { color: var(--primary-dark, #284330); }
+.moreBody ul { margin: 0 0 12px; padding-left: 18px; list-style: disc; }
+.moreBody li { margin: 8px 0; }
+
+.sources { border-top: 1px solid var(--border, #dce0d0); padding-top: 12px; margin-top: 8px; }
+.sources p { margin: 0 0 8px; color: var(--soil-muted, #526052); font-size: 11px; font-weight: 600; }
+.sources ul { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; list-style: none; }
+.sources li { min-width: 0; max-width: 100%; font-size: 11px; line-height: 1.8; }
+.card .sources a { color: var(--primary-dark, #284330); text-decoration: underline; text-underline-offset: 3px; }
+.card a:focus-visible, .card button:focus-visible, .card summary:focus-visible { outline: 3px solid var(--primary, #44664d); outline-offset: 3px; border-radius: 3px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+@media (max-width: 380px) {
+  .card { padding: 16px 13px; }
+  .heading { font-size: 23px; }
+  .row { padding-left: 39px; }
+  .icon { width: 29px; height: 31px; }
+}

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import VegetableSoilGuidance from '@/components/VegetableSoilGuidance';
 import { BEGINNER_PLANTS, BEGINNER_COMPANION_NOTE, BEGINNER_COMPANION_SOURCES, BEGINNER_PLANTING_NOTE, type BeginnerPlant } from '@/lib/beginner-plants';
 import styles from './BeginnerPlantPicks.module.css';
 
@@ -51,6 +52,7 @@ export default function BeginnerPlantPicks({ mode }: { mode: 'page' | 'dialog' }
           <div className={styles.body}>
             <p className={styles.why}>{plant.why}</p>
             <dl className={styles.facts}>{fields.map(([field, label]) => <div key={field}><dt>{label}</dt><dd>{plant[field]}</dd></div>)}</dl>
+            {plant.kind === 'vegetable' && <VegetableSoilGuidance name={plant.name} category="Vegetable" headingLevel={mode === 'page' ? 4 : 5} />}
             {plant.guideSlug && <a className={styles.guideLink} href={`/flower-corner/${plant.guideSlug}`} target="_blank" rel="noopener noreferrer">Read the full flower guide <span>(opens in a new tab)</span></a>}
             <div className={styles.sources}><p>Sources &amp; further reading</p><ul>{plant.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}<span className={styles.srOnly}> (opens in a new tab)</span></a></li>)}</ul></div>
           </div>

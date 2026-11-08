@@ -11,6 +11,17 @@ export function catalogCategory(name: string) {
   const normalized = name.toLowerCase().replace(/tomatoes/g,"tomato").replace(/ies\b/g,"y").replace(/s\b/g,"");
   return plantCatalog.find(p => p.name.toLowerCase().replace(/s\b/g,"") === normalized)?.category;
 }
+/** Keep an explicit category only while it still belongs to this plant name. */
+export function resolvePlantCategory(
+  name: string,
+  selected?: { name: string; category?: string },
+  previous?: { name: string; category?: string },
+) {
+  const matches = (candidate: string) => candidate.trim().toLowerCase() === name.trim().toLowerCase();
+  if (selected && matches(selected.name)) return selected.category || catalogCategory(name);
+  if (previous && matches(previous.name)) return previous.category || catalogCategory(name);
+  return catalogCategory(name);
+}
 export function inferPlantFilter(space: Space, details: SpaceDetails, gardenName: string, vault: VaultPlant[]): PlantFilter {
   // The individual bed wins over a broader garden name, including mixed gardens.
   for (const text of [space.name, gardenName]) {
