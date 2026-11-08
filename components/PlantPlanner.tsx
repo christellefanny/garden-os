@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CompanionPlanting, CompanionBedCheck } from "@/components/CompanionPlanting";
 import { readDetails } from "@/lib/garden";
 import Dialog from "@/components/ui/Dialog";
+import VegetableSoilGuidance from "@/components/VegetableSoilGuidance";
 import {
   cropOptions,
   gridCapacity,
@@ -162,6 +163,7 @@ export default function PlantPlanner({
         Crop presets are starting examples; spacing is editable. Hydroponic
         setups need their own checks.
       </p>
+      <VegetableSoilGuidance name={crop} spaceId={selected?.id} spaceType={selected?.type ?? (round ? "Container" : "In-ground Bed")} mode="contextual" />
       {crop && <CompanionPlanting name={crop} />}
       {selected && <PlannerBedCheck space={selected} crop={crop} />}
       {selected && valid && (

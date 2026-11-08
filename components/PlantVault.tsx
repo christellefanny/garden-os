@@ -6,6 +6,7 @@ import InteriorHeader from "@/components/InteriorHeader";
 import Dialog from "@/components/ui/Dialog";
 import PlantReminders from "@/components/PlantReminders";
 import PhoneReminders from "@/components/PhoneReminders";
+import VegetableSoilGuidance from "@/components/VegetableSoilGuidance";
 import {
   loadCalendarOptions,
   reminderSnapshot,
@@ -495,6 +496,7 @@ export default function PlantVault({
           {viewedPlant.notes && (
             <PacketNotes notes={viewedPlant.notes} className="mt-4 break-words text-sm leading-6" />
           )}
+          <VegetableSoilGuidance name={viewedPlant.name} category={viewedPlant.category} />
           <CompanionPlanting name={viewedPlant.name} />
           <PlantReminders
             key={viewedPlant.id}

@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import * as learning from '../lib/garden-learning.ts';
 import * as presentation from '../lib/beginner-guide-presentation.ts';
 import * as plants from '../lib/beginner-plants.ts';
+import { SoilGuidance } from './helpers/soil-component.mjs';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const require = createRequire(import.meta.url);
@@ -26,6 +27,7 @@ const moduleStyles = new Proxy({}, { get: (_, key) => key === '__esModule' ? fal
 const PlantPicks = compile('components/BeginnerPlantPicks.tsx', {
   'next/image': ({ src, alt }) => React.createElement('img', { src, alt }),
   '@/lib/beginner-plants': plants,
+  '@/components/VegetableSoilGuidance': SoilGuidance,
   './BeginnerPlantPicks.module.css': moduleStyles,
 }).default;
 const articleMocks = {
@@ -144,7 +146,10 @@ test('standalone pages add artwork, skimmable cards and a true current-step path
     const popup = renderToStaticMarkup(React.createElement(Article, { guide, userId: 'guest', mode: 'dialog' }));
     assert.doesNotMatch(popup, /Six-step learning path|class="hero"|class="stepCard"|data-topic=/);
     if (guide.id !== 'planting') assert.doesNotMatch(popup, /<img/);
-    else assert.equal((popup.match(/<details /g) || []).length, 10);
+    else {
+      assert.equal((popup.match(/<details class="card"/g) || []).length, 10);
+      assert.equal((popup.match(/data-soil-guidance=/g) || []).length, 5);
+    }
     assert.match(popup, /class="learning-article learning-modal-article"/);
   }
 });

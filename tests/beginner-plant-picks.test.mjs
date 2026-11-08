@@ -7,6 +7,7 @@ import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import * as plants from '../lib/beginner-plants.ts';
+import { SoilGuidance } from './helpers/soil-component.mjs';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const require = createRequire(import.meta.url);
@@ -16,6 +17,7 @@ const source = read('components/BeginnerPlantPicks.tsx');
 const code = ts.transpileModule(source, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
 vm.runInNewContext(code, { exports, require: name => ({
   '@/lib/beginner-plants': plants,
+  '@/components/VegetableSoilGuidance': SoilGuidance,
   './BeginnerPlantPicks.module.css': moduleStyles,
   'next/image': ({ src, alt, width, height, style }) => React.createElement('img', { src, alt, width, height, style }),
 }[name] || require(name)) });
@@ -39,8 +41,10 @@ test('ten researched options have complete growing information and valid source 
 test('page and popup expose the same complete cards and safely open public flower guides', () => {
   for (const mode of ['page', 'dialog']) {
     const html = renderToStaticMarkup(React.createElement(Picks, { mode }));
-    assert.equal((html.match(/<details /g) || []).length, 10);
-    assert.equal((html.match(/<summary /g) || []).length, 10);
+    assert.equal((html.match(/<details class="card"/g) || []).length, 10);
+    assert.equal((html.match(/data-soil-guidance=/g) || []).length, 5);
+    assert.equal((html.match(/<details class="soil-learnMore"/g) || []).length, 5);
+    assert.equal((html.match(/<summary[ >]/g) || []).length, 15);
     assert.match(html, new RegExp(`<h${mode === 'page' ? 2 : 3} id="beginner-plants-heading"`));
     assert.match(html, /not a shopping list/);
     assert.doesNotMatch(html, /role="dialog"|<button|<input|<form|<details[^>]* open=/);
