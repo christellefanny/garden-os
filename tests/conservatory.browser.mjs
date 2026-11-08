@@ -297,7 +297,7 @@ const server = spawn(
     await page.getByRole("button", { name: "Plan View", exact: true }).click();
     await page
       .locator('nav[aria-label="Garden OS navigation"]')
-      .getByRole("button", { name: "Growing Calendar", exact: true })
+      .getByRole("button", { name: "Calendar", exact: true })
       .click();
     await page
       .getByRole("button",{name:"Planning settings",exact:true})
@@ -374,7 +374,7 @@ const server = spawn(
       .waitFor();
     await phone
       .locator('nav[aria-label="Garden OS navigation"]')
-      .getByRole("button", { name: "Growing Calendar", exact: true })
+      .getByRole("button", { name: "Calendar", exact: true })
       .click();
     await phone
       .getByRole("button",{name:"Planning settings",exact:true})

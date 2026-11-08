@@ -8,7 +8,7 @@ export default function GrowingCalendarNavigation({ page, navigate }: {
   navigate: (page: Destination) => void;
 }) {
   return (
-    <nav className="growing-hub-navigation" aria-label="Growing Calendar sections">
+    <nav className="growing-hub-navigation" aria-label="Calendar sections">
       {growingCalendarSections.map(section => (
         <button
           key={section.page}

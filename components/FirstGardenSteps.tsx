@@ -45,7 +45,7 @@ export default function FirstGardenSteps({ userId, garden, hasPlants, hasSpaces,
           : <AddTaskButton userId={userId} label="Add your first task" onSaved={onCalendar} />}
       <p>{!garden ? "Location and zone are optional. You can add them later."
         : !hasPlants ? "Save a growing space, then choose a plant to put in it."
-          : "Save a simple task, then see it in your Growing Calendar."}</p>
+          : "Save a simple task, then see it in your Calendar."}</p>
     </div>
   </section>;
 }

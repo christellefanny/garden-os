@@ -35,7 +35,7 @@ try {
   await page.getByText("Check the cut flowers",{exact:true}).waitFor();
   await page.reload();
   await page.getByText("Check the cut flowers",{exact:true}).waitFor();
-  await page.getByRole("navigation").getByRole("button",{name:"Growing Calendar",exact:true}).click();
+  await page.getByRole("navigation").getByRole("button",{name:"Calendar",exact:true}).click();
   await quick.click();
   await page.getByLabel("Task",{exact:true}).fill("Water the seedlings");
   await page.getByRole("button",{name:"Save task",exact:true}).click();

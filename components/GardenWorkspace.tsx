@@ -594,7 +594,7 @@ export default function GardenWorkspace({
                 </section>
                 <section className="settings-card"><p className="modern-eyebrow">Your growing world</p><h2>Garden account</h2><p>{gardens.length} {gardens.length===1?"garden":"gardens"} · {spaces.length} {spaces.length===1?"growing space":"growing spaces"}</p><p>Manage locations, gardening years, bed dimensions and growing spaces in My Gardens.</p><div className="interior-actions"><button className="seasonal-button" onClick={()=>navigate("My Gardens")}>Manage gardens</button><button className="seasonal-outline" onClick={()=>void onSignOut()}>{guestMode ? "Leave guest garden" : "Sign out"}</button></div></section>
                 <section className="settings-card appearance-card"><p className="modern-eyebrow">The rhythm of the year</p><h2>Seasonal appearance</h2><p>Choose Automatic or your favorite season in the top navigation. The conservatory stays familiar as its accents change.</p><div className="season-swatches" aria-hidden="true"><span>Spring</span><span>Summer</span><span>Fall</span><span>Winter</span></div></section>
-                <section className="settings-card"><p className="modern-eyebrow">A gentle nudge</p><h2>Care reminders & weekly emails</h2><p>Open Growing Calendar for weekly email settings. Use Add reminder there to manage phone notifications and individual reminders.</p><button className="seasonal-outline" onClick={()=>navigate("Growing Calendar")}>Notification settings</button></section>
+                <section className="settings-card"><p className="modern-eyebrow">A gentle nudge</p><h2>Care reminders & weekly emails</h2><p>Open Calendar for weekly email settings. Use Add reminder there to manage phone notifications and individual reminders.</p><button className="seasonal-outline" onClick={()=>navigate("Growing Calendar")}>Notification settings</button></section>
               </div>
             </section>
           )}
@@ -686,7 +686,7 @@ export default function GardenWorkspace({
                 <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{garden?.name || "Create your first garden"}</p><p className="seasonal-muted mt-1 text-xs">A place for your plans, plants, and progress.</p></div>
                 <div className="flex flex-wrap gap-3">
                   <button type="button" onClick={()=>navigate("Garden Layout")} className="seasonal-outline min-h-11 rounded-xl border px-4">Plan &amp; Design</button>
-                  <button type="button" onClick={()=>navigate("Growing Calendar")} className="seasonal-outline min-h-11 rounded-xl border px-4">Growing calendar</button>
+                  <button type="button" onClick={()=>navigate("Growing Calendar")} className="seasonal-outline min-h-11 rounded-xl border px-4">Calendar</button>
                   <button type="button" onClick={()=>setPlanner(true)} className="seasonal-outline min-h-11 rounded-xl border px-4">Plant planner</button>
                   {garden && (
                     <>

@@ -37,7 +37,7 @@ for (const guest of [false, true]) test(`grouping retains all routes and one sid
     assert.equal(navigation.sidebarDestination(page), 'Growing Calendar');
     const html = renderToStaticMarkup(React.createElement(ui.ConservatoryNavigation, { guest, page, navigate: () => {}, onSignOut: () => {} }));
     assert.equal((html.match(/aria-current="page"/g) || []).length, 1);
-    assert.match(html, /aria-current="page"[^>]*><svg[\s\S]*?<span>Growing Calendar<\/span>/);
+    assert.match(html, /aria-current="page"[^>]*><svg[\s\S]*?<span>Calendar<\/span>/);
     assert.doesNotMatch(html, /<span>(Tasks|Garden Journal)<\/span>/);
   }
   assert.equal(navigation.sidebarDestination('Flower Garden'), 'My Gardens');
@@ -50,7 +50,7 @@ for (const guest of [false, true]) test(`grouping retains all routes and one sid
 for (const { page } of navigation.growingCalendarSections) test(`${page} shows all three keyboard-native section buttons with one current page`, () => {
   const called = [];
   const tree = Sections({ page, navigate: next => called.push(next) });
-  assert.equal(tree.props['aria-label'], 'Growing Calendar sections');
+  assert.equal(tree.props['aria-label'], 'Calendar sections');
   const buttons = React.Children.toArray(tree.props.children);
   assert.deepEqual(buttons.map(button => button.props.children[1]), ['Calendar', 'Tasks', 'Garden Journal']);
   assert.equal(buttons.filter(button => button.props['aria-current'] === 'page').length, 1);

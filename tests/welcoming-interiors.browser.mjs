@@ -52,7 +52,7 @@ try {
  await nav.getByRole('button',{name:'Plant Vault',exact:true}).click();
  await page.getByRole('button',{name:'Add plant',exact:true}).click();await page.getByRole('heading',{name:'Add to your collection',exact:true}).waitFor();await page.getByRole('button',{name:'×',exact:true}).click();
  await page.getByRole('button',{name:'Collection tools',exact:true}).click();await page.getByRole('button',{name:'Export Plant Vault',exact:true}).waitFor();await page.keyboard.press('Escape');
- await nav.getByRole('button',{name:'Growing Calendar',exact:true}).click();
+ await nav.getByRole('button',{name:'Calendar',exact:true}).click();
  await page.getByRole('button',{name:'Planning settings',exact:true}).click();await page.getByRole('dialog').waitFor();await page.getByRole('dialog').getByRole('button',{name:'Close dialog',exact:true}).click();
  await page.getByRole('button',{name:'Add reminder',exact:true}).click();await page.getByRole('dialog').waitFor();await page.getByRole('dialog').getByRole('button',{name:'Close dialog',exact:true}).click();
  await page.getByRole('button',{name:'Monthly Calendar',exact:true}).click();await page.getByRole('button',{name:/gardening steps/}).first().click();

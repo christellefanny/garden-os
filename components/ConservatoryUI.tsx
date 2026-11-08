@@ -102,7 +102,7 @@ export function ConservatoryNavigation({
             onClick={() => navigate(name)}
           >
             <LineIcon name={name} />
-            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Growing Calendar",Journal:"Garden Journal"} as Record<string,string>)[name] || name}</span>
+            <span>{({Dashboard:"Home","Garden Layout":"Plan & Design","Growing Calendar":"Calendar",Journal:"Garden Journal"} as Record<string,string>)[name] || name}</span>
           </button>
         ))}
       </nav>
@@ -458,7 +458,7 @@ export function ModernDashboard({
             ))
           ) : (
             <p className="empty-copy">
-              No scheduled steps this week. {userId === "guest" ? "Create a reminder in Growing Calendar." : "Add plants to your vault or create a reminder in Growing Calendar."}
+              No scheduled steps this week. {userId === "guest" ? "Create a reminder in Calendar." : "Add plants to your vault or create a reminder in Calendar."}
             </p>
           )}
         </section>
@@ -605,7 +605,7 @@ export function TasksPage({
       <InteriorHeader illustration="tasks" title="Tasks" eyebrow="Little by little, a garden grows" description="A few thoughtful steps for today and the days ahead. Make a little time for the garden, and enjoy watching it grow.">
         <AddTaskButton userId={userId} onSaved={setOptions}/>
         <ItemPicturesButton userId={userId} collection="tasks" title="Task pictures"/>
-        <button className="seasonal-outline" onClick={onCalendar}>Open Growing Calendar</button>
+        <button className="seasonal-outline" onClick={onCalendar}>Open Calendar</button>
       </InteriorHeader>
       <InteriorStats items={[{label:"Due today",value:tasks.filter(t=>t.date===today).length},{label:"Next seven days",value:tasks.filter(t=>t.date>=today&&t.date<=shiftDay(today,7)).length},{label:"Saved reminders",value:tasks.filter(t=>options.reminders?.some(r=>r.id===t.id)).length}]}/>
       <div className="interior-toolbar"><div className="collection-tabs">{[{id:"today",label:"Today"},{id:"week",label:"This week"},{id:"all",label:"Upcoming"}].map(item=><button className={`collection-tab ${range===item.id?"is-active":""}`} aria-pressed={range===item.id} key={item.id} onClick={()=>setRange(item.id)}>{item.label}</button>)}</div></div>

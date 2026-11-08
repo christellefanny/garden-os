@@ -59,7 +59,6 @@ export default function GrowingCalendar({
   );
   const headingRef = useRef<HTMLElement>(null);
   const [dayOpen, setDayOpen] = useState(false);
-  const [planningOpen, setPlanningOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<string | null>(() =>
     localDay(),
   );
@@ -95,6 +94,7 @@ export default function GrowingCalendar({
     [plants, currentYear, options],
   );
   const focus = calendarFocus(weeklyTasks, today, shiftDay(today, 6));
+  const nextStepsCount = focus.today.length + focus.upcoming.length;
   const detailTask = [...tasks, ...weeklyTasks].find(t => t.id === detailId);
   const timing = detailTask ? taskTiming(detailTask, options) : null;
   const shown = (view === "month" ? tasks : weeklyTasks).filter((t) =>
@@ -177,27 +177,38 @@ export default function GrowingCalendar({
       ref={headingRef}
       tabIndex={-1}
     >
-      <InteriorHeader
-        illustration="calendar"
-        title="Growing Calendar"
-        eyebrow={`${location || "Your growing year"} · ${year}`}
-        description="See care reminders and upcoming sowing, planting, and harvest tasks. Choose the plants and planning dates that fit your garden."
-      >
-        <button
-          type="button"
-          onClick={() => setAddingReminder(true)}
-          className="seasonal-button"
-        >
-          Add reminder
-        </button>
-        <button
-          type="button"
-          onClick={() => setPlanningOpen(true)}
-          className="seasonal-outline"
-        >
-          Plants & planting dates
-        </button>
-      </InteriorHeader>
+      <div className="calendar-overview-card">
+        <InteriorHeader
+          illustration="calendar"
+          title="Calendar"
+          eyebrow={`${location || "Your growing year"} · ${year}`}
+          description="Care reminders and upcoming sowing, planting, and harvest tasks, all in one place."
+        />
+        <details className="calendar-focus">
+          <summary className="calendar-disclosure-summary">
+            <span className="calendar-disclosure-summary-content">
+              <span className="calendar-disclosure-label">Next steps</span>
+              <span className="calendar-focus-count">
+                <span>{nextStepsCount} {nextStepsCount === 1 ? "task" : "tasks"} this week</span>
+                {!!focus.review.length && <span>· {focus.review.length} earlier</span>}
+              </span>
+            </span>
+          </summary>
+          <div className="calendar-focus-content">
+            <h2 id="calendar-focus-title" className="font-serif text-2xl">Today & this week</h2>
+            <p className="seasonal-muted mt-2 text-sm">Open a task for its instructions and timing. Suggested dates are flexible planning targets.</p>
+            <div className="mt-5 grid gap-6 lg:grid-cols-2">
+              <section><h3 className="mb-3 text-lg font-semibold">Today · {focus.today.length}</h3>
+                {focus.today.length ? <CalendarTaskCards options={options} tasks={focus.today} onOpen={setDetailId} /> : <p className="seasonal-muted py-4">Nothing scheduled today. Enjoy a little breathing room.</p>}
+              </section>
+              <section><h3 className="mb-3 text-lg font-semibold">Coming up this week · {focus.upcoming.length}</h3>
+                {focus.upcoming.length ? <CalendarTaskCards options={options} tasks={focus.upcoming} onOpen={setDetailId} /> : <p className="seasonal-muted py-4">No more tasks scheduled this week.</p>}
+              </section>
+            </div>
+            {!!focus.review.length && <details className="mt-5 border-t pt-4"><summary className="cursor-pointer text-sm font-semibold">Review earlier tasks · {focus.review.length}</summary><p className="seasonal-muted my-3 text-sm">These dates have passed. Check whether each task still applies, then reschedule it or mark it not needed. A past date alone does not mean a plant is at risk.</p><CalendarTaskCards options={options} tasks={focus.review} onOpen={setDetailId} /></details>}
+          </div>
+        </details>
+      </div>
 
       {!plants.length && <section className="seasonal-card my-6 rounded-2xl border p-5 sm:p-7" aria-labelledby="calendar-start-title">
         <p className="modern-eyebrow">Start with one small thing</p>
@@ -210,46 +221,129 @@ export default function GrowingCalendar({
         <p className="seasonal-muted mt-3 text-xs">{userId === "guest" ? "Saved only in this browser. Use Save to an account above to keep it across devices." : "Your tasks use your account’s existing synchronization."}</p>
       </section>}
 
-      <section className="seasonal-card my-6 rounded-2xl border p-5 sm:p-7" aria-labelledby="calendar-focus-title">
-        <p className="modern-eyebrow">Your next steps</p>
-        <h2 id="calendar-focus-title" className="font-serif text-3xl">Today & this week</h2>
-        <p className="seasonal-muted mt-2 text-sm">Start with today. Open a task for its plants, instructions and timing. Suggested dates are flexible planning targets.</p>
-        <div className="mt-5 grid gap-6 lg:grid-cols-2">
-          <section><h3 className="mb-3 text-lg font-semibold">Today · {focus.today.length}</h3>
-            {focus.today.length ? <CalendarTaskCards options={options} tasks={focus.today} onOpen={setDetailId} /> : <p className="seasonal-muted py-4">Nothing scheduled today. Enjoy a little breathing room.</p>}
-          </section>
-          <section><h3 className="mb-3 text-lg font-semibold">Coming up this week · {focus.upcoming.length}</h3>
-            {focus.upcoming.length ? <CalendarTaskCards options={options} tasks={focus.upcoming} onOpen={setDetailId} /> : <p className="seasonal-muted py-4">No more tasks scheduled this week.</p>}
-          </section>
+      <details className="calendar-planning">
+        <summary className="calendar-disclosure-summary">
+          <span className="calendar-disclosure-summary-content">
+            <span className="calendar-disclosure-label">Planning overview & frost dates</span>
+          </span>
+        </summary>
+        <div className="calendar-planning-content">
+          <InteriorStats
+            items={[
+              { label: "Plants in your plan", value: active },
+              {
+                label: "Steps this week",
+                value: weeklyTasks.filter(
+                  (t) =>
+                    t.date >= today && t.date <= shiftDay(today, 6) && !t.status,
+                ).length,
+              },
+              {
+                label: "Spring frost anchor",
+                value: new Date(
+                  `2000-${options.lastFrost}T12:00:00`,
+                ).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+              },
+              {
+                label: "Fall frost anchor",
+                value: new Date(
+                  `2000-${options.firstFrost}T12:00:00`,
+                ).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+              },
+            ]}
+          />
+          <p className="seasonal-muted mt-3 text-sm">Location is optional. Set your own frost dates below to adjust planting recommendations. These dates are planning estimates, not a local weather forecast.</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="text-sm font-bold">
+              Spring frost planning date
+              <input
+                aria-label="Spring frost planning date"
+                type="date"
+                value={`${year}-${options.lastFrost}`}
+                onChange={(e) => {
+                  if (e.target.value)
+                    save({ ...options, lastFrost: e.target.value.slice(5) });
+                }}
+                className="seasonal-input mt-2 block min-h-11 w-full rounded-xl border p-2"
+              />
+            </label>
+            <label className="text-sm font-bold">
+              Fall frost planning date
+              <input
+                aria-label="Fall frost planning date"
+                type="date"
+                value={`${year}-${options.firstFrost}`}
+                onChange={(e) => {
+                  if (e.target.value)
+                    save({ ...options, firstFrost: e.target.value.slice(5) });
+                }}
+                className="seasonal-input mt-2 block min-h-11 w-full rounded-xl border p-2"
+              />
+            </label>
+          </div>
+          <p className="seasonal-muted mt-3 text-xs">
+            May 15 and October 15 are adjustable planning anchors, not
+            guaranteed frost dates. Past-only and “Not Growing Again” entries
+            are excluded by default.
+          </p>
+          <h3 className="mt-6 text-base font-semibold">Plants in your plan</h3>
+          <p className="seasonal-muted mt-2 text-sm">Choose which plants contribute suggestions and whether they grow indoors or outdoors.</p>
+          {!plants.length && <p className="seasonal-muted mt-3 text-sm">Add a plant to your garden to include it in your plan.</p>}
+          <div className="calendar-planning-plants mt-4 grid max-h-80 gap-2 overflow-auto sm:grid-cols-2">
+            {[...plants]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((p) => (
+                <div
+                  key={p.id}
+                  className="seasonal-outline flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3"
+                >
+                  <label className="flex min-h-11 min-w-0 items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={
+                        options.plants[p.id]?.included ?? includedByDefault(p)
+                      }
+                      onChange={(e) =>
+                        save({
+                          ...options,
+                          plants: {
+                            ...options.plants,
+                            [p.id]: {
+                              ...options.plants[p.id],
+                              included: e.target.checked,
+                            },
+                          },
+                        })
+                      }
+                    />
+                    {p.name}
+                    {p.variety ? ` · ${p.variety}` : ""}
+                  </label>
+                  <select
+                    aria-label={`Growing setting for ${p.name} ${p.variety}`}
+                    value={options.plants[p.id]?.mode ?? defaultMode(p)}
+                    onChange={(e) =>
+                      save({
+                        ...options,
+                        plants: {
+                          ...options.plants,
+                          [p.id]: {
+                            ...options.plants[p.id],
+                            mode: e.target.value as "indoor" | "outdoor",
+                          },
+                        },
+                      })
+                    }
+                    className="seasonal-input min-h-11 rounded-lg border p-2 text-xs"
+                  >
+                    <option value="outdoor">Outdoor</option>
+                    <option value="indoor">Indoor</option>
+                  </select>
+                </div>
+              ))}
+          </div>
+          {message && <p role="status" className="mt-3 text-sm">{message}</p>}
         </div>
-        {!!focus.review.length && <details className="mt-5 border-t pt-4"><summary className="cursor-pointer text-sm font-semibold">Review earlier tasks · {focus.review.length}</summary><p className="seasonal-muted my-3 text-sm">These dates have passed. Check whether each task still applies, then reschedule it or mark it not needed. A past date alone does not mean a plant is at risk.</p><CalendarTaskCards options={options} tasks={focus.review} onOpen={setDetailId} /></details>}
-      </section>
-
-      <details className="mb-5"><summary className="cursor-pointer text-sm font-semibold">Planning overview & frost dates</summary>
-      <InteriorStats
-        items={[
-          { label: "Plants in your plan", value: active },
-          {
-            label: "Steps this week",
-            value: weeklyTasks.filter(
-              (t) =>
-                t.date >= today && t.date <= shiftDay(today, 6) && !t.status,
-            ).length,
-          },
-          {
-            label: "Spring frost anchor",
-            value: new Date(
-              `2000-${options.lastFrost}T12:00:00`,
-            ).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-          },
-          {
-            label: "Fall frost anchor",
-            value: new Date(
-              `2000-${options.firstFrost}T12:00:00`,
-            ).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-          },
-        ]}
-      />
       </details>
 
       {userId !== "guest" && (
@@ -306,143 +400,58 @@ export default function GrowingCalendar({
           <div ref={setControlsTarget} />
         </Dialog>
       )}
-      {planningOpen && (
-        <Dialog
-          title="Choose plants and adjust planning dates"
-          onClose={() => setPlanningOpen(false)}
-        >
-          <p className="seasonal-muted mt-3 text-sm">Location is optional. Set your own frost dates below to adjust planting recommendations. These dates are planning estimates, not a local weather forecast.</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-bold">
-              Spring frost planning date
-              <input
-                aria-label="Spring frost planning date"
-                type="date"
-                value={`${year}-${options.lastFrost}`}
-                onChange={(e) => {
-                  if (e.target.value)
-                    save({ ...options, lastFrost: e.target.value.slice(5) });
-                }}
-                className="seasonal-input mt-2 block rounded-xl border p-2"
-              />
-            </label>
-            <label className="text-sm font-bold">
-              Fall frost planning date
-              <input
-                aria-label="Fall frost planning date"
-                type="date"
-                value={`${year}-${options.firstFrost}`}
-                onChange={(e) => {
-                  if (e.target.value)
-                    save({ ...options, firstFrost: e.target.value.slice(5) });
-                }}
-                className="seasonal-input mt-2 block rounded-xl border p-2"
-              />
-            </label>
-          </div>
-          <p className="seasonal-muted mt-3 text-xs">
-            May 15 and October 15 are adjustable planning anchors, not
-            guaranteed frost dates. Past-only and “Not Growing Again” entries
-            are excluded by default.
-          </p>
-          <div className="mt-4 grid max-h-80 gap-2 overflow-auto sm:grid-cols-2">
-            {[...plants]
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((p) => (
-                <div
-                  key={p.id}
-                  className="seasonal-outline flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3"
-                >
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={
-                        options.plants[p.id]?.included ?? includedByDefault(p)
-                      }
-                      onChange={(e) =>
-                        save({
-                          ...options,
-                          plants: {
-                            ...options.plants,
-                            [p.id]: {
-                              ...options.plants[p.id],
-                              included: e.target.checked,
-                            },
-                          },
-                        })
-                      }
-                    />
-                    {p.name}
-                    {p.variety ? ` · ${p.variety}` : ""}
-                  </label>
-                  <select
-                    aria-label={`Growing setting for ${p.name} ${p.variety}`}
-                    value={options.plants[p.id]?.mode ?? defaultMode(p)}
-                    onChange={(e) =>
-                      save({
-                        ...options,
-                        plants: {
-                          ...options.plants,
-                          [p.id]: {
-                            ...options.plants[p.id],
-                            mode: e.target.value as "indoor" | "outdoor",
-                          },
-                        },
-                      })
-                    }
-                    className="seasonal-input rounded-lg border p-2 text-xs"
-                  >
-                    <option value="outdoor">Outdoor</option>
-                    <option value="indoor">Indoor</option>
-                  </select>
-                </div>
-              ))}
-          </div>
-        </Dialog>
-      )}
       <WeeklyEmail guest={userId === "guest"} gardens={gardens} gardenId={garden?.id || ""} />
       <div className="interior-toolbar calendar-toolbar">
+        <div className="calendar-view-controls">
+          <button
+            aria-pressed={view === "week"}
+            onClick={() => {
+              setDayOpen(true);
+              setView("week");
+              setSelectedDay(null);
+              setYear(currentYear);
+            }}
+            className={`rounded-xl border px-4 py-3 font-bold ${view === "week" ? "seasonal-button text-white" : "seasonal-outline"}`}
+          >
+            This Week
+          </button>
+          <button
+            aria-pressed={view === "month"}
+            onClick={() => {
+              setView("month");
+              setSelectedDay(`${month}-01`);
+              setYear(Number(month.slice(0, 4)));
+            }}
+            className={`rounded-xl border px-4 py-3 font-bold ${view === "month" ? "seasonal-button text-white" : "seasonal-outline"}`}
+          >
+            Monthly Calendar
+          </button>
+          {view === "month" && (
+            <label className="text-sm font-bold">
+              Month
+              <input
+                aria-label="Calendar month"
+                type="month"
+                value={month}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setSelectedDay(`${e.target.value}-01`);
+                    setMonth(e.target.value);
+                    setYear(Number(e.target.value.slice(0, 4)));
+                  }
+                }}
+                className="seasonal-input ml-2 rounded-xl border p-2"
+              />
+            </label>
+          )}
+        </div>
         <button
-          aria-pressed={view === "week"}
-          onClick={() => {
-            setDayOpen(true);
-            setView("week");
-            setSelectedDay(null);
-            setYear(currentYear);
-          }}
-          className={`rounded-xl border px-4 py-3 font-bold ${view === "week" ? "seasonal-button text-white" : "seasonal-outline"}`}
+          type="button"
+          onClick={() => setAddingReminder(true)}
+          className="seasonal-button calendar-add-reminder"
         >
-          This Week
+          Add reminder
         </button>
-        <button
-          aria-pressed={view === "month"}
-          onClick={() => {
-            setView("month");
-            setSelectedDay(`${month}-01`);
-            setYear(Number(month.slice(0, 4)));
-          }}
-          className={`rounded-xl border px-4 py-3 font-bold ${view === "month" ? "seasonal-button text-white" : "seasonal-outline"}`}
-        >
-          Monthly Calendar
-        </button>
-        {view === "month" && (
-          <label className="text-sm font-bold">
-            Month
-            <input
-              aria-label="Calendar month"
-              type="month"
-              value={month}
-              onChange={(e) => {
-                if (e.target.value) {
-                  setSelectedDay(`${e.target.value}-01`);
-                  setMonth(e.target.value);
-                  setYear(Number(e.target.value.slice(0, 4)));
-                }
-              }}
-              className="seasonal-input ml-2 rounded-xl border p-2"
-            />
-          </label>
-        )}
       </div>
       {view === "month" && (
         <BotanicalCalendar

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const token = new URL(request.url).searchParams.get("token") || "";
   if (!readUnsubscribeToken(token, emailSecret()))
     return page(
-      "This unsubscribe link is invalid. You can manage weekly emails from your Growing Calendar.",
+      "This unsubscribe link is invalid. You can manage weekly emails from your Calendar.",
       400,
     );
   // Confirmation protects against email security scanners following links.
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
   );
   if (!payload)
     return page(
-      "This unsubscribe link is invalid. Manage weekly emails from your Growing Calendar.",
+      "This unsubscribe link is invalid. Manage weekly emails from your Calendar.",
       400,
     );
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY)
@@ -55,11 +55,11 @@ export async function POST(request: Request) {
     return page("Could not update your preferences. Please try again.", 503);
   if (!data || !data.value.enabled)
     return page(
-      "Weekly garden emails are off. You can enable them again from your Growing Calendar.",
+      "Weekly garden emails are off. You can enable them again from your Calendar.",
     );
   if (data.value.nonce !== payload.nonce)
     return page(
-      "Your email preferences have changed since this link was created. Use the link in your latest email or manage delivery in your Growing Calendar.",
+      "Your email preferences have changed since this link was created. Use the link in your latest email or manage delivery in your Calendar.",
       409,
     );
   const { data: updated, error: writeError } = await db
