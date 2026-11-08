@@ -14,12 +14,12 @@ const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev'
 let logs = '', browser;
 server.stdout.on('data', data => logs += data);
 server.stderr.on('data', data => logs += data);
-const sections = page => page.getByRole('navigation', { name: 'Growing Calendar sections' });
+const sections = page => page.getByRole('navigation', { name: 'Calendar sections' });
 const sidebar = page => page.getByRole('navigation', { name: 'Garden Atelier navigation' });
 async function verifyCurrent(page, label, view) {
   assert.equal(new URL(page.url()).searchParams.get('view'), view);
   assert.equal(await sections(page).getByRole('button', { name: label, exact: true }).getAttribute('aria-current'), 'page');
-  assert.equal(await sidebar(page).getByRole('button', { name: 'Growing Calendar', exact: true }).getAttribute('aria-current'), 'page');
+  assert.equal(await sidebar(page).getByRole('button', { name: 'Calendar', exact: true }).getAttribute('aria-current'), 'page');
   assert.equal(await sidebar(page).getByRole('button', { name: 'Tasks', exact: true }).count(), 0);
   assert.equal(await sidebar(page).getByRole('button', { name: 'Garden Journal', exact: true }).count(), 0);
   assert.equal(await sections(page).getByRole('button').count(), 3);

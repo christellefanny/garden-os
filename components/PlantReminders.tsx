@@ -17,7 +17,7 @@ export default function PlantReminders({plant,options,onSave}: {plant:VaultPlant
   }
   return <section className="seasonal-outline mt-5 rounded-2xl border p-4">
     <h4 className="seasonal-heading font-bold">Plant reminders</h4>
-    <p className="seasonal-muted mt-2 text-xs">Choose a date for the morning phone digest. Enable phone reminders in Growing Calendar once per device to receive it. Saved in this browser.</p>
+    <p className="seasonal-muted mt-2 text-xs">Choose a date for the morning phone digest. Enable phone reminders in Calendar once per device to receive it. Saved in this browser.</p>
     {suggestion && <div className="seasonal-muted mt-3 text-sm"><p>Suggested seed-starting reminder. Edit it or click Add reminder to save.</p><details className="mt-1"><summary className="cursor-pointer">How this date is chosen</summary><p className="mt-1">{suggestion.explanation}</p></details></div>}
     <label className="mt-3 block text-sm font-bold">Remind me to<input value={title} onChange={e=>setTitle(e.target.value)} maxLength={200} placeholder="Check germination, repot, plant bulbs…" className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>
     <label className="mt-3 block text-sm font-bold">Reminder date<input type="date" min={localDay()} value={date} onChange={e=>setDate(e.target.value)} className="seasonal-input mt-1 w-full rounded-xl border p-3"/></label>

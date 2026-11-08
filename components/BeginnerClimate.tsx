@@ -82,7 +82,7 @@ export default function BeginnerClimate({ userId, garden, goal }: { userId: stri
       <label>City and state or ZIP code (optional)<input maxLength={120} value={location} onChange={event => setLocation(event.target.value)} placeholder="e.g. Plainfield, IL or 60544" autoComplete="off" /></label>
       <button type="submit" disabled={busy || !location.trim()} className="seasonal-button disabled:opacity-60">{busy ? "Looking up local timing…" : "Find my growing window"}</button>
     </form>
-    <p className="seasonal-muted mt-3 text-xs leading-6">Lookup uses U.S. public zone and weather services. Results stay in this browser for this account or guest garden; this does not change your saved garden or Growing Calendar dates.</p>
+    <p className="seasonal-muted mt-3 text-xs leading-6">Lookup uses U.S. public zone and weather services. Results stay in this browser for this account or guest garden; this does not change your saved garden or Calendar dates.</p>
     {busy && <p role="status" className="mt-4 text-sm">Finding the growing zone and historical frost estimates…</p>}
     {error && <p role="alert" className="mt-4 text-sm">{error} {climate ? "Previously saved historical estimates are shown below; the forecast may be unavailable." : "No frost dates have been assumed. You can retry or continue with the general guides."}</p>}
     {storageNote && <p role="status" className="mt-3 text-sm">{storageNote}</p>}

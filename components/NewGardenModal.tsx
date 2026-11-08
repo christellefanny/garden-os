@@ -130,7 +130,7 @@ export default function NewGardenModal({
               setLocation(next);setZone("");setLookingUp(Boolean(next.trim()));setZoneMessage(next.trim()?"Finding your USDA hardiness zone…":"");
             }}/>
           </label>
-          <p id="garden-location-help" className="seasonal-muted text-xs leading-5">You can leave location blank. Add it to look up your U.S. hardiness zone, or enter your zone yourself. Adjust planting dates separately in Growing Calendar.</p></div>
+          <p id="garden-location-help" className="seasonal-muted text-xs leading-5">You can leave location blank. Add it to look up your U.S. hardiness zone, or enter your zone yourself. Adjust planting dates separately in Calendar.</p></div>
           <div><label className="block text-sm font-bold">Hardiness Zone (optional)
             <input name="zone" value={zone} maxLength={20} aria-describedby="garden-zone-help" className="seasonal-input mt-1 w-full rounded-xl border p-3" placeholder="Filled in from your location" onChange={event=>{manualZone.current=true;lookupVersion.current++;setLookingUp(false);setZone(event.target.value);setZoneMessage("Using your entered zone.");}}/>
           </label><p id="garden-zone-help" role="status" className="seasonal-muted mt-2 text-xs leading-5">{zoneMessage||"Enter a U.S. ZIP code or city and state to find your zone automatically, or enter it yourself."}</p></div>

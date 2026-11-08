@@ -38,7 +38,7 @@ try {
   assert.ok(!new URL(page.url()).searchParams.has('garden'));
   await steps.getByRole('button',{name:'Start my garden →',exact:true}).click();
   await page.getByRole('button',{name:'Cancel',exact:true}).click();
-  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Growing Calendar',exact:true}).click();
+  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Calendar',exact:true}).click();
   await page.getByRole('heading',{name:'Make this calendar yours'}).waitFor();
   assert.equal(await page.getByText(/Add plants in Plant Vault first/).count(),0);
   await page.screenshot({path:`${out}/calendar-empty-desktop.png`});
@@ -63,7 +63,7 @@ try {
   await steps.getByRole('button',{name:'Add your first task',exact:true}).click();
   await page.getByLabel('Task',{exact:true}).fill('Check basil soil before watering');
   await page.getByRole('button',{name:'Save task',exact:true}).click();
-  await page.getByRole('heading',{name:'Growing Calendar',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Calendar',exact:true}).waitFor();
   await page.getByText('Check basil soil before watering',{exact:true}).first().waitFor();
   await page.reload();
   await page.getByText('Check basil soil before watering',{exact:true}).first().waitFor();
@@ -90,7 +90,7 @@ try {
   await mobile.getByLabel('Garden Name',{exact:true}).fill('One small pot');
   await mobile.getByRole('button',{name:'Save Garden',exact:true}).click();
   await mobile.getByRole('region',{name:'Your first garden steps'}).getByRole('button',{name:'Add a bed or container →',exact:true}).waitFor();
-  await mobile.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Growing Calendar',exact:true}).click();
+  await mobile.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Calendar',exact:true}).click();
   await mobile.getByRole('button',{name:'Add your first task',exact:true}).click();
   await mobile.keyboard.press('Escape');
   assert.equal(await mobile.getByRole('dialog').count(),0);

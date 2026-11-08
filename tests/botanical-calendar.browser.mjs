@@ -142,7 +142,7 @@ try {
     .click();
   await page.locator(".modern-dashboard").waitFor();
   await page
-    .getByRole("button", { name: "Growing Calendar", exact: true })
+    .getByRole("button", { name: "Calendar", exact: true })
     .first()
     .click();
   await page.locator(".botanical-calendar").waitFor();
@@ -233,7 +233,7 @@ try {
   assert.equal(cloudSaved, true, "completion reached cloud state");
   await page.reload();
   await page
-    .getByRole("button", { name: "Growing Calendar", exact: true })
+    .getByRole("button", { name: "Calendar", exact: true })
     .first()
     .click();
   await page.getByLabel("Calendar month", { exact: true }).fill("2027-03");
@@ -309,7 +309,7 @@ try {
   await guest.goto("http://127.0.0.1:3037");
   await guest.locator(".modern-dashboard").waitFor();
   await guest
-    .getByRole("button", { name: "Growing Calendar", exact: true })
+    .getByRole("button", { name: "Calendar", exact: true })
     .first()
     .click();
   await guest.locator(".botanical-calendar").waitFor();

@@ -47,7 +47,7 @@ try {
   await page.getByRole("button", { name: "Open my garden", exact: true }).click();
   await page.locator(".modern-dashboard").waitFor();
   const nav = page.getByRole("navigation", { name: "Garden Atelier navigation" });
-  await nav.getByRole("button", { name: "Growing Calendar", exact: true }).click();
+  await nav.getByRole("button", { name: "Calendar", exact: true }).click();
   const card = page.getByRole("region", { name: "Weekly garden emails" });
   await card.waitFor();
   assert.equal(await page.locator("#weekly-email").count(), 1, "One signup entry point, not a duplicate below the briefing");

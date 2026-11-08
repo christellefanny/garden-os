@@ -180,7 +180,7 @@ try {
     .waitFor();
 
   await page
-    .getByRole("button", { name: "Growing Calendar", exact: true })
+    .getByRole("button", { name: "Calendar", exact: true })
     .first()
     .click();
   await page

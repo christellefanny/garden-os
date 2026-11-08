@@ -26,7 +26,7 @@ for(const guest of [false,true])test(`navigation order and active parent for ${g
  assert.equal(nav.includes('Plant Vault'),!guest);
  assert.ok(!nav.includes('Flower Garden'));
  const html=renderToStaticMarkup(React.createElement(Navigation,{guest,page:'Flower Garden',navigate:()=>{},onSignOut:()=>{}}));
- assert.deepEqual(Array.from(html.matchAll(/<span>([^<]+)<\/span>/g),match=>match[1].replaceAll('&amp;','&')),nav.map(name=>({Dashboard:'Home','Garden Layout':'Plan & Design',Journal:'Garden Journal'})[name]||name));
+ assert.deepEqual(Array.from(html.matchAll(/<span>([^<]+)<\/span>/g),match=>match[1].replaceAll('&amp;','&')),nav.map(name=>({Dashboard:'Home','Garden Layout':'Plan & Design','Growing Calendar':'Calendar',Journal:'Garden Journal'})[name]||name));
  assert.doesNotMatch(html,/The Flower Library|My Gardens sections|>Flower Garden</);
  assert.match(html,/aria-current="page"[^>]*>[\s\S]*?<span>My Gardens<\/span>/);
 });
