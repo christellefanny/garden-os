@@ -1,5 +1,7 @@
 /** Visual planning objects. Decorations are illustrations, never garden plant records. */
-export type Decoration = { id: string; plantId: string; x: number; y: number };
+export const customPlantGroups = ["Vegetables", "Flowers", "Herbs", "Other"] as const;
+export type CustomPlantGroup = typeof customPlantGroups[number];
+export type Decoration = { id: string; plantId: string; x: number; y: number; customName?: string; customGroup?: CustomPlantGroup };
 export type LayoutItem = {
   id: string; name: string; kind: "Bed" | "Container" | "Path" | "Border" | "Wall";
   x: number; y: number; w: number; h: number; spaceId: string; color?: string;
@@ -57,6 +59,7 @@ export const designPlants = [
   {id:"cosmos",name:"Cosmos",group:"Flowers",src:"/layout-inspiration/cosmos-transparent.webp"},
   {id:"snapdragon",name:"Snapdragon",group:"Flowers",src:"/layout-inspiration/snapdragon-transparent.webp"},
   {id:"lisianthus",name:"Lisianthus",group:"Flowers",src:"/layout-inspiration/lisianthus-transparent.webp"},
+  {id:"marigold",name:"Marigold",group:"Flowers",src:"/layout-inspiration/marigold-transparent.webp"},
   {id:"alyssum",name:"Sweet alyssum",group:"Flowers",src:"/layout-inspiration/alyssum-transparent.webp"},
 ] as const;
 export type LayoutTemplate = {id:string;name:string;description:string;image:string;summary:string;items:Omit<LayoutItem,"id"|"spaceId">[]};
@@ -85,7 +88,30 @@ export function instantiateLayout(template:LayoutTemplate|undefined,name:string,
 export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[];kind?:LayoutItem["kind"];wallRotation?:number}>(item:T):T {
   return {...item,...(item.kind==="Wall"?{wallRotation:((item.wallRotation??0)+90)%360}:{}),x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
 }
+/** Custom plants are named visual markers, never invented botanical art or real plant records. */
+export function decorationAppearance(plant:Decoration):{name:string;group:string;src?:string} {
+  if(plant.plantId==="custom")return {name:plant.customName??"Custom plant",group:plant.customGroup??"Other"};
+  return designPlants.find(p=>p.id===plant.plantId)??{name:"Plant",group:"Other"};
+}
+function copyPosition(source:{x:number;y:number},occupied:readonly {x:number;y:number}[],min:number,maxX:number,maxY:number,step:number){
+  const bounded=(n:number,max:number)=>Math.max(min,Math.min(max,n));
+  for(let ring=1;ring<=25;ring++)for(const [dx,dy] of [[1,1],[1,0],[0,1],[-1,-1],[-1,0],[0,-1],[1,-1],[-1,1]]){
+    const x=bounded(source.x+dx*step*ring,maxX),y=bounded(source.y+dy*step*ring,maxY);
+    if(!occupied.some(p=>Math.abs(p.x-x)<.01&&Math.abs(p.y-y)<.01))return {x,y};
+  }
+  return {x:bounded(source.x,maxX),y:bounded(source.y,maxY)};
+}
+export function duplicateDecoration(plant:Decoration,siblings:readonly Decoration[],uuid:()=>string=()=>crypto.randomUUID()):Decoration {
+  return {...plant,id:uuid(),...copyPosition(plant,siblings,12,88,88,14)};
+}
+/** A copy must never point at the original's growing-space records. */
+export function duplicateLayoutItem(item:LayoutItem,siblings:readonly LayoutItem[],uuid:()=>string=()=>crypto.randomUUID()):LayoutItem {
+  const base=item.name.replace(/ \(copy(?: \d+)?\)$/,""),names=new Set(siblings.map(s=>s.name));
+  let number=1,name:string;
+  do{const suffix=number===1?" (copy)":` (copy ${number})`;name=base.slice(0,100-suffix.length)+suffix;number++;}while(names.has(name));
+  return {...item,id:uuid(),name,spaceId:"",...copyPosition(item,siblings,0,100-item.w,100-item.h,4),...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,id:uuid()}))}:{})};
+}
 export function safeDecorations(value:unknown):Decoration[] {
   if(!Array.isArray(value))return [];
-  return value.filter((d):d is Decoration=>d&&typeof d.id==="string"&&designPlants.some(p=>p.id===d.plantId)&&Number.isFinite(d.x)&&Number.isFinite(d.y)&&d.x>=0&&d.x<=100&&d.y>=0&&d.y<=100);
+  return value.filter((d):d is Decoration=>d&&typeof d.id==="string"&&(designPlants.some(p=>p.id===d.plantId)||(d.plantId==="custom"&&typeof d.customName==="string"&&d.customName.trim().length>0&&d.customName.length<=80&&customPlantGroups.includes(d.customGroup)))&&Number.isFinite(d.x)&&Number.isFinite(d.y)&&d.x>=0&&d.x<=100&&d.y>=0&&d.y<=100);
 }

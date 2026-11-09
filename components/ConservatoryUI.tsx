@@ -7,7 +7,7 @@ import { readJournal } from "@/lib/journal";
 import ItemPicturesButton from "@/components/ItemPicturesButton";
 import AddTaskButton from "@/components/AddTaskButton";
 import GuestGardenExample from "@/components/GuestGardenExample";
-import {designPlants,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
+import {decorationAppearance,safeDecorations,surfaceAppearance,plantStampStyle,gardenFootprint} from "@/lib/layout-design";
 import { groupReminders } from "@/lib/reminder-groups";
 import { useEffect, useState, type ReactNode } from "react";
 import { useSeason } from "@/components/seasonal/SeasonProvider";
@@ -400,7 +400,7 @@ export function ModernDashboard({
                       borderRadius: item.kind === "Container" ? "50%" : "6px",
                     }}
                   >
-                    {safeDecorations(item.decorations).map(plant=>{const art=designPlants.find(p=>p.id===plant.plantId)!;return <Image key={plant.id} src={art.src} alt="" width={60} height={60} className={`layout-preview-plant${art.group==="Flowers"?" layout-plant-flower":""}`} style={{position:"absolute",...plantStampStyle(item,plant),objectFit:"contain",transform:"translate(-50%,-50%)"}}/>;})}
+                    {safeDecorations(item.decorations).map(plant=>{const art=decorationAppearance(plant);return art.src?<Image key={plant.id} src={art.src} alt="" width={60} height={60} className={`layout-preview-plant${art.group==="Flowers"?" layout-plant-flower":""}`} style={{position:"absolute",...plantStampStyle(item,plant),objectFit:"contain",transform:"translate(-50%,-50%)"}}/>:<span key={plant.id} className="layout-preview-custom-plant" style={{position:"absolute",...plantStampStyle(item,plant),transform:"translate(-50%,-50%)"}}>{art.name}</span>;})}
                     <span>{item.name}</span>
                   </button>
                 ))

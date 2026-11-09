@@ -2412,3 +2412,23 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .growing-hub-navigation button:focus-visible {outline:2px solid var(--primary);outline-offset:3px;}
 @media(max-width:600px){.growing-hub-navigation{width:100%;gap:3px;padding:5px;}.growing-hub-navigation button{font-size:12px;gap:6px;padding:9px 10px;flex:1 0 auto;min-width:0;}.growing-hub-navigation svg{width:16px;height:16px;}}
 @media(max-width:360px){.growing-hub-navigation button{gap:0;padding-inline:8px;}.growing-hub-navigation svg{display:none;}}
+
+/* Layout copies and custom plants remain usable without hover, including touch. */
+.layout-on-canvas-actions {max-width:calc(100% - 8px);flex-wrap:wrap;}
+.layout-on-canvas-actions button:focus-visible,.layout-detail-actions button:focus-visible {outline:3px solid #456443;outline-offset:2px;}
+.layout-custom-plant {display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.5fr) auto;gap:12px;align-items:end;padding-top:18px;margin-top:18px;border-top:1px solid var(--border);}
+.layout-custom-plant > div {grid-column:1/-1;}
+.layout-custom-plant h4 {font-weight:700;font-size:15px;}
+.layout-custom-plant label,.layout-plant-details label {display:block;min-width:0;font-size:12px;font-weight:700;}
+.layout-custom-plant input,.layout-custom-plant select,.layout-plant-details input,.layout-plant-details select {display:block;width:100%;min-width:0;min-height:44px;margin-top:6px;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--foreground);}
+.layout-custom-plant > button {min-height:44px;padding:10px 14px;background:var(--atelier-deep);color:white;border-radius:8px;font-size:12px;font-weight:700;}
+.layout-custom-plant > button:disabled {opacity:.5;}
+.layout-plant-stamp.layout-custom-plant-stamp {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;background:#fffcf1;border:1px solid #879977;box-shadow:0 2px 4px #23351d20;mix-blend-mode:normal;}
+.layout-custom-plant-stamp svg {height:45%;min-height:15px;width:auto;flex-shrink:0;pointer-events:none;}
+.layout-custom-plant-stamp span {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;font-size:10px;line-height:1.15;color:#304a2d;font-weight:700;pointer-events:none;}
+.layout-plant-details {padding-top:16px;border-top:1px solid var(--border);display:grid;gap:12px;}
+.layout-detail-actions {display:flex;gap:8px;flex-wrap:wrap;}
+.layout-detail-actions button {min-height:44px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-weight:700;font-size:12px;color:var(--primary-dark);}
+.layout-detail-actions button:last-child {color:#8a3427;}
+@media(max-width:700px){.layout-custom-plant {grid-template-columns:minmax(0,1fr);}.layout-custom-plant > div {grid-column:auto;}}
+.layout-preview-custom-plant {display:flex!important;align-items:center;justify-content:center;padding:4px!important;background:#fffcf1!important;border:1px solid #879977!important;border-radius:8px;font-size:10px!important;line-height:1.2;color:#304a2d!important;overflow:hidden;overflow-wrap:anywhere;}
