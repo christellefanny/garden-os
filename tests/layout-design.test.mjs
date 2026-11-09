@@ -21,8 +21,8 @@ test('quarter-turn swaps path dimensions, keeps the center where possible and st
 test('decorations filter unknown plant assets and malformed placement without changing valid data',()=>{
  const good={id:'art',plantId:'tomato',x:25,y:50};assert.deepEqual(safeDecorations([good,{...good,plantId:'unknown'},{...good,x:-1},{...good,y:NaN},null]),[good]);assert.deepEqual(safeDecorations(null),[]);
 });
-test('plant library has 13 vegetables and 6 flowers with real distinct illustrated assets',()=>{
- assert.equal(designPlants.filter(p=>p.group==='Vegetables').length,13);assert.equal(designPlants.filter(p=>p.group==='Flowers').length,6);assert.equal(new Set(designPlants.map(p=>p.src)).size,19);
+test('plant library has 13 vegetables and 7 flowers with real distinct illustrated assets',()=>{
+ assert.equal(designPlants.filter(p=>p.group==='Vegetables').length,13);assert.equal(designPlants.filter(p=>p.group==='Flowers').length,7);assert.equal(new Set(designPlants.map(p=>p.src)).size,20);
  for(const p of designPlants){const bytes=readFileSync(new URL(`../public${p.src}`,import.meta.url));assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.toString('ascii',8,12),'WEBP');}
 });
 
