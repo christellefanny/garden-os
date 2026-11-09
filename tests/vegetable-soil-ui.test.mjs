@@ -37,7 +37,7 @@ test('contextual advice defaults from explicit space type without changing the c
   const profile = getVegetableSoilProfile('Tomato');
   for (const [spaceType, chosen, omitted] of [
     ['Container', 'container', 'bed'], ['Grow Bag', 'container', 'bed'], ['Growing Bag', 'container', 'bed'],
-    ['Raised Bed', 'bed', 'container'], ['In-ground Bed', 'bed', 'container'],
+    ['In-ground Bed', 'bed', 'container'],
   ]) {
     const html = render({ name: 'Tomato', spaceType, mode: 'contextual' });
     assert.ok(html.includes(escaped(profile[chosen])), spaceType);
@@ -54,7 +54,7 @@ test('contextual advice defaults from explicit space type without changing the c
 });
 
 test('unknown growing methods request a choice rather than guessing the rooting medium', () => {
-  for (const spaceType of [undefined, 'Greenhouse', 'Patio', 'Unknown']) {
+  for (const spaceType of [undefined, 'Raised Bed', 'Greenhouse', 'Patio', 'Unknown']) {
     const html = render({ name: 'Tomato', spaceType, mode: 'contextual' });
     assert.match(html, /Choose a growing method/);
     assert.equal((html.match(/aria-pressed="false"/g) || []).length, 2);
@@ -123,4 +123,12 @@ test('integration keeps native forms and includes public reading without auth ga
   assert.match(css, /max-width: 380px/);
   assert.match(css, /overflow-wrap: anywhere/);
   assert.doesNotMatch(css, /line-clamp|text-overflow:\s*ellipsis/);
+});
+
+test('explicit raised-bed construction selects matching advice without crashing on legacy data', () => {
+  for (const [raisedBedBase, method] of [['open-soil','bed'],['closed-base','container']]) {
+    const html = render({name:'Tomato',spaceType:'Raised Bed',raisedBedBase,mode:'contextual'});
+    assert.ok(html.includes(escaped(getVegetableSoilProfile('Tomato')[method])));
+  }
+  assert.match(render({name:'Tomato',spaceType:'Raised Bed',raisedBedBase:{toString:'legacy'},mode:'contextual'}), /Choose a growing method/);
 });

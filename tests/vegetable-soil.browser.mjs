@@ -54,7 +54,7 @@ const fixtureSpaces = [
 ].map(([id, name, type]) => ({
   id: `soil-${id}`, garden_id: fixtureGarden.id, name, type, length_feet: 8, width_feet: 4, depth_feet: 1,
   diameter_inches: 30, sun_exposure: 'Full sun', irrigation: null, soil_type: 'Fixture note, not a soil measurement', updated_at: date,
-  notes: JSON.stringify({ garden_os: 1, notes: '', plants: id === 'bed' ? [planted('existing-unknown', 'Mystery vegetable')] : [], entries: [] }),
+  notes: JSON.stringify({ garden_os: 1, raisedBedBase: id === 'bed' ? 'open-soil' : undefined, notes: '', plants: id === 'bed' ? [planted('existing-unknown', 'Mystery vegetable')] : [], entries: [] }),
 }));
 const report = {
   startedAt: new Date().toISOString(), baseURL, outputDirectory: out,

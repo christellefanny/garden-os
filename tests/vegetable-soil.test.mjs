@@ -75,8 +75,14 @@ test("guest beginner vegetable names reuse the shared profiles", () => {
 });
 
 test("growing method uses explicit types and keeps hydroponics distinct", () => {
-  for (const value of ["Raised Bed", "In-ground Bed", " raised bed "]) assert.equal(soilGrowingContext(value), "bed");
+  for (const value of ["In-ground Bed"]) assert.equal(soilGrowingContext(value), "bed");
   for (const value of ["Container", "Grow Bag", "Growing Bag"]) assert.equal(soilGrowingContext(value), "container");
   assert.equal(soilGrowingContext("Hydroponic"), "hydroponic");
-  for (const value of [undefined, "", "Greenhouse", "Window", "loam", "Patio", "Raised planter", "Unknown container"]) assert.equal(soilGrowingContext(value), "unknown", value);
+  for (const value of [undefined, "", "Raised Bed", " raised bed ", "Greenhouse", "Window", "loam", "Patio", "Raised planter", "Unknown container"]) assert.equal(soilGrowingContext(value), "unknown", value);
+});
+
+test('raised beds require explicit construction and ignore malformed legacy values', () => {
+  assert.equal(soilGrowingContext('Raised Bed', 'open-soil'), 'bed');
+  assert.equal(soilGrowingContext('Raised Bed', 'closed-base'), 'container');
+  for (const value of [null, {}, {toString:'legacy'}, true, 'unknown']) assert.equal(soilGrowingContext('Raised Bed', value), 'unknown');
 });
