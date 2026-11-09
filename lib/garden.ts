@@ -35,6 +35,7 @@ export type Entry = {
   text: string;
 };
 export type SpaceDetails = {
+  raisedBedBase?: "open-soil" | "closed-base";
   photoUrl?: string;
   growBagGallons?: number;
   garden_os: 1;

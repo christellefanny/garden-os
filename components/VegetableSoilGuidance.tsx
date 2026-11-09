@@ -14,6 +14,7 @@ type Props = {
   category?: string;
   spaceId?: string;
   spaceType?: string;
+  raisedBedBase?: unknown;
   mode?: "full" | "contextual";
   headingLevel?: 3 | 4 | 5;
 };
@@ -35,9 +36,9 @@ function GuidanceRow({ kind, text }: { kind: GrowingMethod | "moisture"; text: s
   </div>;
 }
 
-function SoilGuidanceCard({ name, spaceType, mode = "full", headingLevel = 3, profile }: Props & { profile?: VegetableSoilProfile }) {
+function SoilGuidanceCard({ name, spaceType, raisedBedBase, mode = "full", headingLevel = 3, profile }: Props & { profile?: VegetableSoilProfile }) {
   const id = useId();
-  const context = soilGrowingContext(spaceType);
+  const context = soilGrowingContext(spaceType, raisedBedBase);
   const [method, setMethod] = useState<GrowingMethod | null>(context === "bed" || context === "container" ? context : null);
   const hydroponic = context === "hydroponic";
   const Heading = headingLevel === 5 ? "h5" : headingLevel === 4 ? "h4" : "h3";
@@ -95,5 +96,5 @@ export default function VegetableSoilGuidance(props: Props) {
   if (category && !["vegetable", "other"].includes(category)) return null;
   const profile = getVegetableSoilProfile(name, props.category);
   if (!profile && category !== "vegetable") return null;
-  return <SoilGuidanceCard key={`${name}:${category ?? ""}:${props.spaceId ?? ""}:${props.spaceType ?? ""}:${props.mode ?? "full"}`} {...props} name={name} profile={profile} />;
+  return <SoilGuidanceCard key={`${name}:${category ?? ""}:${props.spaceId ?? ""}:${props.spaceType ?? ""}:${props.mode ?? "full"}:${soilGrowingContext(props.spaceType, props.raisedBedBase)}`} {...props} name={name} profile={profile} />;
 }

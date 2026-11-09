@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Dialog from "@/components/ui/Dialog";
+import GrowingSpaceSoilGuide from "@/components/GrowingSpaceSoilGuide";
+import { resolveSoilContext, spaceSoilSummary, type RaisedBedBase } from "@/lib/growing-space-soil";
 import {
   readDetails,
   spaceTypes,
@@ -39,6 +41,31 @@ export default function SpaceEditor({
   const details = space
     ? readDetails(space.notes)
     : ({ garden_os: 1, notes: "", plants: [], entries: [] } as SpaceDetails);
+  const [raisedBedBase, setRaisedBedBase] = useState<RaisedBedBase | "">(
+    details.raisedBedBase === "open-soil" || details.raisedBedBase === "closed-base" ? details.raisedBedBase : "",
+  );
+  const [guideOpen, setGuideOpen] = useState(false);
+  const guideOpener = useRef<HTMLButtonElement>(null);
+  const guideScroll = useRef(0);
+  const returningFromGuide = useRef(false);
+  const soilContext = resolveSoilContext(type, raisedBedBase);
+  const recommendation = soilContext ? spaceSoilSummary(soilContext) : null;
+  function openGuide() {
+    guideScroll.current = formRef.current?.closest("dialog")?.scrollTop ?? 0;
+    setGuideOpen(true);
+  }
+  function returnToSetup() {
+    returningFromGuide.current = true;
+    setGuideOpen(false);
+  }
+  useEffect(() => {
+    if (!guideOpen && returningFromGuide.current) {
+      returningFromGuide.current = false;
+      guideOpener.current?.focus({ preventScroll: true });
+      const dialog = formRef.current?.closest("dialog");
+      if (dialog) dialog.scrollTop = guideScroll.current;
+    }
+  }, [guideOpen]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -80,6 +107,7 @@ export default function SpaceEditor({
       notes: JSON.stringify({
         ...details,
 
+        raisedBedBase: type === "Raised Bed" ? raisedBedBase || undefined : undefined,
         growBagGallons: growBag ? gallons ?? undefined : undefined,
         notes: String(form.get("notes") || "").trim(),
       }),
@@ -96,11 +124,12 @@ export default function SpaceEditor({
   }
   return (
     <Dialog
-      title={title ?? (space ? "Edit Growing Space" : "Add Growing Space")}
-      onClose={onClose}
-      headerActions={onAddPlant && <button type="button" disabled={busy} onClick={() => { addingPlant.current = true; formRef.current?.requestSubmit(); }} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap">+ Add plant</button>}
+      title={guideOpen ? "Soil & growing materials" : title ?? (space ? "Edit Growing Space" : "Add Growing Space")}
+      onClose={guideOpen ? returnToSetup : onClose}
+      headerActions={!guideOpen && onAddPlant && <button type="button" disabled={busy} onClick={() => { addingPlant.current = true; formRef.current?.requestSubmit(); }} className="seasonal-button min-h-11 rounded-lg px-3 text-sm whitespace-nowrap">+ Add plant</button>}
     >
-      <form ref={formRef} onSubmit={submit} className="space-y-4">
+      {guideOpen && <GrowingSpaceSoilGuide initialContext={soilContext} onBack={returnToSetup} />}
+      <form ref={formRef} hidden={guideOpen} onSubmit={submit} className="space-y-4">
         <fieldset disabled={busy} className="space-y-4 disabled:opacity-60">
           <Field
             label="Name"
@@ -123,6 +152,17 @@ export default function SpaceEditor({
               ))}
             </select>
           </label>
+          {type === "Raised Bed" && <fieldset className="rounded-xl border border-[var(--border)] p-3">
+            <legend className="px-1 text-sm font-bold">What is beneath this raised bed? (optional)</legend>
+            <p className="seasonal-muted mb-2 text-xs">This helps us show the right soil advice. You can leave it unset.</p>
+            {([
+              ["open-soil", "Open to soil"],
+              ["closed-base", "Has a floor or sits on paving"],
+              ["", "Not sure yet"],
+            ] as const).map(([value, label]) => <label key={value} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 text-sm">
+              <input type="radio" name="raisedBedBase" value={value} checked={raisedBedBase === value} onChange={() => setRaisedBedBase(value)} />{label}
+            </label>)}
+          </fieldset>}
           <div className="grid gap-3 sm:grid-cols-2">
             {growBag ? (
               <Field key="gallons" label="Capacity (gallons)" name="gallons" value={details.growBagGallons ?? undefined} type="number" required />
@@ -202,6 +242,11 @@ export default function SpaceEditor({
             value={space?.soil_type ?? ""}
             maxLength={200}
           />
+          {type !== "Hydroponic" && <aside className="rounded-xl border border-[var(--border)] bg-[var(--surface-alt)] p-4 text-sm">
+            <p className="font-bold">{recommendation?.title ?? "Start with your growing space."}</p>
+            <p className="mt-1 leading-relaxed text-[var(--foreground)]">{recommendation?.body ?? "Soil needs differ between the ground, open-bottom beds, and containers. Choose a setup in the guide to explore."}</p>
+            <button ref={guideOpener} type="button" onClick={openGuide} className="mt-2 min-h-11 rounded-lg text-left font-bold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4">Help me choose soil &amp; materials →</button>
+          </aside>}
           <div className="space-y-2">
             <label className="block text-sm font-bold">Upload photos (optional)
               <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" multiple className="seasonal-input mt-2 block w-full rounded-xl border p-3" onChange={e => setChosenPhotos(Array.from(e.target.files || []))} />

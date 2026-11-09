@@ -1036,9 +1036,10 @@ export function getVegetableSoilProfile(name: string, category?: string): Vegeta
 }
 
 /** A container shape, location or soil-type note is not evidence of the growing method. */
-export function soilGrowingContext(spaceType?: string): SoilGrowingContext {
+export function soilGrowingContext(spaceType?: string, raisedBedBase?: unknown): SoilGrowingContext {
   switch (normalize(spaceType || "")) {
     case "raised bed":
+      return raisedBedBase === "open-soil" ? "bed" : raisedBedBase === "closed-base" ? "container" : "unknown";
     case "in-ground bed":
       return "bed";
     case "container":

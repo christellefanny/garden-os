@@ -292,6 +292,7 @@ export default function SpacePanel({
                 category={guidanceCategory}
                 spaceId={space.id}
                 spaceType={space.type}
+                raisedBedBase={details.raisedBedBase}
                 mode="contextual"
                 headingLevel={5}
               />

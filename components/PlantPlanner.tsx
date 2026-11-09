@@ -163,7 +163,7 @@ export default function PlantPlanner({
         Crop presets are starting examples; spacing is editable. Hydroponic
         setups need their own checks.
       </p>
-      <VegetableSoilGuidance name={crop} spaceId={selected?.id} spaceType={selected?.type ?? (round ? "Container" : "In-ground Bed")} mode="contextual" />
+      <VegetableSoilGuidance name={crop} spaceId={selected?.id} spaceType={selected?.type ?? (round ? "Container" : "In-ground Bed")} raisedBedBase={selected ? readDetails(selected.notes).raisedBedBase : undefined} mode="contextual" />
       {crop && <CompanionPlanting name={crop} />}
       {selected && <PlannerBedCheck space={selected} crop={crop} />}
       {selected && valid && (
