@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {duplicateLayoutItem,duplicateDecoration,decorationAppearance,safeDecorations,rotateItem,designPlants} from '../lib/layout-design.ts';
 const base={id:'original',name:'My bed',kind:'Bed',x:76,y:76,w:24,h:24,spaceId:'actual-space',color:'#abcdef',decorations:[{id:'flower',plantId:'marigold',x:88,y:88},{id:'custom',plantId:'custom',customName:'Lemon verbena',customGroup:'Herbs',x:50,y:50}]};
@@ -23,4 +24,12 @@ test('custom markers survive serialization and rotation and reject malformed met
  const custom=base.decorations[1];assert.deepEqual(safeDecorations([JSON.parse(JSON.stringify(custom))]),[custom]);assert.deepEqual(decorationAppearance(custom),{name:'Lemon verbena',group:'Herbs'});
  for(const patch of [{customName:''},{customName:'   '},{customName:7},{customName:'a'.repeat(81)},{customGroup:'invalid'},{customGroup:undefined},{x:Infinity},{y:-1}])assert.deepEqual(safeDecorations([{...custom,...patch}]),[]);
  assert.deepEqual(rotateItem({...base,decorations:[{...custom,x:20,y:30}]}).decorations[0],{...custom,x:70,y:20});assert.equal(designPlants.find(p=>p.id==='marigold').group,'Flowers');
+});
+
+test('keyboard action targeting ignores scroll-generated hover until real pointer input',()=>{
+ const source=readFileSync(new URL('../components/BlankGardenLayout.tsx',import.meta.url),'utf8');
+ assert.match(source,/function focusItemActions[^]*?keyboardActions.current=true;keepHover\(\);/);
+ assert.match(source,/function showHover[^]*?if\(!editing\|\|keyboardActions.current/);
+ assert.match(source,/event.type===\"pointerdown\"\|\|event.movementX\|\|event.movementY/);
+ assert.match(source,/document.addEventListener\(\"pointermove\",resumePointerActions,true\)/);
 });

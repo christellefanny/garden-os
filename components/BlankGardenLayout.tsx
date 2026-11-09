@@ -115,19 +115,26 @@ export default function BlankGardenLayout({
   const [showItemActions,setShowItemActions]=useState(false);
   const [hoveredAction,setHoveredAction]=useState<{itemId:string;plantId?:string}|null>(null);
   const hoverTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
+  // Scrolling a focused action into view can move another plant under a stationary mouse.
+  const keyboardActions=useRef(false);
   function keepHover(){if(hoverTimer.current)clearTimeout(hoverTimer.current);}
   function leaveHover(){keepHover();hoverTimer.current=setTimeout(()=>setHoveredAction(null),180);}
   function showHover(event:PointerEvent,target:Item,plant?:Decoration){
-    if(!editing||event.pointerType!=="mouse"||event.buttons||gesture.current||plantGesture.current)return;
-    event.stopPropagation();keepHover();setHoveredAction({itemId:target.id,plantId:plant?.id});
+    if(!editing||keyboardActions.current||event.pointerType!=="mouse"||event.buttons||gesture.current||plantGesture.current)return;
+    event.stopPropagation();keepHover();setHoveredAction(current=>current?.itemId===target.id&&current.plantId===plant?.id?current:{itemId:target.id,plantId:plant?.id});
   }
   useEffect(()=>()=>{if(hoverTimer.current)clearTimeout(hoverTimer.current);},[]);
   useEffect(()=>{
     function dismiss(event:globalThis.PointerEvent){
       if(event.target instanceof Element&&!event.target.closest(".layout-canvas-item, .layout-on-canvas-actions")){setShowItemActions(false);setHoveredAction(null);}
     }
+    function resumePointerActions(event:globalThis.PointerEvent){
+      if(event.type==="pointerdown"||event.movementX||event.movementY)keyboardActions.current=false;
+    }
     document.addEventListener("pointerdown",dismiss);
-    return ()=>document.removeEventListener("pointerdown",dismiss);
+    document.addEventListener("pointerdown",resumePointerActions,true);
+    document.addEventListener("pointermove",resumePointerActions,true);
+    return ()=>{document.removeEventListener("pointerdown",dismiss);document.removeEventListener("pointerdown",resumePointerActions,true);document.removeEventListener("pointermove",resumePointerActions,true);};
   },[]);
   const plantGesture=useRef<{bedId:string;id:string;x:number;y:number;width:number;height:number;original:Decoration;latest:Decoration}|null>(null);
   const [message, setMessage] = useState("");
@@ -252,6 +259,7 @@ export default function BlankGardenLayout({
     setEditing(true);
   }
   function focusItemActions(target:Item,plant?:Decoration){
+    keyboardActions.current=true;keepHover();
     setSelected(target.id);setSelectedPlant(plant?.id??"");setHoveredAction(null);setShowItemActions(true);
     requestAnimationFrame(()=>canvas.current?.querySelector<HTMLButtonElement>(".layout-on-canvas-actions button")?.focus());
   }
@@ -518,6 +526,7 @@ export default function BlankGardenLayout({
                   className={`layout-canvas-item absolute ${selected === target.id ? "z-10" : ""}`}
                   data-selected={selected === target.id && showItemActions}
                   onPointerOver={event=>showHover(event,target)}
+                  onPointerMove={event=>{if(event.movementX||event.movementY)showHover(event,target);}}
                   onPointerLeave={leaveHover}
                   style={{
                     zIndex: selected===target.id ? 10 : target.kind==="Path" ? 0 : target.kind==="Wall" ? 1 : 2,
@@ -579,7 +588,7 @@ export default function BlankGardenLayout({
                       onClick={()=>{setSelected(target.id);setSelectedPlant(plant.id);setHoveredAction(null);setShowItemActions(true);}}
                       onFocus={()=>{setSelected(target.id);setSelectedPlant(plant.id);setHoveredAction(null);setShowItemActions(true);}}
                       onPointerOver={event=>showHover(event,target,plant)} onPointerLeave={leaveHover}
-                      onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={movePlant} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)}
+                      onPointerDown={e=>startPlant(e,target,plant)} onPointerMove={event=>{if(event.movementX||event.movementY)showHover(event,target,plant);movePlant(event);}} onPointerUp={()=>finishPlant()} onPointerCancel={()=>finishPlant(true)}
                       onKeyDown={event=>{
                         if(!editing)return;
                         if(event.key==="Enter"){event.preventDefault();focusItemActions(target,plant);return;}
