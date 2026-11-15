@@ -59,6 +59,62 @@ export const speciesCareArtwork: Record<string, Partial<Record<CareTechnique, Sp
       source: { title: 'Wisconsin Extension', url: 'https://hort.extension.wisc.edu/articles/calendula-calendula-officinalis/' },
     },
   },
+  rudbeckia: {
+    deadheading: {
+      src: '/flower-corner-care/species/rudbeckia-deadheading.png', width: 1254, height: 1254,
+      alt: 'Watercolor black-eyed Susan with faded golden petals around a dark dome, hairy alternate leaves and an unopened side bud.',
+      caption: 'Black-eyed Susan (Rudbeckia hirta): remove faded flowers for continued display, or retain selected heads for seed and wildlife. Preserve unopened buds.',
+      source: { title: 'NC State Extension', url: 'https://plants.ces.ncsu.edu/plants/rudbeckia-hirta/' },
+    },
+  },
+  'rudbeckia-sahara': {
+    deadheading: {
+      src: '/flower-corner-care/species/rudbeckia-sahara-deadheading.png', width: 1254, height: 1254,
+      alt: 'Watercolor semi-double Sahara rudbeckia with a faded peach-pink head, hairy alternate leaves and an unopened bud.',
+      caption: 'A semi-double Sahara example: distinguish the faded head from the unopened bud. Remove spent heads or retain selected ones for seed and wildlife; this seed strain varies in color and form.',
+      source: { title: 'RHS Sahara guide', url: 'https://www.rhs.org.uk/plants/383358/rudbeckia-hirta-sahara-mixed-d/details' },
+    },
+  },
+  'sweet-peas': {
+    deadheading: {
+      src: '/flower-corner-care/species/sweet-peas-deadheading.png', width: 1254, height: 1254,
+      alt: 'Watercolor sweet pea sprig with a fresh pink flower at left, a faded brown flower in the center, an unopened bud at right, paired leaflets and a curling tendril.',
+      caption: 'Remove faded flowers while preserving unopened buds. This illustrates flower stages, not seed pods; remove unwanted developing pods too. Sweet peas are not edible peas.',
+      source: { title: 'RHS sweet pea guide', url: 'https://www.rhs.org.uk/plants/lathyrus/growing-guide' },
+    },
+  },
+  catmint: {
+    cutback: {
+      src: '/flower-corner-care/species/catmint-cutback.png', width: 1254, height: 1254,
+      alt: 'Watercolor garden catmint with faded lavender flower spikes above healthy gray-green foliage, illustrating a trim of the spent upper growth.',
+      caption: 'Illustrative post-flowering trim: shorten faded flowering growth while preserving healthy leafy growth. The mark is not a fixed cutting height for every plant.',
+      source: { title: 'RHS catmint guide', url: 'https://www.rhs.org.uk/plants/nepeta' },
+    },
+  },
+  pansies: {
+    deadheading: {
+      src: '/flower-corner-care/species/pansies-deadheading.png', width: 1254, height: 1254,
+      alt: 'Watercolor garden pansy with a wilted broad-faced flower, a closed purple bud and an intact fresh flower above scalloped green leaves.',
+      caption: 'Remove faded pansy flowers, keeping unopened buds and healthy blooms. This illustrates flower stages rather than a cutting position.',
+      source: { title: 'NC State Extension', url: 'https://plants.ces.ncsu.edu/plants/viola-x-wittrockiana/' },
+    },
+  },
+  violas: {
+    deadheading: {
+      src: '/flower-corner-care/species/violas-deadheading.png', width: 1254, height: 1254,
+      alt: 'Watercolor horned viola with a faded flower at left, a fresh five-petalled violet flower with a long spur, and an unopened bud at right.',
+      caption: 'Horned viola (Viola cornuta) example: remove faded flowers while protecting unopened buds. Bedding hybrids can differ in appearance.',
+      source: { title: 'RHS horned viola guide', url: 'https://www.rhs.org.uk/plants/18990/viola-cornuta/details' },
+    },
+  },
+  nasturtium: {
+    deadheading: {
+      src: '/flower-corner-care/species/nasturtium-deadheading.png', width: 1254, height: 1254,
+      alt: 'Watercolor nasturtium with a fresh orange spurred flower at left, a crumpled brown flower in the center, an unopened bud at right and round radial-veined leaves.',
+      caption: 'The brown, crumpled flower is spent. Keep fresh flowers, unopened buds and healthy leaves. This illustrates flower stages, not a measured cutting point.',
+      source: { title: 'Wisconsin Extension', url: 'https://hort.extension.wisc.edu/articles/nasturtium-tropaeolum-majus/' },
+    },
+  },
   zinnias: {
     deadheading: {
       src: '/flower-corner-care/species/zinnias-deadheading.png', width: 1254, height: 1254,
