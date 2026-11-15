@@ -11,6 +11,46 @@ type SpeciesCareArtwork = {
 
 /** Explicit review allowlist. Never fall back to artwork for another species or care mode. */
 export const speciesCareArtwork: Record<string, Partial<Record<CareTechnique, SpeciesCareArtwork>>> = {
+  "snapdragons": {
+    deadheading: {
+      src: "/flower-corner-care/species/snapdragons-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor pink snapdragon spike with faded brown lower florets, fresh two-lipped middle flowers and unopened tip buds.",
+      caption: "Faded lower flowers do not mean the whole spike is finished. Preserve the upper buds; remove the spike after its flowers finish.",
+      source: { title: "Iowa State Extension", url: "https://yardandgarden.extension.iastate.edu/article/1994/3-23-1994/snappy.html" },
+    },
+  },
+  "chantilly-snapdragons": {
+    deadheading: {
+      src: "/flower-corner-care/species/chantilly-snapdragons-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor Chantilly-type snapdragon spike with open-faced pale-yellow flowers, faded brown lower flowers and unopened upper buds.",
+      caption: "This representative Chantilly spike still has upper buds to open. Remove it after the whole spike finishes, preserving healthy branching growth.",
+      source: { title: "Illinois Extension", url: "https://extension.illinois.edu/flowers/snapdragon" },
+    },
+  },
+  "scabiosa": {
+    deadheading: {
+      src: "/flower-corner-care/species/scabiosa-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor scabiosa with a purple pincushion flower, projecting pale stamens, a brown spent head, an unopened bud and divided foliage.",
+      caption: "Remove faded scabiosa heads, keeping unopened buds and healthy growth. Leave selected heads if wanted for seed. This is a flower-stage example, not a cutting diagram.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/scabiosa-atropurpurea/" },
+    },
+  },
+  "dianthus": {
+    deadheading: {
+      src: "/flower-corner-care/species/dianthus-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor garden pink with five fringed pink petals, a faded flower, an unopened bud, tubular calyces and narrow gray-green leaves.",
+      caption: "Garden-pink example: remove faded flowers while keeping buds and healthy foliage. Other Dianthus forms differ; this is not an identification guide for every hybrid.",
+      source: { title: "RHS dianthus guide", url: "https://www.rhs.org.uk/plants/dianthus/growing-guide" },
+    },
+  },
+  "feverfew": {
+    deadheading: {
+      src: "/flower-corner-care/species/feverfew-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor feverfew with faded cream-brown daisy heads, a fresh white flower, unopened buds and healthy lobed leaves.",
+      caption: "Feverfew (Tanacetum parthenium): remove spent flowers promptly to limit self-seeding, preserving unopened buds and healthy growth.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/tanacetum-parthenium/" },
+    },
+  },
   coleus: {
     deadheading: {
       src: '/flower-corner-care/species/coleus-deadheading.png', width: 1254, height: 1254,
