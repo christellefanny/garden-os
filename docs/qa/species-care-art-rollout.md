@@ -29,3 +29,11 @@ Built-in image generation only; approved zinnia watercolor sample as style refer
 ## Verification
 
 353 unit tests passed; focused lint and TypeScript passed. Webpack build compiled and typechecked; full prerender locally blocked by missing Supabase URL. Default Turbopack build also cannot use the shared node_modules symlink in this executor. Headless browser launch blocked by executor socket restrictions. Deployment checks recorded separately before publication is described as verified.
+
+## Second reviewed batch
+
+Six additional species-specific assets: coleus/deadheading (optional flowering-spike removal, not a spent bloom), daffodils/deadheading (before/after retaining green stalk and leaves), heuchera/cutback (identify one dead outer leaf; preserve crown), marigolds/deadheading (French marigold example, spent head vs bud), cosmos/deadheading (spent head vs bud and threadlike foliage), calendula/deadheading (fresh flower, spent seed-forming center head and opening bud).
+
+All six generated with built-in imagegen using approved watercolor style; transparent cutouts; reviewed morphology and instructional meaning. Sources linked beside each image in species-care-art.ts. Cosmos foliage was corrected before acceptance. Dahlia pinching was attempted twice and rejected: first stub too long, then marker below the blades. Remains text-only, as does hosta.
+
+Coverage after this batch: 8 of 55 profiles have one reviewed care image, 47 remain text-only. No implication that all 165 cards require pictures. Existing species text remains unchanged. New non-cutting scenes explicitly illustrate identification/retention rather than falsely precise cutting geometry.

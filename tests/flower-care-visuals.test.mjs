@@ -56,6 +56,6 @@ test('species illustrations are explicitly allowlisted and never reused across p
    assert.equal(bytes.readUInt32BE(16),art.width);assert.equal(bytes.readUInt32BE(20),art.height);
   }
  }
- assert.equal(speciesCareArtwork.cosmos,undefined);assert.equal(speciesCareArtwork.daffodils,undefined);
+ assert.equal(speciesCareArtwork.cosmos.pinching,undefined);assert.equal(speciesCareArtwork.daffodils.pinching,undefined);
  assert.equal(speciesCareArtwork.zinnias.pinching,undefined);
 });
