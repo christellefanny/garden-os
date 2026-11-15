@@ -49,3 +49,9 @@ Sources are linked in each mapping. This batch requires release approval and liv
 Five independently generated and visually reviewed flower-stage scenes: snapdragons, Chantilly snapdragons (distinct open-faced corollas), scabiosa (S. atropurpurea), dianthus (explicit garden-pink example, not every hybrid), feverfew. No cut markers. Snapdragon captions retain the tip buds until the spike finishes; feverfew retains the existing non-ingestion warning in profile text. Authoritative method sources are linked in the mapping. Chantilly morphology additionally checked against https://www.johnnyseeds.com/flowers/snapdragon/chantilly-cream-yellow-f1-snapdragon-seed-1981.html .
 
 Yarrow withheld after three drafts: initially coarse foliage, then persistent background haze. No rejected yarrow asset is mapped. Cumulative prepared coverage would be 20/55; actual live coverage remains 8/55 until later batches are separately approved and verified. PR #54 (seven additional assets) passed CI but is still a draft awaiting release approval.
+
+## Fifth prepared batch
+
+Six new species-only flower-stage/cleanup scenes: ranunculus (double cultivated form), Japanese anemone (optional deadheading), lisianthus (single-flowered example), annual bachelor's buttons, plain-green brunnera, spotted pulmonaria. Generated separately, reviewed by two agents for morphology and stage distinction; no scissors or cut marks. Healthy crown foliage retained in brunnera and pulmonaria. Existing profile warnings and care text unchanged. Sources appear with each image. Initial lisianthus and pulmonaria background haze was corrected before acceptance. Cumulative reviewed mappings: 26/55; publication status tracked separately.
+
+Owner subsequently approved publishing remaining reviewed care illustrations in batches, while withholding inaccurate ones. PR #54 is merged at 49d6cf095dd076f213bc2ee8cefaf9bddde78991, production READY, seven live care images loaded correctly.
