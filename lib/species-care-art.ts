@@ -51,6 +51,54 @@ export const speciesCareArtwork: Record<string, Partial<Record<CareTechnique, Sp
       source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/tanacetum-parthenium/" },
     },
   },
+  "ranunculus": {
+    deadheading: {
+      src: "/flower-corner-care/species/ranunculus-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor Persian buttercup showing a papery spent bloom, fresh layered peach-pink flower and closed bud.",
+      caption: "Double-flowered ranunculus example: remove faded flowers while keeping unopened buds and healthy foliage. Flower forms vary among cultivars.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/ranunculus-asiaticus/" },
+    },
+  },
+  "japanese-anemone": {
+    deadheading: {
+      src: "/flower-corner-care/species/japanese-anemone-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor Japanese anemone showing an exposed spent head, open pink flower with yellow stamens and an unopened round bud.",
+      caption: "Spent heads may be removed for tidiness; protect unopened buds. Deadheading is optional, not a promise of another flowering cycle.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/eriocapitella-x-hybrida/" },
+    },
+  },
+  "lisianthus": {
+    deadheading: {
+      src: "/flower-corner-care/species/lisianthus-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor lisianthus sprig with a fresh violet flower, brown spent flower and unopened violet bud above opposite gray-green leaves.",
+      caption: "Single-flowered lisianthus example: remove the finished center bloom selectively. Preserve unopened buds and healthy branching stems.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/eustoma-grandiflorum/" },
+    },
+  },
+  "bachelors-buttons": {
+    deadheading: {
+      src: "/flower-corner-care/species/bachelors-buttons-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor annual cornflower with a fresh fringed blue flower, brown spent head and small opening bud on narrow-leaved stems.",
+      caption: "Annual cornflower (Centaurea cyanus): remove faded heads while preserving fresh flowers and buds. Retain selected heads only when intentionally saving seed.",
+      source: { title: "RHS cornflower guide", url: "https://www.rhs.org.uk/plants/46174/centaurea-cyanus/details" },
+    },
+  },
+  "brunnera": {
+    deadheading: {
+      src: "/flower-corner-care/species/brunnera-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor brunnera with healthy heart-shaped green leaves, new central growth and a separate finished flower spray.",
+      caption: "Remove finished flower stalks for tidiness if desired, preserving the leaf crown. Plain-green Brunnera macrophylla example; deadheading does not promise another spring display.",
+      source: { title: "Wisconsin Extension", url: "https://hort.extension.wisc.edu/articles/brunnera-macrophylla-jack-frost/" },
+    },
+  },
+  "pulmonaria": {
+    deadheading: {
+      src: "/flower-corner-care/species/pulmonaria-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor lungwort with healthy silver-spotted leaves and a separate stalk carrying shriveled brown flowers.",
+      caption: "Remove spent flower stems if desired while keeping healthy spotted foliage. This is cleanup, not a promise of autumn flowers.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/pulmonaria-saccharata/" },
+    },
+  },
   coleus: {
     deadheading: {
       src: '/flower-corner-care/species/coleus-deadheading.png', width: 1254, height: 1254,
