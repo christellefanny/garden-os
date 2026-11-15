@@ -1,15 +1,22 @@
+import Image from 'next/image';
+import { speciesCareArtwork } from '@/lib/species-care-art';
 import type { FlowerCornerProfile } from '@/lib/flower-corner-library';
 import { type CareTechnique } from '@/lib/flower-care-visuals';
 
 const titles: Record<CareTechnique,string> = {pinching:'Pinching',deadheading:'Deadheading',cutback:'Cutting back'};
-/** Plant-specific text is used until verified species-matched care images are available. */
+/** Only individually reviewed species + technique pairs may show instructional art. */
 export function PlantCareIllustrations({profile}:{profile:FlowerCornerProfile}) {
-  return <div className="corner-care-grid corner-care-text-grid">{(['pinching','deadheading','cutback'] as const).map(technique=>
-    <section className="corner-care-card" key={technique}>
+  return <div className="corner-care-grid corner-care-text-grid">{(['pinching','deadheading','cutback'] as const).map(technique=> {
+    const art = speciesCareArtwork[profile.id]?.[technique];
+    return <section className="corner-care-card" key={technique}>
       <h3>{titles[technique]}</h3>
+      {art && <figure className="corner-care-art">
+        <Image className="corner-care-watercolor" src={art.src} width={art.width} height={art.height} alt={art.alt} sizes="(max-width: 480px) 280px, 340px" quality={90}/>
+        <figcaption>{art.caption} <a href={art.source.url} target="_blank" rel="noopener noreferrer">{art.source.title} ↗</a></figcaption>
+      </figure>}
       <p className="corner-care-specific"><strong>For {profile.name}:</strong> {profile[technique]}</p>
-    </section>
-  )}<p className="corner-care-legend">Follow these instructions for {profile.name}; timing and cultivar matter. Care guidance is shown in text rather than using an illustration of a different plant.</p></div>;
+    </section>;
+  })}<p className="corner-care-legend">Follow these instructions for {profile.name}; timing and cultivar matter. Illustrations appear only for reviewed plant-specific examples; other techniques remain text-only. These watercolor examples are not cultivar identification guides.</p></div>;
 }
 export default function IllustratedCareTechniques() {
   return <article className="corner-profile"><h3>Three different cuts, three different jobs</h3><p>These are examples, not a cutting schedule for every plant. Open a plant’s guide for its own instructions.</p><div className="corner-care-grid corner-care-text-grid">
