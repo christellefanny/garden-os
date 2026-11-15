@@ -99,6 +99,78 @@ export const speciesCareArtwork: Record<string, Partial<Record<CareTechnique, Sp
       source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/pulmonaria-saccharata/" },
     },
   },
+  "alyssum": {
+    cutback: {
+      src: "/flower-corner-care/species/alyssum-cutback.png", width: 1254, height: 1254,
+      alt: "Watercolor sweet alyssum mound with tiny four-petalled white flowers, narrow leaves and longer racemes bearing tan oval seedpods.",
+      caption: "Longer seed-bearing stems illustrate overgrown flowering growth. Lightly shear leggy plants while retaining healthy foliage; this is not a fixed cutting-height diagram.",
+      source: { title: "Wisconsin Extension", url: "https://hort.extension.wisc.edu/articles/sweet-alyssum-lobularia-maritima/" },
+    },
+  },
+  "astilbe": {
+    deadheading: {
+      src: "/flower-corner-care/species/astilbe-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor garden astilbe with two dry tan feathery plumes above healthy divided, serrated green foliage.",
+      caption: "Dry astilbe plumes can stay for ornamental structure or be removed for tidiness. Preserve healthy foliage; deadheading does not promise repeat flowering.",
+      source: { title: "RHS astilbe guide", url: "https://www.rhs.org.uk/plants/astilbe/growing-guide" },
+    },
+  },
+  "astrantia": {
+    deadheading: {
+      src: "/flower-corner-care/species/astrantia-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor masterwort with dry tan starry flower heads at left, fresh pale-pink flower and buds at right, above palmate green leaves.",
+      caption: "Remove spent astrantia flowers for tidiness unless saving seed. Preserve unopened buds and healthy foliage; this flower-stage example does not mark a cutting height.",
+      source: { title: "RHS masterwort guide", url: "https://www.rhs.org.uk/plants/1870/astrantia-major/details" },
+    },
+  },
+  "bergenia": {
+    deadheading: {
+      src: "/flower-corner-care/species/bergenia-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor bergenia with broad healthy leaves, a fresh pink flower cluster and a separate faded flowering stalk.",
+      caption: "Remove finished flower stalks, keeping healthy bergenia leaves and new growth. The fresh pink flower cluster should remain.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/bergenia-crassifolia/" },
+    },
+  },
+  "ligularia": {
+    deadheading: {
+      src: "/flower-corner-care/species/ligularia-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor Ligularia dentata showing spent daisy heads and a fresh orange-yellow flower above large healthy rounded leaves.",
+      caption: "Spent heads may be removed for tidiness. Keep unopened buds and healthy foliage; remove the stalk only after flowering finishes.",
+      source: { title: "RHS ligularia guide", url: "https://www.rhs.org.uk/plants/10083/ligularia-dentata/details" },
+    },
+  },
+  "tiarella": {
+    deadheading: {
+      src: "/flower-corner-care/species/tiarella-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor foamflower with healthy lobed leaves, a fresh white flower spire and a separate dry spent stalk.",
+      caption: "Remove finished foamflower stalks if desired, leaving healthy basal foliage and fresh flower spires intact.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/tiarella-cordifolia/" },
+    },
+  },
+  "strawflower": {
+    deadheading: {
+      src: "/flower-corner-care/species/strawflower-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor strawflower with a healthy peach head, an old brown seed-stage head and a younger enclosed head.",
+      caption: "Papery bracts are normal. The center head has finished flowering; preserve healthy heads and buds. Opening alone does not reliably indicate age.",
+      source: { title: "Utah State Extension", url: "https://extension.usu.edu/productionhort/research/strawflower-cut-flower-production-in-utah" },
+    },
+  },
+  "gomphrena": {
+    deadheading: {
+      src: "/flower-corner-care/species/gomphrena-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor purple globe amaranth with a rounded fresh head, elongated older head with a faded base and small developing head.",
+      caption: "Representative G. globosa example: the elongated center head has a faded lower portion. Remove overmature heads while keeping productive stems and younger growth.",
+      source: { title: "Utah State Extension", url: "https://extension.usu.edu/productionhort/research/gomphrena-cut-flower-production-in-utah" },
+    },
+  },
+  "celosia": {
+    deadheading: {
+      src: "/flower-corner-care/species/celosia-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor plume-type celosia with a fresh red plume, brown finished plume and smaller developing red plume above simple green leaves.",
+      caption: "Plume-type example: remove finished, browning heads while preserving healthy leaves and younger growth. Other celosia groups have different forms.",
+      source: { title: "New York Botanical Garden", url: "https://libanswers.nybg.org/faq/222832" },
+    },
+  },
   coleus: {
     deadheading: {
       src: '/flower-corner-care/species/coleus-deadheading.png', width: 1254, height: 1254,
