@@ -2432,3 +2432,7 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .layout-detail-actions button:last-child {color:#8a3427;}
 @media(max-width:700px){.layout-custom-plant {grid-template-columns:minmax(0,1fr);}.layout-custom-plant > div {grid-column:auto;}}
 .layout-preview-custom-plant {display:flex!important;align-items:center;justify-content:center;padding:4px!important;background:#fffcf1!important;border:1px solid #879977!important;border-radius:8px;font-size:10px!important;line-height:1.2;color:#304a2d!important;overflow:hidden;overflow-wrap:anywhere;}
+
+/* Text-only care cards keep species instructions full-width at every breakpoint. */
+.corner-care-text-grid .corner-care-card{display:block;}
+.corner-care-text-grid .corner-care-specific{margin:0;}

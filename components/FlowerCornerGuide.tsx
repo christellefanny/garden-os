@@ -42,7 +42,7 @@ export default function FlowerCornerGuide({ profile, returnTo = '/flower-corner'
     </div>
     <Link className="seasonal-outline" href={safeFlowerCornerReturn(returnTo)}>← Back to Library</Link>
     {extra && <Dialog title="About this growing guide" onClose={() => setExtra(null)}>
-      <article className="corner-profile"><p>This public guide summarizes horticultural sources for home gardeners.</p><p>Seed germination, transplant readiness and first flowering describe different stages. Bulbs, divisions and named cultivars may need a different growing route from seed.</p><p>Illustrations are representative artwork, not identification tools. The care illustrations show botanical examples; follow the instructions for your species and cultivar before making a cut.</p><p>Sources were reviewed {profile.reviewed}. Follow the source links on the page for more detail and regional context.</p></article>
+      <article className="corner-profile"><p>This public guide summarizes horticultural sources for home gardeners.</p><p>Seed germination, transplant readiness and first flowering describe different stages. Bulbs, divisions and named cultivars may need a different growing route from seed.</p><p>Illustrations are representative artwork, not identification tools. Care instructions are specific to the named plant; check the species and cultivar before making a cut.</p><p>Sources were reviewed {profile.reviewed}. Follow the source links on the page for more detail and regional context.</p></article>
     </Dialog>}
   </article>;
 }

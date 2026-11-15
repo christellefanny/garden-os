@@ -12,11 +12,11 @@ import {careArtwork} from '../lib/flower-care-art.ts';
 const require=createRequire(import.meta.url),exports={};
 const source=readFileSync(new URL('../components/IllustratedCareTechniques.tsx',import.meta.url),'utf8');
 vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText,{exports,require:id=>id==='@/lib/flower-care-visuals'?visuals:id==='@/lib/flower-care-art'?{careArtwork}:id==='next/image'?{__esModule:true,default:(props)=>{const native={...props};delete native.quality;delete native.sizes;return React.createElement('img',native)}}:require(id)});
-test('every profile has3 inline visual explanations retaining exact species instructions',()=>{
+test('every profile retains exact species instructions without misleading care images',()=>{
  for(const profile of flowerCornerProfiles){const html=renderToStaticMarkup(React.createElement(exports.PlantCareIllustrations,{profile}));
-  assert.equal((html.match(/<img/g)||[]).length,3,profile.id);assert.equal((html.match(/Illustrated example:/g)||[]).length,3);assert.ok(!html.includes('<svg'));
+  assert.equal((html.match(/<img/g)||[]).length,0,profile.id);assert.equal((html.match(/<h3>/g)||[]).length,3);assert.ok(!html.includes('<svg'));assert.ok(!html.includes('/flower-corner-care/'));assert.match(html,/corner-care-text-grid/);
   for(const field of ['pinching','deadheading','cutback'])assert.ok(html.includes(renderToStaticMarkup(React.createElement('span',null,profile[field])).slice(6,-7)),`${profile.id} ${field}`);
-  assert.match(html,/Watercolor examples/);assert.match(html,/timing and cultivar matter/);
+  assert.match(html,/Care guidance is shown in text/);assert.match(html,/timing and cultivar matter/);
  }
 });
 test('bulbs,crowns,single-stem flowers and ferns never receive blanket pinch diagrams',()=>{
@@ -27,8 +27,8 @@ test('bulbs,crowns,single-stem flowers and ferns never receive blanket pinch dia
  assert.equal(visuals.careVisualMode('catmint','cutback'),'trim');
  for(const id of ['japanese-painted-fern','autumn-fern'])assert.equal(visuals.careVisualMode(id,'deadheading'),'leave-intact');
 });
-test('general technique popup uses3 accessible watercolor examples, not a decorative hero',()=>{
- const html=renderToStaticMarkup(React.createElement(exports.default));assert.equal((html.match(/<img/g)||[]).length,3);assert.match(html,/dahlias/);assert.match(html,/single-stem sunflowers/);assert.match(html,/Catmint/);assert.match(html,/species-specific text/);
+test('general technique popup preserves guidance without unverified images',()=>{
+ const html=renderToStaticMarkup(React.createElement(exports.default));assert.equal((html.match(/<img/g)||[]).length,0);assert.match(html,/dahlias/);assert.match(html,/single-stem sunflowers/);assert.match(html,/Catmint/);assert.match(html,/species-specific text/);
 });
 
 test('all care modes have original accessible botanical artwork',()=>{
