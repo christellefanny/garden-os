@@ -171,6 +171,46 @@ export const speciesCareArtwork: Record<string, Partial<Record<CareTechnique, Sp
       source: { title: "New York Botanical Garden", url: "https://libanswers.nybg.org/faq/222832" },
     },
   },
+  "china-asters": {
+    deadheading: {
+      src: "/flower-corner-care/species/china-asters-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor annual China aster with a fresh lilac flower, a brown spent head and an unopened bud above alternate toothed leaves.",
+      caption: "Semi-double China aster example: remove spent flowers unless saving seed, retaining healthy buds. This annual is distinct from perennial asters.",
+      source: { title: "RHS China aster guide", url: "https://www.rhs.org.uk/plants/156433/callistephus-chinensis/details" },
+    },
+  },
+  "bupleurum": {
+    deadheading: {
+      src: "/flower-corner-care/species/bupleurum-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor Bupleurum rotundifolium with rounded stem-clasping leaves, chartreuse flowering umbels and tan fruiting umbels.",
+      caption: "Remove finished umbels before unwanted seed dispersal. Preserve healthy growth and wear gloves when handling. This illustrates stages, not a foraging identification guide.",
+      source: { title: "RHS bupleurum guide", url: "https://www.rhs.org.uk/plants/24950/bupleurum-rotundifolium/details" },
+    },
+  },
+  "nigella": {
+    deadheading: {
+      src: "/flower-corner-care/species/nigella-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor love-in-a-mist showing a blue flower, unopened bud and inflated beaked seedpod among finely divided foliage.",
+      caption: "Keep selected flowers for decorative pods and seed; deadheading removes that possibility. This is ornamental Nigella damascena, not culinary N. sativa.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/nigella-damascena/" },
+    },
+  },
+  "bells-of-ireland": {
+    deadheading: {
+      src: "/flower-corner-care/species/bells-of-ireland-deadheading.png", width: 1254, height: 1254,
+      alt: "Watercolor Bells of Ireland comparing fresh green cup-shaped calyces with tiny two-lipped white flowers and a naturally drying beige spike.",
+      caption: "The green bells are decorative calyces, not dead flowers. They turn papery beige as they mature. This is a stage comparison, not an exact harvest-readiness guide.",
+      source: { title: "NC State Extension", url: "https://plants.ces.ncsu.edu/plants/moluccella-laevis/" },
+    },
+  },
+  "hellebores": {
+    cutback: {
+      src: "/flower-corner-care/species/hellebores-cutback.png", width: 1254, height: 1254,
+      alt: "Watercolor hybrid Lenten rose showing an old brown-edged divided leaf separately from healthy foliage, nodding pink flowers and emerging buds.",
+      caption: "Helleborus \u00d7 hybridus example: distinguish old, damaged leaves from emerging buds and new foliage. Follow the cleanup guidance without shearing the crown. Wear gloves; not a disease-diagnosis image.",
+      source: { title: "RHS hellebore guide", url: "https://www.rhs.org.uk/plants/hellebore/growing-guide" },
+    },
+  },
   coleus: {
     deadheading: {
       src: '/flower-corner-care/species/coleus-deadheading.png', width: 1254, height: 1254,

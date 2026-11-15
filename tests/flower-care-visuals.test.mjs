@@ -59,3 +59,10 @@ test('species illustrations are explicitly allowlisted and never reused across p
  assert.equal(speciesCareArtwork.cosmos.pinching,undefined);assert.equal(speciesCareArtwork.daffodils.pinching,undefined);
  assert.equal(speciesCareArtwork.zinnias.pinching,undefined);
 });
+
+test('reviewed rollout retains text-only guidance for excluded species',()=>{
+ assert.equal(Object.keys(speciesCareArtwork).length,40);
+ for(const id of ['dahlias','hosta','yarrow','ammi-majus','orlaya','larkspur','sunflowers','statice','amaranth','perennial-asters','hydrangeas','ornamental-alliums','japanese-painted-fern','autumn-fern','bleeding-heart']){
+  assert.equal(speciesCareArtwork[id],undefined,id);
+ }
+});
