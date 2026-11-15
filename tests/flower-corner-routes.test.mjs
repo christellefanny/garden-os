@@ -99,5 +99,5 @@ test('guide header places large native artwork directly beside its semantic titl
  assert.match(source,/className="corner-guide-portrait"><FlowerCornerPortrait profile=\{profile\} variant="guide"/);
  assert.match(source,/className="corner-guide-copy"/);assert.doesNotMatch(source,/max-w-\[280px\]/);
  assert.match(css,/\.corner-guide-header\{display:grid;grid-template-columns:minmax\(0,450px\)/);
- assert.match(source,/care illustrations show botanical examples/);assert.doesNotMatch(source,/care drawings are simplified schematics/);
+ assert.match(source,/Care instructions are specific to the named plant/);assert.doesNotMatch(source,/care drawings are simplified schematics/);
 });
