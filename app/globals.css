@@ -2436,3 +2436,74 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 /* Text-only care cards keep species instructions full-width at every breakpoint. */
 .corner-care-text-grid .corner-care-card{display:block;}
 .corner-care-text-grid .corner-care-specific{margin:0;}
+
+/* Guided layout studio: the garden comes before its toolbox. */
+.guided-layout-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.guided-layout-actions>button,.guided-layout-menu summary{padding:.65rem .85rem;border:1px solid var(--border);border-radius:12px;min-height:44px;font-size:.875rem}
+.guided-layout-menu{position:relative}
+.guided-layout-menu summary{cursor:pointer;list-style:none;font-weight:700}
+.guided-layout-menu>div{position:absolute;z-index:30;right:0;top:100%;min-width:170px;background:var(--surface,#fffdf7);border:1px solid var(--border);border-radius:14px;padding:.4rem;box-shadow:0 8px 25px #243b2020}
+.guided-layout-menu button{display:block;text-align:left;width:100%;padding:.7rem;border-radius:8px}
+.guided-layout-menu button:hover{background:#91a46c20}
+.guided-layout-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem;margin:1.4rem 0 1rem}
+.guided-layout-steps button{display:flex;align-items:center;justify-content:center;gap:.5rem;border:1px solid var(--border);border-radius:28px;min-height:46px;padding:.5rem;color:var(--atelier-deep,#253e2c);background:transparent;font-weight:650;font-size:.9rem}
+.guided-layout-steps button span{display:grid;place-items:center;width:25px;height:25px;border:1px solid currentColor;border-radius:50%;font-size:.8rem;flex-shrink:0}
+.guided-layout-steps button[aria-current=step]{background:#e3e9d4;border-color:#758b56;color:#263e25}
+.guided-layout-steps button[aria-current=step] span{background:#5c783e;color:white;border-color:#5c783e}
+.guided-layout-heading{margin:1rem 0}
+.guided-layout-heading h3{font-family:Georgia,serif;font-size:clamp(1.65rem,3vw,2.4rem);line-height:1.15;margin:.25rem 0 .5rem;color:var(--atelier-deep)}
+.guided-layout-heading p{font-size:.95rem;line-height:1.5}
+.guided-canvas-toolbar{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.8rem;margin-bottom:.6rem}
+.guided-canvas-toolbar>div{display:flex;gap:.25rem}
+.guided-canvas-toolbar button{min-height:40px;padding:.4rem .65rem;border-radius:9px;border:1px solid var(--border)}
+.guided-canvas-toolbar button[aria-pressed=true]{background:#e3e9d4;color:#263e25;border-color:#758b56}
+.guided-layout-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);align-items:start;gap:1rem}
+.guided-layout-workspace>.layout-design-canvas{position:sticky;top:1rem}
+.guided-layout-controls{min-width:0;display:grid;gap:1rem}
+.guided-layout-tool-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.guided-layout-tool-panel:empty{display:none}
+.guided-layout-tool-panel>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;background:#fffdf7;padding:1rem .5rem!important;min-height:110px}
+.guided-layout-tool-panel small{font-size:.75rem;font-weight:400;line-height:1.3}
+.guided-tool-symbol{font-size:2rem;color:#6a804b;line-height:1}
+.guided-layout-tool-panel>label{grid-column:1/-1}
+.guided-layout-name{display:grid;gap:.5rem;font-size:.9rem;font-weight:650}
+.guided-layout-name input{padding:.75rem;border:1px solid var(--border);border-radius:10px;width:100%;background:var(--surface,#fffdf7)}
+.guided-layout-customize{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface,#fffdf7)}
+.guided-layout-customize>summary{padding:1rem;cursor:pointer;font-weight:700;min-height:48px;color:var(--atelier-deep)}
+.guided-layout-customize .layout-selection-picker{margin:.25rem .8rem;padding:.5rem;display:grid;gap:.3rem}
+.guided-layout-customize aside{border:0;padding:1rem}
+.guided-layout-controls .layout-plant-drawer{margin:0}
+.guided-layout-controls .layout-plant-library{padding:1rem}
+.guided-layout-controls .layout-plant-options{grid-template-columns:repeat(3,minmax(0,1fr));max-height:320px;overflow:auto}
+.guided-layout-controls .layout-custom-plant{display:grid;grid-template-columns:1fr}
+.guided-layout-controls .layout-ground-picker{margin:0;padding:1rem;display:block}
+.guided-layout-controls .layout-ground-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:.8rem}
+.guided-layout-link{padding:1rem;border:1px solid var(--border);border-radius:16px;font-size:.85rem;line-height:1.6}
+.guided-layout-link h4{font-weight:700;font-size:1rem}
+.guided-layout-link button{margin-top:.75rem;width:100%}
+.guided-layout-footer{display:flex;justify-content:space-between;gap:.8rem;padding:1rem 0;margin-top:.5rem}
+.guided-layout-footer button{min-height:48px;padding:.7rem 1.2rem;border-radius:13px;border:1px solid var(--border);font-weight:700}
+.guided-layout-footer button:last-child{flex:1;max-width:360px}
+.guided-layout-help{font-size:.85rem;line-height:1.6;margin-top:.5rem}
+.guided-layout-help summary{cursor:pointer;min-height:44px;padding:.65rem 0;font-weight:650}
+.guided-layout-help p{max-width:700px}
+@media(max-width:800px){
+ .guided-layout-workspace{grid-template-columns:minmax(0,1fr)}
+ .guided-layout-workspace>.layout-design-canvas{position:sticky;top:.5rem;z-index:5;width:min(100%,42svh);margin-inline:auto;box-shadow:0 3px 12px #243b2018}
+ .guided-layout-controls .layout-plant-options{grid-template-columns:repeat(4,minmax(0,1fr));max-height:260px}
+ .guided-layout-controls .layout-plant-options button{min-width:0}
+ .guided-layout-footer{position:sticky;bottom:0;background:var(--surface,#fffdf7);z-index:20;padding:.75rem .2rem;box-shadow:0 -8px 16px #fffdf7bb}
+ .guided-layout-steps button{gap:.25rem;font-size:.75rem;padding:.4rem .2rem}
+ .guided-layout-steps button span{width:20px;height:20px;font-size:.7rem}
+ .layout-editor{margin-top:1rem}
+ .layout-editor .editorial-title{font-size:1.75rem}
+ .guided-layout-footer button{font-size:.85rem;padding:.6rem .8rem}
+}
+@media(prefers-reduced-motion:reduce){.guided-layout-workspace *{scroll-behavior:auto}}
+.guided-space-art{height:85px;width:130px;object-fit:contain}
+.guided-layout-cover{margin-top:.5rem;font-size:.85rem}
+.guided-layout-cover>summary{cursor:pointer;padding:.6rem 0;min-height:44px}
+.guided-layout-steps{scroll-margin-top:1rem}
+/* Keep the site-wide task action available without covering the guided footer. */
+body:has(.guided-layout-footer) .floating-add-task{position:static;margin:1rem 1.5rem;align-self:flex-end}
+body:has(.guided-layout-footer) .floating-task-status{position:static;margin:0 1.5rem 1rem}

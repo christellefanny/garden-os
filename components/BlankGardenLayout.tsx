@@ -97,6 +97,15 @@ export default function BlankGardenLayout({
   const layoutId = selectedLayoutId;
   const [view,setView]=useState<"garden"|"plan">("garden");
   const [editing,setEditing]=useState(true);
+  const [step,setStep]=useState(1);
+  const stepsRef=useRef<HTMLElement>(null);
+  useEffect(()=>{if(!selectedLayoutId.startsWith("new"))stepsRef.current?.scrollIntoView({block:"start",behavior:"instant"});},[selectedLayoutId]);
+  const stepHeading=useRef<HTMLHeadingElement>(null);
+  const steps=["Garden", "Spaces", "Plants", "Details"];
+  const stepTitles=["Make it your garden", "Arrange your spaces", "Bring your garden to life", "Add the finishing touches"];
+  const stepHints=["Name your layout and choose its background. You can revisit any step.", "Add a bed or container, then drag it into place.", "Select a bed, container, or border, then choose your plants.", "Add paths, borders, walls, and ground cover. These details are optional."];
+  function goToStep(next:number){setStep(next);setEditing(true);setHoveredAction(null);setShowItemActions(false);requestAnimationFrame(()=>{stepHeading.current?.focus({preventScroll:true});stepsRef.current?.scrollIntoView({block:"start",behavior:"instant"});});}
+
   const [importing,setImporting]=useState(false);
   const [selected, setSelected] = useState(()=>initialItemId||loadCustomLayouts(storageKey).find(l=>l.id===selectedLayoutId)?.items.find(i=>i.kind==="Bed")?.id||"");
   const [creating, setCreating] = useState(() => selectedLayoutId.startsWith("new") || loadCustomLayouts(storageKey).length === 0);
@@ -390,27 +399,13 @@ export default function BlankGardenLayout({
             Make it yours. Place beds, containers, paths, and decorative plants.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              if(onNewLayout){onNewLayout();return;}
-              setNewName("My garden layout");
-              setCreating(true);
-            }}
-            className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white"
-          >
-            Create layout
-          </button>
-          {layout&&<>
-          <button type="button" onClick={onRename} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Rename layout</button>
-          <button type="button" onClick={()=>{setDeleteError("");setDeleting(true);}} className="min-h-11 rounded-xl border border-red-200 px-4 py-3 font-bold text-red-800">Delete layout</button>
-          <button type="button" aria-pressed={view==="garden"} onClick={()=>setView("garden")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Garden View</button>
-          <button type="button" aria-pressed={view==="plan"} onClick={()=>setView("plan")} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Plan View</button>
-          <button type="button" onClick={()=>setEditing(!editing)} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">{editing?"Done editing":"Edit Layout"}</button>
-          <button type="button" disabled={importing || gardenId === "planning"} title={gardenId === "planning" ? "Create a garden in My Gardens before linking growing spaces." : undefined} onClick={async()=>{setImporting(true);try{const beds:Bed[]=layout.items.filter(item=>item.kind==="Bed"||item.kind==="Container").map(item=>({...item,emoji:"",color:safeColor(item.color,colors[item.kind]),notes:"",spaceType:item.kind==="Container"?"Container":"Raised Bed"}));const count=await onCreateSpaces(beds);setMessage(count===null?"Could not save growing spaces. Try again.":count===0?"No new growing spaces to add. Existing matches were kept.":`${count} growing spaces created.`);}finally{setImporting(false);}}} className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50">{importing?"Saving…":"Create growing spaces"}</button>
-          </>}
-          <button type="button" onClick={onBack} className="seasonal-outline min-h-11 rounded-xl border px-4 py-3 font-bold">Back</button>
+        <div className="guided-layout-actions">
+          <button type="button" onClick={onBack} className="seasonal-outline">Browse inspiration</button>
+          {layout&&<button type="button" onClick={()=>setEditing(!editing)} className="seasonal-outline">{editing?"Preview layout":"Continue editing"}</button>}
+          <details className="guided-layout-menu"><summary aria-label="Layout options">•••</summary><div>
+            <button type="button" onClick={()=>{if(onNewLayout)onNewLayout();else{setNewName("My garden layout");setCreating(true);}}}>Create layout</button>
+            {layout&&<><button type="button" onClick={onRename}>Rename layout</button><button type="button" onClick={()=>{setDeleteError("");setDeleting(true);}}>Delete layout</button></>}
+          </div></details>
         </div>
       </div>
       {deleting&&layout&&<Dialog title="Delete this layout?" onClose={()=>setDeleting(false)}>
@@ -424,7 +419,7 @@ export default function BlankGardenLayout({
       {creating && (
         <Dialog
           title={template ? `Customize ${template.name.toLowerCase()}` : "Create a blank layout"}
-          onClose={() => { if(!coverBusy)setCreating(false); }}
+          onClose={() => { if(!coverBusy){setCreating(false);if(!layout)onBack();} }}
         >
           <form
             onSubmit={(event) => {
@@ -459,45 +454,10 @@ export default function BlankGardenLayout({
       )}
       {layout ? (
         <>
-          <div className="seasonal-card mt-6 flex flex-wrap items-center gap-3 rounded-2xl border p-4">
-            <label className="flex items-center gap-2 text-sm font-bold">
-              Garden color
-              <input type="color" value={safeColor(layout.color,"#f4f1e7")} onChange={event=>persist(layouts.map(l=>l.id===layoutId?{...l,color:event.target.value}:l))} className="h-11 w-14 cursor-pointer rounded-lg border border-[var(--border)] p-1" />
-            </label>
-            {kinds.map((kind) => (
-              <button
-                type="button"
-                key={kind}
-                disabled={!editing}
-                onClick={() => add(kind)}
-                className="seasonal-outline min-h-11 rounded-xl border px-3 py-2 text-sm font-bold"
-              >
-                Add {kind.toLowerCase()}
-              </button>
-            ))}
-          </div>
-          <section className="layout-ground-picker" aria-label="Garden ground cover"><div><h3>Ground between the beds</h3><p>Cover stays inside the garden area defined by your beds and borders. Paths can have their own finish.</p></div><div className="layout-ground-options"><button type="button" aria-pressed={!groundCovers.some(c=>c.id===layout.groundCover)} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:undefined}:l))}><span className="layout-ground-swatch layout-ground-plain"/>Plain ground</button>{groundCovers.map(cover=><button type="button" key={cover.id} aria-pressed={layout.groundCover===cover.id} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:cover.id}:l))}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></section>
-          {undo&&<div className="layout-undo" role="status">{undoAction==="duplication"?"Item duplicated.":"Item removed."} <button type="button" onClick={()=>{persist(undo);setSelected("");setSelectedPlant("");setHoveredAction(null);setShowItemActions(false);}}>Undo {undoAction}</button></div>}
-          <details className="layout-plant-drawer"><summary>Add vegetables &amp; flowers <span>{designPlants.filter(p=>p.group==="Vegetables").length} vegetables · {designPlants.filter(p=>p.group==="Flowers").length} flowers · Custom plants</span></summary><section className="layout-plant-library" aria-labelledby="layout-library-title"><div><h3 id="layout-library-title">A little life for your plan</h3><p>Decorative illustrations only — no plant records, quantities, or capacity calculations. Select a bed, container, or border, then add a plant.</p></div><div className="layout-library-tabs">{["Vegetables","Flowers"].map(group=><button type="button" key={group} aria-pressed={plantGroup===group} onClick={()=>setPlantGroup(group)}>{group} · {designPlants.filter(p=>p.group===group).length}</button>)}</div><div className="layout-plant-options">{designPlants.filter(p=>p.group===plantGroup).map(p=><button type="button" key={p.id} disabled={!editing||!item||item.kind==="Path"||item.kind==="Wall"} aria-label={`Add decorative ${p.name}`} onClick={()=>addPlant(p.id)}><Image src={p.src} alt="" width={66} height={66}/><span>{p.name}</span></button>)}</div>
-            <form className="layout-custom-plant" onSubmit={event=>{
-              event.preventDefault();const name=customName.trim();if(!name){setMessage("Enter a plant name.");return;}
-              if(!editing||!item||item.kind==="Path"||item.kind==="Wall")return;
-              addPlant("custom",{customName:name,customGroup});setCustomName("");
-            }}>
-              <div><h4>Can’t find your plant?</h4><p>Add a named marker for any vegetable, flower, herb, or other plant.</p></div>
-              <label>Custom plant name<input required maxLength={80} value={customName} onChange={event=>setCustomName(event.target.value)} placeholder="e.g. Lemon verbena" /></label>
-              <label>Plant type<select aria-label="Plant type" value={customGroup} onChange={event=>setCustomGroup(event.target.value as CustomPlantGroup)}>{customPlantGroups.map(group=><option key={group}>{group}</option>)}</select></label>
-              <button type="submit" disabled={!editing||!item||item.kind==="Path"||item.kind==="Wall"}>Add custom plant</button>
-            </form>
-          </section></details>
-          <p className="seasonal-muted mt-3 text-sm">
-            Drag an item to move it. Drag its corner to resize. You can also use
-            the position and size fields or arrow keys. With an item focused, press Enter to reach its actions. This is a planning map,
-            not measured to scale. Hover over an item, tap it, or focus it with the keyboard to duplicate or delete it. Shapes can also be rotated. Drag plant illustrations within their bed. Illustrations may extend beyond thin borders to stay visible.
-          </p>
-          {photoSource&&<details className="photo-saved-reference"><summary>Photo &amp; garden notes · approximate map</summary><p>Reviewed from a photo. Check real measurements and walking space before building or planting.</p>{photoSource.image&&validAnalysisImage(photoSource.image)&&<Image src={photoSource.image} width={600} height={400} unoptimized alt="Original photo reference for this garden layout"/>}{photoSource.widthFeet&&<p>Width reference: {photoSource.widthFeet} ft</p>}{photoSource.depthFeet&&<p>Depth reference: {photoSource.depthFeet} ft</p>}{photoSource.notes&&<p className="whitespace-pre-wrap">{photoSource.notes}</p>}</details>}
-          <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");setShowItemActions(Boolean(e.target.value));}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
-          <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <nav ref={stepsRef} className="guided-layout-steps" aria-label="Garden design steps">{steps.map((label,index)=><button type="button" key={label} aria-current={step===index?"step":undefined} onClick={()=>goToStep(index)}><span>{index+1}</span>{label}</button>)}</nav>
+          <div className="guided-layout-heading"><p className="modern-eyebrow">Step {step+1} of 4</p><h3 ref={stepHeading} tabIndex={-1}>{editing?stepTitles[step]:"Your garden preview"}</h3><p>{editing?stepHints[step]:"Take a look around. Continue editing whenever you’re ready."}</p></div>
+          <div className="guided-canvas-toolbar"><span>Drag to move · Tap to edit</span><div><button type="button" aria-pressed={view==="garden"} onClick={()=>setView("garden")}>Garden View</button><button type="button" aria-pressed={view==="plan"} onClick={()=>setView("plan")}>Plan View</button></div></div>
+          <div className="guided-layout-workspace">
             <div
               ref={canvas}
               onPointerDown={event=>{if(event.target===event.currentTarget){setSelected("");setSelectedPlant("");setHoveredAction(null);setShowItemActions(false);}}}
@@ -621,6 +581,48 @@ export default function BlankGardenLayout({
                 {actionPlant?<><button type="button" aria-label={`Duplicate ${decorationAppearance(actionPlant).name} plant`} onClick={()=>copyPlant(actionItem,actionPlant)}>Duplicate</button><button type="button" onClick={()=>removePlant(actionItem,actionPlant)}>Delete plant</button></>:<><button type="button" aria-label={`Rotate ${actionItem.name} 90 degrees`} onClick={()=>replaceItem(rotateItem(actionItem))}>↻ Rotate 90°</button><button type="button" aria-label={`Duplicate ${actionItem.name}`} onClick={()=>copyItem(actionItem)}>Duplicate</button><button type="button" aria-label={`Delete ${actionItem.name}`} onClick={()=>removeItem(actionItem)}>Delete</button></>}
               </div>}
             </div>
+            <div className="guided-layout-controls">
+              {editing&&<>          <section className="guided-layout-tool-panel" aria-label="Current step tools">
+            {step===0&&<label className="guided-layout-name">Layout name<input key={layout.id} maxLength={100} defaultValue={layout.name} onBlur={event=>{const name=event.target.value.trim();if(name)persist(layouts.map(l=>l.id===layoutId?{...l,name}:l));else event.target.value=layout.name;}}/></label>}
+            {step===0&&
+            <label className="flex items-center gap-2 text-sm font-bold">
+              Garden color
+              <input type="color" value={safeColor(layout.color,"#f4f1e7")} onChange={event=>persist(layouts.map(l=>l.id===layoutId?{...l,color:event.target.value}:l))} className="h-11 w-14 cursor-pointer rounded-lg border border-[var(--border)] p-1" />
+            </label>
+            }
+            {kinds.filter(kind=>step===1?(kind==="Bed"||kind==="Container"):step===3?(kind!=="Bed"&&kind!=="Container"):false).map((kind) => (
+              <button
+                type="button"
+                key={kind}
+                aria-label={`Add ${kind.toLowerCase()}`}
+                disabled={!editing}
+                onClick={() => add(kind)}
+                className="seasonal-outline min-h-11 rounded-xl border px-3 py-2 text-sm font-bold"
+              >
+                {(kind==="Bed"||kind==="Container")?<Image src={kind==="Bed"?"/container-art/wood.webp":"/container-art/terracotta.webp"} alt="" width={130} height={90} className="guided-space-art"/>:<span className="guided-tool-symbol" aria-hidden="true">{kind==="Path"?"⌁":kind==="Border"?"▰":"▥"}</span>}
+                Add {kind.toLowerCase()}
+                <small>{kind==="Bed"?"A space for planting":kind==="Container"?"Pots and planters":kind==="Path"?"Room to walk":kind==="Border"?"Frame your garden":"Structure and seating"}</small>
+              </button>
+            ))}
+          </section>
+          {step===3&&<section className="layout-ground-picker" aria-label="Garden ground cover"><div><h3>Ground between the beds</h3><p>Cover stays inside the garden area defined by your beds and borders. Paths can have their own finish.</p></div><div className="layout-ground-options"><button type="button" aria-pressed={!groundCovers.some(c=>c.id===layout.groundCover)} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:undefined}:l))}><span className="layout-ground-swatch layout-ground-plain"/>Plain ground</button>{groundCovers.map(cover=><button type="button" key={cover.id} aria-pressed={layout.groundCover===cover.id} disabled={!editing} onClick={()=>persist(layouts.map(l=>l.id===layoutId?{...l,groundCover:cover.id}:l))}><span className="layout-ground-swatch" style={{backgroundImage:`url("${cover.src}")`}}/>{cover.name}</button>)}</div></section>}
+          {undo&&<div className="layout-undo" role="status">{undoAction==="duplication"?"Item duplicated.":"Item removed."} <button type="button" onClick={()=>{persist(undo);setSelected("");setSelectedPlant("");setHoveredAction(null);setShowItemActions(false);}}>Undo {undoAction}</button></div>}
+          {step===2&&<details open className="layout-plant-drawer"><summary>Add vegetables &amp; flowers <span>{designPlants.filter(p=>p.group==="Vegetables").length} vegetables · {designPlants.filter(p=>p.group==="Flowers").length} flowers · Custom plants</span></summary><section className="layout-plant-library" aria-labelledby="layout-library-title"><div><h3 id="layout-library-title">A little life for your plan</h3><p>Decorative illustrations only — no plant records, quantities, or capacity calculations. Select a bed, container, or border, then add a plant.</p></div><div className="layout-library-tabs">{["Vegetables","Flowers"].map(group=><button type="button" key={group} aria-pressed={plantGroup===group} onClick={()=>setPlantGroup(group)}>{group} · {designPlants.filter(p=>p.group===group).length}</button>)}</div><div className="layout-plant-options">{designPlants.filter(p=>p.group===plantGroup).map(p=><button type="button" key={p.id} disabled={!editing||!item||item.kind==="Path"||item.kind==="Wall"} aria-label={`Add decorative ${p.name}`} onClick={()=>addPlant(p.id)}><Image src={p.src} alt="" width={66} height={66}/><span>{p.name}</span></button>)}</div>
+            <form className="layout-custom-plant" onSubmit={event=>{
+              event.preventDefault();const name=customName.trim();if(!name){setMessage("Enter a plant name.");return;}
+              if(!editing||!item||item.kind==="Path"||item.kind==="Wall")return;
+              addPlant("custom",{customName:name,customGroup});setCustomName("");
+            }}>
+              <div><h4>Can’t find your plant?</h4><p>Add a named marker for any vegetable, flower, herb, or other plant.</p></div>
+              <label>Custom plant name<input required maxLength={80} value={customName} onChange={event=>setCustomName(event.target.value)} placeholder="e.g. Lemon verbena" /></label>
+              <label>Plant type<select aria-label="Plant type" value={customGroup} onChange={event=>setCustomGroup(event.target.value as CustomPlantGroup)}>{customPlantGroups.map(group=><option key={group}>{group}</option>)}</select></label>
+              <button type="submit" disabled={!editing||!item||item.kind==="Path"||item.kind==="Wall"}>Add custom plant</button>
+            </form>
+          </section></details>}
+</>}
+              {editing&&<details className="guided-layout-customize"><summary>Customize {item?item.name:"beds & shapes"}</summary>
+                        <label className="layout-selection-picker">Selected shape<select aria-label="Select garden shape" value={selected} onChange={e=>{setSelected(e.target.value);setSelectedPlant("");setShowItemActions(Boolean(e.target.value));}}><option value="">Choose a shape</option>{layout.items.map(i=><option key={i.id} value={i.id}>{i.name} · {i.kind}</option>)}</select><span>Use this to reach overlapping shapes.</span></label>
+
             <aside className="seasonal-card min-w-0 rounded-2xl border p-5">
               <h3 className="seasonal-heading text-xl font-bold">
                 Item details
@@ -753,8 +755,14 @@ export default function BlankGardenLayout({
                   Select an item to name, resize, or link it.
                 </p>
               )}
-            </aside>
+            </aside></details>}
+            {step===3&&<section className="guided-layout-link"><h4>Ready to grow?</h4><p>Your design saves in this browser as you work. Linking creates growing-space records separately; decorative plants remain illustrations.</p>          <button type="button" disabled={importing || gardenId === "planning"} title={gardenId === "planning" ? "Create a garden in My Gardens before linking growing spaces." : undefined} onClick={async()=>{setImporting(true);try{const beds:Bed[]=layout.items.filter(item=>item.kind==="Bed"||item.kind==="Container").map(item=>({...item,emoji:"",color:safeColor(item.color,colors[item.kind]),notes:"",spaceType:item.kind==="Container"?"Container":"Raised Bed"}));const count=await onCreateSpaces(beds);setMessage(count===null?"Could not save growing spaces. Try again.":count===0?"No new growing spaces to add. Existing matches were kept.":`${count} growing spaces created.`);}finally{setImporting(false);}}} className="seasonal-button min-h-11 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50">{importing?"Saving…":"Create growing spaces"}</button></section>}
+            </div>
           </div>
+          <div className="guided-layout-footer"><button type="button" className="seasonal-outline" onClick={()=>step===0?onBack():goToStep(step-1)}>{step===0?"Inspiration":"Back"}</button><button type="button" className="seasonal-button" onClick={()=>step<3?goToStep(step+1):setEditing(!editing)}>{step<3?`Next: ${["arrange spaces","add plants","finishing touches"][step]} →`:editing?"Preview my layout":"Continue editing"}</button></div>
+          <details className="guided-layout-help"><summary>Tips & keyboard controls</summary><p>Drag an item to move it or its corner to resize. Use the position and size fields or arrow keys for precision. Focus an item and press Enter for its actions, or Escape to deselect. Plant illustrations can move within their bed. This is a planning map, not measured to scale.</p></details>
+          {photoSource&&<details className="photo-saved-reference"><summary>Photo &amp; garden notes · approximate map</summary><p>Reviewed from a photo. Check real measurements and walking space before building or planting.</p>{photoSource.image&&validAnalysisImage(photoSource.image)&&<Image src={photoSource.image} width={600} height={400} unoptimized alt="Original photo reference for this garden layout"/>}{photoSource.widthFeet&&<p>Width reference: {photoSource.widthFeet} ft</p>}{photoSource.depthFeet&&<p>Depth reference: {photoSource.depthFeet} ft</p>}{photoSource.notes&&<p className="whitespace-pre-wrap">{photoSource.notes}</p>}</details>}
+
         </>
       ) : (
         <p className="seasonal-muted mt-6">
