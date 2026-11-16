@@ -48,7 +48,7 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
     setLayouts(next); select(layout.id);
   }
   function select(id:string){setSelection(id);if(!id.startsWith("new"))try{localStorage.setItem(selectionKey,id);}catch{/* Selection works during this visit. */}}
-  function rename(){if(!name.trim()){setError("Enter a layout name.");return;}const next=layouts.map(l=>l.id===selection?{...l,name:name.trim()}:l);try{localStorage.setItem(customKey,JSON.stringify(next));setLayouts(next);setRenaming(false);}catch{setError("Could not save the name in this browser.");}}
+  function rename(){if(!name.trim()){setError("Enter a layout name.");return;}const next=layouts.map(l=>l.id===selection?{...l,name:name.trim()}:l);try{localStorage.setItem(customKey,JSON.stringify(next));setLayouts(next);setCoverRevision(v=>v+1);setRenaming(false);}catch{setError("Could not save the name in this browser.");}}
   function saveCover(){
     if(!current||coverBusy)return;
     try{
