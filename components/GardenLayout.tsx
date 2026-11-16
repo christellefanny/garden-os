@@ -48,7 +48,7 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
     setLayouts(next); select(layout.id);
   }
   function select(id:string){setSelection(id);if(!id.startsWith("new"))try{localStorage.setItem(selectionKey,id);}catch{/* Selection works during this visit. */}}
-  function rename(){if(!name.trim()){setError("Enter a layout name.");return;}const next=layouts.map(l=>l.id===selection?{...l,name:name.trim()}:l);try{localStorage.setItem(customKey,JSON.stringify(next));setLayouts(next);setRenaming(false);}catch{setError("Could not save the name in this browser.");}}
+  function rename(){if(!name.trim()){setError("Enter a layout name.");return;}const next=layouts.map(l=>l.id===selection?{...l,name:name.trim()}:l);try{localStorage.setItem(customKey,JSON.stringify(next));setLayouts(next);setCoverRevision(v=>v+1);setRenaming(false);}catch{setError("Could not save the name in this browser.");}}
   function saveCover(){
     if(!current||coverBusy)return;
     try{
@@ -64,13 +64,13 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
   }
   if(selection==="original"&&hasLegacy)return <LegacyGardenLayout {...props} onNewLayout={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} onClose={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} />;
   return <section className="interior-page layout-page layout-studio">
-    <InteriorHeader title="Garden Layout" eyebrow="Make room for your ideas" description="Start with a little inspiration or a completely blank canvas. Move beds, add paths, and picture the garden you want to grow." />
+    {selection==="gallery"&&<InteriorHeader title="Garden Layout" eyebrow="Make room for your ideas" description="Start with a little inspiration or a completely blank canvas. Move beds, add paths, and picture the garden you want to grow." />}
     <nav aria-label="Saved garden layouts" className="layout-studio-nav">
       <button type="button" aria-current={selection==="gallery"?"page":undefined} onClick={()=>select("gallery")}>Inspiration & new layout</button>
       {layouts.map(l=><button type="button" key={l.id} aria-current={selection===l.id?"page":undefined} onClick={()=>select(l.id)}>{l.name}</button>)}
       {hasLegacy&&<button type="button" onClick={()=>select("original")}>Saved nine-bed plan</button>}
     </nav>
-    {current&&<div className="layout-cover-actions">{validLayoutCover(current.coverImage)&&<Image src={current.coverImage} alt={`Garden picture for ${current.name}`} width={600} height={400} unoptimized className="layout-cover-preview"/>}<button type="button" className="seasonal-outline min-h-11 rounded-xl border px-4 py-2" onClick={()=>{setCoverDraft(current.coverImage);setError("");setCoverEditing(true);}}>{current.coverImage?"Change garden picture":"Add garden picture"}</button></div>}
+    {current&&<details className="guided-layout-cover"><summary>Garden picture</summary><div className="layout-cover-actions">{validLayoutCover(current.coverImage)&&<Image src={current.coverImage} alt={`Garden picture for ${current.name}`} width={600} height={400} unoptimized className="layout-cover-preview"/>}<button type="button" className="seasonal-outline min-h-11 rounded-xl border px-4 py-2" onClick={()=>{setCoverDraft(current.coverImage);setError("");setCoverEditing(true);}}>{current.coverImage?"Change garden picture":"Add garden picture"}</button></div></details>}
     {coverEditing&&<Dialog title="Garden picture" onClose={()=>{if(!coverBusy)setCoverEditing(false);}}><LayoutCoverPicker value={coverDraft} onChange={setCoverDraft} onBusyChange={setCoverBusy}/>{error&&<p role="alert">{error}</p>}<button type="button" className="seasonal-button mt-5 min-h-11 rounded-xl px-4 py-3" disabled={coverBusy} onClick={saveCover}>Save picture</button></Dialog>}
     {selection==="photo"?<PhotoGardenLayout userId={userId} onCancel={()=>select("gallery")} onCreate={createFromPhoto}/>:selection==="gallery"?<>
       {layouts.length>0&&<section className="saved-layouts-with-covers"><h2 className="font-serif text-2xl">Your saved layouts</h2><div className="layout-template-grid mt-4">{layouts.map(l=><article className="layout-template-card" key={l.id}>{validLayoutCover(l.coverImage)?<Image src={l.coverImage} width={600} height={400} alt={`Garden picture for ${l.name}`} unoptimized/>:<div className="layout-cover-empty">Your garden layout</div>}<div><h3>{l.name}</h3><button type="button" className="seasonal-button" onClick={()=>select(l.id)}>Open layout</button></div></article>)}</div></section>}
