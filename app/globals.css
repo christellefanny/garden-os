@@ -2517,3 +2517,11 @@ body:has(.layout-studio) .floating-task-status{position:static;margin:0 1.5rem 1
 .layout-photo-option {margin-top:28px;}
 .layout-photo-option>summary {min-height:44px;padding:12px 0;cursor:pointer;color:var(--atelier-dark);}
 @media(max-width:600px){.layout-entry-choices,.layout-start-choices{grid-template-columns:1fr;}.layout-entry-choices button,.layout-start-choices button{min-height:116px;padding:24px;}}
+
+.layout-transform-controls {padding:1rem;border:1px solid var(--border);border-radius:1rem;background:var(--surface);margin:1rem 0;}
+.layout-transform-controls>div {display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0;}
+.layout-transform-controls button {min-height:44px;padding:.5rem .75rem;border:1px solid var(--border);border-radius:.75rem;font-weight:700;}
+.layout-transform-controls button span {font-size:1.5rem;line-height:1;}
+.layout-transform-controls p {font-size:.8rem;}
+.layout-plant-search {display:grid;gap:.4rem;font-weight:700;margin:1rem 0;}
+.layout-plant-search input {min-height:44px;padding:.65rem;border:1px solid var(--border);border-radius:.75rem;width:100%;}
