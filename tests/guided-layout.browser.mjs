@@ -35,7 +35,7 @@ try{
  await page.getByRole('button',{name:'Start from scratch',exact:false}).click();await page.getByLabel('Layout name',{exact:true}).fill('Guided QA garden');await page.getByRole('button',{name:'Create blank canvas',exact:true}).last().click();
  const canvas=page.getByLabel('Garden layout canvas',{exact:true});await canvas.waitFor();
  const steps=page.getByRole('navigation',{name:'Garden design steps'});
- await page.getByRole('button',{name:'Add bed',exact:false}).click();
+ await page.getByRole('button',{name:'Add Bed or Container',exact:false}).click();await page.getByRole('button',{name:'Add garden bed',exact:true}).click();
  const key='garden-os-custom-layouts-v1-guest-planning';const plans=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
  assert.equal((await plans())[0].items.length,1);
  assert.ok((await canvas.boundingBox()).y<(await page.locator('.guided-layout-tool-panel').boundingBox()).y,'Canvas precedes mobile tools');
@@ -44,12 +44,27 @@ try{
  assert.equal(await page.locator('.guided-layout-heading h3').evaluate(el=>el===document.activeElement),true,'Step heading receives keyboard focus');await page.getByRole('button',{name:'Add decorative Tomato',exact:true}).click();
  await page.getByLabel('Custom plant name',{exact:true}).fill('Lemon verbena');await page.getByRole('button',{name:'Add custom plant',exact:true}).click();
  assert.equal((await plans())[0].items[0].decorations.length,2);
+ await page.getByLabel('Find a plant',{exact:true}).fill('Habanero');await page.getByRole('button',{name:'Add decorative Habanero Pepper',exact:true}).click();
+ await page.getByLabel('Find a plant',{exact:true}).fill('Daffodil');await page.getByRole('button',{name:/Add decorative Daffodil/}).click();
+ await page.getByLabel('Find a plant',{exact:true}).fill('Beet');await page.getByRole('button',{name:'Add decorative Beet',exact:true}).click();
+ await page.getByLabel('Find a plant',{exact:true}).fill('');
+
  await page.getByRole('button',{name:'Next: finishing touches',exact:false}).click();
  await page.getByRole('button',{name:'Add path',exact:false}).click();
  await page.getByRole('button',{name:'Back',exact:true}).click();
  assert.equal(await steps.getByRole('button',{name:'Plants',exact:false}).count(),1);
  await steps.getByRole('button',{name:'Spaces',exact:false}).click();
- await page.getByRole('button',{name:'Add container',exact:false}).click();await page.getByRole('button',{name:'Add Classic terracotta',exact:true}).click();
+ await page.getByRole('button',{name:'Add Bed or Container',exact:false}).click();await page.getByRole('button',{name:'Add Classic terracotta',exact:true}).click();
+ const potBefore=(await plans())[0].items.find(i=>i.containerStyle==='terracotta');
+ await page.getByRole('button',{name:'Turn Classic terracotta clockwise',exact:true}).click();
+ let pot=(await plans())[0].items.find(i=>i.id===potBefore.id);assert.equal(pot.containerRotation,90);assert.equal(pot.w,potBefore.h);assert.equal(pot.h,potBefore.w);
+ assert.match(await page.locator('.layout-container-art').last().getAttribute('style'),/rotate\(90deg\)/);
+ await page.getByRole('button',{name:'Make Classic terracotta larger',exact:true}).click();
+ let larger=(await plans())[0].items.find(i=>i.id===pot.id);assert.ok(larger.w>pot.w&&larger.h>pot.h);assert.equal(larger.containerRotation,90);
+ await page.getByRole('button',{name:'Make Classic terracotta smaller',exact:true}).click();
+ for(let i=0;i<3;i++)await page.getByRole('button',{name:'Turn Classic terracotta clockwise',exact:true}).click();
+ pot=(await plans())[0].items.find(i=>i.id===potBefore.id);assert.equal(pot.containerRotation,0);assert.ok(Math.abs(pot.w-potBefore.w)<.00001);
+
  assert.equal((await plans())[0].items.length,3);
  await page.locator('.guided-layout-customize').evaluate(el=>el.open=false);await page.getByRole('button',{name:'Preview layout',exact:true}).click();assert.equal(await page.locator('.guided-layout-tool-panel').count(),0);await page.getByRole('button',{name:'Continue editing',exact:true}).click();
  await steps.getByRole('button',{name:'Garden',exact:false}).click();await page.getByLabel('Layout name',{exact:true}).fill('   ');await page.getByLabel('Layout name',{exact:true}).blur();assert.equal((await plans())[0].name,'Guided QA garden','Blank rename does not corrupt saved name');await page.getByLabel('Layout name',{exact:true}).fill('Updated QA garden');
@@ -58,7 +73,7 @@ try{
  for(const width of [390,320,1280]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'No overflow at '+width);await page.screenshot({path:`docs/previews/guided-layout/spaces-${width}.png`,fullPage:true});}
  const axe=await new AxeBuilder({page}).include('.layout-editor').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(axe.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[]);
  const saved=await plans();await page.reload();await page.getByRole('button',{name:'My Layouts',exact:true}).click();await page.getByRole('button',{name:'Open Updated QA garden',exact:true}).click();assert.deepEqual(await plans(),saved,'Reload preserves every layout item');
- await page.getByLabel('Layout options').click();await page.getByRole('button',{name:'Delete layout',exact:true}).click();await page.getByRole('button',{name:'Keep layout',exact:true}).click();assert.deepEqual(await plans(),saved,'Cancel delete preserves design');await page.getByRole('button',{name:'Rename layout',exact:true}).click();await page.getByRole('dialog',{name:'Rename layout'}).getByLabel('Layout name').fill('Menu-renamed garden');await page.getByRole('button',{name:'Save name',exact:true}).click();await page.getByRole('heading',{name:'Menu-renamed garden',exact:true}).waitFor();await page.getByRole('button',{name:'Add bed',exact:true}).click();assert.equal((await plans())[0].name,'Menu-renamed garden','Subsequent edits preserve menu rename');
+ await page.getByLabel('Layout options').click();await page.getByRole('button',{name:'Delete layout',exact:true}).click();await page.getByRole('button',{name:'Keep layout',exact:true}).click();assert.deepEqual(await plans(),saved,'Cancel delete preserves design');await page.getByRole('button',{name:'Rename layout',exact:true}).click();await page.getByRole('dialog',{name:'Rename layout'}).getByLabel('Layout name').fill('Menu-renamed garden');await page.getByRole('button',{name:'Save name',exact:true}).click();await page.getByRole('heading',{name:'Menu-renamed garden',exact:true}).waitFor();await page.getByRole('button',{name:'Add Bed or Container',exact:false}).click();await page.getByRole('button',{name:'Add garden bed',exact:true}).click();assert.equal((await plans())[0].name,'Menu-renamed garden','Subsequent edits preserve menu rename');
  await sections.getByRole('button',{name:'My Layouts',exact:true}).click();
  await page.getByRole('button',{name:'Open Menu-renamed garden',exact:true}).waitFor();
  assert.equal(await page.getByRole('button',{name:'Use an inspiration layout',exact:true}).count(),0,'My Layouts contains only saved plans');

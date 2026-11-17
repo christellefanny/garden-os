@@ -1,3 +1,4 @@
+import { libraryDesignPlants, type DesignPlant } from "./layout-plant-catalog.ts";
 /** Visual planning objects. Decorations are illustrations, never garden plant records. */
 export const customPlantGroups = ["Vegetables", "Flowers", "Herbs", "Other"] as const;
 export type CustomPlantGroup = typeof customPlantGroups[number];
@@ -8,6 +9,7 @@ export type LayoutItem = {
   decorations?: Decoration[];
   groundCover?: GroundCoverId;
   containerStyle?: string;
+  containerRotation?: number;
   wallStyle?: string;
   wallRotation?: number;
 };
@@ -40,28 +42,7 @@ export function plantStampStyle(item:Pick<LayoutItem,"x"|"y"|"w"|"h">,plant:Pick
   const size=`clamp(44px, ${preferred}cqw, 112px)`,half=`clamp(22px, ${preferred/2}cqw, 56px)`;
   return {width:size,height:size,left:`clamp(calc(${half} - ${item.x}cqw), ${plant.x}%, calc(${100-item.x}cqw - ${half}))`,top:`clamp(calc(${half} - ${item.y}cqw), ${plant.y}%, calc(${100-item.y}cqw - ${half}))`};
 }
-export const designPlants = [
-  {id:"tomato",name:"Tomato",group:"Vegetables",src:"/planting-now/tomato.webp"},
-  {id:"pepper",name:"Pepper",group:"Vegetables",src:"/planting-now/pepper.webp"},
-  {id:"lettuce",name:"Lettuce",group:"Vegetables",src:"/planting-now/lettuce.webp"},
-  {id:"garlic",name:"Garlic",group:"Vegetables",src:"/planting-now/garlic.webp"},
-  {id:"spinach",name:"Spinach",group:"Vegetables",src:"/planting-now/spinach.webp"},
-  {id:"radish",name:"Radish",group:"Vegetables",src:"/planting-now/radish.webp"},
-  {id:"kale",name:"Kale",group:"Vegetables",src:"/planting-now/kale.webp"},
-  {id:"peas",name:"Peas",group:"Vegetables",src:"/planting-now/peas.webp"},
-  {id:"beans",name:"Bush beans",group:"Vegetables",src:"/planting-now/beans.webp"},
-  {id:"carrot",name:"Carrot",group:"Vegetables",src:"/layout-inspiration/carrot.webp"},
-  {id:"cucumber",name:"Cucumber",group:"Vegetables",src:"/layout-inspiration/cucumber.webp"},
-  {id:"broccoli",name:"Broccoli",group:"Vegetables",src:"/layout-inspiration/broccoli.webp"},
-  {id:"okra",name:"Okra",group:"Vegetables",src:"/layout-inspiration/okra.webp"},
-  {id:"dahlia",name:"Dahlia",group:"Flowers",src:"/layout-inspiration/dahlia-transparent.webp"},
-  {id:"zinnia",name:"Zinnia",group:"Flowers",src:"/layout-inspiration/zinnia-transparent.webp"},
-  {id:"cosmos",name:"Cosmos",group:"Flowers",src:"/layout-inspiration/cosmos-transparent.webp"},
-  {id:"snapdragon",name:"Snapdragon",group:"Flowers",src:"/layout-inspiration/snapdragon-transparent.webp"},
-  {id:"lisianthus",name:"Lisianthus",group:"Flowers",src:"/layout-inspiration/lisianthus-transparent.webp"},
-  {id:"marigold",name:"Marigold",group:"Flowers",src:"/layout-inspiration/marigold-transparent.webp"},
-  {id:"alyssum",name:"Sweet alyssum",group:"Flowers",src:"/layout-inspiration/alyssum-transparent.webp"},
-] as const;
+export const designPlants = libraryDesignPlants;
 export type LayoutTemplate = {id:string;name:string;description:string;image:string;summary:string;items:Omit<LayoutItem,"id"|"spaceId">[]};
 const stamps=(...ids:string[])=>ids.map((plantId,i)=>({id:`stamp-${i}`,plantId,x:25+(i%2)*50,y:25+Math.floor(i/2)*50}));
 const bed=(name:string,x:number,y:number,w:number,h:number,...plants:string[]):Omit<LayoutItem,"id"|"spaceId">=>({name,kind:"Bed",x,y,w,h,decorations:stamps(...plants)});
@@ -85,11 +66,16 @@ export const layoutTemplates: LayoutTemplate[] = [
 export function instantiateLayout(template:LayoutTemplate|undefined,name:string,uuid:()=>string=()=>crypto.randomUUID()):Layout {
   return {id:uuid(),name,items:template?.items.map(item=>({...item,id:uuid(),spaceId:"",decorations:item.decorations?.map(plant=>({...plant,id:uuid()}))}))??[]};
 }
-export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[];kind?:LayoutItem["kind"];wallRotation?:number}>(item:T):T {
-  return {...item,...(item.kind==="Wall"?{wallRotation:((item.wallRotation??0)+90)%360}:{}),x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
+export function rotateItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h"> & {decorations?:Decoration[];kind?:LayoutItem["kind"];wallRotation?:number;containerRotation?:number}>(item:T,aspectRatio=1):T {
+  if(item.kind==="Container"&&Number.isFinite(aspectRatio)&&aspectRatio>0&&aspectRatio!==1){
+    const w=item.h/aspectRatio,h=item.w*aspectRatio;
+    if(w>100||h>100)return item;
+    return {...item,containerRotation:((item.containerRotation??0)+90)%360,w,h,x:Math.max(0,Math.min(100-w,item.x+(item.w-w)/2)),y:Math.max(0,Math.min(100-h,item.y+(item.h-h)/2)),...(item.decorations?{decorations:safeDecorations(item.decorations).map(p=>({...p,x:100-p.y,y:p.x}))}:{})};
+  }
+  return {...item,...(item.kind==="Container"?{containerRotation:((item.containerRotation??0)+90)%360}:{}),...(item.kind==="Wall"?{wallRotation:((item.wallRotation??0)+90)%360}:{}),x:Math.max(0,Math.min(100-item.h,item.x+(item.w-item.h)/2)),y:Math.max(0,Math.min(100-item.w,item.y+(item.h-item.w)/2)),w:item.h,h:item.w,...(item.decorations?{decorations:safeDecorations(item.decorations).map(plant=>({...plant,x:100-plant.y,y:plant.x}))}:{})};
 }
 /** Custom plants are named visual markers, never invented botanical art or real plant records. */
-export function decorationAppearance(plant:Decoration):{name:string;group:string;src?:string} {
+export function decorationAppearance(plant:Decoration):{name:string;group:string;src?:string;sprite?:DesignPlant["sprite"]} {
   if(plant.plantId==="custom")return {name:plant.customName??"Custom plant",group:plant.customGroup??"Other"};
   return designPlants.find(p=>p.id===plant.plantId)??{name:"Plant",group:"Other"};
 }
@@ -114,4 +100,22 @@ export function duplicateLayoutItem(item:LayoutItem,siblings:readonly LayoutItem
 export function safeDecorations(value:unknown):Decoration[] {
   if(!Array.isArray(value))return [];
   return value.filter((d):d is Decoration=>d&&typeof d.id==="string"&&(designPlants.some(p=>p.id===d.plantId)||(d.plantId==="custom"&&typeof d.customName==="string"&&d.customName.trim().length>0&&d.customName.length<=80&&customPlantGroups.includes(d.customGroup)))&&Number.isFinite(d.x)&&Number.isFinite(d.y)&&d.x>=0&&d.x<=100&&d.y>=0&&d.y<=100);
+}
+
+/** Uniform scaling preserves the vessel silhouette and its orientation. */
+export function resizeItem<T extends Pick<LayoutItem,"x"|"y"|"w"|"h">>(item:T,factor:number):T {
+  if(!Number.isFinite(factor)||factor<=0)return item;
+  const scale=Math.max(4/Math.min(item.w,item.h),Math.min(factor,100/Math.max(item.w,item.h)));
+  const w=item.w*scale,h=item.h*scale;
+  return {...item,w,h,x:Math.max(0,Math.min(100-w,item.x+(item.w-w)/2)),y:Math.max(0,Math.min(100-h,item.y+(item.h-h)/2))};
+}
+
+/** Keep plants at the vessel opening as the illustrated container turns. */
+export function containerPlantPosition(item:Pick<LayoutItem,"containerRotation">,plant:Pick<Decoration,"x"|"y">){
+ const turns=[0,90,180,270].includes(item.containerRotation??0)?(item.containerRotation??0)/90:0;
+ let {x,y}=plant;
+ for(let i=0;i<turns;i++)[x,y]=[y,100-x];
+ [x,y]=[25+x*.5,20+(y-50)*.1];
+ for(let i=0;i<turns;i++)[x,y]=[100-y,x];
+ return {left:`${x}%`,top:`${y}%`};
 }
