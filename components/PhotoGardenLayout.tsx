@@ -92,7 +92,7 @@ export default function PhotoGardenLayout({ userId, onCancel, onCreate }: { user
     } catch (e) { setError(e instanceof Error ? e.message : "Could not save your layout. Your draft is still here."); }
   }
   return <section className="photo-layout-flow" aria-label="Create a garden from a photo">
-    <div className="photo-layout-top"><div><p className="modern-eyebrow">A new way to begin</p><h2>From your garden, to your plan.</h2><p>A familiar corner, ready for its next chapter.</p></div><button type="button" className="seasonal-outline rounded-xl border px-4 py-3" onClick={onCancel}>← Back to inspiration</button></div>
+    <div className="photo-layout-top"><div><p className="modern-eyebrow">A new way to begin</p><h2>From your garden, to your plan.</h2><p>A familiar corner, ready for its next chapter.</p></div><button type="button" className="seasonal-outline rounded-xl border px-4 py-3" onClick={onCancel}>← Back to New Layout</button></div>
     <ol className="photo-layout-steps" aria-label="Photo layout steps"><li aria-current={step === "upload" ? "step" : undefined}>1 · Choose a picture</li><li aria-current={step === "review" ? "step" : undefined}>2 · Review your map</li><li>3 · Make it yours</li></ol>
     {step === "upload" ? <div className="photo-upload-grid"><div className="photo-upload-copy">
       <p className="modern-eyebrow">Map my existing garden</p><h3>Start with a picture of your space.</h3><p>Vegetables in grow bags, flowers in patio pots, or a yard full of beds—every kind of garden belongs here.</p>

@@ -2505,5 +2505,15 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .guided-layout-cover>summary{cursor:pointer;padding:.6rem 0;min-height:44px}
 .guided-layout-steps{scroll-margin-top:1rem}
 /* Keep the site-wide task action available without covering the guided footer. */
-body:has(.guided-layout-footer) .floating-add-task{position:static;margin:1rem 1.5rem;align-self:flex-end}
-body:has(.guided-layout-footer) .floating-task-status{position:static;margin:0 1.5rem 1rem}
+body:has(.layout-studio) .floating-add-task{position:static;margin:1rem 1.5rem;align-self:flex-end}
+body:has(.layout-studio) .floating-task-status{position:static;margin:0 1.5rem 1rem}
+
+/* Two clear destinations before choosing a design. */
+.layout-entry-choices, .layout-start-choices {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+.layout-entry-choices button, .layout-start-choices button {display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;padding:28px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--atelier-dark);min-height:132px;}
+.layout-entry-choices strong, .layout-start-choices strong {font:26px/1.2 Georgia,serif;}
+.layout-entry-choices span, .layout-start-choices span {font-size:14px;line-height:1.6;color:#52604c;}
+.layout-entry-choices button:hover, .layout-start-choices button:hover {background:var(--atelier-light);border-color:var(--atelier-deep);}
+.layout-photo-option {margin-top:28px;}
+.layout-photo-option>summary {min-height:44px;padding:12px 0;cursor:pointer;color:var(--atelier-dark);}
+@media(max-width:600px){.layout-entry-choices,.layout-start-choices{grid-template-columns:1fr;}.layout-entry-choices button,.layout-start-choices button{min-height:116px;padding:24px;}}
