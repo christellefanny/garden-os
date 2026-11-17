@@ -29,7 +29,7 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
       if(linked)return linked.id;
       if(hasLegacy&&initialLayout.some(b=>b.id===initialBedId))return "original";
     }
-    return "gallery";
+    return "home";
   });
   const [renaming,setRenaming]=useState(false),[name,setName]=useState(""),[error,setError]=useState("");
   const [coverRevision,setCoverRevision]=useState(0);
@@ -62,27 +62,37 @@ export default function GardenLayout(props:{userId:string;gardenId:string;garden
       window.dispatchEvent(new Event("garden-os-data-change"));
     }catch(err){setError(err instanceof Error?err.message:"Could not save this cover picture.");}
   }
-  if(selection==="original"&&hasLegacy)return <LegacyGardenLayout {...props} onNewLayout={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} onClose={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} />;
+  if(selection==="original"&&hasLegacy)return <LegacyGardenLayout {...props} onNewLayout={()=>{setLayouts(loadCustomLayouts(customKey));select("gallery");}} onClose={()=>{setLayouts(loadCustomLayouts(customKey));select("saved");}} />;
   return <section className="interior-page layout-page layout-studio">
-    {selection==="gallery"&&<InteriorHeader title="Garden Layout" eyebrow="Make room for your ideas" description="Start with a little inspiration or a completely blank canvas. Move beds, add paths, and picture the garden you want to grow." />}
-    <nav aria-label="Saved garden layouts" className="layout-studio-nav">
-      <button type="button" aria-current={selection==="gallery"?"page":undefined} onClick={()=>select("gallery")}>Inspiration & new layout</button>
-      {layouts.map(l=><button type="button" key={l.id} aria-current={selection===l.id?"page":undefined} onClick={()=>select(l.id)}>{l.name}</button>)}
-      {hasLegacy&&<button type="button" onClick={()=>select("original")}>Saved nine-bed plan</button>}
+    {["home","gallery","saved","inspiration"].includes(selection)&&<InteriorHeader title="Garden Layout" eyebrow="Plan & Design" description="Create something new or return to a saved design." />}
+    <nav aria-label="Garden layout sections" className={`layout-studio-nav${selection==="home"?" layout-entry-choices":""}`}>
+      <button type="button" aria-label="New Layout" aria-current={["gallery","inspiration","photo"].includes(selection)||selection.startsWith("new")?"page":undefined} onClick={()=>select("gallery")}><strong>New Layout</strong>{selection==="home"&&<span>Start from scratch or use an inspiration layout.</span>}</button>
+      <button type="button" aria-label="My Layouts" aria-current={selection==="saved"||Boolean(current)?"page":undefined} onClick={()=>{setLayouts(loadCustomLayouts(customKey));select("saved");}}><strong>My Layouts</strong>{selection==="home"&&<span>Open and continue your saved designs.</span>}</button>
     </nav>
     {current&&<details className="guided-layout-cover"><summary>Garden picture</summary><div className="layout-cover-actions">{validLayoutCover(current.coverImage)&&<Image src={current.coverImage} alt={`Garden picture for ${current.name}`} width={600} height={400} unoptimized className="layout-cover-preview"/>}<button type="button" className="seasonal-outline min-h-11 rounded-xl border px-4 py-2" onClick={()=>{setCoverDraft(current.coverImage);setError("");setCoverEditing(true);}}>{current.coverImage?"Change garden picture":"Add garden picture"}</button></div></details>}
     {coverEditing&&<Dialog title="Garden picture" onClose={()=>{if(!coverBusy)setCoverEditing(false);}}><LayoutCoverPicker value={coverDraft} onChange={setCoverDraft} onBusyChange={setCoverBusy}/>{error&&<p role="alert">{error}</p>}<button type="button" className="seasonal-button mt-5 min-h-11 rounded-xl px-4 py-3" disabled={coverBusy} onClick={saveCover}>Save picture</button></Dialog>}
-    {selection==="photo"?<PhotoGardenLayout userId={userId} onCancel={()=>select("gallery")} onCreate={createFromPhoto}/>:selection==="gallery"?<>
-      {layouts.length>0&&<section className="saved-layouts-with-covers"><h2 className="font-serif text-2xl">Your saved layouts</h2><div className="layout-template-grid mt-4">{layouts.map(l=><article className="layout-template-card" key={l.id}>{validLayoutCover(l.coverImage)?<Image src={l.coverImage} width={600} height={400} alt={`Garden picture for ${l.name}`} unoptimized/>:<div className="layout-cover-empty">Your garden layout</div>}<div><h3>{l.name}</h3><button type="button" className="seasonal-button" onClick={()=>select(l.id)}>Open layout</button></div></article>)}</div></section>}
-      <div className="layout-gallery-intro"><div><p className="modern-eyebrow">A starting point, never a rule</p><h2>What would you love to grow?</h2><p>Choose an illustrated idea to make your own. Each opens as a separate editable plan.</p></div><button type="button" className="seasonal-button" onClick={()=>select("new")}>Start from scratch →</button></div>
+    {selection==="home"?null:selection==="saved"?<section className="saved-layouts-with-covers">
+      <h2 className="font-serif text-2xl">My Layouts</h2>
+      {layouts.length===0&&!hasLegacy?<p className="seasonal-muted mt-4">No saved layouts yet. Choose New Layout to create your first design.</p>:<div className="layout-template-grid mt-4">{layouts.map(l=><article className="layout-template-card" key={l.id}>{validLayoutCover(l.coverImage)?<Image src={l.coverImage} width={600} height={400} alt={`Garden picture for ${l.name}`} unoptimized/>:<div className="layout-cover-empty">Your garden layout</div>}<div><h3>{l.name}</h3><button type="button" className="seasonal-button" aria-label={`Open ${l.name}`} onClick={()=>select(l.id)}>Open layout</button></div></article>)}
+      {hasLegacy&&<article className="layout-template-card"><div className="layout-cover-empty">Your original garden plan</div><div><h3>Saved nine-bed plan</h3><button type="button" className="seasonal-button" onClick={()=>select("original")}>Open saved nine-bed plan</button></div></article>}</div>}
+    </section>:selection==="photo"?<PhotoGardenLayout userId={userId} onCancel={()=>select("gallery")} onCreate={createFromPhoto}/>:selection==="gallery"?<>
+      <div className="layout-gallery-intro"><div><h2>New Layout</h2><p>How would you like to begin?</p></div></div>
+      <div className="layout-start-choices">
+        <button type="button" aria-label="Start from scratch" onClick={()=>select("new")}><strong>Start from scratch</strong><span>A blank canvas for your own ideas.</span></button>
+        <button type="button" aria-label="Use an inspiration layout" onClick={()=>select("inspiration")}><strong>Use an inspiration layout</strong><span>Choose a design, then make it yours.</span></button>
+      </div>
+      <details className="layout-photo-option"><summary>Or start with a garden photo</summary>
       <article className="photo-layout-entry"><Image src="/layout-inspiration/courtyard-open-entry.webp" width={600} height={400} alt="Illustrated beds and pots surrounding a garden path" sizes="(max-width: 700px) 100vw, 260px"/><div><p className="modern-eyebrow">Your space, your starting point</p><h3>Create a garden from a photo</h3><p>Bring a picture of your garden. Review its beds, pots and paths, then make the plan your own.</p><button type="button" className="seasonal-button rounded-xl px-5 py-3" onClick={()=>select("photo")}>Upload a garden photo →</button></div></article>
+      </details>
+    </>:selection==="inspiration"?<>
+      <div className="layout-gallery-intro"><div><h2>Choose an inspiration layout</h2><p>Each idea becomes your own editable design.</p></div><button type="button" className="seasonal-outline" onClick={()=>select("gallery")}>Back to New Layout</button></div>
       <div className="layout-template-grid">{layoutTemplates.map(template=><article className="layout-template-card" key={template.id}>
         <Image src={template.image} width={600} height={400} alt={`Illustrated inspiration for ${template.name.toLowerCase()}`} sizes="(max-width: 700px) 100vw, 33vw" />
         <div><p className="modern-eyebrow">{template.summary}</p><h3>{template.name}</h3><p>{template.description}</p><button type="button" className="seasonal-button" onClick={()=>select(`new:${template.id}`)}>Customize {template.name.toLowerCase()} →</button></div>
       </article>)}</div>
       <p className="layout-concept-note">Illustrated concepts, not measured planting plans. Customize the shapes and decorative plants for your space. Nothing is added to My Gardens until you choose to create growing spaces.</p>
       <details className="container-inspiration"><summary>Explore planter styles</summary><p>A few pots can become a whole garden. Explore ceramic, timber, metal and woven textures for patios, balconies and vegetable gardens. Choose Add container in the designer to use one.</p><div>{containerStyles.map(style=><figure key={style.id}><Image src={style.src} alt={`Watercolor illustration of ${style.name.toLowerCase()}`} width={280} height={280}/><figcaption><h3>{style.name}</h3><p>{style.detail}</p></figcaption></figure>)}</div></details>
-    </>:<BlankGardenLayout key={`${selection.startsWith("new")?selection:current?.id??selection}:${coverRevision}`} userId={userId} gardenId={gardenId} spaces={props.spaces} onOpenSpace={props.onOpenSpace} onBack={()=>select("gallery")} initialItemId={initialBedId} selectedLayoutId={selection} onNewLayout={()=>select("gallery")} initialTemplateId={selection.startsWith("new:")?selection.slice(4):undefined} onSelectLayout={select} onLayoutsChange={setLayouts} onRename={()=>{setName(current?.name??"");setError("");setRenaming(true);}} onCreateSpaces={beds=>props.onCreateSpaces(beds,false)} />}
+    </>:<BlankGardenLayout key={`${selection.startsWith("new")?selection:current?.id??selection}:${coverRevision}`} userId={userId} gardenId={gardenId} spaces={props.spaces} onOpenSpace={props.onOpenSpace} onBack={()=>select(selection.startsWith("new")?"gallery":"saved")} initialItemId={initialBedId} selectedLayoutId={selection} onNewLayout={()=>select("gallery")} initialTemplateId={selection.startsWith("new:")?selection.slice(4):undefined} onSelectLayout={select} onLayoutsChange={setLayouts} onRename={()=>{setName(current?.name??"");setError("");setRenaming(true);}} onCreateSpaces={beds=>props.onCreateSpaces(beds,false)} />}
     {renaming&&<Dialog title="Rename layout" onClose={()=>setRenaming(false)}><form onSubmit={e=>{e.preventDefault();rename();}}><label>Layout name<input maxLength={100} required value={name} onChange={e=>setName(e.target.value)} className="seasonal-input mt-2 w-full rounded-xl border p-3"/></label>{error&&<p role="alert">{error}</p>}<button type="submit" className="seasonal-button mt-4 rounded-xl p-3">Save name</button></form></Dialog>}
   </section>;
 }
