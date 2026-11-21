@@ -100,8 +100,8 @@ export default function BeginnerGuideArticle({ guide, userId, mode, identityMess
         ? <Link className={`seasonal-outline ${linkStyle} justify-center text-center`} href={`/beginners-guide/${next.id}`}>{nextLabel}</Link>
         : <button type="button" className={`seasonal-outline ${linkStyle} justify-center text-center`} onClick={() => { setShowPlantOptions(false); onNext?.(next.id); }}>{nextLabel}</button>}
       {finalGuide && (page
-        ? <Link className={`seasonal-button ${linkStyle} justify-center text-center`} href="/?view=garden-layout" onClick={onWorkspaceNavigate}>Start Your Garden</Link>
-        : <button type="button" className={`seasonal-button ${linkStyle} justify-center text-center`} onClick={onPlan}>Start Your Garden</button>)}
+        ? <Link className={`seasonal-button ${linkStyle} justify-center text-center`} href="/?view=garden-layout" onClick={onWorkspaceNavigate}>Sketch a layout</Link>
+        : <button type="button" className={`seasonal-button ${linkStyle} justify-center text-center`} onClick={onPlan}>Sketch a layout</button>)}
     </nav>
     {finalGuide && userId === 'guest' && <aside id="beginner-plant-options" hidden={!showPlantOptions} className="learning-note" role="status">
       <p>Plant Vault holds your personal plant collection and is available when you sign in. You can explore flower guides in Flower Corner without an account.</p>

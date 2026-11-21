@@ -64,7 +64,7 @@ try {
  const dialog=page.getByRole('dialog');
  await nav.getByRole('button',{name:'Beginner’s Guide',exact:true}).click();
  assert.equal(await page.getByRole('button',{name:'Open Plan & Design',exact:true}).count(),0);
- await page.getByRole('button',{name:'Start Your Garden',exact:true}).click();
+ await page.getByRole('button',{name:'Sketch a layout',exact:true}).click();
  await page.getByRole('heading',{name:'Garden Layout',exact:true}).waitFor();
  await page.goBack();await page.getByRole('heading',{name:'Beginner’s Guide',exact:true}).waitFor();
  // Help me start must show the full helper title on initial and repeated use.
@@ -123,14 +123,14 @@ try {
   }else{
    if(entry.id==='care'){
     const finalActions=tab.getByRole('navigation',{name:'Guide next steps',exact:true});
-    assert.deepEqual(await finalActions.locator('a,button').allTextContents(),['Explore Plants','Return to the first guide','Start Your Garden']);
+    assert.deepEqual(await finalActions.locator('a,button').allTextContents(),['Explore Plants','Return to the first guide','Sketch a layout']);
     const lessonUrl=tab.url();
     await finalActions.getByRole('button',{name:'Explore Plants',exact:true}).click();
     assert.equal(tab.url(),lessonUrl);assert.ok(await tab.locator('#beginner-plant-options').isVisible());assert.equal(await tab.getByRole('dialog').count(),0);
     await tab.getByRole('link',{name:'Explore Flower Corner',exact:true}).click();
     await tab.getByRole('heading',{name:'Flower Corner',exact:true}).waitFor();
     await tab.goBack();await tab.getByRole('heading',{name:entry.title,exact:true}).waitFor();
-    await finalActions.getByRole('link',{name:'Start Your Garden',exact:true}).click();
+    await finalActions.getByRole('link',{name:'Sketch a layout',exact:true}).click();
     await tab.getByRole('heading',{name:'Garden Layout',exact:true}).waitFor();
     await tab.goBack();await tab.getByRole('heading',{name:entry.title,exact:true}).waitFor();
     await finalActions.getByRole('link',{name:'Return to the first guide',exact:true}).click();
@@ -183,7 +183,7 @@ try {
   await dialog.getByRole('heading',{name:entry.title,exact:true}).waitFor();
  }
  const finalActions=dialog.getByRole('navigation',{name:'Guide next steps',exact:true});
- assert.deepEqual(await finalActions.getByRole('button').allTextContents(),['Explore Plants','Return to the first guide','Start Your Garden']);
+ assert.deepEqual(await finalActions.getByRole('button').allTextContents(),['Explore Plants','Return to the first guide','Sketch a layout']);
  await finalActions.getByRole('button',{name:'Explore Plants',exact:true}).click();
  assert.equal(await page.getByRole('dialog').count(),1);assert.ok(await dialog.locator('#beginner-plant-options').isVisible());
  assert.equal(new URL(page.url()).searchParams.get('view'),'beginners-guide');
@@ -203,7 +203,7 @@ try {
   await dialog.getByRole('heading',{name:entry.title,exact:true}).waitFor();
  }
  assert.equal(await dialog.locator('#beginner-plant-options').isVisible(),false);
- await finalActions.getByRole('button',{name:'Start Your Garden',exact:true}).click();
+ await finalActions.getByRole('button',{name:'Sketch a layout',exact:true}).click();
  await page.getByRole('heading',{name:'Garden Layout',exact:true}).waitFor();assert.equal(await dialog.count(),0);
  await page.goBack();await page.getByRole('heading',{name:'Beginner’s Guide',exact:true}).waitFor();
  await nav.getByRole('button',{name:'Flower Corner',exact:true}).click();

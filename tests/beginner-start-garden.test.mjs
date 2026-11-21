@@ -11,7 +11,7 @@ test('closing beginner invitation retains its action and adds decorative garden 
   assert.match(band, /aria-labelledby="beginner-start-garden-heading"/);
   assert.match(band, /id="beginner-start-garden-heading">Start your garden/);
   assert.match(band, /Put the six steps into practice with a simple garden layout\./);
-  assert.match(band, /onClick=\{onPlan\}>Start Your Garden<\/button>/);
+  assert.match(band, /onClick=\{onPlan\}>Sketch a layout<\/button>/);
   assert.match(band, /className="beginner-start-garden-art" aria-hidden="true"/);
   for (const plant of ['tomato', 'basil', 'zinnia']) {
     assert.match(band, new RegExp(`src="/planting-now/${plant}\\.webp"[^>]*alt=""`));

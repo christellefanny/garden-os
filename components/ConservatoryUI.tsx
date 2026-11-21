@@ -121,17 +121,21 @@ export function ConservatoryNavigation({
 }
 export function ConservatoryTopbar({
   location,
+  search,
+  showSearch,
   onSearch,
   navigate,
 }: {
   location: string;
+  search: string;
+  showSearch: boolean;
   onSearch: (value: string) => void;
   navigate: (page: Destination) => void;
 }) {
   const { season, selection, setSelection } = useSeason();
   return (
-    <header className="modern-topbar">
-      <label className="modern-search">
+    <header className={showSearch ? "modern-topbar" : "modern-topbar modern-topbar-no-search"}>
+      {showSearch && <label className="modern-search">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -143,11 +147,12 @@ export function ConservatoryTopbar({
           <path d="m15 15 6 6" />
         </svg>
         <input
-          aria-label="Search plants and records"
-          placeholder="Search plants, spaces, or notes…"
+          aria-label="Search my garden"
+          placeholder="Search my garden"
+          value={search}
           onChange={(e) => onSearch(e.target.value)}
         />
-      </label>
+      </label>}
       <label className="modern-theme">
         <SeasonIcon season={season} />
         <select

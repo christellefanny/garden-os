@@ -2534,3 +2534,10 @@ body:has(.layout-studio) .floating-task-status{position:static;margin:0 1.5rem 1
 .layout-transform-controls p {font-size:.8rem;}
 .layout-plant-search {display:grid;gap:.4rem;font-weight:700;margin:1rem 0;}
 .layout-plant-search input {min-height:44px;padding:.65rem;border:1px solid var(--border);border-radius:.75rem;width:100%;}
+
+.modern-topbar.modern-topbar-no-search {justify-content:flex-end;}
+@media(max-width:800px){.modern-topbar.modern-topbar-no-search{grid-template-columns:auto 37px;}}
+.beginner-guide-task {display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin:16px 0 4px;}
+.beginner-guide-task .inline-task-status {font-size:12px;color:var(--foreground);}
+.beginner-guide-task .inline-task-status:empty {position:absolute;}
+.beginner-guide-task > .add-task-button {min-height:44px;border:1px solid var(--border);border-radius:10px;padding:8px 14px;}

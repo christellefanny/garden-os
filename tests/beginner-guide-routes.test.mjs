@@ -178,14 +178,14 @@ test('space design actions retain the page workspace hook and popup navigation c
   assert.equal(pageClicks, 1); assert.equal(popupClicks, 1);
 });
 
-test('only the final guide offers Explore Plants, return and Start Your Garden in accessible responsive order', () => {
+test('only the final guide offers Explore Plants, return and Sketch a layout in accessible responsive order', () => {
   for (const guide of learning.beginnerGuides) {
     for (const mode of ['page', 'dialog']) {
       const tree = Article({ guide, userId: 'account-a', mode });
       const nav = descendants(tree).find(node => node.type === 'nav' && node.props['aria-label'] === 'Guide next steps');
       const actions = React.Children.toArray(nav.props.children);
       const final = guide.id === 'care';
-      assert.deepEqual(actions.map(node => node.props.children), final ? ['Explore Plants', 'Return to the first guide', 'Start Your Garden'] : ['Next guide →']);
+      assert.deepEqual(actions.map(node => node.props.children), final ? ['Explore Plants', 'Return to the first guide', 'Sketch a layout'] : ['Next guide →']);
       assert.equal(nav.props['aria-label'], 'Guide next steps');
       if (!final) continue;
       assert.match(nav.props.className, /grid-cols-1.*sm:grid-cols-3/);
@@ -297,12 +297,12 @@ test('Beginner overview has no initial design button; the space popup owns its s
 test('overview completion invitation follows all six cards without moving into the initial hero', () => {
   for (const helper of [false, true]) {
     const html = overview({ helper });
-    assert.equal((html.match(/>Start Your Garden<\/button>/g) || []).length, 1);
+    assert.equal((html.match(/>Sketch a layout<\/button>/g) || []).length, 1);
     assert.ok(html.indexOf('id="beginner-start-garden-heading"') > html.indexOf('href="/beginners-guide/care"'));
     assert.match(html, /Put the six steps into practice with a simple garden layout/);
   }
-  assert.doesNotMatch(overview({ kind: 'flowers' }), /Start Your Garden/);
-  assert.match(read('components/GardenLearning.tsx'), /onClick=\{onPlan\}>Start Your Garden/);
+  assert.doesNotMatch(overview({ kind: 'flowers' }), /Sketch a layout/);
+  assert.match(read('components/GardenLearning.tsx'), /onClick=\{onPlan\}>Sketch a layout/);
 });
 
 test('every dedicated guide supports a direct server request and metadata; unknown routes are rejected', async () => {

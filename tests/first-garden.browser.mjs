@@ -30,13 +30,13 @@ try {
   await steps.waitFor();
   await page.screenshot({path:`${out}/first-garden-desktop.png`});
   await steps.screenshot({path:`${out}/first-garden-steps-desktop.png`});
-  await steps.getByRole('button',{name:'Start my garden →',exact:true}).click();
+  await steps.getByRole('button',{name:'Create my garden →',exact:true}).click();
   await page.getByRole('dialog',{name:'Create your garden'}).waitFor();
   await page.keyboard.press('Escape');
   assert.equal(await page.getByRole('dialog').count(),0);
   await page.goBack();
   assert.ok(!new URL(page.url()).searchParams.has('garden'));
-  await steps.getByRole('button',{name:'Start my garden →',exact:true}).click();
+  await steps.getByRole('button',{name:'Create my garden →',exact:true}).click();
   await page.getByRole('button',{name:'Cancel',exact:true}).click();
   await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Calendar',exact:true}).click();
   await page.getByRole('heading',{name:'Make this calendar yours'}).waitFor();
@@ -86,7 +86,7 @@ try {
   await mobile.getByRole('button',{name:'Continue as guest',exact:true}).click();
   await mobile.screenshot({path:`${out}/first-garden-mobile.png`});
   await mobile.getByRole('region',{name:'Your first garden steps'}).screenshot({path:`${out}/first-garden-steps-mobile.png`});
-  await mobile.getByRole('region',{name:'Your first garden steps'}).getByRole('button',{name:'Start my garden →',exact:true}).click();
+  await mobile.getByRole('region',{name:'Your first garden steps'}).getByRole('button',{name:'Create my garden →',exact:true}).click();
   const axe=await new AxeBuilder({page:mobile}).include('dialog').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
   assert.deepEqual(axe.violations.map(v=>v.id),[]);
   await mobile.screenshot({path:`${out}/create-garden-mobile.png`});
