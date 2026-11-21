@@ -56,6 +56,5 @@ test('canonical tagline is consistent in header, page description, and emails', 
     assert.ok(content.includes('Plan · Grow · Harvest · Enjoy'), file);
     assert.ok(!content.includes('Plan · Grow · Record · Be Inspired'), file);
   }
-  assert.match(read('components/ConservatoryUI.tsx'), /Plan <b>·<\/b> Grow <b>·<\/b> Harvest <b>·<\/b> Enjoy/);
   assert.match(read('app/globals.css'), /@media \(max-width: 1023px\)\s*\{\s*\.landing-welcome-card \{ order: -1; \}/);
 });

@@ -21,7 +21,7 @@ try {
  await page.getByRole('heading',{name:'What to Plant Now',exact:true}).waitFor();
  assert.equal(await page.getByRole('region',{name:'Imagine your dream garden',exact:true}).count(),0);
  assert.equal(await page.getByRole('heading',{name:'Plant Vault',exact:true}).count(),0);
- assert.equal(await page.locator('.garden-example-tile').count(),0);assert.equal(await page.getByRole('heading',{name:'My Gardens',exact:true}).count(),0);assert.equal(await page.locator('.guest-discovery-lead').getByRole('heading',{name:'What to Plant Now',exact:true}).count(),1);assert.equal(await page.getByRole('heading',{name:'Upcoming Tasks',exact:true}).count(),0);assert.equal(await page.locator('.dashboard-quick-summary').count(),0);assert.equal(await page.getByRole('button',{name:'Add task',exact:false}).count(),1);
+ assert.equal(await page.locator('.garden-example-tile').count(),0);assert.equal(await page.getByRole('heading',{name:'My Gardens',exact:true}).count(),0);assert.equal(await page.locator('.atelier-planting-lead').getByRole('heading',{name:'What to Plant Now',exact:true}).count(),1);assert.equal(await page.getByRole('heading',{name:'Upcoming Tasks',exact:true}).count(),0);assert.equal(await page.locator('.dashboard-quick-summary').count(),0);assert.equal(await page.getByRole('button',{name:'Add task',exact:false}).count(),1);
  await mkdir('docs/previews/layout-studio',{recursive:true});
  // Guests can save a freeform task without plants; overdue tasks survive reopening.
  await page.getByRole('button',{name:'Add task',exact:false}).click();const taskDialog=page.getByRole('dialog',{name:'Add a task',exact:true});

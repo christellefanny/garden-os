@@ -70,12 +70,15 @@ test('discovery asks visitors to find their growing zone', () => {
   assert.doesNotMatch(html, /Find my growing location/);
 });
 
-test('fresh guest home foregrounds discovery without example layouts or empty activity cards', () => {
+test('fresh guest home puts first steps before discovery without example layouts or empty activity cards', () => {
   storage();
-  const html = dashboard();
-  assert.match(html, /guest-discovery-lead/);
+  const html = dashboard({ firstGardenSteps: React.createElement('section', null, 'First garden steps fixture') });
+  assert.match(html, /atelier-planting-lead/);
   assert.equal((html.match(/What to Plant Now/g) || []).length, 1);
-  assert.ok(html.indexOf('What to Plant Now') < html.indexOf('atelier-welcome-note'));
+  assert.match(html, /atelier-welcome-banner[^>]*>.*A little planning\. A lot of growing\..*From your first pot.*<\/section>/);
+  assert.doesNotMatch(html, /atelier-welcome-note/);
+  assert.ok(html.indexOf('A little planning.') < html.indexOf('First garden steps fixture'));
+  assert.ok(html.indexOf('First garden steps fixture') < html.indexOf('What to Plant Now'));
   assert.doesNotMatch(html, /<h2>My Gardens<\/h2>|A possibility for your garden|Vegetable garden|Flower garden|Herb garden|Example plan|<h2>My Garden Layout<\/h2>|This Week|Recent Observations/);
   assert.doesNotMatch(html, /modern-main-grid|modern-bottom-grid/);
 });
@@ -95,7 +98,7 @@ test('returning guest keeps real local gardens and scoped notes; account cache i
   assert.match(html, /My guest balcony/);
   assert.match(html, /Recent Observations/);
   assert.match(html, /Guest balcony note/);
-  assert.doesNotMatch(html, /This Week|Example plan|guest-discovery-lead|PRIVATE ACCOUNT|A possibility for your garden/);
+  assert.doesNotMatch(html, /This Week|Example plan|PRIVATE ACCOUNT|A possibility for your garden/);
   assert.ok(reads.every(key => !key.includes('-account')));
   assert.equal(JSON.stringify(values), before);
 });
@@ -123,7 +126,7 @@ test('a guest task and actual saved layouts display independently from observati
   assert.doesNotMatch(legacy, /This Week|Recent Observations|Example plan/);
 });
 
-test('signed-in home retains its account collection without guest discovery layout', () => {
+test('signed-in home retains its account collection after planting discovery', () => {
   storage({
     'garden-os-journal-account': JSON.stringify([{ id: 'private-note', kind: 'Note', date: '2026-11-06', text: 'PRIVATE ACCOUNT NOTE' }]),
     'garden-os-journal-guest': JSON.stringify([{ id: 'guest-note', kind: 'Note', date: '2026-11-06', text: 'GUEST ONLY NOTE' }]),
@@ -134,8 +137,8 @@ test('signed-in home retains its account collection without guest discovery layo
   assert.match(html, /PRIVATE ACCOUNT NOTE/);
   assert.match(html, /Example plan/);
   assert.match(html, /This Week/);
-  assert.doesNotMatch(html, /guest-discovery-lead|GUEST ONLY NOTE/);
-  assert.ok(html.indexOf('My Gardens') < html.indexOf('What to Plant Now'));
+  assert.doesNotMatch(html, /GUEST ONLY NOTE/);
+  assert.ok(html.indexOf('What to Plant Now') < html.indexOf('My Gardens'));
 });
 
 test('signed-in dashboard retains both empty activity cards', () => {

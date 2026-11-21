@@ -1697,19 +1697,19 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .modern-card {background:#fffefa;border-radius:16px;box-shadow:0 5px 22px #32391b04;border:1px solid #e9e4d9;}
 .modern-card h2 {font:26px/1.2 Georgia,serif;color:#263c2f;}
 .modern-card-title>button {color:var(--atelier-deep);}
-.atelier-welcome-banner {position:relative;display:flex;align-items:center;min-height:310px;padding:36px clamp(24px,3vw,48px);border-radius:18px;overflow:hidden;background-color:#faf4e6;background-position:center;background-size:cover;border:1px solid #ebe4d4;}
+.atelier-welcome-banner {position:relative;display:flex;align-items:center;min-height:270px;padding:26px clamp(24px,3vw,48px);border-radius:18px;overflow:hidden;background-color:#faf4e6;background-position:center;background-size:cover;border:1px solid #ebe4d4;}
 .atelier-welcome-spring {background-image:url('/conservatory/atelier-spring.webp');}
 .atelier-welcome-summer {background-image:url('/conservatory/atelier-summer.webp');}
 .atelier-welcome-fall {background-image:url('/conservatory/atelier-fall.webp');}
 .atelier-welcome-winter {background-image:url('/conservatory/atelier-winter.webp');}
 .atelier-welcome-copy {position:relative;width:49%;color:#203d2c;}
-.atelier-season-label {font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--atelier-deep);margin-bottom:22px;}
-.atelier-welcome-copy h1 {font:clamp(35px,3.7vw,62px)/1.08 Georgia,serif;letter-spacing:-1.8px;margin:0 0 19px;}
+.atelier-season-label {font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--atelier-deep);margin-bottom:12px;}
+.atelier-welcome-copy h1 {font:clamp(35px,3.7vw,62px)/1.08 Georgia,serif;letter-spacing:-1.8px;margin:0 0 12px;}
 .atelier-welcome-copy h1>span {display:block;font:normal clamp(21px,2vw,30px)/1.5 Georgia,serif;letter-spacing:-.3px;}
-.atelier-welcome-copy>span {font:clamp(12px,1.1vw,16px)/1.7 Georgia,serif;white-space:nowrap;}
-.atelier-welcome-copy b {font-weight:normal;padding:0 4px;}
+.atelier-welcome-tagline {font:600 clamp(16px,1.6vw,23px)/1.28 Georgia,serif;margin:0 0 6px;}
+.atelier-welcome-description {font:clamp(13px,1.2vw,16px)/1.45 Georgia,serif;margin:0;max-width:33ch;}
 .atelier-home-sections {display:grid;grid-template-columns:minmax(0,1.7fr) minmax(290px,1fr);gap:20px;margin:24px 0;}
-.guest-discovery-lead {margin:24px 0;}
+.atelier-planting-lead {margin:24px 0;}
 .atelier-home-sections .modern-card {padding:24px;}
 .atelier-gardens-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px;}
 .atelier-garden-tile,.atelier-add-garden {min-width:0;text-align:left;overflow:hidden;border:1px solid #e8e2d7;border-radius:11px;background:#fffdf8;padding-bottom:14px;transition:box-shadow .2s,transform .2s;}
@@ -1730,10 +1730,9 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .modern-stats {margin:24px 0;}
 .modern-stats>button {background:#fffefa;border-radius:13px;}
 .stat-icon {background:var(--atelier-light);color:var(--atelier-deep);}
-@media(min-width:1600px) {.atelier-welcome-banner{min-height:350px;}}
 @media(max-width:1200px) {.atelier-home-sections{grid-template-columns:1fr;}.atelier-gardens-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));}}
 @media(max-width:800px) {.modern-sidebar{padding:16px;overflow:visible}.modern-sidebar nav button{min-height:42px}.modern-sidebar nav button.sidebar-secondary-start{margin:0}.modern-brand:has(.garden-atelier-mark){padding-bottom:14px}.atelier-welcome-banner{min-height:270px}.atelier-welcome-copy{width:50%}.atelier-welcome-copy h1{font-size:39px}.atelier-season-label{font-size:9px;letter-spacing:1px}.atelier-home-sections{margin:18px 0;gap:18px}}
-@media(max-width:540px) {.atelier-welcome-banner{min-height:330px;align-items:flex-start;padding:24px;background-position:70% bottom;background-size:auto 210px;background-repeat:no-repeat;}.atelier-welcome-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(#faf4e6 0%,#faf4e6 30%,#faf4e680 55%,transparent 78%)}.atelier-welcome-copy{width:100%}.atelier-season-label{margin-bottom:10px}.atelier-welcome-copy h1{font-size:39px;margin-bottom:10px}.atelier-welcome-copy h1>span{font-size:23px}.atelier-welcome-copy>span{font-size:13px}.atelier-home-sections .modern-card{padding:18px}.atelier-gardens-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.atelier-garden-art{height:120px}.atelier-garden-tile strong{font-size:16px}.atelier-add-garden{min-height:200px}.modern-card h2{font-size:24px}.modern-theme{gap:4px;padding:8px}.modern-topbar{gap:8px}.modern-search{padding:10px;flex-basis:48%;}.modern-search input{width:100%;}.modern-account{flex-shrink:0}}
+@media(max-width:540px) {.atelier-welcome-banner{min-height:300px;align-items:flex-start;padding:19px 21px 132px;background-position:70% bottom;background-size:auto 168px;background-repeat:no-repeat;}.atelier-welcome-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(#faf4e6 0%,#faf4e6 40%,#faf4e680 56%,transparent 73%)}.atelier-welcome-copy{width:100%}.atelier-season-label{margin-bottom:10px}.atelier-welcome-copy h1{font-size:clamp(31px,9vw,39px);margin-bottom:8px}.atelier-welcome-copy h1>span{font-size:23px}.atelier-home-sections .modern-card{padding:18px}.atelier-gardens-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.atelier-garden-art{height:120px}.atelier-garden-tile strong{font-size:16px}.atelier-add-garden{min-height:200px}.modern-card h2{font-size:24px}.modern-theme{gap:4px;padding:8px}.modern-topbar{gap:8px}.modern-search{padding:10px;flex-basis:48%;}.modern-search input{width:100%;}.modern-account{flex-shrink:0}}
 @media(prefers-reduced-motion:reduce){.atelier-garden-tile,.atelier-add-garden{transition:none}}
 .atelier-layout-empty {min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--atelier-light);border-radius:10px;margin-bottom:12px;text-align:center;padding:20px;}
 .atelier-layout-empty svg {width:34px;height:34px;color:var(--atelier-deep);}
@@ -1821,13 +1820,10 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .guest-location-prompt {padding:14px;background:#faf6ed;border:1px solid #e7dfd0;border-radius:11px;margin-bottom:10px;}
 .guest-location-prompt p {font-size:12px;line-height:1.7;color:#5c685b;}
 .guest-location-prompt button {min-height:44px;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:8px;margin-top:12px;}
-.guest-plant-row {display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:13px 0;border-bottom:1px solid #e9e3d7;}
-.guest-plant-thumb {width:65px;height:65px;border-radius:10px;overflow:hidden;flex-shrink:0;background:#faf6ed;}
+.guest-plant-row {display:flex;align-items:center;gap:10px;text-align:left;width:100%;min-height:44px;}
+.guest-plant-thumb {width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#faf6ed;}
 .guest-plant-thumb img {width:100%;height:100%;object-fit:contain;}
-.guest-plant-row>span:nth-child(2) {min-width:0;flex:1;}
-.guest-plant-row strong {font:18px/1.3 Georgia,serif;color:#29422f;display:block;}
-.guest-plant-row small {display:block;color:var(--atelier-dark);font-size:11px;line-height:1.5;margin-top:5px;}
-.guest-plant-kind {display:block;color:#626e60;font-size:10px;margin-top:3px;}
+.guest-plant-row strong {flex:1;min-width:0;overflow-wrap:anywhere;font:18px/1.3 Georgia,serif;color:#29422f;}
 .guest-plant-row>span:last-child {font-size:20px;color:var(--atelier-deep);}
 .guest-planting-note {font-size:11px;line-height:1.7;color:#626e60;margin-top:13px;}
 .guest-browse-plants {font-size:12px;min-height:44px;margin-top:12px;text-align:left;}
@@ -1863,14 +1859,10 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .guest-planting-heading {display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;}
 .guest-planting-heading>div:first-child {flex:1;min-width:200px;}
 .guest-planting-heading .guest-growing-location,.guest-planting-heading .guest-location-prompt {width:290px;max-width:100%;margin-bottom:0;}
-.guest-plant-suggestions {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px;}
-.guest-plant-suggestions .guest-plant-row {border:1px solid #e7e1d5;border-radius:12px;background:#fffdf8;padding:16px;}
-.guest-plant-suggestions .guest-plant-thumb {width:90px;height:90px;}
-.guest-plant-suggestions .guest-plant-row strong {font-size:23px;}
-.guest-plant-suggestions .guest-plant-row small {font-size:12px;}
+.guest-plant-suggestions {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;}
+.guest-plant-suggestions .guest-plant-row {border:1px solid #e7e1d5;border-radius:12px;background:#fffdf8;padding:6px 12px;}
 @media(min-width:801px){.modern-main-grid:has(.guest-planting-card){grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}}
-@media(max-width:1100px){.guest-plant-suggestions{gap:10px}.guest-plant-suggestions .guest-plant-thumb{width:70px;height:70px}.guest-plant-suggestions .guest-plant-row{padding:12px}.guest-plant-suggestions .guest-plant-row strong{font-size:20px}}
-@media(max-width:700px){.guest-planting-heading{gap:12px}.guest-planting-heading .guest-growing-location,.guest-planting-heading .guest-location-prompt{width:100%}.guest-plant-suggestions{grid-template-columns:1fr}.guest-plant-suggestions .guest-plant-row{padding:12px 16px}.guest-plant-suggestions .guest-plant-thumb{width:75px;height:75px}}
+@media(max-width:700px){.guest-planting-heading{gap:12px}.guest-planting-heading .guest-growing-location,.guest-planting-heading .guest-location-prompt{width:100%}.guest-plant-suggestions{grid-template-columns:1fr;gap:8px}.guest-plant-suggestions .guest-plant-row{padding:5px 10px}.guest-plant-suggestions .guest-plant-thumb{width:42px;height:42px}}
 
 /* A read-only example for visitors without a saved garden layout. */
 .guest-example-heading {display:flex;justify-content:space-between;align-items:center;gap:12px;}
@@ -2005,11 +1997,6 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 @media(max-width:1200px){.dashboard-quick-summary{align-self:start;}.dashboard-quick-summary>.dashboard-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr));}.dashboard-add-task{margin-top:0;}}
 @media(max-width:540px){.dashboard-summary-cards>button{min-height:90px;}.dashboard-add-task>.add-task-button{width:100%;}.dashboard-collection-stats{grid-template-columns:1fr;}}
 
-.atelier-welcome-note{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,2.5fr);gap:24px;margin-top:20px;padding:26px 28px;border-left:3px solid var(--atelier-tint);align-items:start;}
-.atelier-welcome-note h2{font-size:28px;line-height:1.3;margin:0;}
-.atelier-welcome-note p{font-size:14px;line-height:1.8;color:#526148;margin:0;max-width:80ch;}
-.atelier-welcome-note p+p{margin-top:12px;}
-@media(max-width:700px){.atelier-welcome-note{grid-template-columns:1fr;gap:14px;padding:22px 20px;}.atelier-welcome-note h2{font-size:26px;}.atelier-welcome-note h2 br{display:none;}}
 
 /* Companion guidance stays within plant details and the selected growing space. */
 .companion-guide,.companion-bed-check{margin-top:1.25rem;padding:1rem;border:1px solid var(--border, #d7ddcf);border-radius:1rem;text-align:left;min-width:0}
