@@ -63,11 +63,11 @@ export default function GardenCollection({ gardens, detail, disabled, onOpen, on
           <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
             <path d="M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Garden Inspiration
+          Inspiration Board
         </h2>
         <p className="seasonal-muted mt-2 text-sm">Collect pictures and ideas for the garden you want to grow.</p>
       </div>
-      <button type="button" className="seasonal-outline min-h-11 shrink-0 rounded-xl border px-4 py-2" onClick={onInspiration}>Open Garden Inspiration →</button>
+      <button type="button" className="seasonal-outline min-h-11 shrink-0 rounded-xl border px-4 py-2" onClick={onInspiration}>Open Inspiration Board →</button>
     </section>}
   </>;
 }

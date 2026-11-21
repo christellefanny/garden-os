@@ -567,9 +567,9 @@ export default function GardenWorkspace({
         <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-7 lg:px-9">
           {page !== "Dashboard" && topbar}
           {isGrowingCalendarDestination(page) && <GrowingCalendarNavigation page={page} navigate={navigate} />}
-          {page === "Garden Inspiration" && <section className="interior-page" aria-label="Garden Inspiration" tabIndex={-1} ref={gardenSectionRef}>
+          {page === "Garden Inspiration" && <section className="interior-page" aria-label="Inspiration Board" tabIndex={-1} ref={gardenSectionRef}>
             <button type="button" onClick={() => navigateGardenSection("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button>
-            <GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} />
+            <GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Inspiration Board" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} />
           </section>}
           {page !== "Dashboard" && searchAndError}
           {page === "Dashboard" && (

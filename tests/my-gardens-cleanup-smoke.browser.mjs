@@ -37,15 +37,15 @@ try {
   const heading = name => page.getByRole('heading', { name, exact: true });
   const nav = page.getByRole('navigation', { name: 'Garden Atelier navigation' });
   const steps = page.getByRole('region', { name: 'Your first garden steps' });
-  const entry = page.getByRole('region', { name: 'Garden Inspiration' });
+  const entry = page.getByRole('region', { name: 'Inspiration Board' });
   const visitCollection = async () => {
     await steps.waitFor();
     await navigateGarden(page, 'My Gardens');
     await heading('My Gardens').waitFor();
     await button('+ New Garden').waitFor();
     assert.equal(await steps.count(), 0);
-    assert.equal(await button('Garden Inspiration', nav).count(), 0);
-    const link = button('Open Garden Inspiration →', entry);
+    assert.equal(await button('Inspiration Board', nav).count(), 0);
+    const link = button('Open Inspiration Board →', entry);
     await link.waitFor();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     return link;
@@ -57,8 +57,8 @@ try {
   await page.getByLabel('Password', { exact: true }).fill('fixture-password');
   await button('Open my garden').click();
   await (await visitCollection()).click();
-  await heading('Garden Inspiration').waitFor();
-  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Garden Inspiration');
+  await heading('Inspiration Board').waitFor();
+  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Inspiration Board');
   assert.equal(await button('My Gardens', nav).getAttribute('aria-current'), 'page');
   await button('← Back to My Gardens').click();
   await heading('My Gardens').waitFor();
@@ -78,7 +78,7 @@ try {
   await page.getByRole('dialog', { name: 'Create your garden' }).waitFor();
   await page.keyboard.press('Escape');
   await openInspiration.click();
-  await heading('Garden Inspiration').waitFor();
+  await heading('Inspiration Board').waitFor();
   assert.match(page.url(), /view=garden-inspiration/);
   await button('+ Create a board').click();
   await page.getByRole('textbox', { name: 'Board name' }).fill('My patio ideas');
@@ -88,7 +88,7 @@ try {
   assert.equal(await page.evaluate(() => window.scrollY), 0);
   for (const view of ['garden-inspiration', 'vision-board']) {
     await page.goto(origin + '/?view=' + view);
-    await heading('Garden Inspiration').waitFor();
+    await heading('Inspiration Board').waitFor();
     await button('My Gardens', nav).waitFor();
     assert.equal(await button('My Gardens', nav).getAttribute('aria-current'), 'page');
     await button('Browse collections').click();
