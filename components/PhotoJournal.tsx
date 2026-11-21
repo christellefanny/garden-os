@@ -10,7 +10,16 @@ import { localDay } from "@/lib/growing-calendar";
 type GardenOption = { id: string; name: string };
 type Picture = { key: string; entry: PhotoEntry; index: number; blob: Blob; info: PhotoInfo };
 const categories = ["My Garden", "Seedlings", "Harvests", "Flowers", "Plant Progress"];
-const inspirationCategories = ["Garden Layouts", "Flower Beds", "Vegetable Gardens", "Pots & Planters", "Paths & Walls", "Outdoor Living", "Colors & Plant Combinations", "Other Ideas"];
+const inspirationCategories = [
+  "Garden Layouts", "Flower Beds", "Vegetable Gardens", "Pots & Planters",
+  "Paths & Walls", "Outdoor Living", "Colors & Plant Combinations", "Other Ideas",
+  "Patios & planters", "Flowers & color", "Beds & borders",
+];
+
+function inspirationCategoryLabel(category: string) {
+  const normalized = category.toLowerCase();
+  return inspirationCategories.find(option => option.toLowerCase() === normalized) ?? category;
+}
 function pictureInfo(entry: PhotoEntry, index: number): PhotoInfo {
   return entry.photoDetails?.[String(index)] ?? { name: entry.plant || `Garden photo ${index + 1}`, description: entry.caption || "", date: entry.date, category: entry.category, folderId: "" };
 }
@@ -29,6 +38,8 @@ function PhotoCard({ picture, folders, selected, busy, categoryOptions, inspirat
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(picture.info);
   const label = picture.info.name || "Garden photo";
+  const categoryLabel = inspiration ? inspirationCategoryLabel(picture.info.category) : picture.info.category;
+  const draftCategoryLabel = inspiration ? inspirationCategoryLabel(draft.category) : draft.category;
   return <article className={inspiration ? "mb-5 inline-block w-full break-inside-avoid overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm" : "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]"}>
     <div className="relative bg-[var(--surface-alt)]">
       <button type="button" className={inspiration ? "block w-full" : "block aspect-[4/3] w-full"} aria-label={`View ${label}`} onClick={onView}>
@@ -42,7 +53,7 @@ function PhotoCard({ picture, folders, selected, busy, categoryOptions, inspirat
     </div>
     <div className="p-4">
       <h3 className="break-words font-semibold"><button type="button" className="text-left hover:underline" aria-label={`Edit name and description for ${label}`} onClick={() => { setDraft(picture.info); setEditing(true); }}>{label}</button></h3>
-      <p className="seasonal-muted mt-1 text-xs">{picture.info.date} · {picture.info.category}</p>
+      <p className="seasonal-muted mt-1 text-xs">{picture.info.date} · {categoryLabel}</p>
       {picture.info.description && <p className="mt-3 whitespace-pre-wrap break-words text-sm">{picture.info.description}</p>}
       {(picture.entry.plant || picture.entry.bed) && <p className="seasonal-muted mt-2 text-xs">{[picture.entry.plant, picture.entry.bed].filter(Boolean).join(" · ")}</p>}
       {picture.info.folderId && <p className="seasonal-muted mt-2 text-xs">{folders.find(f => f.id === picture.info.folderId)?.name || "Unfiled"}</p>}
@@ -52,7 +63,7 @@ function PhotoCard({ picture, folders, selected, busy, categoryOptions, inspirat
           <label className="grid gap-1">Photo name<input required maxLength={150} value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} /></label>
           <label className="grid gap-1">Description<textarea rows={3} maxLength={5000} value={draft.description} onChange={e => setDraft({ ...draft, description: e.target.value })} /></label>
           <label className="grid gap-1">Photo date<input type="date" required value={draft.date} onChange={e => setDraft({ ...draft, date: e.target.value })} /></label>
-          <label className="grid gap-1">Photo category<select value={draft.category} onChange={e => setDraft({ ...draft, category: e.target.value })}>{categoryOptions.map(c => <option key={c}>{c}</option>)}</select></label>
+          <label className="grid gap-1">Photo category<select value={draftCategoryLabel} onChange={e => setDraft({ ...draft, category: e.target.value })}>{categoryOptions.map(c => <option key={c}>{c}</option>)}</select></label>
           <label className="grid gap-1">Photo folder<select value={draft.folderId} onChange={e => setDraft({ ...draft, folderId: e.target.value })}><option value="">Unfiled</option>{folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select></label>
           <div className="flex flex-wrap gap-2"><button type="submit" className="seasonal-button rounded-lg px-3 py-2">Save details</button><button type="button" className="seasonal-outline rounded-lg border px-3 py-2" onClick={() => setEditing(false)}>Cancel</button></div>
         </fieldset>
@@ -103,7 +114,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
   const signedIn = userId !== "guest";
   const isInspiration = collection === "inspiration";
   const [search, setSearch] = useState("");
-  const categoryOptions = isInspiration ? [...new Set([...inspirationCategories, "Garden layouts", "Patios & planters", "Flowers & color", "Beds & borders", "Paths & walls", "Other ideas"])] : collection === "tasks" ? ["Task reference", "Before", "Progress", "After"] : collection === "bouquets" ? ["Bouquet inspiration", "My bouquets", "Flowers & color"] : categories;
+  const categoryOptions = isInspiration ? inspirationCategories : collection === "tasks" ? ["Task reference", "Before", "Progress", "After"] : collection === "bouquets" ? ["Bouquet inspiration", "My bouquets", "Flowers & color"] : categories;
   const [cloudStatus, setCloudStatus] = useState(signedIn ? "Checking photo backup…" : "");
   const automaticBackupAttempt = useRef("");
   const [entries, setEntries] = useState<PhotoEntry[]>([]);
@@ -216,7 +227,7 @@ export default function PhotoJournal({ userId, embedded = false, showComposer = 
     void backUpExisting();
   }, [signedIn, loaded, saving, entries, folders]);
   const pictures: Picture[] = entries.flatMap(entry => entry.photos.map((blob, index) => ({ key: `${entry.id}/${index}`, entry, index, blob, info: pictureInfo(entry, index) })));
-  const visible = pictures.filter(p => (!search.trim() || `${p.info.name} ${p.info.description}`.toLowerCase().includes(search.trim().toLowerCase())) && (!isInspiration || activeFolder !== "folders") && (filter === "All" || p.info.category === filter) && (year === "All" || p.info.date.startsWith(year)) && (activeFolder === "all" || p.info.folderId === (activeFolder === "unfiled" ? "" : activeFolder))).sort((a, b) => b.info.date.localeCompare(a.info.date));
+  const visible = pictures.filter(p => (!search.trim() || `${p.info.name} ${p.info.description}`.toLowerCase().includes(search.trim().toLowerCase())) && (!isInspiration || activeFolder !== "folders") && (filter === "All" || (isInspiration ? inspirationCategoryLabel(p.info.category) : p.info.category) === filter) && (year === "All" || p.info.date.startsWith(year)) && (activeFolder === "all" || p.info.folderId === (activeFolder === "unfiled" ? "" : activeFolder))).sort((a, b) => b.info.date.localeCompare(a.info.date));
   const years = [...new Set(pictures.map(p => p.info.date.slice(0, 4)))].sort().reverse();
   async function save() {
     if (isInspiration && !embedded && !folders.some(f => f.id === uploadFolder)) return setError("Create or choose a board before adding inspiration.");
