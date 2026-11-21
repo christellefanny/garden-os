@@ -25,7 +25,7 @@ function harness(plants = [plant], calendarOptions = saved) {
   };
   const exports = {};
   vm.runInNewContext(js, { exports, localStorage, require: id => id in mocks ? mocks[id] : id.startsWith('@/components/') ? { __esModule: true, default: id.split('/').at(-1) } : require(id) });
-  return { render() { cursor = 0; return exports.default({ userId: 'guest', gardens: [], onAddPlant: () => {} }); }, records, localStorage, read: () => JSON.parse(records.get('garden-os-calendar-guest')) };
+  return { render(userId = 'guest') { cursor = 0; return exports.default({ userId, gardens: [], onAddPlant: () => {} }); }, records, localStorage, read: () => JSON.parse(records.get('garden-os-calendar-guest')) };
 }
 function all(node, predicate) {
   if (!node || typeof node !== 'object') return [];
@@ -35,6 +35,13 @@ const byClass = (tree, name) => all(tree, n => n.props?.className?.split(' ').in
 const text = node => typeof node === 'string' || typeof node === 'number' ? String(node) : React.Children.toArray(node?.props?.children).map(text).join('');
 const button = (tree, label) => all(tree, n => n.type === 'button' && text(n) === label)[0];
 const input = (tree, label) => all(tree, n => n.props?.['aria-label'] === label)[0];
+
+test('calendar weekly email panel is absent for guests and remains available for accounts', () => {
+  assert.equal(all(harness().render(), n => n.type === 'WeeklyEmail').length, 0);
+  const panels = all(harness().render('account'), n => n.type === 'WeeklyEmail');
+  assert.equal(panels.length, 1);
+  assert.equal(panels[0].props.guest, false);
+});
 
 test('Calendar and Today & this week share one panel with the reminder action only in the month toolbar', () => {
   const app = harness(), tree = app.render(), overview = byClass(tree, 'calendar-overview-card'), toolbar = byClass(tree, 'calendar-toolbar');

@@ -33,6 +33,7 @@ function compile(file, overrides = {}) {
       if (name === '@/components/seasonal/SeasonProvider') return { useSeason: () => ({ season: 'fall' }) };
       if (name === '@/lib/connected-garden') return { dailyRecommendations: () => [] };
       if (name === '@/lib/garden-layout') return { initialLayout: [], nineBedLayout: () => [] };
+      if (name === '@/lib/layout-design') return { gardenFootprint: () => null };
       if (name === '@/components/BlankGardenLayout') return { loadCustomLayouts: key => JSON.parse(globalThis.localStorage.getItem(key) || '[]') };
       if (name === '@/components/GuestPlantingNow') return { __esModule: true, default: () => React.createElement('section', { 'data-discovery': true }, React.createElement('h2', null, 'What to Plant Now')) };
       if (name === '@/components/GuestGardenExample') return { __esModule: true, default: () => React.createElement('section', null, 'Example plan') };
@@ -69,14 +70,14 @@ test('discovery asks visitors to find their growing zone', () => {
   assert.doesNotMatch(html, /Find my growing location/);
 });
 
-test('empty guest home foregrounds discovery without presenting examples as My Gardens', () => {
+test('fresh guest home foregrounds discovery without example layouts or empty activity cards', () => {
   storage();
   const html = dashboard();
   assert.match(html, /guest-discovery-lead/);
   assert.equal((html.match(/What to Plant Now/g) || []).length, 1);
   assert.ok(html.indexOf('What to Plant Now') < html.indexOf('atelier-welcome-note'));
-  assert.doesNotMatch(html, /<h2>My Gardens<\/h2>|A possibility for your garden|Vegetable garden|Flower garden|Herb garden/);
-  assert.match(html, /Example plan/);
+  assert.doesNotMatch(html, /<h2>My Gardens<\/h2>|A possibility for your garden|Vegetable garden|Flower garden|Herb garden|Example plan|<h2>My Garden Layout<\/h2>|This Week|Recent Observations/);
+  assert.doesNotMatch(html, /modern-main-grid|modern-bottom-grid/);
 });
 
 test('returning guest keeps real local gardens and scoped notes; account cache is never read', () => {
@@ -92,10 +93,34 @@ test('returning guest keeps real local gardens and scoped notes; account cache i
   const html = dashboard({ gardens: guest.gardens, garden: guest.gardens[0] });
   assert.match(html, /<h2>My Gardens<\/h2>|My guest balcony/);
   assert.match(html, /My guest balcony/);
+  assert.match(html, /Recent Observations/);
   assert.match(html, /Guest balcony note/);
-  assert.doesNotMatch(html, /guest-discovery-lead|PRIVATE ACCOUNT|A possibility for your garden/);
+  assert.doesNotMatch(html, /This Week|Example plan|guest-discovery-lead|PRIVATE ACCOUNT|A possibility for your garden/);
   assert.ok(reads.every(key => !key.includes('-account')));
   assert.equal(JSON.stringify(values), before);
+});
+
+test('a guest task and actual saved layouts display independently from observations', () => {
+  const today = calendar.localDay();
+  storage({
+    'garden-os-layout-selection-guest-planning': 'guest-layout',
+    'garden-os-custom-layouts-v1-guest-planning': JSON.stringify([{ id: 'guest-layout', name: 'Saved balcony layout', items: [] }]),
+    'garden-os-calendar-guest': JSON.stringify({
+      ...calendar.calendarDefaults,
+      reminders: [{ id: 'custom|guest-task', plantId: '', title: 'Water the seedlings', date: today }],
+    }),
+  });
+  const html = dashboard();
+  assert.match(html, /<h2>My Garden Layout<\/h2>/);
+  assert.match(html, /Saved balcony layout/);
+  assert.match(html, /This Week/);
+  assert.match(html, /Water the seedlings/);
+  assert.doesNotMatch(html, /Recent Observations|Example plan/);
+
+  storage({ 'garden-os-layout-2027-guest-planning': JSON.stringify([{ id: 'flowers', name: 'My flower bed' }]) });
+  const legacy = dashboard();
+  assert.match(legacy, /Your saved nine-bed layout/);
+  assert.doesNotMatch(legacy, /This Week|Recent Observations|Example plan/);
 });
 
 test('signed-in home retains its account collection without guest discovery layout', () => {
@@ -107,8 +132,17 @@ test('signed-in home retains its account collection without guest discovery layo
   assert.match(html, /<h2>My Gardens<\/h2>/);
   assert.match(html, /PRIVATE ACCOUNT GARDEN/);
   assert.match(html, /PRIVATE ACCOUNT NOTE/);
+  assert.match(html, /Example plan/);
+  assert.match(html, /This Week/);
   assert.doesNotMatch(html, /guest-discovery-lead|GUEST ONLY NOTE/);
   assert.ok(html.indexOf('My Gardens') < html.indexOf('What to Plant Now'));
+});
+
+test('signed-in dashboard retains both empty activity cards', () => {
+  storage();
+  const html = dashboard({ userId: 'account' });
+  assert.match(html, /No scheduled steps this week/);
+  assert.match(html, /Your observations belong here/);
 });
 
 function app({ session = null, guest = null, data = null }) {

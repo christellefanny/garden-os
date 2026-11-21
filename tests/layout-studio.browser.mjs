@@ -18,9 +18,8 @@ try {
  const context=await browser.newContext({viewport:{width:1536,height:1000}});page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>localStorage.setItem('garden-os-guest-warning-seen','true'));
  await page.goto('http://127.0.0.1:3000');await page.getByRole('button',{name: /^(Try it as a guest|Continue as guest)$/,exact:true}).click();
- const inspiration=page.getByRole('region',{name:'Imagine your dream garden',exact:true});await inspiration.waitFor();
- for(const [label,count] of [['Compact courtyard garden',2],['A garden for bouquets',4],['Four-bed vegetable garden',4]]){await inspiration.getByRole('button',{name:label,exact:true}).click();assert.equal(await inspiration.locator('.guest-example-art button[aria-pressed]').count(),count);await inspiration.locator('img').evaluate(el=>el.decode());}
  await page.getByRole('heading',{name:'What to Plant Now',exact:true}).waitFor();
+ assert.equal(await page.getByRole('region',{name:'Imagine your dream garden',exact:true}).count(),0);
  assert.equal(await page.getByRole('heading',{name:'Plant Vault',exact:true}).count(),0);
  assert.equal(await page.locator('.garden-example-tile').count(),0);assert.equal(await page.getByRole('heading',{name:'My Gardens',exact:true}).count(),0);assert.equal(await page.locator('.guest-discovery-lead').getByRole('heading',{name:'What to Plant Now',exact:true}).count(),1);assert.equal(await page.getByRole('heading',{name:'Upcoming Tasks',exact:true}).count(),0);assert.equal(await page.locator('.dashboard-quick-summary').count(),0);assert.equal(await page.getByRole('button',{name:'Add task',exact:false}).count(),1);
  await mkdir('docs/previews/layout-studio',{recursive:true});
@@ -37,12 +36,19 @@ try {
  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.setViewportSize({width:1536,height:1000});
  await page.screenshot({path:'docs/previews/layout-studio/welcome-guest-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/previews/layout-studio/welcome-guest-mobile.png',fullPage:true});await page.setViewportSize({width:1536,height:1000});
- await inspiration.getByRole('button',{name:'Edit example four-bed vegetable garden',exact:true}).click();
+ await navigateGarden(page, 'Plan & Design');
+ await page.getByRole('button',{name:'New Layout',exact:true}).click();
+ const openTemplates=page.getByRole('button',{name:'Use an inspiration layout',exact:true});
+ const primaryColor=await page.getByRole('button',{name:'Start from scratch',exact:true}).evaluate(el=>getComputedStyle(el).backgroundColor);
+ await openTemplates.click();
+ const gallery=page.locator('.layout-template-grid');await gallery.waitFor();
+ assert.equal(await gallery.locator('article').count(),3);assert.equal(await page.getByRole('heading',{name:'Original nine-bed layout',exact:true}).count(),0);
+ for(const button of await gallery.getByRole('button').all())assert.equal(await button.evaluate(el=>getComputedStyle(el).backgroundColor),primaryColor,'Customize buttons match the primary create action');
+ await gallery.getByRole('button',{name:/Customize four-bed vegetable garden/}).click();
  await page.getByRole('dialog',{name:'Customize four-bed vegetable garden',exact:true}).waitFor();
  assert.equal(await page.evaluate(k=>localStorage.getItem(k),key),null,'Opening inspiration does not save sample layouts');
- await page.getByRole('button',{name:'Close dialog',exact:true}).click();await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();
- await inspiration.getByRole('button',{name:'Open Plan & Design',exact:false}).click();
- const gallery=page.locator('.layout-template-grid');await gallery.waitFor();const primaryColor=await page.getByRole('button',{name:'Start from scratch',exact:false}).evaluate(el=>getComputedStyle(el).backgroundColor);for(const button of await gallery.getByRole('button').all())assert.equal(await button.evaluate(el=>getComputedStyle(el).backgroundColor),primaryColor,'Customize buttons match the primary create action');assert.equal(await gallery.locator('article').count(),3);assert.equal(await page.getByRole('heading',{name:'Original nine-bed layout',exact:true}).count(),0);
+ await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+ await openTemplates.click();
  assert.equal(await page.evaluate(k=>localStorage.getItem(k),key),null,'Browsing never creates plans');
  for(const img of await gallery.locator('img').all())await img.evaluate(el=>el.decode());
  await mkdir('docs/previews/layout-studio',{recursive:true});await page.screenshot({path:'docs/previews/layout-studio/gallery-desktop.png',fullPage:true});

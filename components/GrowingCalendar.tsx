@@ -400,7 +400,7 @@ export default function GrowingCalendar({
           <div ref={setControlsTarget} />
         </Dialog>
       )}
-      <WeeklyEmail guest={userId === "guest"} gardens={gardens} gardenId={garden?.id || ""} />
+      {userId !== "guest" && <WeeklyEmail guest={false} gardens={gardens} gardenId={garden?.id || ""} />}
       <div className="interior-toolbar calendar-toolbar">
         <div className="calendar-view-controls">
           <button
