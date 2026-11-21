@@ -103,7 +103,7 @@ export default function GardenWorkspace({
   const guestMode = userId === GUEST_ID;
   const [page, setPage] = useState<Destination>(() => readPageFromUrl(guestMode));
   const [vaultQuery,setVaultQuery]=useState("");
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState<{ gardenId: string; value: string } | null>(null);
   const vault = useVault(userId, page);
   const [allGardens, setGardens] = useState(initialGardens);
   const gardens = useMemo(() => allGardens.filter((g) => !/^garden os verification(?:\s*\(temporary\))?$/i.test(g.name.trim())), [allGardens]);
@@ -184,7 +184,7 @@ export default function GardenWorkspace({
     setVaultOpen(next === "Plant Vault");
     setLayoutOpen(next === "Garden Layout");
     setCalendarOpen(next === "Growing Calendar");
-    setSearch("");
+    setSearchInput(null);
     window.scrollTo({ top: 0, behavior: "auto" });
   }
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function GardenWorkspace({
       setVaultOpen(next === "Plant Vault");
       setLayoutOpen(next === "Garden Layout");
       setCalendarOpen(next === "Growing Calendar");
-      setSearch("");
+      setSearchInput(null);
     }
     window.addEventListener("popstate", restorePage);
     return () => window.removeEventListener("popstate", restorePage);
@@ -225,6 +225,8 @@ export default function GardenWorkspace({
   const activeSpaces = gardenSpaces.filter(
     (s) => !summaries.get(s.id)?.details?.archived,
   );
+  const showSearch = !guestMode || activeSpaces.some(space => Boolean(space.name?.trim() || space.notes?.trim()));
+  const search = showSearch && searchInput?.gardenId === gardenId ? searchInput.value : "";
   const archivedSpaces = gardenSpaces.filter(
     (s) => summaries.get(s.id)?.details?.archived,
   );
@@ -239,7 +241,7 @@ export default function GardenWorkspace({
     if (url.href !== window.location.href) window.history.pushState(null, "", url);
     setGardenPageId(id);
     setPage("My Gardens");
-    setVaultOpen(false); setCalendarOpen(false); setLayoutOpen(false); setSearch("");
+    setVaultOpen(false); setCalendarOpen(false); setLayoutOpen(false); setSearchInput(null);
     window.scrollTo({ top: 0, behavior: "auto" });
   }
 
@@ -505,7 +507,9 @@ export default function GardenWorkspace({
   const topbar = (
       <ConservatoryTopbar
         location={garden?.location ?? ""}
-        onSearch={setSearch}
+        showSearch={showSearch}
+        search={search}
+        onSearch={value => setSearchInput({ gardenId, value })}
         navigate={navigate}
       />
   );
@@ -537,7 +541,7 @@ export default function GardenWorkspace({
               <button
                 key={space.id}
                 onClick={() => {
-                  setSearch("");
+                  setSearchInput(null);
                   setOpenId(space.id);
                 }}
               >
@@ -690,7 +694,10 @@ export default function GardenWorkspace({
             <PlantVault key={vaultQuery} initialQuery={vaultQuery} userId={userId} />
           )}
           {page === "Flower Corner" && <FlowerCorner/>}
-          {page === "Beginner’s Guide" && <GardenLearning key={`${userId}:${page}`} userId={userId} garden={garden} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")} onExplorePlants={()=>{setVaultQuery("");navigate("Plant Vault");}}/>}
+          {page === "Beginner’s Guide" && <>
+            <GardenLearning key={`${userId}:${page}`} userId={userId} garden={garden} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")} onExplorePlants={()=>{setVaultQuery("");navigate("Plant Vault");}}/>
+            <div className="beginner-guide-task"><AddTaskButton userId={userId} announceSaved secondary /></div>
+          </>}
           {page === "Flower Garden" && <><button type="button" onClick={()=>navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button><FlowersPage plants={vault} userId={userId} /></>}
           {page === "My Gardens" && (
             <section className="interior-page gardens-page" aria-label="My Gardens" tabIndex={-1} ref={gardenSectionRef}>
@@ -1011,7 +1018,7 @@ export default function GardenWorkspace({
         </div>
       </div>
       {picturesGarden && <Dialog title={`${picturesGarden.name} · ${picturesGarden.year} pictures`} onClose={() => setPicturesGardenId(null)}><GardenPictures key={`${userId}:${picturesGarden.id}`} userId={userId} gardenId={picturesGarden.id} gardenName={picturesGarden.name} embedded /></Dialog>}
-      <AddTaskButton userId={userId} floating />
+      {page !== "Beginner’s Guide" && <AddTaskButton userId={userId} floating />}
     </main>
     </>
   );

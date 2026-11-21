@@ -40,7 +40,7 @@ export default function FirstGardenSteps({ userId, garden, hasPlants, hasSpaces,
       </li>)}
     </ol>
     <div className={styles.actions}>
-      {!garden ? <button type="button" className="seasonal-button" onClick={onGarden}>Start my garden →</button>
+      {!garden ? <button type="button" className="seasonal-button" onClick={onGarden}>Create my garden →</button>
         : !hasPlants ? <button type="button" className="seasonal-button" onClick={onPlant}>{hasSpaces ? "Add your first plant" : "Add a bed or container"} →</button>
           : <AddTaskButton userId={userId} label="Add your first task" onSaved={onCalendar} />}
       <p>{!garden ? "Location and zone are optional. You can add them later."

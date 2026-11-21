@@ -4,7 +4,7 @@ import {useState,type FormEvent} from "react";
 import Dialog from "@/components/ui/Dialog";
 import {loadCalendarOptions,localDay,type CalendarOptions} from "@/lib/growing-calendar";
 
-export default function AddTaskButton({userId,onSaved,floating=false,label="+ Add task"}:{userId:string;onSaved?:(options:CalendarOptions)=>void;floating?:boolean;label?:string}){
+export default function AddTaskButton({userId,onSaved,floating=false,announceSaved=false,secondary=false,label="+ Add task"}:{userId:string;onSaved?:(options:CalendarOptions)=>void;floating?:boolean;announceSaved?:boolean;secondary?:boolean;label?:string}){
   const [open,setOpen]=useState(false),[title,setTitle]=useState(""),[date,setDate]=useState(localDay),[notes,setNotes]=useState(""),[error,setError]=useState(""),[saved,setSaved]=useState(false);
   function save(event:FormEvent){
     event.preventDefault();
@@ -20,8 +20,8 @@ export default function AddTaskButton({userId,onSaved,floating=false,label="+ Ad
     }catch{setError("Could not save this task. Your existing reminders are unchanged. Please try again.");}
   }
   return <>
-    <button type="button" className={`seasonal-button add-task-button${floating?" floating-add-task":""}`} onClick={()=>{setSaved(false);setTitle("");setNotes("");setDate(localDay());setError("");setOpen(true);}} aria-haspopup="dialog">{label}</button>
-    {floating&&<p role="status" className="floating-task-status">{saved?"Task saved. Find it in Tasks and Calendar.":""}</p>}
+    <button type="button" className={`${secondary?"seasonal-outline":"seasonal-button"} add-task-button${floating?" floating-add-task":""}`} onClick={()=>{setSaved(false);setTitle("");setNotes("");setDate(localDay());setError("");setOpen(true);}} aria-haspopup="dialog">{label}</button>
+    {(floating||announceSaved)&&<p role="status" className={floating?"floating-task-status":"inline-task-status"}>{saved?"Task saved. Find it in Tasks and Calendar.":""}</p>}
     {open&&<Dialog title="Add a task" onClose={()=>setOpen(false)}><form onSubmit={save} className="personal-task-form">
       <p>{userId==="guest"?"Saved in this browser for your next visit. No account or plant needed.":"Save anything you want to remember. Tasks use your existing account synchronization."}</p>
       <label>Task<input required maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Order seeds, clean tools, plan next spring…" className="seasonal-input"/></label>

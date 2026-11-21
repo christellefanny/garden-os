@@ -60,12 +60,9 @@ try {
   assert.equal(order[2].className, 'atelier-planting-lead');
   assert.equal(await page.locator('.modern-dashboard > .atelier-planting-lead + .home-workspace-tools').count(), 1);
   assert.equal(await page.locator('.home-workspace-tools .guest-storage-notice').count(), 1);
-  const search = page.getByRole('textbox', { name: 'Search plants and records' });
-  await search.fill('soil');
-  await heading('Search results').waitFor();
-  assert.equal(await page.locator('.home-workspace-tools .search-results').count(), 1);
-  await search.clear();
-  await heading('Search results').waitFor({ state: 'hidden' });
+  assert.equal(await page.getByRole('textbox', { name: 'Search my garden' }).count(), 0);
+  await page.getByRole('combobox', { name: 'Change seasonal theme' }).waitFor();
+  await button('Account settings').waitFor();
   if (process.env.GARDEN_HOME_TOP_SCREENSHOT) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: process.env.GARDEN_HOME_TOP_SCREENSHOT, style: '.floating-add-task { visibility: hidden !important; }' });
