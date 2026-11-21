@@ -246,7 +246,8 @@ export function ModernDashboard({
     today = localDay();
   // Discovery is separate from saved gardens. Never present example garden cards
   // as a guest's own collection; returning guests keep their locally saved work.
-  const emptyGuest = userId === "guest" && gardens.length === 0;
+  const isGuest = userId === "guest";
+  const emptyGuest = isGuest && gardens.length === 0;
   const [options, setOptions] = useState(() => loadCalendarOptions(userId));
   useEffect(() => {
     const refresh = () => setOptions(loadCalendarOptions(userId));
@@ -311,6 +312,10 @@ export function ModernDashboard({
       `garden-os-custom-layouts-v1-${userId}-${garden?.id || "planning"}`,
     ).find((layout) => layout.id === selection);
   } catch {}
+  const showPlantingNow = !emptyGuest && (isGuest || !planted.length);
+  const showSavedLayout = Boolean(selectedCustom || hasSavedLayout);
+  const showWeek = !isGuest || tasks.length > 0;
+  const showObservations = !isGuest || entries.length > 0;
   return (
     <div className="modern-dashboard">
       <section className={`atelier-welcome-banner atelier-welcome-${season}`}>
@@ -364,16 +369,16 @@ export function ModernDashboard({
       {userId!=="guest"&&vault.length>0&&<div className="modern-stats dashboard-collection-stats">
         {[["Plants",vault.length],["Flowers",category("Flower")],["Herbs",category("Herb")]].map(([label,count],i)=><button key={label} type="button" onClick={()=>navigate("Plant Vault")}><span className="stat-icon"><LineIcon index={i+1}/></span><span><b>{count}</b><strong>{label}</strong><small>Saved in your collection</small></span><span aria-hidden="true">›</span></button>)}
       </div>}
-      <div className="modern-main-grid">
-        {!emptyGuest && (userId === "guest" || !planted.length) && <GuestPlantingNow />}
-        {!selectedCustom && !hasSavedLayout ? <GuestGardenExample onCreate={() => navigate("Garden Layout")} onEdit={onEditExample} /> : <section className="modern-card layout-preview">
+      {(showPlantingNow || showSavedLayout || showWeek) && <div className="modern-main-grid">
+        {showPlantingNow && <GuestPlantingNow />}
+        {showSavedLayout ? <section className="modern-card layout-preview">
           <div className="modern-card-title">
             <h2>My Garden Layout</h2>
             <button onClick={() => navigate("Garden Layout")}>
               View / Edit Layout →
             </button>
           </div>
-          {selectedCustom || hasSavedLayout ? <div
+          <div
             className="modern-garden-map"
             style={{
               backgroundImage: selectedCustom
@@ -419,15 +424,13 @@ export function ModernDashboard({
                     <span className="sr-only">{b.name}</span>
                   </button>
                 ))}
-          </div> : <div className="atelier-layout-empty"><LineIcon name="Garden Layout" /><p>Your next garden begins with a plan.</p><button className="seasonal-outline" onClick={() => navigate("Garden Layout")}>Open Plan & Design →</button></div>}
+          </div>
           <small>
-            {selectedCustom
-              ? selectedCustom.name
-              : hasSavedLayout ? "Your saved nine-bed layout" : "Create or choose a layout"}{" "}
+            {selectedCustom ? selectedCustom.name : "Your saved nine-bed layout"}{" "}
             · interactive preview
           </small>
-        </section>}
-        <section className="modern-card week-card">
+        </section> : !isGuest && <GuestGardenExample onCreate={() => navigate("Garden Layout")} onEdit={onEditExample} />}
+        {showWeek && <section className="modern-card week-card">
           <div className="modern-card-title">
             <h2>This Week</h2>
             <button onClick={() => navigate("Tasks")}>View All →</button>
@@ -458,10 +461,10 @@ export function ModernDashboard({
             ))
           ) : (
             <p className="empty-copy">
-              No scheduled steps this week. {userId === "guest" ? "Create a reminder in Calendar." : "Add plants to your vault or create a reminder in Calendar."}
+              No scheduled steps this week. Add plants to your vault or create a reminder in Calendar.
             </p>
           )}
-        </section>
+        </section>}
         {userId !== "guest" && planted.length > 0 && <section className="modern-card now-card">
           <h2>In the Garden Now</h2>
           {planted.length ? (
@@ -491,8 +494,8 @@ export function ModernDashboard({
             </p>
           )}
         </section>}
-      </div>
-      <div className="modern-bottom-grid">
+      </div>}
+      {showObservations && <div className="modern-bottom-grid">
         <section className="modern-card">
           <div className="modern-card-title">
             <h2>Recent Observations</h2>
@@ -557,7 +560,7 @@ export function ModernDashboard({
             })}
           </div>
         </section>}
-      </div>
+      </div>}
     </div>
   );
 }
