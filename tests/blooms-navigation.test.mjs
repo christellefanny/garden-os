@@ -21,7 +21,7 @@ const Navigation=component('ConservatoryUI','ConservatoryNavigation');
 const Collection=component('GardenCollection');
 for(const guest of [false,true])test(`navigation order and active parent for ${guest?'guest':'account'}`,()=>{
  const nav=navigationDestinations(guest);
- assert.deepEqual(nav,['Dashboard','Beginner’s Guide',...(!guest?['Plant Vault']:[]),'Garden Layout','My Gardens','Garden Inspiration','Growing Calendar','Flower Corner','Settings','Help']);
+ assert.deepEqual(nav,['Dashboard','Beginner’s Guide',...(!guest?['Plant Vault']:[]),'Garden Layout','My Gardens','Growing Calendar','Flower Corner','Settings','Help']);
  assert.equal(nav[nav.indexOf('Settings')-1],'Flower Corner');
  assert.equal(nav.includes('Plant Vault'),!guest);
  assert.ok(!nav.includes('Flower Garden'));

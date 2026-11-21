@@ -7,13 +7,14 @@ function artwork(name: string) {
   return /flower|cut|bloom/i.test(name) ? "flower" : /herb/i.test(name) ? "herb" : /front|yard|landscape/i.test(name) ? "front" : "vegetable";
 }
 
-export default function GardenCollection({ gardens, detail, disabled, onOpen, onNew, onBlooms }: {
+export default function GardenCollection({ gardens, detail, disabled, onOpen, onNew, onBlooms, onInspiration }: {
   gardens: GardenOverview[];
   detail: boolean;
   disabled: boolean;
   onOpen: (id: string) => void;
   onNew: () => void;
   onBlooms: () => void;
+  onInspiration: () => void;
 }) {
   const current = detail ? gardens[0]?.garden : undefined;
   const spaces = gardens.reduce((sum, item) => sum + item.spaces, 0);
@@ -55,6 +56,18 @@ export default function GardenCollection({ gardens, detail, disabled, onOpen, on
           <span className="garden-card-open">New Garden <span aria-hidden="true">→</span></span>
         </button>
       </div>
+    </section>}
+    {!detail && <section className="modern-card mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="garden-inspiration-entry-title">
+      <div>
+        <h2 id="garden-inspiration-entry-title" className="flex items-center gap-2">
+          <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+            <path d="M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Garden Inspiration
+        </h2>
+        <p className="seasonal-muted mt-2 text-sm">Collect pictures and ideas for the garden you want to grow.</p>
+      </div>
+      <button type="button" className="seasonal-outline min-h-11 shrink-0 rounded-xl border px-4 py-2" onClick={onInspiration}>Open Garden Inspiration →</button>
     </section>}
   </>;
 }

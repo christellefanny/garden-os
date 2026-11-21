@@ -2243,6 +2243,26 @@ html[data-season] {--background:#f8f6f0;--surface:#fffdf8;--surface-alt:#f1eee5;
 .learning-check:has(input:disabled) {opacity:.65;}
 
 .learning-start {scroll-margin-block-start:16px;}
+.learning-start.beginner-climate {padding:16px 18px;margin:18px 0;border-radius:14px;}
+.beginner-climate > h2 {font-size:22px;line-height:1.22;margin:4px 0 6px;}
+.beginner-climate-intro {font-size:14px;line-height:1.45;margin:0;}
+.beginner-climate .beginner-climate-form {margin-top:10px;gap:8px 12px;}
+.beginner-climate .beginner-climate-form label {min-width:0;gap:4px;}
+.beginner-climate .beginner-climate-form input,
+.beginner-climate .beginner-climate-form button {min-height:44px;padding:8px 12px;}
+.beginner-climate-privacy {font-size:12px;line-height:1.45;margin:8px 0 0;}
+.beginner-climate-summary {display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin-top:10px;}
+.beginner-climate .beginner-climate-summary-button {display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:min(265px,100%);max-width:100%;padding:8px 12px;text-align:left;}
+.beginner-climate-summary-button strong,.beginner-climate-summary-button small {display:block;}
+.beginner-climate-summary-button strong {font-size:14px;}
+.beginner-climate-summary-button small {font-size:12px;line-height:1.4;overflow-wrap:anywhere;}
+.beginner-climate-summary-button > span:last-child {font-size:20px;}
+.beginner-climate .beginner-climate-change {border:0;padding:6px 0;font-size:12px;}
+@media (max-width:700px) {
+  .learning-start.beginner-climate {padding:14px;}
+  .beginner-climate > h2 {font-size:21px;}
+}
+
 
 /* Flower Corner reads as one botanical sheet, not a stack of white cards. */
 .corner-public-page{--corner-paper:#fbf7ee;min-height:100vh;padding:24px max(16px,calc((100vw - 1220px)/2));background:var(--corner-paper);}

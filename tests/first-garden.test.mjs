@@ -16,6 +16,11 @@ test('first-garden guidance keeps zone optional and links every required step', 
   assert.match(steps, /if \(garden && hasPlants && hasTask\) return null/);
   for (const action of ['onGarden', 'onPlant', 'onCalendar']) assert.ok(steps.includes(action));
 });
+test('first-garden steps are only rendered on Home, not as a duplicate in My Gardens', () => {
+  const workspace = read('components/GardenWorkspace.tsx');
+  assert.match(workspace, /<ModernDashboard[\s\S]*?firstGardenSteps=\{firstGardenSteps\}/);
+  assert.equal((workspace.match(/\{firstGardenSteps\}/g) || []).length, 1);
+});
 test('new-space continuation opens the saved plant editor without fabricating a plant', () => {
   const workspace = read('components/GardenWorkspace.tsx');
   assert.match(workspace, /addingFirstPlant \? \(id\) => \{\s*setPlannerCrop\(""\); setPlantSpacing\(12\); setOpenId\(id\)/);
