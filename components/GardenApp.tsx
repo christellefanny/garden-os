@@ -134,13 +134,17 @@ export default function GardenApp() {
     } catch { setAuthError("Browser storage is unavailable. Enable site storage to save guest work, or sign in."); }
   }
   if (transferError && session) return <main className="seasonal-page min-h-screen p-8"><h1 className="editorial-title text-3xl">Your guest garden is still safe on this device.</h1><p role="alert" className="my-5">{transferError}</p><button className="seasonal-button rounded-xl p-3" onClick={() => { setTransferError(""); setTransferAttempt(n => n + 1); }}>Retry account save</button><button className="ml-5 underline" onClick={() => void signOut()}>Return to sign in</button></main>;
-  if (!session && guest && !accountForm) return <>
-    <section className="guest-storage-notice seasonal-card border-b px-5 py-3" aria-label="Guest storage">
-      <div className="flex flex-wrap items-center justify-between gap-3"><p className="font-semibold">Guest · Saved on this device</p><button className="seasonal-button rounded-xl px-4 py-2" onClick={() => setAccountForm("signup")}>Save to an account</button></div>
-      {guestWarning && <div className="mt-4 max-w-2xl"><h2 className="font-bold">Keep your garden safe</h2><p className="my-3 text-sm leading-6">You’re using Garden Atelier as a guest. Your work is saved only in this browser. Clearing browser data, using private browsing, or changing devices could mean losing access to it. Create an account to back up and sync your garden.</p><div className="flex flex-wrap items-center gap-x-5 gap-y-2"><button className="min-h-11 underline" onClick={() => setAccountForm("signup")}>Create an account</button><button className="min-h-11 underline" onClick={() => { try { localStorage.setItem("garden-os-guest-warning-seen", "true"); } catch {} setGuestWarning(false); }}>Continue as guest</button><button className="min-h-11 underline" onClick={() => setAccountForm("signin")}>Sign in</button></div></div>}
-    </section>
-    <CloudDataBoundary key={GUEST_ID} userId={GUEST_ID}><GardenWorkspace key="guest" initialGardens={guest.gardens} initialSpaces={guest.spaces} initialError="" userId={GUEST_ID} onSignOut={async () => { setGuest(null); try { localStorage.removeItem("garden-os-guest-active"); } catch {} }} /></CloudDataBoundary>
-  </>;
+  if (!session && guest && !accountForm) {
+    const guestNotice = (
+      <section className="guest-storage-notice seasonal-card border-b px-5 py-3" aria-label="Guest storage">
+        <div className="flex flex-wrap items-center justify-between gap-3"><p className="font-semibold">Guest · Saved on this device</p><button className="seasonal-button rounded-xl px-4 py-2" onClick={() => setAccountForm("signup")}>Save to an account</button></div>
+        {guestWarning && <div className="mt-4 max-w-2xl"><h2 className="font-bold">Keep your garden safe</h2><p className="my-3 text-sm leading-6">You’re using Garden Atelier as a guest. Your work is saved only in this browser. Clearing browser data, using private browsing, or changing devices could mean losing access to it. Create an account to back up and sync your garden.</p><div className="flex flex-wrap items-center gap-x-5 gap-y-2"><button className="min-h-11 underline" onClick={() => setAccountForm("signup")}>Create an account</button><button className="min-h-11 underline" onClick={() => { try { localStorage.setItem("garden-os-guest-warning-seen", "true"); } catch {} setGuestWarning(false); }}>Continue as guest</button><button className="min-h-11 underline" onClick={() => setAccountForm("signin")}>Sign in</button></div></div>}
+      </section>
+    );
+    return (
+      <CloudDataBoundary key={GUEST_ID} userId={GUEST_ID}><GardenWorkspace key="guest" initialGardens={guest.gardens} initialSpaces={guest.spaces} initialError="" userId={GUEST_ID} guestNotice={guestNotice} guestWarning={guestWarning} onSignOut={async () => { setGuest(null); try { localStorage.removeItem("garden-os-guest-active"); } catch {} }} /></CloudDataBoundary>
+    );
+  }
   if (recovering && session)
     return <PasswordRecovery onDone={() => setRecovering(false)} />;
   if (checking || (session && (!data || data.userId !== userId)))

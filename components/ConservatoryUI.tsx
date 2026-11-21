@@ -227,6 +227,8 @@ export function ModernDashboard({
   onEditExample,
   onSignOut,
   firstGardenSteps,
+  afterLead,
+  afterHero,
 }: {
   userId: string;
   garden?: Garden;
@@ -243,6 +245,8 @@ export function ModernDashboard({
   onEditExample:(templateId:string)=>void;
   onSignOut: () => void;
   firstGardenSteps?: ReactNode;
+  afterLead?: ReactNode;
+  afterHero?: ReactNode;
 }) {
   const { season } = useSeason(),
     today = localDay();
@@ -328,8 +332,10 @@ export function ModernDashboard({
           <p className="atelier-welcome-description">From your first pot to your next harvest, keep your plans and notes in one place.</p>
         </div>
       </section>
+      {afterHero}
       {firstGardenSteps}
       {showPlantingNow && <div className="atelier-planting-lead"><GuestPlantingNow /></div>}
+      {afterLead}
       {!emptyGuest && <div className="atelier-home-sections">
         <section className="modern-card atelier-gardens-panel">
           <div className="modern-card-title">

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Dialog from "@/components/ui/Dialog";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
 import AddTaskButton from "@/components/AddTaskButton";
@@ -86,12 +86,16 @@ export default function GardenWorkspace({
   initialGardens,
   initialSpaces,
   initialError,
+  guestNotice,
+  guestWarning = false,
   userId,
   onSignOut,
 }: {
   initialGardens: Garden[];
   initialSpaces: Space[];
   initialError: string;
+  guestNotice?: ReactNode;
+  guestWarning?: boolean;
   userId: string;
   onSignOut: () => Promise<void>;
 }) {
@@ -487,7 +491,60 @@ export default function GardenWorkspace({
     setNotice("Garden backup downloaded.");
   }
 
+  const topbar = (
+      <ConservatoryTopbar
+        location={garden?.location ?? ""}
+        onSearch={setSearch}
+        navigate={navigate}
+      />
+  );
+  const searchAndError = <>
+      {search && (
+        <section className="modern-card search-results">
+          <h2>Search results</h2>
+          {(guestMode ? [] : vault)
+            .filter((plant) =>
+              `${plant.name} ${plant.variety} ${plant.notes}`
+                .toLowerCase()
+                .includes(search.toLowerCase()),
+            )
+            .map((plant) => (
+              <button
+                key={plant.id}
+                onClick={() => navigate("Plant Vault")}
+              >
+                {plant.name} · {plant.variety} <small>Plant Vault →</small>
+              </button>
+            ))}
+          {activeSpaces
+            .filter((space) =>
+              `${space.name} ${space.notes}`
+                .toLowerCase()
+                .includes(search.toLowerCase()),
+            )
+            .map((space) => (
+              <button
+                key={space.id}
+                onClick={() => {
+                  setSearch("");
+                  setOpenId(space.id);
+                }}
+              >
+                {space.name}
+                <small>Growing space →</small>
+              </button>
+            ))}
+          <p className="empty-copy">
+            Search checks your saved plants, spaces, and notes.
+          </p>
+        </section>
+      )}
+      {error&&page!=="My Gardens"&&<p role="alert" className="modern-card mb-4">{error}</p>}
+  </>;
+
   return (
+    <>
+    {page !== "Dashboard" && guestNotice}
     <main className="seasonal-page min-h-screen text-[var(--foreground)]">
       <ConservatoryNavigation
         page={page}
@@ -497,54 +554,10 @@ export default function GardenWorkspace({
       />
       <div className="conservatory-content">
         <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-7 lg:px-9">
-          <ConservatoryTopbar
-            location={garden?.location ?? ""}
-            onSearch={setSearch}
-            navigate={navigate}
-          />
+          {page !== "Dashboard" && topbar}
           {isGrowingCalendarDestination(page) && <GrowingCalendarNavigation page={page} navigate={navigate} />}
           {page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} /></section>}
-          {search && (
-            <section className="modern-card search-results">
-              <h2>Search results</h2>
-              {(guestMode ? [] : vault)
-                .filter((plant) =>
-                  `${plant.name} ${plant.variety} ${plant.notes}`
-                    .toLowerCase()
-                    .includes(search.toLowerCase()),
-                )
-                .map((plant) => (
-                  <button
-                    key={plant.id}
-                    onClick={() => navigate("Plant Vault")}
-                  >
-                    {plant.name} · {plant.variety} <small>Plant Vault →</small>
-                  </button>
-                ))}
-              {activeSpaces
-                .filter((space) =>
-                  `${space.name} ${space.notes}`
-                    .toLowerCase()
-                    .includes(search.toLowerCase()),
-                )
-                .map((space) => (
-                  <button
-                    key={space.id}
-                    onClick={() => {
-                      setSearch("");
-                      setOpenId(space.id);
-                    }}
-                  >
-                    {space.name}
-                    <small>Growing space →</small>
-                  </button>
-                ))}
-              <p className="empty-copy">
-                Search checks your saved plants, spaces, and notes.
-              </p>
-            </section>
-          )}
-          {error&&page!=="My Gardens"&&<p role="alert" className="modern-card mb-4">{error}</p>}
+          {page !== "Dashboard" && searchAndError}
           {page === "Dashboard" && (
             <ModernDashboard
               userId={userId}
@@ -557,6 +570,8 @@ export default function GardenWorkspace({
               onGarden={openGarden}
               onNewGarden={startGarden}
               firstGardenSteps={firstGardenSteps}
+              afterHero={guestWarning ? guestNotice : null}
+              afterLead={<div className="home-workspace-tools">{!guestWarning && guestNotice}{topbar}{searchAndError}</div>}
               onSpace={setOpenId}
               onEditExample={id=>{navigate("Garden Layout");setLayoutTemplate(id);setLayoutBed(undefined);}}
               onSignOut={() => void onSignOut()}
@@ -984,5 +999,6 @@ export default function GardenWorkspace({
       {picturesGarden && <Dialog title={`${picturesGarden.name} · ${picturesGarden.year} pictures`} onClose={() => setPicturesGardenId(null)}><GardenPictures key={`${userId}:${picturesGarden.id}`} userId={userId} gardenId={picturesGarden.id} gardenName={picturesGarden.name} embedded /></Dialog>}
       <AddTaskButton userId={userId} floating />
     </main>
+    </>
   );
 }
