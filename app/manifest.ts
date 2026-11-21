@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Garden OS",
-    short_name: "Garden OS",
+    name: "Garden Atelier",
+    short_name: "Garden Atelier",
     description:
       "Your personal growing calendar, plant collection and garden journal",
     start_url: "/",

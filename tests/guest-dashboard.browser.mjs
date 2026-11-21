@@ -44,6 +44,13 @@ try {
   await page.goto(origin);
   await button('Try it as a guest').click();
   await heading('Keep your garden safe').waitFor();
+  const firstHomePanel = page.locator('.modern-dashboard > :first-child');
+  const guestNotice = page.getByRole('region', { name: 'Guest storage' });
+  assert.match(await firstHomePanel.locator('h1').textContent(), /Welcome to\s*Garden Atelier/);
+  assert.equal(await page.locator('.modern-dashboard > .atelier-welcome-banner + .guest-storage-notice').count(), 1);
+  const navigation = page.getByRole('navigation', { name: 'Garden Atelier navigation' });
+  assert.ok((await navigation.boundingBox()).y < (await firstHomePanel.boundingBox()).y);
+  await guestNotice.getByRole('button', { name: 'Save to an account', exact: true }).waitFor();
   await button('Continue as guest').click();
   await heading('What to Plant Now').waitFor();
   await button('Find my growing zone').waitFor();
@@ -51,6 +58,18 @@ try {
   assert.match(order[0].className, /atelier-welcome-banner/);
   assert.equal(order[1].label, 'Your first garden steps');
   assert.equal(order[2].className, 'atelier-planting-lead');
+  assert.equal(await page.locator('.modern-dashboard > .atelier-planting-lead + .home-workspace-tools').count(), 1);
+  assert.equal(await page.locator('.home-workspace-tools .guest-storage-notice').count(), 1);
+  const search = page.getByRole('textbox', { name: 'Search plants and records' });
+  await search.fill('soil');
+  await heading('Search results').waitFor();
+  assert.equal(await page.locator('.home-workspace-tools .search-results').count(), 1);
+  await search.clear();
+  await heading('Search results').waitFor({ state: 'hidden' });
+  if (process.env.GARDEN_HOME_TOP_SCREENSHOT) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: process.env.GARDEN_HOME_TOP_SCREENSHOT, style: '.floating-add-task { visibility: hidden !important; }' });
+  }
   assert.equal(await page.locator('.atelier-welcome-banner').getByText('A little planning. A lot of growing.', { exact: true }).count(), 1);
   assert.equal(await page.locator('.atelier-welcome-note').count(), 0);
   await assertNoLayoutPreview();
@@ -108,6 +127,10 @@ try {
 
   await navigateGarden(page, 'Calendar');
   await heading('Calendar').waitFor();
+  assert.equal(await page.locator('.conservatory-content .modern-topbar').count(), 1);
+  assert.equal(await page.locator('.home-workspace-tools').count(), 0);
+  assert.equal(await page.locator('.modern-dashboard .guest-storage-notice').count(), 0);
+  assert.equal(await guestNotice.count(), 1);
   await button('Add reminder').waitFor();
   assert.equal(await page.getByRole('region', { name: 'Weekly garden emails' }).count(), 0);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

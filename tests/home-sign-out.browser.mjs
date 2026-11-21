@@ -44,6 +44,9 @@ try {
   const footer = page.locator('.modern-dashboard > footer:last-child');
   const signOut = button('Sign out', footer);
   await signOut.waitFor();
+  assert.equal(await page.locator('.modern-dashboard > .atelier-welcome-banner:first-child').count(), 1);
+  assert.equal(await page.locator('.modern-dashboard .home-workspace-tools .modern-topbar').count(), 1);
+  assert.equal(await page.getByRole('region', { name: 'Guest storage' }).count(), 0);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await navigateGarden(page, 'Settings');
   await button('Sign out', page.locator('.settings-card').filter({ has: page.getByRole('heading', { name: 'Garden account' }) })).waitFor();
