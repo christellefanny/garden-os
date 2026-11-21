@@ -52,7 +52,7 @@ function storage(values = {}) {
   };
   return reads;
 }
-const props = { userId: 'guest', gardens: [], spaces: [], allSpaces: [], vault: [], navigate() {}, onGarden() {}, onNewGarden() {}, onSpace() {}, onBed() {}, onVault() {}, onEditExample() {} };
+const props = { userId: 'guest', gardens: [], spaces: [], allSpaces: [], vault: [], navigate() {}, onGarden() {}, onNewGarden() {}, onSpace() {}, onBed() {}, onVault() {}, onEditExample() {}, onSignOut() {} };
 function dashboard(overrides = {}) {
   const { ModernDashboard } = compile('components/ConservatoryUI.tsx');
   return renderToStaticMarkup(React.createElement(ModernDashboard, { ...props, ...overrides }));
@@ -143,6 +143,13 @@ test('signed-in dashboard retains both empty activity cards', () => {
   const html = dashboard({ userId: 'account' });
   assert.match(html, /No scheduled steps this week/);
   assert.match(html, /Your observations belong here/);
+});
+
+test('Home ends with a secondary sign-out button for signed-in accounts only', () => {
+  storage();
+  assert.doesNotMatch(dashboard(), /Sign out/);
+  const html = dashboard({ userId: 'account' });
+  assert.match(html, /<footer[^>]*><button type="button" class="seasonal-outline[^"]*">Sign out<\/button><\/footer><\/div>$/);
 });
 
 function app({ session = null, guest = null, data = null }) {

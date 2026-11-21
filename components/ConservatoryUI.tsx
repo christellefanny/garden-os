@@ -225,6 +225,7 @@ export function ModernDashboard({
   onBed,
   onVault,
   onEditExample,
+  onSignOut,
   firstGardenSteps,
 }: {
   userId: string;
@@ -240,6 +241,7 @@ export function ModernDashboard({
   onBed: (id: string) => void;
   onVault:(query:string)=>void;
   onEditExample:(templateId:string)=>void;
+  onSignOut: () => void;
   firstGardenSteps?: ReactNode;
 }) {
   const { season } = useSeason(),
@@ -561,6 +563,9 @@ export function ModernDashboard({
           </div>
         </section>}
       </div>}
+      {!isGuest && <footer className="mt-6 flex justify-center pb-4">
+        <button type="button" className="seasonal-outline min-h-11 rounded-xl border px-5 py-2" onClick={onSignOut}>Sign out</button>
+      </footer>}
     </div>
   );
 }

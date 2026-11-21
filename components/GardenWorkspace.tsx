@@ -559,6 +559,7 @@ export default function GardenWorkspace({
               firstGardenSteps={firstGardenSteps}
               onSpace={setOpenId}
               onEditExample={id=>{navigate("Garden Layout");setLayoutTemplate(id);setLayoutBed(undefined);}}
+              onSignOut={() => void onSignOut()}
               onVault={query=>{setVaultQuery(query);navigate("Plant Vault");}}
               onBed={(id) => {
                 navigate("Garden Layout");
