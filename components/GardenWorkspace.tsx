@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Dialog from "@/components/ui/Dialog";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GUEST_ID, readGuest, saveGuestSpaces } from "@/lib/guest";
 import { supabase } from "@/lib/supabase";
 import AddTaskButton from "@/components/AddTaskButton";
@@ -155,6 +155,17 @@ export default function GardenWorkspace({
   const [gardenForm, setGardenForm] = useState<"new" | "edit" | null>(
     initialGardens.length ? null : "new",
   );
+  const focusGardenSection = useRef(false);
+  function navigateGardenSection(next: "My Gardens" | "Garden Inspiration") {
+    focusGardenSection.current = true;
+    navigate(next);
+  }
+  function gardenSectionRef(section: HTMLElement | null) {
+    if (section && focusGardenSection.current) {
+      focusGardenSection.current = false;
+      section.focus({ preventScroll: true });
+    }
+  }
   function navigate(next: Destination) {
     if (guestMode && next === "Plant Vault") next = "Dashboard";
     setLayoutTemplate(undefined);
@@ -556,7 +567,10 @@ export default function GardenWorkspace({
         <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-7 lg:px-9">
           {page !== "Dashboard" && topbar}
           {isGrowingCalendarDestination(page) && <GrowingCalendarNavigation page={page} navigate={navigate} />}
-          {page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} /></section>}
+          {page === "Garden Inspiration" && <section className="interior-page" aria-label="Garden Inspiration" tabIndex={-1} ref={gardenSectionRef}>
+            <button type="button" onClick={() => navigateGardenSection("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button>
+            <GardenPictures key="garden-inspiration" userId={userId} collection="inspiration" gardenName="Garden Inspiration" gardens={gardens.map(g => ({ id: g.id, name: g.name }))} />
+          </section>}
           {page !== "Dashboard" && searchAndError}
           {page === "Dashboard" && (
             <ModernDashboard
@@ -679,7 +693,7 @@ export default function GardenWorkspace({
           {page === "Beginner’s Guide" && <GardenLearning key={`${userId}:${page}`} userId={userId} garden={garden} kind="beginner" onFlowerGarden={()=>navigate("Flower Garden")} onPlan={()=>navigate("Garden Layout")} onExplorePlants={()=>{setVaultQuery("");navigate("Plant Vault");}}/>}
           {page === "Flower Garden" && <><button type="button" onClick={()=>navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← Back to My Gardens</button><FlowersPage plants={vault} userId={userId} /></>}
           {page === "My Gardens" && (
-            <section className="interior-page gardens-page">
+            <section className="interior-page gardens-page" aria-label="My Gardens" tabIndex={-1} ref={gardenSectionRef}>
               {gardenPageId && <button type="button" onClick={() => navigate("My Gardens")} className="seasonal-outline mb-2 min-h-11 rounded-lg border px-4 text-sm">← All gardens</button>}
               {gardenPageId && !garden ? <InteriorHeader title="Garden unavailable" eyebrow="Your garden" description="Return to All gardens to choose another garden." /> : <GardenCollection
                 gardens={(gardenPageId && garden ? [garden] : gardens).map((g) => {
@@ -689,6 +703,7 @@ export default function GardenWorkspace({
                 detail={Boolean(gardenPageId)}
                 disabled={busy || !loaded}
                 onBlooms={() => navigate("Flower Garden")}
+                onInspiration={() => navigateGardenSection("Garden Inspiration")}
                 onOpen={openGarden}
                 onNew={() => setGardenForm("new")}
               />}
@@ -736,7 +751,6 @@ export default function GardenWorkspace({
                   {notice}
                 </p>
               )}
-              {firstGardenSteps}
               {gardenPageId && garden && <details className="vault-backup-tools"><summary>Recover older growing spaces</summary>              <LegacySpaces
                 gardenId={gardenId}
                 busy={busy}

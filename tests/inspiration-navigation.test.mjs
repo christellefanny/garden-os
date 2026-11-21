@@ -15,14 +15,16 @@ const js = ts.transpileModule(input, { compilerOptions: { jsx: ts.JsxEmit.ReactJ
 const exports = {};
 vm.runInNewContext(js, { exports, require: id => id === 'next/image' ? ({ src, alt }) => React.createElement('img', { src, alt }) : id === '@/lib/navigation' ? { destinations, navigationDestinations, sidebarDestination } : id.startsWith('@/') ? {} : require(id) });
 
-for (const guest of [false, true]) test(`one inspiration destination with the existing board icon for ${guest ? 'guest' : 'account'}`, () => {
+for (const guest of [false, true]) test(`inspiration belongs to My Gardens for ${guest ? 'guest' : 'account'}`, () => {
   const names = navigationDestinations(guest);
-  assert.equal(names.filter(name => name === 'Garden Inspiration').length, 1);
+  assert.ok(destinations.includes('Garden Inspiration'));
+  assert.ok(!names.includes('Garden Inspiration'));
   assert.ok(!names.includes('Vision Board'));
   assert.ok(!destinations.includes('Vision Board'));
   const html = renderToStaticMarkup(React.createElement(exports.ConservatoryNavigation, { guest, page: 'Garden Inspiration', navigate: () => {}, onSignOut: () => {} }));
   assert.doesNotMatch(html, />Vision Board</);
-  assert.match(html, /aria-current="page"><svg[^>]*><path d="M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z"[^>]*><\/path><\/svg><span>Garden Inspiration<\/span>/);
+  assert.doesNotMatch(html, />Garden Inspiration</);
+  assert.match(html, /aria-current="page"><svg[^>]*><path[^>]*><\/path><\/svg><span>My Gardens<\/span>/);
 });
 
 test('old board bookmarks render Garden Inspiration without another page or data migration', () => {
@@ -30,10 +32,13 @@ test('old board bookmarks render Garden Inspiration without another page or data
   const fromUrl = workspace.match(/function readPageFromUrl\(guest = false\): Destination \{[\s\S]*?\n\}/)[0];
   const pageView = workspace.match(/function pageView\(page: Destination\) \{[\s\S]*?\n\}/)[0];
   const routeJs = ts.transpileModule(pageView + '\n' + fromUrl, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-  for (const guest of [false, true]) {
-    const context = { destinations, guest, window: { location: { search: '?view=vision-board' } }, URLSearchParams };
+  for (const guest of [false, true]) for (const view of ['vision-board', 'garden-inspiration']) {
+    const context = { destinations, guest, window: { location: { search: '?view=' + view } }, URLSearchParams };
     assert.equal(vm.runInNewContext(routeJs + '\nreadPageFromUrl(guest)', context), 'Garden Inspiration');
   }
   assert.doesNotMatch(workspace, /GardenVisionBoard|page === "Vision Board"/);
-  assert.match(workspace, /page === "Garden Inspiration" && <section className="interior-page"><GardenPictures key="garden-inspiration" userId=\{userId\} collection="inspiration" gardenName="Garden Inspiration" gardens=\{gardens.map\(g => \(\{ id: g.id, name: g.name \}\)\)\} \/><\/section>/);
+  assert.match(workspace, /page === "Garden Inspiration"[\s\S]*?navigateGardenSection\("My Gardens"\)[\s\S]*?Back to My Gardens[\s\S]*?<GardenPictures key="garden-inspiration" userId=\{userId\} collection="inspiration"/);
+  assert.match(workspace, /onInspiration=\{\(\) => navigateGardenSection\("Garden Inspiration"\)\}/);
+  assert.match(source('GardenCollection'), /!detail && <section[^>]*aria-labelledby="garden-inspiration-entry-title">[\s\S]*?onClick=\{onInspiration\}>Open Garden Inspiration/);
+  assert.match(source('GardenCollection'), /<path d="M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z"/);
 });

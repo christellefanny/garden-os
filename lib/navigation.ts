@@ -1,4 +1,4 @@
-// Stable route identities: retain Flower Garden for existing bookmarks and stored state.
+// Stable route identities: retain child views for existing bookmarks and stored state.
 export const destinations = [
   "Dashboard", "Beginner’s Guide", "Plant Vault", "Flower Garden",
   "Garden Layout", "My Gardens", "Garden Inspiration", "Growing Calendar", "Flower Corner", "Tasks", "Journal",
@@ -18,9 +18,9 @@ export function isGrowingCalendarDestination(page: Destination): boolean {
 
 export function sidebarDestination(page: Destination): Destination {
   if (isGrowingCalendarDestination(page)) return "Growing Calendar";
-  return page === "Flower Garden" ? "My Gardens" : page;
+  return page === "Flower Garden" || page === "Garden Inspiration" ? "My Gardens" : page;
 }
 
 export function navigationDestinations(guest = false): Destination[] {
-  return destinations.filter(name => name !== "Flower Garden" && name !== "Tasks" && name !== "Journal" && (!guest || name !== "Plant Vault"));
+  return destinations.filter(name => name !== "Flower Garden" && name !== "Garden Inspiration" && name !== "Tasks" && name !== "Journal" && (!guest || name !== "Plant Vault"));
 }

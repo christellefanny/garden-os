@@ -48,6 +48,8 @@ try {
   await page.getByLabel('Garden Name',{exact:true}).fill('My first kitchen garden');
   await page.getByLabel('Hardiness Zone (optional)',{exact:true}).fill('6a');
   await page.getByRole('button',{name:'Save Garden',exact:true}).click();
+  assert.equal(await steps.count(),0,'My Gardens does not repeat Home guidance');
+  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();
   await steps.getByText('Zone 6a',{exact:true}).waitFor();
   await steps.getByRole('button',{name:'Add a bed or container →',exact:true}).click();
   await page.getByLabel('Name',{exact:true}).fill('Kitchen herb bed');
@@ -60,6 +62,7 @@ try {
   await page.getByRole('button',{name:'Save Plant',exact:true}).click();
   await page.getByText('Plant saved.',{exact:true}).waitFor();
   await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+  await page.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();
   await steps.getByRole('button',{name:'Add your first task',exact:true}).click();
   await page.getByLabel('Task',{exact:true}).fill('Check basil soil before watering');
   await page.getByRole('button',{name:'Save task',exact:true}).click();
@@ -89,6 +92,7 @@ try {
   await mobile.screenshot({path:`${out}/create-garden-mobile.png`});
   await mobile.getByLabel('Garden Name',{exact:true}).fill('One small pot');
   await mobile.getByRole('button',{name:'Save Garden',exact:true}).click();
+  await mobile.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Home',exact:true}).click();
   await mobile.getByRole('region',{name:'Your first garden steps'}).getByRole('button',{name:'Add a bed or container →',exact:true}).waitFor();
   await mobile.getByRole('navigation',{name:'Garden Atelier navigation'}).getByRole('button',{name:'Calendar',exact:true}).click();
   await mobile.getByRole('button',{name:'Add your first task',exact:true}).click();

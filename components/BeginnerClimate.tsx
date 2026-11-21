@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import Dialog from "@/components/ui/Dialog";
 import type { Garden } from "@/lib/garden";
 import { friendlyDate, plantingDay, type PlantingClimate } from "@/lib/planting-now";
 import { beginnerClimateKey, beginnerClimateMaxAge, beginnerPriorities, currentBeginnerClimate, loadBeginnerClimate, readBeginnerClimate, type BeginnerGoal, type BeginnerZone } from "@/lib/beginner-climate";
@@ -16,9 +17,13 @@ export default function BeginnerClimate({ userId, garden, goal }: { userId: stri
   const [error, setError] = useState("");
   const [storageNote, setStorageNote] = useState("");
   const [now, setNow] = useState(() => new Date());
+  const [showDetails, setShowDetails] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const detailsButton = useRef<HTMLButtonElement>(null);
+  const locationInput = useRef<HTMLInputElement>(null);
   const request = useRef<AbortController | null>(null);
 
-  const resolve = useCallback(async (input: string, cached?: PlantingClimate) => {
+  const resolve = useCallback(async (input: string, cached?: PlantingClimate, openOnSuccess = false) => {
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
@@ -30,6 +35,7 @@ export default function BeginnerClimate({ userId, garden, goal }: { userId: stri
       setZone(result.zone);
       if (result.climate) {
         setClimate(result.climate); setNow(new Date());
+        if (openOnSuccess) { setEditing(false); setShowDetails(true); }
         try { localStorage.setItem(key, JSON.stringify({ location: input, climate: result.climate })); setStorageNote(""); }
         catch { setStorageNote("This lookup works for this visit, but this browser could not save it."); }
       } else setError(result.error || "Historical frost estimates are unavailable.");
@@ -65,7 +71,8 @@ export default function BeginnerClimate({ userId, garden, goal }: { userId: stri
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!location.trim()) return;
-    void resolve(location.trim());
+    setEditing(true);
+    void resolve(location.trim(), undefined, true);
   }
   const usable = climate && currentBeginnerClimate(climate, now);
   const today = plantingDay(usable, now);
@@ -73,27 +80,56 @@ export default function BeginnerClimate({ userId, garden, goal }: { userId: stri
   const savedZone = resolvedLocation === savedLocation ? garden?.hardiness_zone : null;
   const displayedZone = climate?.zone || zone?.zone || savedZone;
   const frostDate = (value: string | null | undefined) => value ? friendlyDate(`2024-${value}`) : climate ? "No dependable annual date" : busy ? "Looking up…" : "Not available yet";
+  const hasResult = Boolean(climate || zone || savedZone);
+  const place = climate?.place || zone?.place || resolvedLocation;
+  const windowSummary = climate?.lastSpringFrost && climate.firstFallFrost
+    ? `Est. frost-free: ${frostDate(climate.lastSpringFrost)} to ${frostDate(climate.firstFallFrost)}`
+    : climate ? "No dependable annual frost dates" : "Frost dates unavailable";
+  function closeDetails() {
+    setShowDetails(false);
+    requestAnimationFrame(() => detailsButton.current?.focus());
+  }
+  function editLocation() {
+    setEditing(true);
+    requestAnimationFrame(() => locationInput.current?.focus());
+  }
+  function cancelEdit() {
+    setLocation(resolvedLocation);
+    setEditing(false);
+    requestAnimationFrame(() => detailsButton.current?.focus());
+  }
   const forecastAvailable = usable?.forecast.some(day => day.date >= today);
-  return <section className="learning-start" aria-labelledby="beginner-climate-heading">
+  return <section className="learning-start beginner-climate" aria-labelledby="beginner-climate-heading">
     <p className="modern-eyebrow">Your local growing window</p>
     <h2 id="beginner-climate-heading">Know your zone and frost dates</h2>
-    <p className="seasonal-muted text-sm leading-7">{savedLocation ? `Starts with the saved location for ${garden?.name}: ${savedLocation}. You can look up another area below.` : "An optional city and state or U.S. ZIP code is enough to get started. You can keep reading without one."} No device location is requested.</p>
-    <form className="mt-5" onSubmit={submit}>
-      <label>City and state or ZIP code (optional)<input maxLength={120} value={location} onChange={event => setLocation(event.target.value)} placeholder="e.g. Plainfield, IL or 60544" autoComplete="off" /></label>
-      <button type="submit" disabled={busy || !location.trim()} className="seasonal-button disabled:opacity-60">{busy ? "Looking up local timing…" : "Find my growing window"}</button>
-    </form>
-    <p className="seasonal-muted mt-3 text-xs leading-6">Lookup uses U.S. public zone and weather services. Results stay in this browser for this account or guest garden; this does not change your saved garden or Calendar dates.</p>
+    {(!hasResult || editing || busy) && <>
+      <p className="seasonal-muted beginner-climate-intro">{savedLocation ? `Using ${savedLocation} from ${garden?.name}. You can look up another area.` : "Look up local estimates, or keep reading."}</p>
+      <form className="beginner-climate-form" onSubmit={submit}>
+        <label>City and state or ZIP code (optional)<input ref={locationInput} maxLength={120} value={location} onChange={event => setLocation(event.target.value)} placeholder="e.g. Plainfield, IL or 60544" autoComplete="off" /></label>
+        <button type="submit" disabled={busy || !location.trim()} className="seasonal-button disabled:opacity-60">{busy ? "Looking up local timing…" : "Find my growing window"}</button>
+      </form>
+      <p className="seasonal-muted beginner-climate-privacy">Uses public U.S. data, not device location. Results stay in this browser; your garden and calendar won’t change.</p>
+    </>}
     {busy && <p role="status" className="mt-4 text-sm">Finding the growing zone and historical frost estimates…</p>}
-    {error && <p role="alert" className="mt-4 text-sm">{error} {climate ? "Previously saved historical estimates are shown below; the forecast may be unavailable." : "No frost dates have been assumed. You can retry or continue with the general guides."}</p>}
+    {error && <p role="alert" className="mt-4 text-sm">{error} {climate ? "Previously saved estimates are in the growing window details; the forecast may be unavailable." : "No frost dates have been assumed. You can retry or continue with the general guides."}</p>}
     {storageNote && <p role="status" className="mt-3 text-sm">{storageNote}</p>}
-    {(climate || zone || savedZone || busy || error) && <div className="mt-5">
+    {hasResult && !busy && <div className="beginner-climate-summary">
+      <button ref={detailsButton} type="button" className="beginner-climate-summary-button seasonal-outline" aria-haspopup="dialog" onClick={() => setShowDetails(true)}>
+        <span><strong>View growing window</strong><small>{[place, displayedZone && `USDA ${displayedZone}`].filter(Boolean).join(" · ")}</small><small>{windowSummary}</small></span><span aria-hidden="true">›</span>
+      </button>
+      {editing
+        ? <button type="button" className="beginner-climate-change seasonal-link" onClick={cancelEdit}>Cancel location change</button>
+        : <button type="button" className="beginner-climate-change seasonal-link" onClick={editLocation}>Change location</button>}
+    </div>}
+    {hasResult && showDetails && <Dialog title="Your growing window" onClose={closeDetails}>
+    <div>
       <p className="text-sm font-semibold">{climate?.place || zone?.place || resolvedLocation}{climate && ` · ZIP ${climate.zip}`}</p>
       <dl className="mt-4 grid gap-4 sm:grid-cols-3">
         <div className="min-w-0 rounded-xl border p-4"><dt className="text-sm font-bold">Growing zone</dt><dd className="mt-2 text-lg">{displayedZone ? `USDA ${displayedZone}` : "Not available yet"}</dd><dd className="seasonal-muted mt-2 text-xs leading-6">{climate || zone ? "2023 USDA ZIP-area lookup." : savedZone ? "Saved garden zone; not independently verified here." : "Needs a verified location."} Winter cold tolerance, not a planting date. A ZIP code can span more than one zone; confirm your exact garden on the USDA map. {(climate || zone) && <a className="underline" href="https://planthardiness.ars.usda.gov/" target="_blank" rel="noopener noreferrer">USDA source ↗</a>}</dd></div>
         <div className="min-w-0 rounded-xl border p-4"><dt className="text-sm font-bold">Last spring frost</dt><dd className="mt-2 text-lg">{frostDate(climate?.lastSpringFrost)}</dd><dd className="seasonal-muted mt-2 text-xs leading-6">When spring freezing usually eases. Wait for suitable weather and warm soil before planting tender plants outdoors.</dd></div>
         <div className="min-w-0 rounded-xl border p-4"><dt className="text-sm font-bold">First fall frost</dt><dd className="mt-2 text-lg">{frostDate(climate?.firstFallFrost)}</dd><dd className="seasonal-muted mt-2 text-xs leading-6">When autumn freezing may return. Work backward to leave time for growth, harvest, or flowers.</dd></div>
       </dl>
-    </div>}
+    </div>
     {climate && priorities && <>
       <div className="learning-note">
         <strong>Planning estimates, not a frost forecast</strong>
@@ -108,5 +144,6 @@ export default function BeginnerClimate({ userId, garden, goal }: { userId: stri
         <p className="seasonal-muted mt-3 text-xs">Ideas to consider, not tasks added to your garden. Check the variety or seed packet before committing.</p>
       </div>
     </>}
+    </Dialog>}
   </section>;
 }
