@@ -314,7 +314,7 @@ export function ModernDashboard({
       `garden-os-custom-layouts-v1-${userId}-${garden?.id || "planning"}`,
     ).find((layout) => layout.id === selection);
   } catch {}
-  const showPlantingNow = !emptyGuest && (isGuest || !planted.length);
+  const showPlantingNow = isGuest || !planted.length;
   const showSavedLayout = Boolean(selectedCustom || hasSavedLayout);
   const showWeek = !isGuest || tasks.length > 0;
   const showObservations = !isGuest || entries.length > 0;
@@ -324,19 +324,12 @@ export function ModernDashboard({
         <div className="atelier-welcome-copy">
           <p className="atelier-season-label">{seasonContent[season].name} · A season in your garden</p>
           <h1><span>Welcome to</span>Garden Atelier</h1>
-          <span>Plan <b>·</b> Grow <b>·</b> Harvest <b>·</b> Enjoy</span>
+          <p className="atelier-welcome-tagline">A little planning. A lot of growing.</p>
+          <p className="atelier-welcome-description">From your first pot to your next harvest, keep your plans and notes in one place.</p>
         </div>
       </section>
-      {emptyGuest && <div className="guest-discovery-lead"><GuestPlantingNow /></div>}
       {firstGardenSteps}
-      <section className="modern-card atelier-welcome-note" aria-labelledby="atelier-welcome-note-title">
-        <h2 id="atelier-welcome-note-title">A little planning.<br/> A lot of growing.</h2>
-        <div>
-          <p>Garden Atelier grew out of my own garden—and all the ideas, questions, and little things I didn’t want to forget. What did I plant in that bed? Which flowers did I love? What would I try differently next year?</p>
-          <p>I wanted a place to dream up new gardens, keep notes, and remember both the lovely harvests and the lessons along the way. So I created this little corner to bring it all together.</p>
-          <p>Whether you have a few pots or a garden full of plans, I hope you’ll feel at home here. Look around, gather a little inspiration, and make it your own. I’m glad you’re here.</p>
-        </div>
-      </section>
+      {showPlantingNow && <div className="atelier-planting-lead"><GuestPlantingNow /></div>}
       {!emptyGuest && <div className="atelier-home-sections">
         <section className="modern-card atelier-gardens-panel">
           <div className="modern-card-title">
@@ -371,8 +364,7 @@ export function ModernDashboard({
       {userId!=="guest"&&vault.length>0&&<div className="modern-stats dashboard-collection-stats">
         {[["Plants",vault.length],["Flowers",category("Flower")],["Herbs",category("Herb")]].map(([label,count],i)=><button key={label} type="button" onClick={()=>navigate("Plant Vault")}><span className="stat-icon"><LineIcon index={i+1}/></span><span><b>{count}</b><strong>{label}</strong><small>Saved in your collection</small></span><span aria-hidden="true">›</span></button>)}
       </div>}
-      {(showPlantingNow || showSavedLayout || showWeek) && <div className="modern-main-grid">
-        {showPlantingNow && <GuestPlantingNow />}
+      {(showSavedLayout || showWeek) && <div className="modern-main-grid">
         {showSavedLayout ? <section className="modern-card layout-preview">
           <div className="modern-card-title">
             <h2>My Garden Layout</h2>

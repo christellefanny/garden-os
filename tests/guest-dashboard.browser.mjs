@@ -47,14 +47,64 @@ try {
   await button('Continue as guest').click();
   await heading('What to Plant Now').waitFor();
   await button('Find my growing zone').waitFor();
-  assert.equal(await page.locator('.atelier-welcome-banner + .guest-discovery-lead').count(), 1);
+  const order = await page.evaluate(() => [...document.querySelector('.modern-dashboard').children].slice(0, 3).map(element => ({ className: element.className, label: element.getAttribute('aria-label') })));
+  assert.match(order[0].className, /atelier-welcome-banner/);
+  assert.equal(order[1].label, 'Your first garden steps');
+  assert.equal(order[2].className, 'atelier-planting-lead');
+  assert.equal(await page.locator('.atelier-welcome-banner').getByText('A little planning. A lot of growing.', { exact: true }).count(), 1);
+  assert.equal(await page.locator('.atelier-welcome-note').count(), 0);
   await assertNoLayoutPreview();
   assert.equal(await heading('This Week').count(), 0);
   assert.equal(await heading('Recent Observations').count(), 0);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-  if (process.env.GARDEN_GUEST_HOME_SCREENSHOT) {
-    await page.screenshot({ path: process.env.GARDEN_GUEST_HOME_SCREENSHOT, fullPage: true });
+  const assertLayout = async () => {
+    const rects = await page.evaluate(() => [...document.querySelector('.modern-dashboard').children].slice(0, 3).map(element => {
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, height: rect.height };
+    }));
+    assert.ok(rects[0].height <= 325, 'The hero stays compact');
+    assert.ok(rects[0].bottom <= rects[1].top && rects[1].bottom <= rects[2].top, 'Sections do not overlap and are in visual order');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  };
+  const section = page.getByRole('region', { name: 'What to Plant Now', exact: true });
+  const rows = section.getByRole('button', { name: /^Explore / });
+  const assertCompactPlants = async () => {
+    assert.equal(await rows.count(), 3);
+    for (const row of await rows.all()) {
+      const box = await row.boundingBox();
+      assert.ok(box.height >= 44 && box.height <= 72, 'Plant button is compact and touch friendly');
+      assert.equal(await row.locator('img[alt=""]').count(), 1);
+      assert.equal(await row.locator('strong').count(), 1);
+      assert.equal(await row.locator('small').count(), 0);
+      assert.equal(await row.locator('span[aria-hidden="true"]').textContent(), '›');
+      assert.doesNotMatch(await row.textContent(), /Check local timing|Vegetable|Flower|Herb/);
+    }
+    const first = rows.first();
+    const name = await first.locator('strong').textContent();
+    await first.click();
+    const dialog = page.getByRole('dialog', { name, exact: true });
+    await dialog.getByRole('heading', { name: 'Is there still time?', exact: true }).waitFor();
+    await dialog.getByText('Check local timing', { exact: true }).waitFor();
+    await dialog.getByText(/^(Vegetable|Flower|Herb)$/).waitFor();
+    await dialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
+    await dialog.waitFor({ state: 'hidden' });
+  };
+  await assertLayout();
+  await assertCompactPlants();
+  await section.scrollIntoViewIfNeeded();
+  if (process.env.GARDEN_PLANTING_SECTION_SCREENSHOT) {
+    await section.screenshot({ path: process.env.GARDEN_PLANTING_SECTION_SCREENSHOT, style: ".floating-add-task { visibility: hidden !important; }" });
   }
+  if (process.env.GARDEN_GUEST_HOME_SCREENSHOT) {
+    await page.locator('.modern-dashboard').screenshot({ path: process.env.GARDEN_GUEST_HOME_SCREENSHOT });
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await assertLayout();
+  await assertCompactPlants();
+  if (process.env.GARDEN_GUEST_HOME_DESKTOP_SCREENSHOT) {
+    await page.locator('.modern-dashboard').screenshot({ path: process.env.GARDEN_GUEST_HOME_DESKTOP_SCREENSHOT });
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
 
   await navigateGarden(page, 'Calendar');
   await heading('Calendar').waitFor();

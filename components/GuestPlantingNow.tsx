@@ -6,8 +6,8 @@ import Dialog from "@/components/ui/Dialog";
 import { friendlyDate, plantingDay, plantingSuggestions, validClimate, type PlantingAdvice, type PlantingClimate } from "@/lib/planting-now";
 
 const KEY="garden-atelier-guest-planting-location-v1";
-function PlantPicture({ id, name }: {id:string;name:string}) {
-  return <Image src={`/planting-now/${id}.webp`} alt={`Botanical illustration of ${name.toLowerCase()}`} width={640} height={640} sizes="(max-width:600px) 100px, 160px" />;
+function PlantPicture({ id, name, compact = false }: {id:string;name:string;compact?:boolean}) {
+  return <Image src={`/planting-now/${id}.webp`} alt={compact ? "" : `Botanical illustration of ${name.toLowerCase()}`} width={640} height={640} sizes={compact ? "(max-width:700px) 42px, 48px" : "(max-width:600px) 100px, 160px"} />;
 }
 export default function GuestPlantingNow() {
   const [climate,setClimate]=useState<PlantingClimate>();
@@ -64,8 +64,8 @@ export default function GuestPlantingNow() {
     {busy && <p role="status" className="guest-planting-note">Finding your zone and local climate…</p>}
     {error && !locationOpen && <p role="alert" className="guest-planting-note">{error} <button className="seasonal-link" type="button" onClick={()=>setLocationOpen(true)}>Try a ZIP code</button></p>}
     <div className="guest-plant-suggestions">{shown.map(advice=><button key={advice.crop.id} type="button" className="guest-plant-row" onClick={()=>setSelected(advice)} aria-label={`Explore ${advice.crop.name}`}>
-      <span className="guest-plant-thumb"><PlantPicture id={advice.crop.id} name={advice.crop.name}/></span>
-      <span><strong>{advice.crop.name}</strong><small>{advice.badge}</small><span className="guest-plant-kind">{advice.crop.kind}</span></span><span aria-hidden="true">›</span>
+      <span className="guest-plant-thumb"><PlantPicture id={advice.crop.id} name={advice.crop.name} compact/></span>
+      <strong>{advice.crop.name}</strong><span aria-hidden="true">›</span>
     </button>)}
     {!shown.length && <p className="guest-planting-note">Outdoor planting is limited here right now. Browse the plant guides to plan your next window.</p>}
     </div>{!climate && <p className="guest-planting-note">Plant ideas to explore—not local recommendations yet.</p>}
