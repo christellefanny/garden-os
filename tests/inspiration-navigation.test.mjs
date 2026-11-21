@@ -27,7 +27,7 @@ for (const guest of [false, true]) test(`inspiration belongs to My Gardens for $
   assert.match(html, /aria-current="page"><svg[^>]*><path[^>]*><\/path><\/svg><span>My Gardens<\/span>/);
 });
 
-test('old board bookmarks render Garden Inspiration without another page or data migration', () => {
+test('old board bookmarks render Inspiration Board without another page or data migration', () => {
   const workspace = source('GardenWorkspace');
   const fromUrl = workspace.match(/function readPageFromUrl\(guest = false\): Destination \{[\s\S]*?\n\}/)[0];
   const pageView = workspace.match(/function pageView\(page: Destination\) \{[\s\S]*?\n\}/)[0];
@@ -39,6 +39,6 @@ test('old board bookmarks render Garden Inspiration without another page or data
   assert.doesNotMatch(workspace, /GardenVisionBoard|page === "Vision Board"/);
   assert.match(workspace, /page === "Garden Inspiration"[\s\S]*?navigateGardenSection\("My Gardens"\)[\s\S]*?Back to My Gardens[\s\S]*?<GardenPictures key="garden-inspiration" userId=\{userId\} collection="inspiration"/);
   assert.match(workspace, /onInspiration=\{\(\) => navigateGardenSection\("Garden Inspiration"\)\}/);
-  assert.match(source('GardenCollection'), /!detail && <section[^>]*aria-labelledby="garden-inspiration-entry-title">[\s\S]*?onClick=\{onInspiration\}>Open Garden Inspiration/);
+  assert.match(source('GardenCollection'), /!detail && <section[^>]*aria-labelledby="garden-inspiration-entry-title">[\s\S]*?onClick=\{onInspiration\}>Open Inspiration Board/);
   assert.match(source('GardenCollection'), /<path d="M3 3h8v10H3ZM15 3h6v6h-6ZM3 17h8v4H3ZM15 13h6v8h-6Z"/);
 });
